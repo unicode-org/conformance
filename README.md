@@ -24,7 +24,7 @@ libraries. Many additional tests are implmeneted in the
 
 ## Architectural Overview
 
-Conceptually, there are three large functional units of the DDT implementation:
+Conceptually, there are three main functional units of the DDT implementation:
 
 ![Conceptual model of Data Driven Testing](./ddt_concept_model.png)
 
@@ -36,8 +36,13 @@ towards data driven testing, is in many cases formatted in a way to simplify
 adding new tests, and contains edge and error cases.
 
 Data generation creates two files:
-* Test data instance: a JSON file functions and parameters to be applied to the
-  given data. The test type is given once and data tests are stored as an array.
+* Test data instance: a JSON file containing the type of test and additional
+  information on the environment and version of data.
+
+The test type is indicated with the "Test scenario" field.
+
+Individual data tests are stored as an array of items, each with a label and
+paramters to be set for computing a result.
 
   Example line for coll_shift_short:
   ```
@@ -90,17 +95,17 @@ Each test is matched with the corresponding data from the required test
 results. A report of the test results is generated. Several kinds of status
 values are possible for each test item:
 
-* Success: the actual result agrees with
-expected results
-* Failure: a result is generated, but the result is not the same
-as the expected value.
-* No test run: The test was not executed by the test
-implementation for the data item
-* Error: the test resulted in an exception or
-other behavior not anticipated for the test case
+* Success: the actual result agrees with expected results
+* Failure: a result is generated, but the result is not the same as the expected
+value.
+* No test run: The test was not executed by the test implementation for the data
+item
+* Error: the test resulted in an exception or other behavior not anticipated for
+the test case
 
 ### Open questions for the verifier:
-* What should bedone if the test driver fails to complete? How can this be determined?
+* What should bedone if the test driver fails to complete? How can this be
+  determined?
 
     * Proposal: each test execution shall output a completion message,
 indicating that the test driver finished its execution normally, i.e., did not
@@ -108,22 +113,22 @@ crash.
 
 # How to use DDT:
 
-In its first implementation, Data Driven Test uses data files
-formatted with JSON structures describing tests and parameters. The data
-directory string is set up as follows:
+In its first implementation, Data Driven Test uses data files formatted with
+JSON structures describing tests and parameters. The data directory string is
+set up as follows:
 
 ## A directory testData containing:
-  ** test data files for each type of test, e.g., collation, numberformat,
+  * Test data files for each type of test, e.g., collation, numberformat,
   displaynames, etc. Each file contains tests with a label, input, and
   parameters.
-  ** verify files for each test type. Each contains a list of test labels and
-  expected results from the tests. These correspond to the labels in test data.
+  * Verify files for each test type. Each contains a list of test labels and
+  expected results from the corresponding tests.
 
 ## Directory testResults
 
-This contains a subdirectory for each executor. The output file from each test is
-store in thes appropriate subdirectory. Each test result contains the label of
-the test and the result of the test. This may be a boolean or a formatted
+This contains a subdirectory for each executor. The output file from each test
+is store in thes appropriate subdirectory. Each test result contains the label
+of the test and the result of the test. This may be a boolean or a formatted
 string.
 
 The results file contains information on the test enciroment as well as the

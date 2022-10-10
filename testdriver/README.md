@@ -15,19 +15,27 @@ The test driver program is run by specifying commanand line parameters that defi
 
 These are the Python3 modules that implement the test driver functions:
 
-* testDriver.py: 
+### testDriver.py: 
 
-The main routine running tests. It accepts a command line that contains information on the tests to be run, locations of files, and parameters for running the tests. See *ddtargs.py* for command line arguments.
+The main routine running tests. It accepts a command line that contains
+information on the tests to be run, locations of files, and parameters for
+running the tests. See *ddtargs.py* for command line arguments.
 
-testDriver uses command line values to locate standard test data locations and execution parameters. It uses information in *datasets.py* if test names and executors are pre-defined.
+testDriver uses command line values to locate standard test data locations and
+execution parameters. It uses information in *datasets.py* if test names and
+executors are pre-defined.
 
-The sample scripts runColl_node.sh and runColl_rust.sh illustrate the use of expected *exec* programs and standard tests.
+The sample scripts runColl_node.sh and runColl_rust.sh illustrate the use of
+expected *exec* programs and standard tests.
 
-testDriver can also accept data inputs and executor program information that is not built in. The script *runColl_python.sh* illustrates calling a program in a location that is not pre-defined in datasets.py.
+testDriver can also accept data inputs and executor program information that is
+not built in. The script *runColl_python.sh* illustrates calling a program in a
+location that is not pre-defined in datasets.py.
 
-* ddtargs.py
+### ddtargs.py
 
-This module defines parameters needed for locating and running test executors and the test data associated.
+This module defines parameters needed for locating and running test executors
+and the test data associated.
 
 ```
 python3 testdriver.py --help
@@ -69,27 +77,33 @@ options:
   --custom_verifier CUSTOM_VERIFIER
 ```
 
-* datasets.py
+### datasets.py
 
-This file has structures that expand command line values *test_type* and *exec* to test files and known executors, if they are recognized. This makes it easy to create compact command lines for *testdriver.py*.
+This file has structures that expand command line values *test_type* and *exec*
+to test files and known executors, if they are recognized. This makes it easy to
+create compact command lines for *testdriver.py*.
 
-* testplan.py
+### testplan.py
 
-The values assembled by testdriver for data sets and executors are turned into test plans that are implemented by *testplan.py*. For example, the command line may include:
+The values assembled by testdriver for data sets and executors are turned into
+test plans that are implemented by *testplan.py*. For example, the command line
+may include:
 
 ```
   --test_type coll_shift_short displaynames number_fmt
   
-  --exec rust node
+  --exec rust nodejs
 ```
 This will be expanded into 6 testplans, 3 for each executor:
-    * nodejs with coll_shift_short
-    * nodejs with displaynames
-    * nodejs with number_fmt
-    * rust with coll_shift_short
-    * rust with displaynames
-    * rust with number_fmt
 
-These 6 test plans will be executed individually, producing output in the respective testResults directories for nodejs and rust.
+* nodejs with coll_shift_short
+* nodejs with displaynames
+* nodejs with number_fmt
+* rust with coll_shift_short
+* rust with displaynames
+* rust with number_fmt
+
+These 6 test plans will be executed individually, producing output in the
+respective testResults directories for nodejs and rust.
 
 They may be executed serially or in parallel (to be implemented.)
