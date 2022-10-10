@@ -127,13 +127,13 @@ set up as follows:
 ## Directory testResults
 
 This contains a subdirectory for each executor. The output file from each test
-is store in thes appropriate subdirectory. Each test result contains the label
+is stored in thes appropriate subdirectory. Each test result contains the label
 of the test and the result of the test. This may be a boolean or a formatted
 string.
 
-The results file contains information on the test enciroment as well as the
-result from each test. Collation test results from the testResults/node file are
-shown here:
+The results file contains information identifying the test environment as well
+as the result from each test. As an example, collation test results from the
+testResults/node file are shown here:
 
 ```
 {
