@@ -177,9 +177,9 @@ a minimum, each report will contain:
 * Date and time of the test
 * Execution informtion, from the testResults directory
 * Total number of tests executed
-* Total number of test failing
+* Total number of tests failing
 * Total number of tests succeeding
-* Number of exceptions indeitifed in the test execution. This may include
+* Number of exceptions indentifed in the test execution. This may include
   information on tests that could not be executed, along with the reasons
   for the problems.
 * Analysis of test failures, if available. This may include summaries of string
