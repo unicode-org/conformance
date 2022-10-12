@@ -247,9 +247,10 @@ class TestPlan():
       if linesInBatch >= testsPerExecution:
         # Time to send the batch
         result = self.processBatchOfTests(testLines)
-        allTestResults.extend(result)
+        if result:
+          allTestResults.extend(result)
 
-        if not result:
+        else:
           numErrors += 1
           print('!!!!!!  "platform error": "%s",\n' % self.run_error_message)
 
@@ -377,7 +378,7 @@ class TestPlan():
       if not result.returncode:
         return result.stdout
       else:
-        print('$$$$$$$$$$$$$$$$ ---> %s' % result.returncode)
+        print('$$$$$$$$$$$$$$$$ return code = %s' % result.returncode)
         print('    ----> INPUT LINE= >%s<' % input_line)
         print('    ----> STDOUT= >%s<' % result.stdout)
         self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' %(
