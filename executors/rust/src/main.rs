@@ -23,7 +23,7 @@ use serde_json::{json, Value};
 use std::env;
 use std::io::{self};
 use std::panic;
-// !!! use std::io::{self, Write};
+
 use substring::Substring;
 
 // Test modules for each type
@@ -38,11 +38,9 @@ fn main() -> io::Result<()> {
     let mut buffer = String::new();
 
     loop {
-        io::stdin().read_line(&mut buffer).unwrap(); // ?
-
-        // DEBUG: println!("# BUFFER received = {}", buffer);
-        if buffer.len() <= 0 {
-            continue;
+        let buffer_size = io::stdin().read_line(&mut buffer)?;
+        if buffer_size <= 0 {
+            break;
         }
         if &buffer.substring(0, 5) == &"#EXIT" {
             break;
@@ -69,7 +67,6 @@ fn main() -> io::Result<()> {
                     "icuVersion": icu_version,
                     "cldrVersion": cldr_version,
                 });
-                // !!io::stdout().write_all(&json_result.to_string());
                 println!("{}", json_result.to_string());
             } else {
                 let json_result = json!(
@@ -80,11 +77,11 @@ fn main() -> io::Result<()> {
                         "cldrVersion": "unknown",
                     }
                 );
-                // io::stdout().write_all(&json_result.to_string());
-                println!("RESULT{}", json_result.to_string());
+                // DEBUG: println!("# RESULT returned = {}", json_result.to_string());
+                println!("{}", json_result.to_string());
             }
         } else {
-            // Test data expected in form of JSON data in a single line.
+            // Expecting test information as JSON data in a single line.
 
             //  https://stackoverflow.com/questions/30292752/how-do-i-parse-a-json-file
             let json_info: Value = serde_json::from_str(&buffer)?;
@@ -93,8 +90,7 @@ fn main() -> io::Result<()> {
 
             if test_type == "coll_shift_short" {
                 run_coll_test(&json_info);
-            } else if (test_type == "decimal_fmt") ||
-                (test_type == "number_fmt") {
+            } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 run_numberformat_test(&json_info);
             } else {
                 println!("# NO CASE FOR test_type: {}", test_type);
@@ -102,7 +98,6 @@ fn main() -> io::Result<()> {
             // TODO: The output should be done from the main routine, not
             // individual routines.
         }
-
         // Empty the input buffer
         buffer.clear();
     }
