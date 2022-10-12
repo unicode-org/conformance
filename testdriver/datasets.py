@@ -216,7 +216,7 @@ allExecutors.addSystem(system, NodeVersion.Node18,
 
 system = ExecutorLang.RUST.value
 allExecutors.addSystem(system, RustVersion.Rust1,
-                       '../executors/rust/executor/target/release/executor',
+                       '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = "newLanguage"
