@@ -87,7 +87,7 @@ to set up the function call the the particular test.
 For each test, the needed functions and other objects are created and the test
 is executed. Results are saved to a JSON output file.
 
-See [executors/README][./executors/README.md] for more details
+See [executors/README](./executors/README.md) for more details
 
 ## Verification:
 
