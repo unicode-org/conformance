@@ -4,17 +4,21 @@ import json
 import os
 import sys
 
+sys.path.append('../testdriver')
+
+import datasets as ddtData
+from ddtargs import VerifyArgs
+
 from testreport import TestReport
 
 class Verifier():
-  def __init__(self, test_type, result_path, verify_path, report_path=None):
+  def __init__(self):
     self.debug = True
     self.report = TestReport()
-    self.test_type = test_type
-    self.result_path = result_path
-    self.verify_path = verify_path
-    self.report_path = report_path
 
+    self.options = None
+
+  def verify(self):
     try:
       self.result_file = open(self.result_path, encoding='utf-8', mode='r')
     except BaseException as err:
@@ -40,6 +44,51 @@ class Verifier():
 
     self.results = None
     self.expected = None
+
+  def parseArgs(self, args):
+    # Initialize commandline arguments
+    verifyInfo = VerifyArgs(args)
+    if self.debug:
+      print('!!! ARGS = %s' % args)
+      print('VERIFY INFO: %s' % verifyInfo)
+    self.setVerifyArgs(verifyInfo.getOptions())
+
+  def setVerifyArgs(self, argOptions):
+    self.options = argOptions
+    self.test_types = argOptions.test_type
+    self.test_type = self.test_types[0]
+
+    # TODO: Run for each test_type!
+    if self.test_type not in ddtData.testDatasets:
+      print('**** WARNING: test_type %s not in testDatasets' %
+            self.test_type)
+      raise ValueError('No test dataset found for test type >%s<' %
+                       self.test_type)
+    else:
+      # Create a test plan based on data and options
+      self.testData = ddtData.testDatasets[self.test_type]
+
+    self.verify_file_names = argOptions.verify_file_name
+    self.verify_file_name = self.verify_file_names[0]
+
+    self.file_base = argOptions.file_base
+    if self.debug:
+      print('TEST TYPES = %s' % self.test_types)
+      print('VERIFY_FILES = %s' % self.verify_file_names)
+
+    # Set the name of the file with verify data. These files are
+    # usually in the same directory as the test data files.
+    self.verify_file_path = os.path.join(self.file_base,
+                                         self.options.input_path,
+                                         self.verify_file_name)
+
+    self.result_path = os.path.join(self.file_base,
+                                    self.options.output_path,
+                                    self.testData.testDataFilename)
+
+    self.verify_path = os.path.join(self.file_base,
+                                    self.options.report_path,
+                                    self.testData.testDataFilename)
 
   def compareTestToExpected(self):
     # Get the JSON data for results
@@ -155,6 +204,36 @@ class Verifier():
     # !!! TODO: something
     return
 
+  def verifyData(self):
+    if self.debug:
+      print('******* FILE BASE = %s' % self.file_base)
+
+    ### TEMPORARY
+    exec = 'nodejs'
+
+    index = 0
+    for test_type in self.test_types:
+      print('*** TEST_TYPE = %s' % test_type)
+      print('    VERIFY FILE = %s' % self.verify_file_names[index])
+      self.setupPaths(exec, test_type, self.verify_file_names[index])
+      # TODO: Verify the results
+      result = self.compareTestToExpected()
+      index += 1
+
+  def setupPaths(self, exec, testfile, verifyfile):
+    baseDir = self.file_base
+    if self.debug:
+      print('&&& FILE BASE = %s' % baseDir)
+      self.resultPath = os.path.join(
+          baseDir, 'testResults', exec, testfile)
+      self.verifyPath = os.path.join(
+          baseDir, 'testData', verifyfile)
+      self.reportPath = os.path.join(
+          baseDir, 'testReports', exec, testfile)
+    if self.debug:
+      print('RESULT PATH = %s' % self.resultPath)
+      print('VERIFY PATH = %s' % self.verifyPath)
+      print('RESULT PATH = %s' % self.resultPath)
 
 class Tester():
   def __init__(self, title=None):
@@ -164,13 +243,15 @@ class Tester():
 
   def setupPathsAndRun(self, exec, testfile, verifyfile):
     baseDir = '.'
-    resultPath = os.path.join(baseDir, 'testResults', exec, testfile)
-    verifyPath = os.path.join(baseDir, 'testData', verifyfile)
-    reportPath = os.path.join(baseDir, 'testReports', exec, testfile)
+    self.resultPath = os.path.join(baseDir, 'testResults', exec, testfile)
+    self.verifyPath = os.path.join(baseDir, 'testData', verifyfile)
+    self.reportPath = os.path.join(baseDir, 'testReports', exec, testfile)
+    if self.debug:
+      print('RESULT PATH = %s' % resultPath)
+      print('VERIFY PATH = %s' % verifyPath)
+      print('RESULT PATH = %s' % resultPath)
 
-    self.verifier = Verifier(self.test_type, resultPath, verifyPath, reportPath)
-
-    result = self.verifier.compareTestToExpected()
+    result = self.verify()
 
     self.printResult()
 
@@ -202,8 +283,8 @@ class Tester():
     print('  Report: %s' % reportData)
 
 
-# For testing
-def main(args):
+# Test basic verifier functions
+def runVerifierTests(verifier):
   execs = ['nodejs', 'rust']
 
   for exec in execs:
@@ -215,6 +296,21 @@ def main(args):
 
     testerDisplayNames = Tester()
     testerDisplayNames.displayNamesExec(exec)
+
+
+# For testing
+def main(args):
+
+  verifier = Verifier()
+  verifier.parseArgs(args[1:])
+
+  if verifier.options.test_verifier:
+    # Simply run tests on the verify. No real data
+    runVerifierTests(verifier)
+    return
+
+  # Run the tests on the provided parameters.
+  verifier.verifyData()
 
 
 if __name__ == '__main__':
