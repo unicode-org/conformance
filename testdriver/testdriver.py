@@ -64,7 +64,6 @@ class TestDriver():
 
           try:
             testData = ddtData.testDatasets[test_type]
-            print('#### testData[%s] = %s' % (test_type, testData))
             newPlan.setTestData(testData)
           except KeyError as err:
             print('!!! No test data filename for %s' % test_type)
@@ -80,9 +79,9 @@ class TestDriver():
     #     to execute tests and verify results.
 
     # Get all the arguments
-    argparse = ddtargs.DdtArgs()
-    argparse.parse(args)
-    # DEBUG print('OPTIONS: %s' % argparse.getOptions())
+    argparse = ddtargs.DdtArgs(args)
+    if self.debug:
+      print('OPTIONS: %s' % argparse.getOptions())
 
     # Now use the argparse.options to set the values in the driver
     self.setArgs(argparse.getOptions())
@@ -101,6 +100,7 @@ class TestDriver():
 def main(args):
 
   driver = TestDriver()
+  print('ARGS = %s' % (args))
   driver.parseArgs(args[1:])
 
   driver.runPlans()

@@ -309,8 +309,8 @@ class TestPlan():
               json_out = json.loads(item)
               batchOut.append(json_out)
             except BaseException as error:
-              print('   && Item %s. Error in= %s. Received: >%s<' %
-                    (index, error, item))
+              print('   && Item %s. Error in= %s. Received (%d): >%s<' %
+                    (index, error, len(item), item))
         index += 1
 
     return batchOut
@@ -377,7 +377,7 @@ class TestPlan():
       if not result.returncode:
         return result.stdout
       else:
-        print('$$$$$$$$$$$$$$$$ ---> %s' % result.returncode)
+        print('$$$$$$$$$$$$$$$$ ---> return code: %s' % result.returncode)
         print('    ----> INPUT LINE= >%s<' % input_line)
         print('    ----> STDOUT= >%s<' % result.stdout)
         self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' %(

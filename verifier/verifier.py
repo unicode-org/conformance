@@ -13,33 +13,31 @@ from testreport import TestReport
 
 class Verifier():
   def __init__(self):
-    self.debug = True
-    self.report = TestReport()
+    self.debug = 2  # Different levels
+    self.report = None
+    self.reports = []
 
     self.options = None
+    # Set of [result filepath, verify filepath, report path]
+    self.test_plan = None
 
-  def verify(self):
+  def openVerifyFiles(self):
     try:
       self.result_file = open(self.result_path, encoding='utf-8', mode='r')
     except BaseException as err:
-      print('*** Cannot open results file %s: err = %s' % (result_path, err))
+      print('*** Cannot open results file %s: err = %s' % (self.result_path, err))
       return None
 
     try:
       self.verify_data_file = open(self.verify_path, encoding='utf-8', mode='r')
     except BaseException as err:
-      print('**!!* Cannot open verify file %s' % (self.verify_path,))
+      print('**!!* Cannot open verify file %s' % (self.verify_path))
       return None
 
-    # Default filename for report
-    self.report_filename = os.path.split(result_path)[-1]
     try:
-      if not report_path:
-        report_directory = os.path.commonprefix(result_path, verify_path)
-        self.report_path = os.path.join(report_directory, self.report_filename)
-        self.report_file = open(self.report_filename, encoding='utf-8', mode='w')
+      self.report_file = open(self.report_path, encoding='utf-8', mode='w')
     except BaseException as err:
-      print('*** Cannot open verify file %s' % (self.report_filename,))
+      print('*** Cannot open file %s: Error = %s' % (self.report_path, err))
       return None
 
     self.results = None
@@ -56,64 +54,117 @@ class Verifier():
   def setVerifyArgs(self, argOptions):
     self.options = argOptions
     self.test_types = argOptions.test_type
-    self.test_type = self.test_types[0]
-
-    # TODO: Run for each test_type!
-    if self.test_type not in ddtData.testDatasets:
-      print('**** WARNING: test_type %s not in testDatasets' %
-            self.test_type)
-      raise ValueError('No test dataset found for test type >%s<' %
-                       self.test_type)
-    else:
-      # Create a test plan based on data and options
-      self.testData = ddtData.testDatasets[self.test_type]
+    # Create a set of verifications based on exec and test_type
 
     self.verify_file_names = argOptions.verify_file_name
-    self.verify_file_name = self.verify_file_names[0]
-
     self.file_base = argOptions.file_base
     if self.debug:
       print('TEST TYPES = %s' % self.test_types)
       print('VERIFY_FILES = %s' % self.verify_file_names)
 
-    # Set the name of the file with verify data. These files are
-    # usually in the same directory as the test data files.
-    self.verify_file_path = os.path.join(self.file_base,
-                                         self.options.input_path,
-                                         self.verify_file_name)
+    self.setupVerifyPlans()
 
-    self.result_path = os.path.join(self.file_base,
-                                    self.options.output_path,
-                                    self.testData.testDataFilename)
+  def setupVerifyPlans(self):
+    # Set of [result file, verify file]
+    self.test_plan = []
+    for exec in self.options.exec:
+      test_type_index = 0
+      for test_type in self.test_types:
 
-    self.verify_path = os.path.join(self.file_base,
-                                    self.options.report_path,
-                                    self.testData.testDataFilename)
+        # TODO: Run for each test_type!
+        if test_type not in ddtData.testDatasets:
+          print('**** WARNING: test_type %s not in testDatasets' %
+                test_type)
+          raise ValueError('No test dataset found for test type >%s<' %
+                           self.test_type)
+        else:
+          # Create a test plan based on data and options
+          self.testData = ddtData.testDatasets[test_type]
 
-  def compareTestToExpected(self):
+          verify_file_name = self.verify_file_names[test_type_index]
+
+        # Set the name of the file with verify data. These files are
+        # usually in the same directory as the test data files.
+        verify_file_path = os.path.join(self.file_base,
+                                        self.options.input_path,
+                                        verify_file_name)
+
+        # Where the results are, under the exec path.
+        result_path = os.path.join(self.file_base,
+                                   self.options.output_path,
+                                   exec,
+                                   self.testData.testDataFilename)
+
+        report_path = os.path.join(self.file_base,
+                                   self.options.report_path,
+                                   exec,
+                                   self.testData.testDataFilename)
+
+        # The test report to use for verification summary.
+        new_report = TestReport()
+        new_report.report_file_path = report_path
+
+        self.test_plan.append((result_path, verify_file_path, report_path, new_report))
+        if self.debug:
+          print('++++ TEST PLAN [%d] = \n  %s' % (test_type_index,
+                                                  self.test_plan[test_type_index]))
+
+        test_type_index += 1
+
+
+  def verifyDataResults(self):
+    # For each pair of files in the test plan, compare with expected
+    index = 0
+    for paths in self.test_plan:
+      self.result_path = paths[0]
+      self.verify_path = paths[1]
+      self.report_path = paths[2]
+      self.report = paths[3]
+
+      self.test_type = self.test_types[index]
+      if self.debug:
+        print('$$$$$ VERIFY PLAN[%d] = %s' % (index, paths))
+      self.openVerifyFiles()
+      self.compareTestToExpected()
+      index += 1
+
+      # Save the results
+      self.report.saveReport()
+
+  def getResultsAndVerifyData(self):
     # Get the JSON data for results
     try:
       self.resultData = json.loads(self.result_file.read())
+      self.results = self.resultData['tests']
     except BaseException as err:
       sys.stderr.write('Cannot load %s result data: %s' % (self.result_path, err))
       return None
+    if self.debug:
+      print('^^^ Result file has %d entries' % (len(self.results)))
     self.result_file.close()
 
     try:
       self.verifyData = json.loads(self.verify_data_file.read())
+      self.verifyExpected = self.verifyData['verifications']
     except BaseException as err:
       sys.stderr.write('Cannot load %s verify data: %s' % (self.verify_path, err))
       return None
     self.verify_data_file.close()
+    if self.debug:
+      print('^^^ Verification file has %d entries' % (len(self.verifyExpected)))
 
-    # Compare each results with the apprpriate verification data.
+    # Sort results and verify data by the label
     try:
-      self.results = self.resultData['tests']
+      self.results.sort(key=lambda x: x['label'])
     except BaseException as err:
-      sys.stderr.write('No tests in result %s, Error = %s' % (self.result_path, err))
-      return None
+      sys.stderr.write('!!! Cannot sort test results by label: %s' % err)
+      sys.stderr.flush()
 
-    # TODO: !!! Sort by label value
+    try:
+      self.verifyExpected.sort(key=lambda x: x['verify'])
+    except BaseException as err:
+      sys.stderr.write('!!! Cannot sort verify data by verify id: %s' % err)
+      sys.stderr.flush()
 
     if 'platform_error' in self.resultData:
       print('PLATFORM ERROR: %s' % self.resultData['platform error'])
@@ -128,39 +179,32 @@ class Verifier():
       except BaseException as err:
         sys.stderr.write('### Missing fields %s, Error = %s' % (self.resultData, err))
 
-      try:
-        self.expected = self.verifyData['verifications']
-        # self.expected = sort(self.verifyData['verifications'],
-        #                     key=lambda item: item['label'])
-      except BaseException as err:
-        sys.stderr.write('No verifications in verify %s' % self.result_path)
-
+  def compareTestToExpected(self):
+    self.getResultsAndVerifyData()
     verifyIndex = 0
 
-    if not self.expected:
+    if not self.verifyExpected:
       sys.stderr.write('No expected data in %s' % self.verify_path)
       return None
 
     if not self.results:
       print('*$*$*$*$* self.results = %s' % self.results)
-
       return None
 
-    for testStr in self.results:
-      if not testStr:
-        print('@@@@@ no test string: %s of %s' % (testStr, len(self.results)))
-      if self.debug:
-        print('*$*$*$*$* testStr = %s' % testStr)
-
-      test = testStr  # What's up?
-      #test = json.loads(testStr)  # !!! This should not be necessary
+    # Loop over all results found, comparing with the expected result.
+    for test in self.results:
+      if not test:
+        print('@@@@@ no test string: %s of %s' % (test, len(self.results)))
+      if self.debug > 2:
+        print('*$*$*$*$* test result = %s' % test)
 
       # Get the result
       try:
         actual_result = test['result']
         test_label = test['label']
       except:
-        print('^^^^^ SKIPPING: Error with test results: %s' % testStr)
+        print('^^^^^ SKIPPING: Error with test results: %s' % test)
+        self.report.recordTestError(test)
         continue
 
       verdata = self.findExpectedWithLabel(test_label)
@@ -169,13 +213,14 @@ class Verifier():
         print('*** Cannot find verify data with label %s' % test_label)
         self.report.recordMissingVerifyData(test)
         # Bail on this test
+
         continue
 
       expected_result = verdata['verify']
-      # if self.debug:
-      #   print('VVVVV: %s actual %s, expected %s' % (
-      #       (actual_result == expected_result),
-      #       actual_result, expected_result))
+      if self.debug > 1:
+        print('VVVVV: %s actual %s, expected %s' % (
+            (actual_result == expected_result),
+            actual_result, expected_result))
       if actual_result == expected_result:
         self.report.recordPass(test)
       else:
@@ -188,11 +233,11 @@ class Verifier():
     # Very inefficient - use Binary Search on sorted labels.
     # if self.debug:
     #  print(' look for test_label %s' % test_label)
-    if not self.expected:
+    if not self.verifyExpected:
       return None
-    for item in self.expected:
+    for item in self.verifyExpected:
       if item['label'] == test_label:
-        if self.debug:
+        if self.debug > 2:
           print('  Found label %s' % item)
         return item
     print('NO RETURN from findExpectedWithLabel with test_label = %s' %
@@ -203,22 +248,6 @@ class Verifier():
     # Analyze the test failures for types of mistakes, missing data, etc.?
     # !!! TODO: something
     return
-
-  def verifyData(self):
-    if self.debug:
-      print('******* FILE BASE = %s' % self.file_base)
-
-    ### TEMPORARY
-    exec = 'nodejs'
-
-    index = 0
-    for test_type in self.test_types:
-      print('*** TEST_TYPE = %s' % test_type)
-      print('    VERIFY FILE = %s' % self.verify_file_names[index])
-      self.setupPaths(exec, test_type, self.verify_file_names[index])
-      # TODO: Verify the results
-      result = self.compareTestToExpected()
-      index += 1
 
   def setupPaths(self, exec, testfile, verifyfile):
     baseDir = self.file_base
@@ -251,7 +280,7 @@ class Tester():
       print('VERIFY PATH = %s' % verifyPath)
       print('RESULT PATH = %s' % resultPath)
 
-    result = self.verify()
+    result = self.openVerifyFiles()
 
     self.printResult()
 
@@ -310,7 +339,7 @@ def main(args):
     return
 
   # Run the tests on the provided parameters.
-  verifier.verifyData()
+  verifier.verifyDataResults()
 
 
 if __name__ == '__main__':

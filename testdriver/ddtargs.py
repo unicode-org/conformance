@@ -35,63 +35,93 @@ type_options = ['coll_shift_short', 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'ALL']
 
 class DdtArgs():
-  def __init__(self):
+  def __init__(self, args):
     self.options = None  # A simple namespace with each field
 
     self.parser = argparse.ArgumentParser(
         description='Process DDT Test Driver arguments')
 
-    # All more than one item in types
-    self.parser.add_argument('--test_type', '--type', '-t',
-                             action='extend', nargs='*',
-                             choices=type_options)
-    # All more than one item in exec list
-    self.parser.add_argument('--exec', action='extend', nargs='*',
-                             help='Execution platforms') #, default='ALL')
-    self.parser.add_argument('--icu', default='LATEST')
-    self.parser.add_argument('--cldr', default='LATEST')
+    setCommonArgs(self.parser)
 
-    # Location of the data files
-    self.parser.add_argument(
-        '--file_base', default="",
-        help='Base directory for input, output, and report paths')
-    self.parser.add_argument('--input_path', default='testData')
-    self.parser.add_argument('--output_path', default='testResults')
-    self.parser.add_argument('--report_path', default='testReports')
-
-    self.parser.add_argument('--exec_mode', default='one_test')
-    self.parser.add_argument('--parallel_mode', default=None)
-    self.parser.add_argument('--run_limit', default=None)
     self.parser.add_argument(
         '--start_test', default=0,
         help='number of tests to skip at start of the test data')
 
     self.parser.add_argument(
-        '--progress_interval',
-        help="Interval between progress output printouts", default=None)
-    self.parser.add_argument(
         '--per_execution', default=1,
         help='How many tests are run in each invocation of an executor')
-    self.parser.add_argument(
-        '--custom_testfile', default=None, action='extend', nargs='*',
-        help='full path to test data file in JSON format')
-
-    self.parser.add_argument('--debug_level', default=None)
 
     # For handling verification
     self.parser.add_argument('--verifyonly', default=None)
     self.parser.add_argument('--noverify', default=None)  #
     self.parser.add_argument('--custom_verifier', default=None)  #
-
-  def parse(self, args):
-    # Sets the parameters based on argument values
-
     self.options = self.parser.parse_args(args)
 
+  def parse(self):
     return self.options
 
   def getOptions(self):
-      return self.options
+    return self.options
+
+
+class VerifyArgs():
+  def __init__(self, args):
+    self.parser = argparse.ArgumentParser(
+        description='Process DDT Verifier arguments')
+
+    setCommonArgs(self.parser)
+    self.parser.add_argument('--verify_file_name', action='extend', nargs='*',
+                             help='Files with expected results for verifying', default=None)
+
+    self.parser.add_argument('--test_verifier',
+                             help='Flag to run in test mode', default=None)
+
+    self.options = self.parser.parse_args(args)
+    return
+
+  def getOptions(self):
+    return self.options
+
+
+# Set up arguments common to both testDriver and verifier
+def setCommonArgs(parser):
+
+  print('!!!!!! setCommonArgs')
+  # What data and executor(s) to verify
+  parser.add_argument('--test_type', '--type', '-t', '--test',
+                      action='extend', nargs='*',
+                      choices=type_options)
+  # All more than one item in exec list
+  parser.add_argument('--exec', action='extend', nargs='*',
+                      help='Execution platforms') #, default='ALL')
+
+  # TODO: are these being used? How?
+  parser.add_argument('--icu', default='LATEST')
+  parser.add_argument('--cldr', default='LATEST')
+
+  # Location of the data files
+  parser.add_argument(
+      '--file_base', default="",
+      help='Base directory for input, output, and report paths')
+  parser.add_argument('--input_path', default='testData')
+  parser.add_argument('--output_path', default='testResults')
+  parser.add_argument('--report_path', default='testReports')
+
+  parser.add_argument('--exec_mode', default='one_test')
+  parser.add_argument('--parallel_mode', default=None)
+  parser.add_argument('--run_limit', default=None)
+
+  parser.add_argument(
+      '--custom_testfile', default=None, action='extend', nargs='*',
+      help='full path to test data file in JSON format')
+
+  parser.add_argument(
+      '--progress_interval',
+      help="Interval between progress output printouts", default=None)
+
+  parser.add_argument('--debug_level', default=None)
+
+  print('!!!!!! setCommonArgs')
 
 
 def argsTestData():
