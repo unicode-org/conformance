@@ -56,6 +56,7 @@ class TestReport():
     <p>Failing tests: $failing_tests</p>
     <h2>Failing tests detail</h2>
     <table id='failing_tests_table'>
+    <th><td>Label</td><td>Expected</td><td>Result</td></th>
       <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
 $failure_table
@@ -63,6 +64,10 @@ $failure_table
   </body>
 </html>
 """)
+
+    self.failLineTemplate = Template(
+        '<tr><td>$label</td><td>$expected</td><td>$result</td></tr>'
+        )
 
   def recordFail(self, test):
     self.failing_tests.append(test)
@@ -126,6 +131,13 @@ $failure_table
               'failing_tests': self.tests_fail
               # ...
                 }
+
+    fail_lines = []
+    for fail in self.failing_tests:
+      line = self.failLineTemplate.safe_substitute(fail)
+      fail_lines.append(line)
+
+    html_map['failure_table'] = ('\n').join(fail_lines)
 
     # TODO: Use template and add failure lines
     # For each failed test base, add an HTML table element with the info
