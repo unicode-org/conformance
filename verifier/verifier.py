@@ -13,7 +13,7 @@ from testreport import TestReport
 
 class Verifier():
   def __init__(self):
-    self.debug = 2  # Different levels
+    self.debug = 1  # Different levels
     self.report = None
     self.reports = []
 
@@ -46,7 +46,7 @@ class Verifier():
   def parseArgs(self, args):
     # Initialize commandline arguments
     verifyInfo = VerifyArgs(args)
-    if self.debug:
+    if self.debug > 1:
       print('!!! ARGS = %s' % args)
       print('VERIFY INFO: %s' % verifyInfo)
     self.setVerifyArgs(verifyInfo.getOptions())
@@ -58,7 +58,7 @@ class Verifier():
 
     self.verify_file_names = argOptions.verify_file_name
     self.file_base = argOptions.file_base
-    if self.debug:
+    if self.debug > 1:
       print('TEST TYPES = %s' % self.test_types)
       print('VERIFY_FILES = %s' % self.verify_file_names)
 
@@ -81,7 +81,8 @@ class Verifier():
           # Create a test plan based on data and options
           self.testData = ddtData.testDatasets[test_type]
 
-          verify_file_name = self.verify_file_names[test_type_index]
+        print('VERIFY FILE NAMES = %s' % self.verify_file_names)
+        verify_file_name = self.verify_file_names[test_type_index]
 
         # Set the name of the file with verify data. These files are
         # usually in the same directory as the test data files.
@@ -100,12 +101,21 @@ class Verifier():
                                    exec,
                                    self.testData.testDataFilename)
 
+        # TODO: Make file.html
+        report_html_path = os.path.join(self.file_base,
+                                   self.options.report_path,
+                                   exec,
+                                        self.testData.testDataFilename + '.html')
+
         # The test report to use for verification summary.
         new_report = TestReport()
         new_report.report_file_path = report_path
 
+        new_report.report_html_path = report_html_path
+        print('HTML REPORT PATH = %s' % new_report.report_html_path)
+
         self.test_plan.append((result_path, verify_file_path, report_path, new_report))
-        if self.debug:
+        if self.debug > 0:
           print('++++ TEST PLAN [%d] = \n  %s' % (test_type_index,
                                                   self.test_plan[test_type_index]))
 
@@ -130,6 +140,7 @@ class Verifier():
 
       # Save the results
       self.report.saveReport()
+      self.report.createHtmlReport()
 
   def getResultsAndVerifyData(self):
     # Get the JSON data for results
@@ -139,7 +150,7 @@ class Verifier():
     except BaseException as err:
       sys.stderr.write('Cannot load %s result data: %s' % (self.result_path, err))
       return None
-    if self.debug:
+    if self.debug > 1:
       print('^^^ Result file has %d entries' % (len(self.results)))
     self.result_file.close()
 
@@ -150,7 +161,13 @@ class Verifier():
       sys.stderr.write('Cannot load %s verify data: %s' % (self.verify_path, err))
       return None
     self.verify_data_file.close()
-    if self.debug:
+
+    # Create dictionary of expected with labels as keys
+    self.verifyExpectedDict = {}
+    for item in self.verifyExpected:
+      self.verifyExpectedDict[item['label']] = item
+
+    if self.debug > 1:
       print('^^^ Verification file has %d entries' % (len(self.verifyExpected)))
 
     # Sort results and verify data by the label
@@ -158,12 +175,6 @@ class Verifier():
       self.results.sort(key=lambda x: x['label'])
     except BaseException as err:
       sys.stderr.write('!!! Cannot sort test results by label: %s' % err)
-      sys.stderr.flush()
-
-    try:
-      self.verifyExpected.sort(key=lambda x: x['verify'])
-    except BaseException as err:
-      sys.stderr.write('!!! Cannot sort verify data by verify id: %s' % err)
       sys.stderr.flush()
 
     if 'platform_error' in self.resultData:
@@ -183,6 +194,9 @@ class Verifier():
     self.getResultsAndVerifyData()
     verifyIndex = 0
 
+    self.report.platform_info = self.resultData['platform']
+    self.report.testdata_environment = self.resultData['test_environment']
+
     if not self.verifyExpected:
       sys.stderr.write('No expected data in %s' % self.verify_path)
       return None
@@ -192,11 +206,16 @@ class Verifier():
       return None
 
     # Loop over all results found, comparing with the expected result.
+    index = 0
+    total_results = len(self.results)
     for test in self.results:
       if not test:
         print('@@@@@ no test string: %s of %s' % (test, len(self.results)))
       if self.debug > 2:
         print('*$*$*$*$* test result = %s' % test)
+
+      if index % 10000 == 0:
+        print('  progress = %d / %s' % (index, total_results))
 
       # Get the result
       try:
@@ -224,8 +243,10 @@ class Verifier():
       if actual_result == expected_result:
         self.report.recordPass(test)
       else:
+        # Add expected value to the report
+        test['expected'] = expected_result
         self.report.recordFail(test)
-
+      index += 1
     return
 
   def findExpectedWithLabel(self, test_label):
@@ -235,13 +256,13 @@ class Verifier():
     #  print(' look for test_label %s' % test_label)
     if not self.verifyExpected:
       return None
-    for item in self.verifyExpected:
-      if item['label'] == test_label:
-        if self.debug > 2:
-          print('  Found label %s' % item)
-        return item
-    print('NO RETURN from findExpectedWithLabel with test_label = %s' %
-           test_label)
+
+    # Use Dictionary based on label
+    try:
+      return self.verifyExpectedDict[test_label]
+    except BaseException as err:
+      print('----- findExpectedWithLabel %s' % err)
+      print('  No item with test_label = %s' % test_label)
     return True
 
   def analyzeFailures(self):
@@ -310,6 +331,7 @@ class Tester():
     testReport = self.verifier.report
     reportData = testReport.createReport()
     print('  Report: %s' % reportData)
+
 
 
 # Test basic verifier functions
