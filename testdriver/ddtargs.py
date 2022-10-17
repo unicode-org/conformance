@@ -120,7 +120,6 @@ def setCommonArgs(parser):
 
   parser.add_argument('--debug_level', default=None)
 
-
 def argsTestData():
   tests = [
       ['--test_type', 'coll_shift_short'],

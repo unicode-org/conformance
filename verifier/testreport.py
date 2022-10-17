@@ -32,6 +32,7 @@ class TestReport():
     self.report_html_path = None
     self.number_tests = None
     self.failing_tests = []  # Include label, result, and expected
+
     self.tests_fail = 0
     self.passing_tests = []
     self.test_errors = []
@@ -44,7 +45,6 @@ class TestReport():
     self.platform = None
 
     self.missing_verify_data = []
-
     # For a simple template replacement
     # This could be from a template file.
     self.report_html_template = Template("""<html>
@@ -107,6 +107,7 @@ $test_error_table
   def summaryStatus(self):
     return self.tests_fail == 0 and self.missing_verify_data == []
 
+
   def createReport(self):
     # Make a JSON object with the data
     report = {}
@@ -117,12 +118,15 @@ $test_error_table
     report['platform'] = self.platform_info
     report['test_environment'] = self.testdata_environment
     report['test_errors'] = self.test_errors
+
     report['timestamp'] = self.timestamp
     report['failCount'] = self.tests_fail
     report['passCount'] = self.tests_pass
     report['failingTests'] = self.failing_tests
     report['missing_verify_data'] = self.missing_verify_data
     report['test_error_count'] = self.error_count
+
+    report['test_errors'] = self.test_errors
     self.report = report
 
     return json.dumps(report)
@@ -132,6 +136,7 @@ $test_error_table
       file = open(self.report_file_path, mode='w', encoding='utf-8')
     except BaseException as err:
       sys.stderr.write('!!! Cannot write report at %s: Error = %s' % (
+
           self.report_file_path, err))
       return None
 
@@ -220,3 +225,4 @@ $test_error_table
     # Update summary HTML page with data on latest verification
     # TODO:
     return
+
