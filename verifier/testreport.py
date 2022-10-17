@@ -1,6 +1,10 @@
 # Create JSON and HTLM reports for verification output
 
+import difflib
+from difflib import HtmlDiff
+
 import json
+import os
 from string import Template
 import sys
 
@@ -12,6 +16,8 @@ class TestReport():
   # Holds information describing the results of running tests vs.
   # the expected results.
   def __init__(self):
+    self.debug = False
+
     self.timestamp = None
     self.results = None
     self.verify = None
@@ -47,26 +53,40 @@ class TestReport():
   </head>
   <body>
     <h1>$test_type</h1>
-    <h2>$platform_info</h2>
-    <h2>$test_environment</h2>
-    <h2>$timestamp</h2>
+    <h2>Test details</h2>
+    <p>$platform_info</p>
+    <p>$test_environment</p>
+    <p>Result file created: $timestamp
     <h2>Test summary</h2>
     <p>Total tests: $total_tests</p>
     <p>Passing tests: $passing_tests</p>
     <p>Failing tests: $failing_tests</p>
     <h2>Failing tests detail</h2>
     <table id='failing_tests_table'>
-    <th><td>Label</td><td>Expected</td><td>Result</td></th>
+    <tr><th style="width"10%">Label</th><th style="width"45%">Expected</th><th style="width"45%">Result</th></tr>
       <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
 $failure_table
     </table>
+
+    <h2>Test Errors</h2>
+    <table id='test_error_table'>
+    <tr><th style="width"10%">Label</th><th style="width"45%">Expected</th><th style="width"45%">Result</th></tr>
+      <!-- For each failing test, output row with columns
+           label, expected, actual, difference -->
+$test_error_table
+    </table>
+
   </body>
 </html>
 """)
 
     self.failLineTemplate = Template(
-        '<tr><td>$label</td><td>$expected</td><td>$result</td></tr>'
+        '<tr><td>$label</td><td>$expected</td><td>$result</td><td>$input_data</td></tr>'
+        )
+
+    self.test_error_template = Template(
+        '<tr><td>$label</td><td>$line</td><td>$test_error</td></td></tr>'
         )
 
   def recordFail(self, test):
@@ -95,7 +115,7 @@ $failure_table
     report['title'] = self.title
 
     report['platform'] = self.platform_info
-    report['test_environment'] = self.test_environment
+    report['test_environment'] = self.testdata_environment
     report['test_errors'] = self.test_errors
     report['timestamp'] = self.timestamp
     report['failCount'] = self.tests_fail
@@ -103,7 +123,6 @@ $failure_table
     report['failingTests'] = self.failing_tests
     report['missing_verify_data'] = self.missing_verify_data
     report['test_error_count'] = self.error_count
-    report['test_errors'] = self.test_errors
     self.report = report
 
     return json.dumps(report)
@@ -122,14 +141,15 @@ $failure_table
 
   def createHtmlReport(self):
     # Human readable summary of test results
-    print('************** HTML REPORT **************')
     html_map = {'test_type': self.test_type,
-              'timestamp': self.timestamp,
-              'exec': self.executor,
-              'total_tests': self.number_tests,
-              'passing_tests': self.tests_pass,
-              'failing_tests': self.tests_fail
-              # ...
+                'platform_info': self.platform_info,
+                'test_environment': self.testdata_environment,
+                'timestamp': self.timestamp,
+                'exec': self.executor,
+                'total_tests': self.number_tests,
+                'passing_tests': self.tests_pass,
+                'failing_tests': self.tests_fail
+                # ...
                 }
 
     fail_lines = []
@@ -139,10 +159,21 @@ $failure_table
 
     html_map['failure_table'] = ('\n').join(fail_lines)
 
+    error_lines = []
+    for test_error in self.test_errors:
+      # !!!
+      print(test_error)
+      line = self.test_error_template.safe_substitute(test_error)
+      error_lines.append(line)
+
+    html_map['test_error_table'] = ('\n').join(error_lines)
+
+
     # TODO: Use template and add failure lines
     # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
-    print('HTML OUTPUT= \n%s' % (html_output))
+    if self.debug:
+      print('HTML OUTPUT= \n%s' % (html_output))
 
     try:
       file = open(self.report_html_path, mode='w', encoding='utf-8')
@@ -154,6 +185,36 @@ $failure_table
     file.write(html_output)
     file.close()
     return html_output
+
+  def createHtmlDiffReport(self):
+    # Use difflib to createfile of differences
+    fromlines = []
+    tolines = []
+    for fail in self.failing_tests:
+      fromlines.append(fail['expected'])
+      tolines.append(fail['result'])
+
+    if self.debug > 1:
+      print('fromlines = %s' % fromlines)
+      print('tolines = %s' % tolines)
+    htmldiff = HtmlDiff()
+    html_diff_result = htmldiff.make_table(fromlines[0:100], tolines[0:100])  #, fromdesc='expected', todesc='actual result')
+
+    if self.debug:
+      print('HTML OUTPUT= \n%s' % (html_diff_result))
+
+    new_path = self.report_html_path.replace('.html', '_diff.html')
+
+    try:
+      file = open(new_path, mode='w', encoding='utf-8')
+    except BaseException as err:
+      sys.stderr.write('!!!!!!! CANNOT WRITE HTML REPORT at %s\n    Error = %s' % (
+          new_path, err))
+      return None
+
+    file.write(html_diff_result)
+    file.close()
+    return html_diff_result
 
   def publishResults(self):
     # Update summary HTML page with data on latest verification
