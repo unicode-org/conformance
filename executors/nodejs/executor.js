@@ -162,8 +162,9 @@ rl.on('line', function(line) {
           outputLine = {'error': 'unknown test type', 'testId': testId};
       }
     } catch (error) {
-      outputLine = {'error in test case': error + ". line = " + line,
-                    "testId": testId, result: "NONE"};
+      outputLine = {'test_error': error, 'label' : parsedJson['label'],
+                    'line': parsedJson,
+                    result: 'NONE'};
     }
 
     // Send result to stdout for verification

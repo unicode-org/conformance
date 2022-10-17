@@ -46,9 +46,8 @@ module.exports = {
 
     if (!options) {
       // Don't test, but return an error
-      return {"label": label,
-              "error": error,
-              "pattern": pattern,
+      return {'label': label,
+              'test_error': 'No options found',
              };
     }
     let testLocale = json['locale'];
@@ -63,7 +62,7 @@ module.exports = {
     result = nf.format(input);
 
     // Formatting as JSON
-    resultString = result ? result : "None"
+    resultString = result ? result : 'None'
 
     outputLine = {"label": json['label'],
                   "result": resultString,
