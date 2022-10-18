@@ -39,13 +39,13 @@ fn main() -> io::Result<()> {
 
     loop {
         let buffer_size = io::stdin().read_line(&mut buffer)?;
-        if buffer_size <= 0 {
+        if buffer_size == 0 {
             break;
         }
-        if &buffer.substring(0, 5) == &"#EXIT" {
+        if buffer.substring(0, 5) == "#EXIT" {
             break;
         }
-        if &buffer.substring(0, 8) == &"#VERSION" {
+        if buffer.substring(0, 8) == "#VERSION" {
             // Get data version information from PackageMetadata
             // https://crates.io/crates/rustc_version_runtime
             // https://github.com/serde-rs/json
@@ -67,7 +67,7 @@ fn main() -> io::Result<()> {
                     "icuVersion": icu_version,
                     "cldrVersion": cldr_version,
                 });
-                println!("{}", json_result.to_string());
+                println!("{}", json_result);
             } else {
                 let json_result = json!(
                     {
@@ -78,7 +78,7 @@ fn main() -> io::Result<()> {
                     }
                 );
                 // DEBUG: println!("# RESULT returned = {}", json_result.to_string());
-                println!("{}", json_result.to_string());
+                println!("{}", json_result);
             }
         } else {
             // Expecting test information as JSON data in a single line.
@@ -86,7 +86,7 @@ fn main() -> io::Result<()> {
             //  https://stackoverflow.com/questions/30292752/how-do-i-parse-a-json-file
             let json_info: Value = serde_json::from_str(&buffer)?;
 
-            let test_type: &str = &json_info["test_type"].as_str().unwrap();
+            let test_type: &str = json_info["test_type"].as_str().unwrap();
 
             if test_type == "coll_shift_short" {
                 run_coll_test(&json_info);
@@ -101,7 +101,7 @@ fn main() -> io::Result<()> {
         // Empty the input buffer
         buffer.clear();
     }
-    println!("");
+    println!();
 
     Ok(())
 }

@@ -25,7 +25,7 @@ pub fn run_numberformat_test(json_obj: &Value) {
     // Default locale if not specified.
     let langid = if json_obj.get("locale") != None {
         let locale_name = &json_obj["locale"].as_str().unwrap();
-        Locale::from_str(&locale_name).unwrap()
+        Locale::from_str(locale_name).unwrap()
     } else {
         locale!("und")
     };
