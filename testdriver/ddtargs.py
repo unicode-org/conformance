@@ -86,7 +86,6 @@ class VerifyArgs():
 # Set up arguments common to both testDriver and verifier
 def setCommonArgs(parser):
 
-  print('!!!!!! setCommonArgs')
   # What data and executor(s) to verify
   parser.add_argument('--test_type', '--type', '-t', '--test',
                       action='extend', nargs='*',
@@ -120,9 +119,6 @@ def setCommonArgs(parser):
       help="Interval between progress output printouts", default=None)
 
   parser.add_argument('--debug_level', default=None)
-
-  print('!!!!!! setCommonArgs')
-
 
 def argsTestData():
   tests = [
