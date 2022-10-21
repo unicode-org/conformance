@@ -3,14 +3,13 @@
  */
 
 use serde_json::{json, Value};
-use std::io::{self,Write};
 
 use core::cmp::Ordering;
 use icu::collator::*;
 use icu::locid::locale;
 
 // Function runs comparison using collator
-pub fn run_coll_test(json_obj: &Value) {
+pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
     let str1: &str = json_obj["string1"].as_str().unwrap();
     let str2: &str = json_obj["string2"].as_str().unwrap();
@@ -39,8 +38,5 @@ pub fn run_coll_test(json_obj: &Value) {
     let json_result = json!({
         "label": label,
         "result": result_string});
-    // TODO: return the string and print in main
-    println!("{}", json_result);
-    io::stdout().flush().unwrap();
-    
+    return Ok(json_result);
 }
