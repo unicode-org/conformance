@@ -74,7 +74,8 @@ fn main() -> io::Result<()> {
                 let json_result = json!(
                     {
                         "platform": "rust",
-                        "platformVersion": rustc_version_runtime::version().to_string(),
+                        "platformVersion":
+                        rustc_version_runtime::version().to_string(),
                         "icuVersion": "unknown",
                         "cldrVersion": "unknown",
                     }
@@ -101,10 +102,12 @@ fn main() -> io::Result<()> {
             };
             match json_result {
                 Ok(value) => println!("{}", value),
-                Err(s) => println!("{}", json!({"error": s, "case": json_info})),
+                Err(s) => println!("{}", json!({"error": s,
+                                                "type": "unknown test type",
+                                                "received_info": json_info})),
             }
         }
-        // Empty The Input Buffer
+        // Empty the input buffer
         buffer.clear();
     }
 
