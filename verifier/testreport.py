@@ -221,8 +221,19 @@ $test_error_table
     file.close()
     return html_diff_result
 
+
+  def getJsonFiles(self):
+    # For each executor directory in testReports,
+    #  Get each json report file
+
+    # Get summary data by executor for each test
+
+    # Get summary data by test for each executor
+
+    # Generate HTML page containing this information
+    return
+
   def publishResults(self):
     # Update summary HTML page with data on latest verification
     # TODO:
     return
-
