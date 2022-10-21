@@ -89,8 +89,10 @@ fn main() -> io::Result<()> {
             let test_type: &str = json_info["test_type"].as_str().unwrap();
 
             if test_type == "coll_shift_short" {
+                // TODO: Get the string and print in main
                 run_coll_test(&json_info);
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
+                // TODO: Get the string and print in main
                 run_numberformat_test(&json_info);
             } else {
                 println!("# NO CASE FOR test_type: {}", test_type);

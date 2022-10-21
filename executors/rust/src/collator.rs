@@ -39,6 +39,8 @@ pub fn run_coll_test(json_obj: &Value) {
     let json_result = json!({
         "label": label,
         "result": result_string});
+    // TODO: return the string and print in main
     println!("{}", json_result);
     io::stdout().flush().unwrap();
+    
 }
