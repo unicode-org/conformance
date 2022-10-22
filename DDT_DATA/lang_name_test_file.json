@@ -1,0 +1,227 @@
+﻿{
+  "description": "Language display name test cases. The first\n  code declares the language whose display name is requested\n  while the second code declares the locale to display the\n  language name in.",
+  "Test scenario": "language_display_name",
+  "source":
+    {
+      "repository": "conformance-test",
+      "version": "trunk"
+    },
+  "url": "No URL yet.",
+  "tests": [
+    {
+      "label": "0000000",
+      "language_label": "aa",
+      "locale_label": "af"
+    },
+    {
+      "label": "0000001",
+      "language_label": "aa",
+      "locale_label": "am"
+    },
+    {
+      "label": "0000002",
+      "language_label": "aa",
+      "locale_label": "ar"
+    },
+    {
+      "label": "0000003",
+      "language_label": "aa",
+      "locale_label": "ar_001"
+    },
+    {
+      "label": "0000004",
+      "language_label": "aa",
+      "locale_label": "as"
+    },
+    {
+      "label": "0000005",
+      "language_label": "aa",
+      "locale_label": "ast"
+    },
+    {
+      "label": "0000006",
+      "language_label": "aa",
+      "locale_label": "az"
+    },
+    {
+      "label": "0000007",
+      "language_label": "aa",
+      "locale_label": "az_Cyrl"
+    },
+    {
+      "label": "0000008",
+      "language_label": "aa",
+      "locale_label": "az_Latn"
+    },
+    {
+      "label": "0000009",
+      "language_label": "aa",
+      "locale_label": "be"
+    },
+    {
+      "label": "0000010",
+      "language_label": "aa",
+      "locale_label": "bg"
+    },
+    {
+      "label": "0000011",
+      "language_label": "aa",
+      "locale_label": "bn"
+    },
+    {
+      "label": "0000012",
+      "language_label": "aa",
+      "locale_label": "br"
+    },
+    {
+      "label": "0000013",
+      "language_label": "aa",
+      "locale_label": "bs"
+    },
+    {
+      "label": "0000014",
+      "language_label": "aa",
+      "locale_label": "bs_Cyrl"
+    },
+    {
+      "label": "0000015",
+      "language_label": "aa",
+      "locale_label": "bs_Latn"
+    },
+    {
+      "label": "0000016",
+      "language_label": "aa",
+      "locale_label": "ca"
+    },
+    {
+      "label": "0000017",
+      "language_label": "aa",
+      "locale_label": "ccp"
+    },
+    {
+      "label": "0000018",
+      "language_label": "aa",
+      "locale_label": "ce"
+    },
+    {
+      "label": "0000019",
+      "language_label": "aa",
+      "locale_label": "chr"
+    },
+    {
+      "label": "0000020",
+      "language_label": "aa",
+      "locale_label": "ckb"
+    },
+    {
+      "label": "0000021",
+      "language_label": "aa",
+      "locale_label": "ckb_Arab"
+    },
+    {
+      "label": "0000022",
+      "language_label": "aa",
+      "locale_label": "cs"
+    },
+    {
+      "label": "0000023",
+      "language_label": "aa",
+      "locale_label": "cy"
+    },
+    {
+      "label": "0000024",
+      "language_label": "aa",
+      "locale_label": "da"
+    },
+    {
+      "label": "0000025",
+      "language_label": "aa",
+      "locale_label": "de"
+    },
+    {
+      "label": "0000026",
+      "language_label": "aa",
+      "locale_label": "dsb"
+    },
+    {
+      "label": "0000027",
+      "language_label": "aa",
+      "locale_label": "dz"
+    },
+    {
+      "label": "0000028",
+      "language_label": "aa",
+      "locale_label": "el"
+    },
+    {
+      "label": "0000029",
+      "language_label": "aa",
+      "locale_label": "en"
+    },
+    {
+      "label": "0000030",
+      "language_label": "aa",
+      "locale_label": "en_001"
+    },
+    {
+      "label": "0000031",
+      "language_label": "aa",
+      "locale_label": "en_150"
+    },
+    {
+      "label": "0000032",
+      "language_label": "aa",
+      "locale_label": "eo"
+    },
+    {
+      "label": "0000033",
+      "language_label": "aa",
+      "locale_label": "eo_001"
+    },
+    {
+      "label": "0000034",
+      "language_label": "aa",
+      "locale_label": "es"
+    },
+    {
+      "label": "0000035",
+      "language_label": "aa",
+      "locale_label": "es_419"
+    },
+    {
+      "label": "0000036",
+      "language_label": "aa",
+      "locale_label": "et"
+    },
+    {
+      "label": "0000037",
+      "language_label": "aa",
+      "locale_label": "eu"
+    },
+    {
+      "label": "0000038",
+      "language_label": "aa",
+      "locale_label": "fa"
+    },
+    {
+      "label": "0000039",
+      "language_label": "aa",
+      "locale_label": "ff_Adlm"
+    },
+    {
+      "label": "0000040",
+      "language_label": "aa",
+      "locale_label": "fi"
+    },
+    {
+      "label": "0000041",
+      "language_label": "aa",
+      "locale_label": "fil"
+    },
+    {
+      "label": "0000042",
+      "language_label": "aa",
+      "locale_label": "fo"
+    }
+]
+}
