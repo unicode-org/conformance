@@ -1,0 +1,378 @@
+﻿{
+  "Test scenario": "language_display_name",
+  "verifications": [
+    {
+      "label": "0000000",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000001",
+      "verify": "አፋርኛ"
+    },
+    {
+      "label": "0000002",
+      "verify": "الأفارية"
+    },
+    {
+      "label": "0000003",
+      "verify": "الأفارية"
+    },
+    {
+      "label": "0000004",
+      "verify": "আফাৰ"
+    },
+    {
+      "label": "0000005",
+      "verify": "afar"
+    },
+    {
+      "label": "0000006",
+      "verify": "afar"
+    },
+    {
+      "label": "0000007",
+      "verify": "афар"
+    },
+    {
+      "label": "0000008",
+      "verify": "afar"
+    },
+    {
+      "label": "0000009",
+      "verify": "афарская"
+    },
+    {
+      "label": "0000010",
+      "verify": "афарски"
+    },
+    {
+      "label": "0000011",
+      "verify": "আফার"
+    },
+    {
+      "label": "0000012",
+      "verify": "afar"
+    },
+    {
+      "label": "0000013",
+      "verify": "afarski"
+    },
+    {
+      "label": "0000014",
+      "verify": "афарски"
+    },
+    {
+      "label": "0000015",
+      "verify": "afarski"
+    },
+    {
+      "label": "0000016",
+      "verify": "àfar"
+    },
+    {
+      "label": "0000017",
+      "verify": "𑄃𑄜𑄢𑄴"
+    },
+    {
+      "label": "0000018",
+      "verify": "афарийн"
+    },
+    {
+      "label": "0000019",
+      "verify": "ᎠᏩᎳ"
+    },
+    {
+      "label": "0000020",
+      "verify": "ئەفار"
+    },
+    {
+      "label": "0000021",
+      "verify": "ئەفار"
+    },
+    {
+      "label": "0000022",
+      "verify": "afarština"
+    },
+    {
+      "label": "0000023",
+      "verify": "Affareg"
+    },
+    {
+      "label": "0000024",
+      "verify": "afar"
+    },
+    {
+      "label": "0000025",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000026",
+      "verify": "afaršćina"
+    },
+    {
+      "label": "0000027",
+      "verify": "ཨ་ཕར་ཁ"
+    },
+    {
+      "label": "0000028",
+      "verify": "Αφάρ"
+    },
+    {
+      "label": "0000029",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000030",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000031",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000032",
+      "verify": "afara"
+    },
+    {
+      "label": "0000033",
+      "verify": "afara"
+    },
+    {
+      "label": "0000034",
+      "verify": "afar"
+    },
+    {
+      "label": "0000035",
+      "verify": "afar"
+    },
+    {
+      "label": "0000036",
+      "verify": "afari"
+    },
+    {
+      "label": "0000037",
+      "verify": "afarera"
+    },
+    {
+      "label": "0000038",
+      "verify": "آفاری"
+    },
+    {
+      "label": "0000039",
+      "verify": "𞤀𞤬𞤢𞥄𞤪𞤫"
+    },
+    {
+      "label": "0000040",
+      "verify": "afar"
+    },
+    {
+      "label": "0000041",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000042",
+      "verify": "afar"
+    },
+    {
+      "label": "0000043",
+      "verify": "afar"
+    },
+    {
+      "label": "0000044",
+      "verify": "afar"
+    },
+    {
+      "label": "0000045",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000046",
+      "verify": "Afáiris"
+    },
+    {
+      "label": "0000047",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000048",
+      "verify": "afar"
+    },
+    {
+      "label": "0000049",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000050",
+      "verify": "અફાર"
+    },
+    {
+      "label": "0000051",
+      "verify": "אפארית"
+    },
+    {
+      "label": "0000052",
+      "verify": "अफ़ार"
+    },
+    {
+      "label": "0000053",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000054",
+      "verify": "afarski"
+    },
+    {
+      "label": "0000055",
+      "verify": "afaršćina"
+    },
+    {
+      "label": "0000056",
+      "verify": "afar"
+    },
+    {
+      "label": "0000057",
+      "verify": "աֆարերեն"
+    },
+    {
+      "label": "0000058",
+      "verify": "afar"
+    },
+    {
+      "label": "0000059",
+      "verify": "afar"
+    },
+    {
+      "label": "0000060",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000061",
+      "verify": "afár"
+    },
+    {
+      "label": "0000062",
+      "verify": "afar"
+    },
+    {
+      "label": "0000063",
+      "verify": "アファル語"
+    },
+    {
+      "label": "0000064",
+      "verify": "აფარი"
+    },
+    {
+      "label": "0000065",
+      "verify": "afar"
+    },
+    {
+      "label": "0000066",
+      "verify": "афар тілі"
+    },
+    {
+      "label": "0000067",
+      "verify": "អាហ្វារ"
+    },
+    {
+      "label": "0000068",
+      "verify": "ಅಫಾರ್"
+    },
+    {
+      "label": "0000069",
+      "verify": "아파르어"
+    },
+    {
+      "label": "0000070",
+      "verify": "अफार"
+    },
+    {
+      "label": "0000071",
+      "verify": "اَفار"
+    },
+    {
+      "label": "0000072",
+      "verify": "اَفار"
+    },
+    {
+      "label": "0000073",
+      "verify": "Afahresch"
+    },
+    {
+      "label": "0000074",
+      "verify": "afarî"
+    },
+    {
+      "label": "0000075",
+      "verify": "афарча"
+    },
+    {
+      "label": "0000076",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000077",
+      "verify": "ອະຟາ"
+    },
+    {
+      "label": "0000078",
+      "verify": "afarų"
+    },
+    {
+      "label": "0000079",
+      "verify": "afāru"
+    },
+    {
+      "label": "0000080",
+      "verify": "афарски"
+    },
+    {
+      "label": "0000081",
+      "verify": "അഫാർ"
+    },
+    {
+      "label": "0000082",
+      "verify": "афар"
+    },
+    {
+      "label": "0000083",
+      "verify": "अफार"
+    },
+
+
+      "label": "0000084",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000085",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000086",
+      "verify": "အာဖာ"
+    },
+    {
+      "label": "0000087",
+      "verify": "अफार"
+    },
+    {
+      "label": "0000088",
+      "verify": "Afar"
+    },
+    {
+      "label": "0000089",
+      "verify": "afar"
+    },
+    {
+      "label": "0000090",
+      "verify": "afar"
+    },
+    {
+      "label": "0000091",
+      "verify": "ଅଫାର୍"
+    },
+    {
+      "label": "0000092",
+      "verify": "ਅਫ਼ਾਰ"
+    }
+]
+}
