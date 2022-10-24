@@ -19,13 +19,12 @@ pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
 
     let mut options = CollatorOptions::new();
     options.strength = Some(Strength::Tertiary);
-    
+
     // Does this ignore punctuation?
     //coll_options.set_alternate_handling(Some(AlternateHandling::Shifted));
 
     let collator: Collator =
-        Collator::try_new_unstable(
-            &data_provider, &locale!("en").into(), options).unwrap();
+        Collator::try_new_unstable(&data_provider, &locale!("en").into(), options).unwrap();
 
     let comparison = collator.compare(str1, str2);
 
