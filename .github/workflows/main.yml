@@ -2,9 +2,11 @@ on:
   push:
     paths:
     - 'executors/rust/**'
+    - '.github/**'
   pull_request:
     paths: 
     - 'executors/rust/**'
+    - '.github/**'
 
 name: Rust CI
 
