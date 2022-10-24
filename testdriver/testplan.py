@@ -288,6 +288,8 @@ class TestPlan():
 
     result = self.sendOneLine(outAndExit)
 
+    # TODO: If results indicate "unknown test type" for this executor,
+    # don't sent more of that type.
     if not result:
       numErrors += 1
       print('!!!!!! processBatchOfTests: "platform error": "%s"\n' % self.run_error_message)
