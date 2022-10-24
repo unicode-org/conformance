@@ -40,12 +40,11 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
     // Can this fail with invalid options?
-    let fdf = FixedDecimalFormatter::try_new_unstable(
-        &provider, &data_locale, options)
+    let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
         .expect("Data should load successfully");
 
     // Returns error if parsing the number string fails.
-    let input_num = input.parse::<FixedDecimal>().map_err(|e|e.to_string())?;
+    let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
     // TODO: Can this fail?
     let result_string = fdf.format(&input_num);
 

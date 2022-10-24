@@ -102,9 +102,12 @@ fn main() -> io::Result<()> {
             };
             match json_result {
                 Ok(value) => println!("{}", value),
-                Err(s) => println!("{}", json!({"error": s,
+                Err(s) => println!(
+                    "{}",
+                    json!({"error": s,
                                                 "type": "unknown test type",
-                                                "received_info": json_info})),
+                                                "received_info": json_info})
+                ),
             }
         }
         // Empty the input buffer
