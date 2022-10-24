@@ -220,7 +220,7 @@ class Verifier():
       sys.stderr.write('!!! Cannot sort test results by label: %s' % err)
       sys.stderr.flush()
 
-if 'platform_error' in self.resultData:
+    if 'platform_error' in self.resultData:
       print('PLATFORM ERROR: %s' % self.resultData['platform error'])
       print('No verify done!!!')
       return None
@@ -260,7 +260,7 @@ if 'platform_error' in self.resultData:
       if self.debug > 2:
         print('*$*$*$*$* test result = %s' % test)
       if index % 10000 == 0:
-        print('  progress = %d / %s' % (index, total_results)
+        print('  progress = %d / %s' % (index, total_results))
 
       # Get the result
       try:
