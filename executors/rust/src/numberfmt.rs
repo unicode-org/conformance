@@ -38,8 +38,7 @@ pub fn run_numberformat_test(json_obj: &Value) {
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
-    let fdf = FixedDecimalFormatter::try_new_unstable(
-        &provider, &data_locale, options)
+    let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
         .expect("Data should load successfully");
 
     // TODO: Handle if the parsing to a number fails.

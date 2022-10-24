@@ -70,10 +70,7 @@ fn main() -> io::Result<()> {
                 println!("{}", json_result);
             } else {
                 let json_result = json!(
-                    {<<<<<<< AddRustExecutor
-82
- 
-
+                    {
                         "platform": "rust",
                         "platformVersion": rustc_version_runtime::version().to_string(),
                         "icuVersion": "unknown",
