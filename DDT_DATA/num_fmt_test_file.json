@@ -1,0 +1,228 @@
+﻿{
+  "description": "Number formatter test cases. The skeleton entry corresponds to\n  the formating specification used by ICU while the option entries adhere to\n  ECMA-402 syntax.",
+  "Test scenario": "number_fmt",
+  "source":
+    {
+      "repository": "icu",
+      "version": "trunk"
+    },
+  "url": "https://raw.githubusercontent.com/unicode-org/icu/main/icu4c/source/test/testdata/numberpermutationtest.txt",
+  "tests": [
+    {
+      "label": "0000000",
+      "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000001",
+      "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000002",
+      "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000003",
+      "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000004",
+      "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000005",
+      "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000006",
+      "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000007",
+      "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000008",
+      "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000009",
+      "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000010",
+      "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000011",
+      "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000012",
+      "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000013",
+      "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000014",
+      "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000015",
+      "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000016",
+      "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000017",
+      "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
+      "input": "-0.22222"
+    }
+]
+}
