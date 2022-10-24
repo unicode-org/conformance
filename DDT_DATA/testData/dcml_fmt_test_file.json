@@ -1,0 +1,369 @@
+{
+  "description": "Decimal formatter test cases for parsing and formatting.\n  Formatting test case elements:\n  format  pattern round-mode decimal-number\n  Parse test case elements:\n  parse input-text type",
+  "Test scenario": "decimal_fmt",
+  "source":
+    {
+      "repository": "cldr",
+      "version": "trunk"
+    },
+  "url": "http://raw.githubusercontent.com/unicode-org/icu/maint/maint-71/icu4c/source/test/testdata/dcfmtest.txt",
+  "tests": [
+    {
+      "label": "0000000",
+      "op": "format",
+      "pattern": "0.0000E0",
+      "rounding": "default",
+      "input": "1234.01"
+    },
+    {
+      "label": "0000001",
+      "op": "format",
+      "pattern": "00",
+      "rounding": "default",
+      "input": "1234"
+    },
+    {
+      "label": "0000002",
+      "op": "format",
+      "pattern": "00",
+      "rounding": "default",
+      "input": ".01"
+    },
+    {
+      "label": "0000003",
+      "op": "format",
+      "pattern": "00",
+      "rounding": "default",
+      "input": "1"
+    },
+    {
+      "label": "0000004",
+      "op": "format",
+      "pattern": "00",
+      "rounding": "default",
+      "input": "1.9"
+    },
+    {
+      "label": "0000005",
+      "op": "format",
+      "pattern": "#.#",
+      "rounding": "default",
+      "input": "12.34"
+    },
+    {
+      "label": "0000006",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "default",
+      "input": "12.3456"
+    },
+    {
+      "label": "0000007",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "default",
+      "input": "123456"
+    },
+    {
+      "label": "0000008",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "default",
+      "input": ".00123456"
+    },
+    {
+      "label": "0000009",
+      "op": "format",
+      "pattern": "@@###",
+      "rounding": "default",
+      "input": "12345678"
+    },
+    {
+      "label": "0000010",
+      "op": "format",
+      "pattern": "@@###",
+      "rounding": "default",
+      "input": "12300001"
+    },
+    {
+      "label": "0000011",
+      "op": "format",
+      "pattern": "@@###",
+      "rounding": "default",
+      "input": ".0012345678"
+    },
+    {
+      "label": "0000012",
+      "op": "format",
+      "pattern": "@@###",
+      "rounding": "default",
+      "input": ".0012300000"
+    },
+    {
+      "label": "0000013",
+      "op": "format",
+      "pattern": "@@@@E0",
+      "rounding": "default",
+      "input": "1234567"
+    },
+    {
+      "label": "0000014",
+      "op": "format",
+      "pattern": "0.0##E0",
+      "rounding": "default",
+      "input": "1234567"
+    },
+    {
+      "label": "0000015",
+      "op": "format",
+      "pattern": "00.##E0",
+      "rounding": "default",
+      "input": "1234567"
+    },
+    {
+      "label": "0000016",
+      "op": "format",
+      "pattern": "00.##E0",
+      "rounding": "default",
+      "input": "1234567E111"
+    },
+    {
+      "label": "0000017",
+      "op": "format",
+      "pattern": "00.##E0",
+      "rounding": "default",
+      "input": "-1234567E111"
+    },
+    {
+      "label": "0000018",
+      "op": "format",
+      "pattern": "0005",
+      "rounding": "default",
+      "input": "1234"
+    },
+    {
+      "label": "0000019",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "default",
+      "input": "32.045"
+    },
+    {
+      "label": "0000020",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "floor",
+      "input": "32.045"
+    },
+    {
+      "label": "0000021",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "ceiling",
+      "input": "32.045"
+    },
+    {
+      "label": "0000022",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "down",
+      "input": "32.045"
+    },
+    {
+      "label": "0000023",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "up",
+      "input": "32.045"
+    },
+    {
+      "label": "0000024",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "halfeven",
+      "input": "32.045"
+    },
+    {
+      "label": "0000025",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "halfdown",
+      "input": "32.045"
+    },
+    {
+      "label": "0000026",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "halfup",
+      "input": "32.045"
+    },
+    {
+      "label": "0000027",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "default",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000028",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "floor",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000029",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "ceiling",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000030",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "down",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000031",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "up",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000032",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "halfeven",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000033",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "halfdown",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000034",
+      "op": "format",
+      "pattern": "0.00",
+      "rounding": "halfup",
+      "input": "-32.045"
+    },
+    {
+      "label": "0000035",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "default",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000036",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "floor",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000037",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "ceiling",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000038",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "down",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000039",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "up",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000040",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "halfeven",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000041",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "halfdown",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000042",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "halfup",
+      "input": "1235.00"
+    },
+    {
+      "label": "0000043",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "default",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000044",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "floor",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000045",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "ceiling",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000046",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "down",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000047",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "up",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000048",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "halfeven",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000049",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "halfdown",
+      "input": "-1235.00"
+    },
+    {
+      "label": "0000050",
+      "op": "format",
+      "pattern": "@@@",
+      "rounding": "halfup",
+      "input": "-1235.00"
+    }
+  ]
+}

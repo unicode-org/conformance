@@ -1,0 +1,156 @@
+{
+  "description": "Number formatter test cases - short version. The first three entries after the\n  label are orthogonal skeleton parts.",
+  "test scenario": "number_fmt",
+  "source":
+    {
+      "repository": "icu",
+      "version": "trunk"
+    },
+  "url": "https://raw.githubusercontent.com/unicode-org/icu/main/icu4c/source/test/testdata/numberpermutationtest.txt",
+  "tests": [
+    {
+      "label": "0000000",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "es-MX",
+      "input": "0"
+    },
+    {
+      "label": "0000001",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "es-MX",
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000002",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "es-MX",
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000003",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "bn-BD",
+      "input": "0"
+    },
+    {
+      "label": "0000004",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "bn-BD",
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000005",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "bn-BD",
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000006",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "zh-TW",
+      "input": "0"
+    },
+    {
+      "label": "0000007",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "zh-TW",
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000008",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-narrow",
+      "locale": "zh-TW",
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000009",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "es-MX",
+      "input": "0"
+    },
+    {
+      "label": "0000010",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "es-MX",
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000011",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "es-MX",
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000012",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "bn-BD",
+      "input": "0"
+    },
+    {
+      "label": "0000013",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "bn-BD",
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000014",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "bn-BD",
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000015",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "zh-TW",
+      "input": "0"
+    },
+    {
+      "label": "0000016",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "zh-TW",
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000017",
+      "notation": "compact-short",
+      "unit": "percent",
+      "unit-width": "unit-width-full-name",
+      "locale": "zh-TW",
+      "input": "-0.22222"
+    }
+  ]
+}
