@@ -1,6 +1,12 @@
-on: [push]
+on:
+  push:
+    paths:
+    - 'executors/rust/**'
+  pull_request:
+    paths: 
+    - 'executors/rust/**'
 
-name: CI
+name: Rust CI
 
 jobs:
   rust_lint:
@@ -11,6 +17,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.61
+          default: true
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
