@@ -17,7 +17,6 @@ jobs:
       - name: "Run Node.js collator sample"
         run: |
           cd testdriver
-          sh runColl_node_local.sh
-          bash -c "exit 1" # for testing
+          sh runAll_node_local.sh
           cd ../verifier
           sh verifyNode_local.sh
