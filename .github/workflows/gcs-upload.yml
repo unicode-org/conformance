@@ -1,0 +1,67 @@
+##### README #####
+#
+# The CI action in this file is used to build the artifacts on pushes to a repository containing
+# the ICU4X service account key. All steps are skipped unless the key is present.
+#
+# If you are a frequent contributor, you can add the key to your fork. The key is shared with
+# icu4x collaborators and can be viewed here:
+#
+# https://drive.google.com/file/d/1Of-_83MbhiiQAHYL_a5jDotOD9jnbu5c/view
+#
+# To add the key, follow these steps:
+#
+# 1. Go to the secrets on your fork:
+#     - https://github.com/{USER}/icu4x/settings/secrets/actions
+# 2. Click "New repository secret" and enter the following information:
+#     - Name: ICU4X_GCP_SA_KEY
+#     - Value: The contents of the file linked above
+# 3. Click "Add secret"
+# 4. Re-run the latest "Artifacts Build" action on your fork to make sure it works:
+#     - https://github.com/{USER}/icu4x/actions/workflows/artifacts-build.yml
+
+on:
+  push:
+
+name: Artifacts Build
+
+jobs:
+  credentials:
+    name: "Check Credentials"
+    runs-on: "ubuntu-latest"
+    env:
+      ICU4X_GCP_SA_KEY: "${{ secrets.CONFORMANCE_GCP_SA_KEY }}"
+    steps:
+    - name: "Check for credentials"
+      run: |
+        if [ -z "$CONFORMANCE_GCP_SA_KEY" ]
+        then
+          echo "GCP key not found. Docs previews will not be uploaded. If you are a frequent contributor, you may add the key to your fork; for instructions, see 'gcs-upload.yml'"
+          exit 1;
+        fi
+  test:
+    name: "Upload Test Artifacts"
+    needs: credentials
+    runs-on: "ubuntu-latest"
+    env:
+      GCP_PROJECT_ID: "dev-infra-273822"
+      GCP_BUCKET_ID: "conformance-artifacts"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/setup-gcloud@v0.2
+      with:
+        project_id: ${{ env.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.ICU4X_GCP_SA_KEY }}
+        export_default_credentials: true
+    - name: "Write a test file"
+      run: |
+        mkdir test_artifacts
+        echo "${{ github.sha }}" > test_artifacts/test_file.txt
+    - name: Upload docs to Google Cloud Storage
+      run: |
+        gsutil -m cp -r test_artifacts gs://${{ env.GCP_BUCKET_ID }}/gha/${{ github.sha }}/test_artifacts
+    - name: "⭐⭐⭐ Links to Uploaded Artifacts ⭐⭐⭐"
+      run: |
+        echo "::group::📖 Docs Preview"
+        echo "http://${{ env.GCP_BUCKET_ID }}.storage.googleapis.com/gha/${{ github.sha }}/test_artifacts/test_file.txt"
+        echo "::endgroup::"
