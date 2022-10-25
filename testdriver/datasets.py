@@ -139,7 +139,7 @@ class ExecutorLang(Enum):
 
 # Actual commmands to run the executors.
 ExecutorCommands = {
-    "nodejs" : "nodejs ../executors/nodejs/executor.js",
+    "nodejs" : "node ../executors/nodejs/executor.js",
     "rust" : "executor/rust/target/release/executor",
     "cpp": None,
     "java" : None
@@ -211,7 +211,7 @@ allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODEJS.value
 allExecutors.addSystem(system, NodeVersion.Node18,
-                       '/usr/bin/nodejs ../executors/nodejs/executor.js',
+                       'nodejs ../executors/nodejs/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.RUST.value

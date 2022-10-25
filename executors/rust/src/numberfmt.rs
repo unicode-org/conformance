@@ -17,9 +17,10 @@ use std::panic;
 use std::str::FromStr;
 
 // Runs decimal and number formatting given patterns or skeletons.
-pub fn run_numberformat_test(json_obj: &Value) {
+pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let provider = icu_testdata::unstable();
 
+    // TODO: Handle errors of missing JSON fields
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
@@ -38,17 +39,18 @@ pub fn run_numberformat_test(json_obj: &Value) {
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
-    let fdf = FixedDecimalFormatter::try_new_unstable(
-        &provider, &data_locale, options)
+    // Can this fail with invalid options?
+    let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
         .expect("Data should load successfully");
 
-    // TODO: Handle if the parsing to a number fails.
-    let input_num: FixedDecimal = input.parse().expect("valid input format");
+    // Returns error if parsing the number string fails.
+    let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
+    // TODO: Can this fail?
     let result_string = fdf.format(&input_num);
 
     // Result to stdout.
     let json_result = json!({
         "label": label,
         "result": result_string.write_to_string()});
-    println!("{}", json_result);
+    return Ok(json_result);
 }
