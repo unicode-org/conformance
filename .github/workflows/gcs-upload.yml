@@ -29,7 +29,7 @@ jobs:
     name: "Check Credentials"
     runs-on: "ubuntu-latest"
     env:
-      ICU4X_GCP_SA_KEY: "${{ secrets.CONFORMANCE_GCP_SA_KEY }}"
+      CONFORMANCE_GCP_SA_KEY: "${{ secrets.CONFORMANCE_GCP_SA_KEY }}"
     steps:
     - name: "Check for credentials"
       run: |
