@@ -139,7 +139,7 @@ class ExecutorLang(Enum):
 
 # Actual commmands to run the executors.
 ExecutorCommands = {
-    "nodejs" : "nodejs ../executors/nodejs/executor.js",
+    "nodejs" : "node ../executors/nodejs/executor.js",
     "rust" : "executor/rust/target/release/executor",
     "cpp": None,
     "java" : None
