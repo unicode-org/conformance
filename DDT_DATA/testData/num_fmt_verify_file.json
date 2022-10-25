@@ -1,0 +1,78 @@
+{
+  "Test scenario": "number_fmt",
+  "verifications": [
+    {
+      "label": "0000000",
+      "verify": "0%"
+    },
+    {
+      "label": "0000001",
+      "verify": "92 k%"
+    },
+    {
+      "label": "0000002",
+      "verify": "-0.22%"
+    },
+    {
+      "label": "0000003",
+      "verify": "০%"
+    },
+    {
+      "label": "0000004",
+      "verify": "৯২ হা%"
+    },
+    {
+      "label": "0000005",
+      "verify": "-০.২২%"
+    },
+    {
+      "label": "0000006",
+      "verify": "0%"
+    },
+    {
+      "label": "0000007",
+      "verify": "9.2萬%"
+    },
+    {
+      "label": "0000008",
+      "verify": "-0.22%"
+    },
+    {
+      "label": "0000009",
+      "verify": "0 por ciento"
+    },
+    {
+      "label": "0000010",
+      "verify": "92 k por ciento"
+    },
+    {
+      "label": "0000011",
+      "verify": "-0.22 por ciento"
+    },
+    {
+      "label": "0000012",
+      "verify": "০শতাংশ"
+    },
+    {
+      "label": "0000013",
+      "verify": "৯২ হাশতাংশ"
+    },
+    {
+      "label": "0000014",
+      "verify": "-০.২২শতাংশ"
+    },
+    {
+      "label": "0000015",
+      "verify": "0%"
+    },
+    {
+      "label": "0000016",
+      "verify": "9.2萬%"
+    },
+    {
+      "label": "0000017",
+      "verify": "-0.22%"
+    }
+
+  ]
+}

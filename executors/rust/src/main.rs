@@ -31,9 +31,11 @@ use collator::run_coll_test;
 
 use numberfmt::run_numberformat_test;
 
-// Ead from stdin, call function, output the result.
+// Read from stdin, call functions to get json, output the result.
 fn main() -> io::Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
+    env_logger::init();
+    log::info!("Welcome to the ICU4X Conformance Executor");
 
     let mut buffer = String::new();
 
@@ -70,17 +72,15 @@ fn main() -> io::Result<()> {
                 println!("{}", json_result);
             } else {
                 let json_result = json!(
-                    {<<<<<<< AddRustExecutor
-82
- 
-
+                    {
                         "platform": "rust",
-                        "platformVersion": rustc_version_runtime::version().to_string(),
+                        "platformVersion":
+                        rustc_version_runtime::version().to_string(),
                         "icuVersion": "unknown",
                         "cldrVersion": "unknown",
                     }
                 );
-                // DEBUG: println!("# RESULT returned = {}", json_result.to_string());
+                log::debug!("# RESULT returned = {}", json_result.to_string());
                 println!("{}", json_result);
             }
         } else {
@@ -91,20 +91,28 @@ fn main() -> io::Result<()> {
 
             let test_type: &str = json_info["test_type"].as_str().unwrap();
 
-            if test_type == "coll_shift_short" {
-                run_coll_test(&json_info);
+            let json_result = if test_type == "coll_shift_short" {
+                // TODO: Get the json result and print here
+                run_coll_test(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
-                run_numberformat_test(&json_info);
+                // TODO: Get the json result and print here
+                run_numberformat_test(&json_info)
             } else {
-                println!("# NO CASE FOR test_type: {}", test_type);
+                Err(test_type.to_string())
+            };
+            match json_result {
+                Ok(value) => println!("{}", value),
+                Err(s) => println!(
+                    "{}",
+                    json!({"error": s,
+                                                "type": "unknown test type",
+                                                "received_info": json_info})
+                ),
             }
-            // TODO: The output should be done from the main routine, not
-            // individual routines.
         }
         // Empty the input buffer
         buffer.clear();
     }
-    println!();
 
     Ok(())
 }

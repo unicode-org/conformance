@@ -211,7 +211,7 @@ allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODEJS.value
 allExecutors.addSystem(system, NodeVersion.Node18,
-                       '/usr/bin/nodejs ../executors/nodejs/executor.js',
+                       'nodejs ../executors/nodejs/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.RUST.value

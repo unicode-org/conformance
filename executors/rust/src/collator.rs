@@ -3,14 +3,14 @@
  */
 
 use serde_json::{json, Value};
-use std::io::{self,Write};
 
 use core::cmp::Ordering;
 use icu::collator::*;
 use icu::locid::locale;
 
 // Function runs comparison using collator
-pub fn run_coll_test(json_obj: &Value) {
+pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
+    // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
     let str1: &str = json_obj["string1"].as_str().unwrap();
     let str2: &str = json_obj["string2"].as_str().unwrap();
@@ -19,13 +19,12 @@ pub fn run_coll_test(json_obj: &Value) {
 
     let mut options = CollatorOptions::new();
     options.strength = Some(Strength::Tertiary);
-    
+
     // Does this ignore punctuation?
     //coll_options.set_alternate_handling(Some(AlternateHandling::Shifted));
 
     let collator: Collator =
-        Collator::try_new_unstable(
-            &data_provider, &locale!("en").into(), options).unwrap();
+        Collator::try_new_unstable(&data_provider, &locale!("en").into(), options).unwrap();
 
     let comparison = collator.compare(str1, str2);
 
@@ -39,6 +38,5 @@ pub fn run_coll_test(json_obj: &Value) {
     let json_result = json!({
         "label": label,
         "result": result_string});
-    println!("{}", json_result);
-    io::stdout().flush().unwrap();
+    return Ok(json_result);
 }
