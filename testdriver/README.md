@@ -92,18 +92,18 @@ may include:
 ```
   --test_type coll_shift_short displaynames number_fmt
   
-  --exec rust nodejs
+  --exec rust node
 ```
 This will be expanded into 6 testplans, 3 for each executor:
 
-* nodejs with coll_shift_short
-* nodejs with displaynames
-* nodejs with number_fmt
+* node with coll_shift_short
+* node with displaynames
+* node with number_fmt
 * rust with coll_shift_short
 * rust with displaynames
 * rust with number_fmt
 
 These 6 test plans will be executed individually, producing output in the
-respective testResults directories for nodejs and rust.
+respective testResults directories for node and rust.
 
 They may be executed serially or in parallel (to be implemented.)

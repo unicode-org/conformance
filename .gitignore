@@ -2,3 +2,4 @@
 *~
 executors/rust/target/
 **/__pycache__/
+DDT_DATA/test*/*
