@@ -1,0 +1,194 @@
+{
+  "platform": {
+    "platform": "NodeJS",
+    "platformVersion": "v18.7.0",
+    "icuVersion": "71.1"
+  },
+  "test_environment": {
+    "test_language": "node",
+    "executor": "node ../executors/node/executor.js",
+    "test_type": "lang_names",
+    "datetime": "10/26/2022, 11:07:46",
+    "timestamp": "1666807666.3970997",
+    "inputfile": "../DDT_DATA/testData/lang_name_test_file.json",
+    "resultfile": "../DDT_DATA/testResults/node/lang_name_test_file.json",
+    "icu_version": "ICUVersion.ICU71",
+    "cldr_version": "CLDRVersion.CLDR41",
+    "test_count": "43"
+  },
+  "tests": [
+    {
+      "label": "0000000",
+      "result": "Afar"
+    },
+    {
+      "label": "0000001",
+      "result": "\u12a0\u134b\u122d\u129b"
+    },
+    {
+      "label": "0000002",
+      "result": "\u0627\u0644\u0623\u0641\u0627\u0631\u064a\u0629"
+    },
+    {
+      "label": "0000003",
+      "result": "\u0627\u0644\u0623\u0641\u0627\u0631\u064a\u0629"
+    },
+    {
+      "label": "0000004",
+      "result": "\u0986\u09ab\u09be\u09f0"
+    },
+    {
+      "label": "0000005",
+      "result": "afar"
+    },
+    {
+      "label": "0000006",
+      "result": "afar"
+    },
+    {
+      "label": "0000007",
+      "result": "\u0430\u0444\u0430\u0440"
+    },
+    {
+      "label": "0000008",
+      "result": "afar"
+    },
+    {
+      "label": "0000009",
+      "result": "\u0430\u0444\u0430\u0440\u0441\u043a\u0430\u044f"
+    },
+    {
+      "label": "0000010",
+      "result": "\u0430\u0444\u0430\u0440\u0441\u043a\u0438"
+    },
+    {
+      "label": "0000011",
+      "result": "\u0986\u09ab\u09be\u09b0"
+    },
+    {
+      "label": "0000012",
+      "result": "afar"
+    },
+    {
+      "label": "0000013",
+      "result": "afarski"
+    },
+    {
+      "label": "0000014",
+      "result": "\u0430\u0444\u0430\u0440\u0441\u043a\u0438"
+    },
+    {
+      "label": "0000015",
+      "result": "afarski"
+    },
+    {
+      "label": "0000016",
+      "result": "\u00e0far"
+    },
+    {
+      "label": "0000017",
+      "result": "\ud804\udd03\ud804\udd1c\ud804\udd22\ud804\udd34"
+    },
+    {
+      "label": "0000018",
+      "result": "\u0430\u0444\u0430\u0440\u0438\u0439\u043d"
+    },
+    {
+      "label": "0000019",
+      "result": "\u13a0\u13e9\u13b3"
+    },
+    {
+      "label": "0000020",
+      "result": "\u0626\u06d5\u0641\u0627\u0631"
+    },
+    {
+      "label": "0000021",
+      "result": "\u0626\u06d5\u0641\u0627\u0631"
+    },
+    {
+      "label": "0000022",
+      "result": "afar\u0161tina"
+    },
+    {
+      "label": "0000023",
+      "result": "Affareg"
+    },
+    {
+      "label": "0000024",
+      "result": "afar"
+    },
+    {
+      "label": "0000025",
+      "result": "Afar"
+    },
+    {
+      "label": "0000026",
+      "result": "afar\u0161\u0107ina"
+    },
+    {
+      "label": "0000027",
+      "result": "\u0f68\u0f0b\u0f55\u0f62\u0f0b\u0f41"
+    },
+    {
+      "label": "0000028",
+      "result": "\u0391\u03c6\u03ac\u03c1"
+    },
+    {
+      "label": "0000029",
+      "result": "Afar"
+    },
+    {
+      "label": "0000030",
+      "result": "Afar"
+    },
+    {
+      "label": "0000031",
+      "result": "Afar"
+    },
+    {
+      "label": "0000032",
+      "result": "afara"
+    },
+    {
+      "label": "0000033",
+      "result": "afara"
+    },
+    {
+      "label": "0000034",
+      "result": "afar"
+    },
+    {
+      "label": "0000035",
+      "result": "afar"
+    },
+    {
+      "label": "0000036",
+      "result": "afari"
+    },
+    {
+      "label": "0000037",
+      "result": "afarera"
+    },
+    {
+      "label": "0000038",
+      "result": "\u0622\u0641\u0627\u0631\u06cc"
+    },
+    {
+      "label": "0000039",
+      "result": "\ud83a\udd00\ud83a\udd2c\ud83a\udd22\ud83a\udd44\ud83a\udd2a\ud83a\udd2b"
+    },
+    {
+      "label": "0000040",
+      "result": "afar"
+    },
+    {
+      "label": "0000041",
+      "result": "Afar"
+    },
+    {
+      "label": "0000042",
+      "result": "afar"
+    }
+  ],
+  "errorInfo": 0
+}

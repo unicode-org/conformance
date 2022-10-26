@@ -1,0 +1,95 @@
+{
+  "platform": {
+    "cldrVersion": "unknown",
+    "icuVersion": "unknown",
+    "platform": "rust",
+    "platformVersion": "1.62.1"
+  },
+  "test_environment": {
+    "test_language": "rust",
+    "executor": "../executors/rust/target/release/executor",
+    "test_type": "number_fmt",
+    "datetime": "10/24/2022, 18:04:20",
+    "timestamp": "1666659860.6676602",
+    "inputfile": "../DDT_DATA/testData/num_fmt_test_file.json",
+    "resultfile": "../DDT_DATA/testResults/rust/num_fmt_test_file.json",
+    "icu_version": "ICUVersion.ICU71",
+    "cldr_version": "CLDRVersion.CLDR41",
+    "test_count": "18"
+  },
+  "tests": [
+    {
+      "label": "0000000",
+      "result": "0"
+    },
+    {
+      "label": "0000001",
+      "result": "91.827,3645"
+    },
+    {
+      "label": "0000002",
+      "result": "-0,22222"
+    },
+    {
+      "label": "0000003",
+      "result": "\u09e6"
+    },
+    {
+      "label": "0000004",
+      "result": "\u09ef\u09e7,\u09ee\u09e8\u09ed.\u09e9\u09ec\u09ea\u09eb"
+    },
+    {
+      "label": "0000005",
+      "result": "-\u09e6.\u09e8\u09e8\u09e8\u09e8\u09e8"
+    },
+    {
+      "label": "0000006",
+      "result": "0"
+    },
+    {
+      "label": "0000007",
+      "result": "91,827.3645"
+    },
+    {
+      "label": "0000008",
+      "result": "-0.22222"
+    },
+    {
+      "label": "0000009",
+      "result": "0"
+    },
+    {
+      "label": "0000010",
+      "result": "91.827,3645"
+    },
+    {
+      "label": "0000011",
+      "result": "-0,22222"
+    },
+    {
+      "label": "0000012",
+      "result": "\u09e6"
+    },
+    {
+      "label": "0000013",
+      "result": "\u09ef\u09e7,\u09ee\u09e8\u09ed.\u09e9\u09ec\u09ea\u09eb"
+    },
+    {
+      "label": "0000014",
+      "result": "-\u09e6.\u09e8\u09e8\u09e8\u09e8\u09e8"
+    },
+    {
+      "label": "0000015",
+      "result": "0"
+    },
+    {
+      "label": "0000016",
+      "result": "91,827.3645"
+    },
+    {
+      "label": "0000017",
+      "result": "-0.22222"
+    }
+  ],
+  "errorInfo": 0
+}

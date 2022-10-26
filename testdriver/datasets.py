@@ -131,7 +131,7 @@ testDatasets[testName] = DataSet(testType.number_fmt.value,
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".
 class ExecutorLang(Enum):
-  NODEJS = "nodejs"
+  NODE = "node"
   RUST = "rust"
   CPP = "c++"
   JAVA = "java"
@@ -139,7 +139,7 @@ class ExecutorLang(Enum):
 
 # Actual commmands to run the executors.
 ExecutorCommands = {
-    "nodejs" : "node ../executors/nodejs/executor.js",
+    "node" : "node ../executors/node/executor.js",
     "rust" : "executor/rust/target/release/executor",
     "cpp": None,
     "java" : None
@@ -209,9 +209,9 @@ class ExecutorInfo():
 # Execution environments and versions for matching with data
 allExecutors = ExecutorInfo()
 
-system = ExecutorLang.NODEJS.value
+system = ExecutorLang.NODE.value
 allExecutors.addSystem(system, NodeVersion.Node18,
-                       'nodejs ../executors/nodejs/executor.js',
+                       'node ../executors/node/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.RUST.value
@@ -273,8 +273,8 @@ def main(args):
 
   print()
   print('All paths for testing %s' % (cldr_version))
-  lang = ExecutorLang.NODEJS
-  for lang in [ExecutorLang.NODEJS, ExecutorLang.RUST, ExecutorLang.CPP,
+  lang = ExecutorLang.NODE
+  for lang in [ExecutorLang.NODE, ExecutorLang.RUST, ExecutorLang.CPP,
                'newLanguage']:
     exec = allExecutors.versionsForCldr(lang, cldr_version)
     print('  executor: %s' % (lang))

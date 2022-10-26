@@ -1,0 +1,54 @@
+{
+  "platform": {
+    "platform": "NodeJS",
+    "platformVersion": "v18.7.0",
+    "icuVersion": "71.1"
+  },
+  "test_environment": {
+    "test_language": "node",
+    "executor": "node ../executors/node/executor.js",
+    "test_type": "coll_shift_short",
+    "datetime": "10/26/2022, 11:07:43",
+    "timestamp": "1666807663.9496472",
+    "inputfile": "../DDT_DATA/testData/coll_test_shift.json",
+    "resultfile": "../DDT_DATA/testResults/node/coll_test_shift.json",
+    "icu_version": "ICUVersion.ICU71",
+    "cldr_version": "CLDRVersion.CLDR41",
+    "test_count": "8"
+  },
+  "tests": [
+    {
+      "label": "0000000",
+      "result": "True"
+    },
+    {
+      "label": "0000001",
+      "result": "True"
+    },
+    {
+      "label": "0000002",
+      "result": "True"
+    },
+    {
+      "label": "0000003",
+      "result": "True"
+    },
+    {
+      "label": "0000004",
+      "result": "True"
+    },
+    {
+      "label": "0000005",
+      "result": "True"
+    },
+    {
+      "label": "0000006",
+      "result": "True"
+    },
+    {
+      "label": "0000007",
+      "result": "True"
+    }
+  ],
+  "errorInfo": 0
+}

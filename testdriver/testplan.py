@@ -156,6 +156,16 @@ class TestPlan():
       print('  Running OneTestMode %s on data %s' %
             (self.exec_command, self.inputFilePath))
 
+    # Check if report directory exists
+    try:
+      result_dir = os.path.dirname(self.outputFilePath)
+      if not os.path.isdir(result_dir):
+        os.makedirs(result_dir)
+    except BaseException as err:
+      sys.stderr.write('!!! Cannot create directory %sfor report file %s' %
+                       (result_dir_dir, self.outputFilePath))
+      return None
+
     # Create results file
     try:
       if self.debug:
