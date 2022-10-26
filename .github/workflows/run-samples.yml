@@ -1,0 +1,22 @@
+on:
+  push:
+  pull_request:
+
+name: Rust CI
+
+jobs:
+  nodejs_18:
+    name: Run Node.js 18 sample tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18.7.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.7.0
+      - name: "Run Node.js collator sample"
+        run: |
+          cd testdriver
+          sh runAll_node_local.sh
+          cd ../verifier
+          sh verifyNode_local.sh
