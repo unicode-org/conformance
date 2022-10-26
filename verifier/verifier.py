@@ -42,6 +42,17 @@ class Verifier():
       print('**!!* Cannot open verify file %s' % (self.verify_path))
       return None
 
+    # Check if report directory exists
+    try:
+      report_dir = os.path.dirname(self.report_path)
+      if not os.path.isdir(report_dir):
+        os.makedirs(report_dir)
+    except BaseException as err:
+      sys.stderr.write('!!! Cannot create directory %s for report file %s' %
+                       (report_dir, self.report_path))
+      sys.stderr.write('   !!! Error = %s' % err)
+      return None
+
     try:
       self.report_file = open(self.report_path, encoding='utf-8', mode='w')
     except BaseException as err:
@@ -404,7 +415,7 @@ class Tester():
 
 # Test basic verifier functions
 def runVerifierTests(verifier):
-  execs = ['nodejs', 'rust']
+  execs = ['node', 'rust']
 
   for exec in execs:
     testerCollNode = Tester()
