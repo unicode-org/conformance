@@ -2,7 +2,7 @@ on:
   push:
   pull_request:
 
-name: Rust CI
+name: Run Node sample tests
 
 jobs:
   nodejs_18:
