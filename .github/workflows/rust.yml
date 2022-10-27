@@ -31,4 +31,12 @@ jobs:
         with:
           command: fmt
           args: --manifest-path executors/rust/Cargo.toml -- --check
-  
+
+  rust_build:
+    name: Build executor release version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build --release
+          args: --manifest-path executors/rust/Cargo.toml -- --check
