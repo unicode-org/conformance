@@ -38,5 +38,5 @@ jobs:
     steps:
       - uses: actions-rs/cargo@v1
         with:
-          command: build --release
-          args: --manifest-path executors/rust/Cargo.toml -- --check
+          command: build
+          args: --release --manifest-path executors/rust/Cargo.toml -- --check
