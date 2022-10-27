@@ -238,12 +238,15 @@ class TestPlan():
     # A group of tests separated by newlines
     testLines = []
 
-    # TODO: Add ability to have N tests per batch to sendOneLine.
+    # N tests may be given to sendOneLine in a single batch.
+    formattedCount = '{:,}'.format(testCount)
     for test in self.tests:
       test.update({"test_type": self.testScenario})
 
       if self.progress_interval and testNum % self.progress_interval == 0:
-        print('Test %d of %s' % (testNum, testCount))
+        formattedNum = '{:,}'.format(testNum)
+        print('Testing %s / %s. %s of %s' % (
+            self.exec_list[0], self.testScenario, formattedNum, formattedCount), end='\r')
 
       # Accumulate testsPerExecution items into a single outline
       if linesInBatch < testsPerExecution:
@@ -251,15 +254,11 @@ class TestPlan():
         testLines.append(outLine)
         linesInBatch += 1
 
-        if self.debug > 2:
-          print('adding +++++ 1 line to tests. %d in batch' % linesInBatch)
-
       if linesInBatch >= testsPerExecution:
         # Time to send the batch
         result = self.processBatchOfTests(testLines)
         if result:
           allTestResults.extend(result)
-
         else:
           numErrors += 1
           print('!!!!!!  "platform error": "%s",\n' % self.run_error_message)
@@ -391,7 +390,6 @@ class TestPlan():
         return result.stdout
       else:
         print('$$$$$$$$$$$$$$$$ ---> return code: %s' % result.returncode)
-
         print('    ----> INPUT LINE= >%s<' % input_line)
         print('    ----> STDOUT= >%s<' % result.stdout)
         self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' %(

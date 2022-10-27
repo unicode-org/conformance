@@ -20,7 +20,7 @@ class TestDriver():
   def __init__(self):
     # All test plans requested from command line arguments
     self.test_plans = []
-    self.debug = True  #
+    self.debug = False
     return
 
   def setArgs(self, argOptions):
@@ -42,9 +42,6 @@ class TestDriver():
 
         testFilename = testDataInfo.testDataFilename
         for exec in argOptions.exec:
-          # DEBUG
-          # print('^&^&^&^&^&^ %s exec = %s' % (argOptions.exec, exec))
-
           exec_command = {}
           if not ddtData.allExecutors.has(exec):
             # Run a non-specified executor. Compatibility of versions
@@ -81,7 +78,7 @@ class TestDriver():
     # Get all the arguments
     argparse = ddtargs.DdtArgs(args)
     if self.debug:
-      print('OPTIONS: %s' % argparse.getOptions())
+      print('TestDriver OPTIONS: %s' % argparse.getOptions())
 
     # Now use the argparse.options to set the values in the driver
     self.setArgs(argparse.getOptions())
@@ -94,13 +91,11 @@ class TestDriver():
       plan.runPlan()
 
 
-
-
 # Run the test with command line arguments
 def main(args):
 
   driver = TestDriver()
-  print('ARGS = %s' % (args))
+  # print('ARGS = %s' % (args))
   driver.parseArgs(args[1:])
 
   driver.runPlans()

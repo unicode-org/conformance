@@ -22,9 +22,10 @@ class Verifier():
 
     self.options = None
     # Set of [result filepath, verify filepath, report path]
-    self.test_plan = None
     self.result_timestamp = None
 
+    # All the items that will be verified
+    self.verify_plans = []
 
   def openVerifyFiles(self):
     try:
@@ -86,19 +87,15 @@ class Verifier():
 
     self.input_file_names = argOptions.input_path
 
-    self.verify_file_names = argOptions.verify_file_name
     self.file_base = argOptions.file_base
     if self.debug > 1:
       print('TEST TYPES = %s' % self.test_types)
-      print('VERIFY_FILES = %s' % self.verify_file_names)
 
     self.setupVerifyPlans()
 
   def setupVerifyPlans(self):
     # Set of [result file, verify file]
-    self.test_plan = []
     for exec in self.options.exec:
-      test_type_index = 0
       for test_type in self.test_types:
 
         # TODO: Run for each test_type!
@@ -115,11 +112,9 @@ class Verifier():
                                    self.options.input_path,
                                    self.testData.testDataFilename)
 
-        print('VERIFY FILE NAMES = %s' % self.verify_file_names)
-        verify_file_name = self.verify_file_names[test_type_index]
+        verify_file_name = ddtData.testDatasets[test_type].verifyFilename
 
-
-        # Set the name of the file with verify data. These files are
+        # Set the name of the verification file. These files are
         # usually in the same directory as the test data files.
         verify_file_path = os.path.join(self.file_base,
                                         self.options.input_path,
@@ -131,57 +126,64 @@ class Verifier():
                                    exec,
                                    self.testData.testDataFilename)
 
-        report_path = os.path.join(self.file_base,
-                                   self.options.report_path,
-                                   exec,
-                                   self.testData.testDataFilename)
+        report_path = os.path.join(
+            self.file_base,
+            self.options.report_path,
+            exec,
+            self.testData.testDataFilename)
 
-        # TODO: Make file.html
-        report_html_path = os.path.join(self.file_base,
-                                   self.options.report_path,
-                                   exec,
-                                        self.testData.testDataFilename + '.html')
-
+        # Make file.html
+        report_html_path = os.path.join(
+            self.file_base,
+            self.options.report_path,
+            exec,
+            self.testData.testDataFilename + '.html')
 
         # The test report to use for verification summary.
         new_report = TestReport()
         new_report.report_file_path = report_path
 
         new_report.report_html_path = report_html_path
-        print('HTML REPORT PATH = %s' % new_report.report_html_path)
 
-        self.test_plan.append((result_path,
-                               verify_file_path, report_path, new_report, testdata_path))
-        if self.debug > 0:
-          print('++++ TEST PLAN [%d] = \n  %s' % (test_type_index,
-                                                  self.test_plan[test_type_index]))
+        # The verify plan for this
+        new_verify_plan = VerifyPlan(
+            testdata_path, result_path, verify_file_path, report_path)
+        new_verify_plan.setTestType(test_type)
+        new_verify_plan.setExec(exec)
+        new_verify_plan.setReport(new_report)
 
-        test_type_index += 1
-
+        self.verify_plans.append(new_verify_plan)
 
   def verifyDataResults(self):
     # For each pair of files in the test plan, compare with expected
-    index = 0
-    for paths in self.test_plan:
-      self.result_path = paths[0]
-      self.verify_path = paths[1]
-      self.report_path = paths[2]
-      self.report = paths[3]
-      self.testdata_path = paths[4]  # The origin of the test data, for error reports
+    for vplan in self.verify_plans:
+      self.result_path = vplan.result_path
+      self.verify_path = vplan.verify_path
+      self.report_path = vplan.report_path
+      self.testdata_path = vplan.testdata_path
+      self.report = vplan.report_json
+      self.exec = vplan.exec
 
-
-      self.test_type = self.test_types[index]
-      if self.debug:
-        print('$$$$$ VERIFY PLAN[%d] = %s' % (index, paths))
+      self.test_type = vplan.test_type
       self.openVerifyFiles()
       self.compareTestToExpected()
-      index += 1
 
       # Save the results
       self.report.saveReport()
       self.report.createHtmlReport()
+
+      if self.debug:
+        print('\nTEST RESULTS in %s for %s. %d tests found' % (
+            self.exec, self.test_type, len(self.results)))
+        try:
+          print('     Platform: %s' % self.resultData["platform"])
+          print('     %d Errors running tests' % (self.report.error_count))
+        except BaseException as err:
+          sys.stderr.write('### Missing fields %s, Error = %s' % (self.resultData, err))
+
       # Experimental
-      self.report.createHtmlDiffReport()
+      # TODO: Finish difference analysis
+      # self.report.createHtmlDiffReport()
 
   def getResultsAndVerifyData(self):
     # Get the JSON data for results
@@ -236,20 +238,12 @@ class Verifier():
       print('No verify done!!!')
       return None
 
-    if self.debug:
-      print('\nTEST RESULTS for %s. %d tests found' % (self.test_type, len(self.results)))
-      try:
-        print('     Platform: %s' % self.resultData["platform"])
-        print('     %s Errors running tests' % self.resultData["errorInfo"])
-      except BaseException as err:
-        sys.stderr.write('### Missing fields %s, Error = %s' % (self.resultData, err))
-
   def compareTestToExpected(self):
     self.getResultsAndVerifyData()
-    verifyIndex = 0
 
     self.report.platform_info = self.resultData['platform']
     self.report.testdata_environment = self.resultData['test_environment']
+    self.report.exec = self.report.platform_info['platform']
     self.report.test_type = self.test_type
     if not self.verifyExpected:
       sys.stderr.write('No expected data in %s' % self.verify_path)
@@ -268,31 +262,27 @@ class Verifier():
     for test in self.results:
       if not test:
         print('@@@@@ no test string: %s of %s' % (test, len(self.results)))
-      if self.debug > 2:
-        print('*$*$*$*$* test result = %s' % test)
+
       if index % 10000 == 0:
-        print('  progress = %d / %s' % (index, total_results))
+        print('  progress = %d / %s' % (index, total_results), end='\r')
 
       # Get the result
       try:
         actual_result = test['result']
         test_label = test['label']
       except:
-        # print('^^^^^ SKIPPING: Error with test results: %s' % test)
-
         self.report.recordTestError(test)
         continue
 
-      verdata = self.findExpectedWithLabel(test_label)
+      verification_data = self.findExpectedWithLabel(test_label)
 
-      if not verdata:
+      if not verification_data:
         print('*** Cannot find verify data with label %s' % test_label)
         self.report.recordMissingVerifyData(test)
         # Bail on this test
-
         continue
 
-      expected_result = verdata['verify']
+      expected_result = verification_data['verify']
       if self.debug > 1:
         print('VVVVV: %s actual %s, expected %s' % (
             (actual_result == expected_result),
@@ -314,8 +304,6 @@ class Verifier():
   def findExpectedWithLabel(self, test_label):
     # Look for test_label in the expected data
     # Very inefficient - use Binary Search on sorted labels.
-    # if self.debug:
-    #  print(' look for test_label %s' % test_label)
     if not self.verifyExpected:
       return None
 
@@ -363,6 +351,29 @@ class Verifier():
       print('RESULT PATH = %s' % self.resultPath)
       print('VERIFY PATH = %s' % self.verifyPath)
       print('TESTDATA PATH = %s' % self.testdata_path)
+
+class VerifyPlan():
+# Details of a verification plan
+  def __init__(self,
+               testdata_path, result_path, verify_path, report_path):
+    self.testdata_path = testdata_path
+    self.result_path = result_path
+    self.verify_path = verify_path
+    self.report_path = report_path
+    self.exec = None
+    self.test_type = None
+
+    # The generated data
+    self.report_json = None
+
+  def setExec(self, exec):
+    self.exec = exec
+
+  def setTestType(self, test_type):
+    self.test_type = test_type
+
+  def setReport(self, new_report):
+    self.report_json = new_report
 
 
 class Tester():
@@ -441,6 +452,8 @@ def main(args):
 
   # Run the tests on the provided parameters.
   verifier.verifyDataResults()
+
+  # TODO: Create summary display
 
 
 if __name__ == '__main__':

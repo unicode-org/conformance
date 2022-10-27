@@ -50,6 +50,12 @@ class TestReport():
     self.report_html_template = Template("""<html>
   <head>
     <title>$test_type with $exec</title>
+    <style>
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    }
+    </style>
   </head>
   <body>
     <h1>$test_type</h1>
@@ -61,20 +67,21 @@ class TestReport():
     <p>Total tests: $total_tests</p>
     <p>Passing tests: $passing_tests</p>
     <p>Failing tests: $failing_tests</p>
+
+    <h2>Test Errors</h2>
+    <table id='test_error_table'>
+    <tr><th width="10%">Label</th><th width="20%">Expected</th><th width="20%">Actual result</th><th>Test input</tr>
+      <!-- For each failing test, output row with columns
+           label, expected, actual, difference -->
+$test_error_table
+    </table>
+
     <h2>Failing tests detail</h2>
     <table id='failing_tests_table'>
     <tr><th style="width"10%">Label</th><th style="width"45%">Expected</th><th style="width"45%">Result</th></tr>
       <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
 $failure_table
-    </table>
-
-    <h2>Test Errors</h2>
-    <table id='test_error_table'>
-    <tr><th style="width"10%">Label</th><th style="width"45%">Expected</th><th style="width"45%">Result</th></tr>
-      <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-$test_error_table
     </table>
 
   </body>
@@ -117,14 +124,12 @@ $test_error_table
 
     report['platform'] = self.platform_info
     report['test_environment'] = self.testdata_environment
-    report['test_errors'] = self.test_errors
-
     report['timestamp'] = self.timestamp
-    report['failCount'] = self.tests_fail
-    report['passCount'] = self.tests_pass
-    report['failingTests'] = self.failing_tests
+    report['failCount'] =  "{:,}".format(self.tests_fail)
+    report['passCount'] =  "{:,}".format(self.tests_pass)
+    report['failingTests'] =  self.failing_tests
     report['missing_verify_data'] = self.missing_verify_data
-    report['test_error_count'] = self.error_count
+    report['test_error_count'] =  "{:,}".format(self.error_count)
 
     report['test_errors'] = self.test_errors
     self.report = report
@@ -177,8 +182,6 @@ $test_error_table
     # TODO: Use template and add failure lines
     # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
-    if self.debug:
-      print('HTML OUTPUT= \n%s' % (html_output))
 
     try:
       file = open(self.report_html_path, mode='w', encoding='utf-8')
@@ -199,14 +202,8 @@ $test_error_table
       fromlines.append(fail['expected'])
       tolines.append(fail['result'])
 
-    if self.debug > 1:
-      print('fromlines = %s' % fromlines)
-      print('tolines = %s' % tolines)
     htmldiff = HtmlDiff()
     html_diff_result = htmldiff.make_table(fromlines[0:100], tolines[0:100])  #, fromdesc='expected', todesc='actual result')
-
-    if self.debug:
-      print('HTML OUTPUT= \n%s' % (html_diff_result))
 
     new_path = self.report_html_path.replace('.html', '_diff.html')
 

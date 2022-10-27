@@ -52,5 +52,5 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let json_result = json!({
         "label": label,
         "result": result_string.write_to_string()});
-    return Ok(json_result);
+    Ok(json_result)
 }
