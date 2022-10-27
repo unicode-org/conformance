@@ -90,6 +90,7 @@ fn main() -> io::Result<()> {
             let json_info: Value = serde_json::from_str(&buffer)?;
 
             let test_type: &str = json_info["test_type"].as_str().unwrap();
+            let label: &str = json_info["label"].as_str().unwrap();
 
             let json_result = if test_type == "coll_shift_short" {
                 // TODO: Get the json result and print here
@@ -104,9 +105,9 @@ fn main() -> io::Result<()> {
                 Ok(value) => println!("{}", value),
                 Err(s) => println!(
                     "{}",
-                    json!({"error": s,
-                                                "type": "unknown test type",
-                                                "received_info": json_info})
+                    json!({"error": s, "label": label,
+                           "type": "unknown test type",
+                           "received_info": json_info})
                 ),
             }
         }

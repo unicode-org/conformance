@@ -70,9 +70,6 @@ class VerifyArgs():
         description='Process DDT Verifier arguments')
 
     setCommonArgs(self.parser)
-    self.parser.add_argument('--verify_file_name', action='extend', nargs='*',
-                             help='Files with expected results for verifying', default=None)
-
     self.parser.add_argument('--test_verifier',
                              help='Flag to run in test mode', default=None)
 
