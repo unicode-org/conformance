@@ -70,6 +70,18 @@ class VerifyArgs():
         description='Process DDT Verifier arguments')
 
     setCommonArgs(self.parser)
+
+    # Specific for verifier
+    self.parser.add_argument(
+        '--verify_all', action='store_true',
+        help='Verify all available report files',
+        default=None)
+
+    self.parser.add_argument(
+        '--summary_only', action='store_true',
+        help='Flag to create summaries from current reports',
+        default=None)
+
     self.parser.add_argument('--test_verifier',
                              help='Flag to run in test mode', default=None)
 
@@ -83,7 +95,7 @@ class VerifyArgs():
 # Set up arguments common to both testDriver and verifier
 def setCommonArgs(parser):
 
-  # What data and executor(s) to verify
+  # What data and executor(s) to run verify
   parser.add_argument('--test_type', '--type', '-t', '--test',
                       action='extend', nargs='*',
                       choices=type_options)

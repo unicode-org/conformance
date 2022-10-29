@@ -13,9 +13,11 @@ from ddtargs import VerifyArgs
 
 from testreport import TestReport
 
+from testreport import SummaryReport
+
 class Verifier():
   def __init__(self):
-    self.debug = 1  # Different levels
+    self.debug = 0  # Different levels
 
     self.report = None
     self.reports = []
@@ -28,28 +30,28 @@ class Verifier():
     self.verify_plans = []
 
   def openVerifyFiles(self):
+    # Get test data, verify data, and results for a case.
     try:
       self.result_file = open(self.result_path, encoding='utf-8', mode='r')
       self.result_timestamp = datetime.fromtimestamp(
           os.path.getmtime(self.result_path)).strftime('%Y-%m-%d %H:%M')
-
     except BaseException as err:
-      print('*** Cannot open results file %s: err = %s' % (self.result_path, err))
+      print('    *** Cannot open results file:\n        %s' % (err))
       return None
 
     try:
       self.verify_data_file = open(self.verify_path, encoding='utf-8', mode='r')
     except BaseException as err:
-      print('**!!* Cannot open verify file %s' % (self.verify_path))
+      print('    **!!* Cannot open verify file %s' % (self.verify_path))
       return None
 
-    # Check if report directory exists
+    # Create report directory if needed
     try:
       report_dir = os.path.dirname(self.report_path)
       if not os.path.isdir(report_dir):
         os.makedirs(report_dir)
     except BaseException as err:
-      sys.stderr.write('!!! Cannot create directory %s for report file %s' %
+      sys.stderr.write('    !!! Cannot create directory %s for report file %s' %
                        (report_dir, self.report_path))
       sys.stderr.write('   !!! Error = %s' % err)
       return None
@@ -67,10 +69,11 @@ class Verifier():
       print('*** Cannot open testdata file %s: Error = %s' % (self.testdata_path, err))
       return None
 
+    # Initialize values for this case.
     self.results = None
     self.expected = None
     self.testdata = None
-
+    return True  # Indicates that data
 
   def parseArgs(self, args):
     # Initialize commandline arguments
@@ -91,12 +94,26 @@ class Verifier():
     if self.debug > 1:
       print('TEST TYPES = %s' % self.test_types)
 
-    self.setupVerifyPlans()
+    if not argOptions.summary_only:
+      self.setupVerifyPlans()
 
   def setupVerifyPlans(self):
     # Set of [result file, verify file]
-    for exec in self.options.exec:
-      for test_type in self.test_types:
+
+    if self.options.verify_all:
+      # Generates exec and test lists from the existing files in
+      # testResults directories
+      summaryReport = SummaryReport(self.file_base)
+      summaryReport.getJsonFiles()
+      summaryReport.summarizeReports()
+      executor_list = summaryReport.exec_summary.keys()
+      test_list = summaryReport.type_summary.keys()
+    else:
+      executor_list = self.options.exec
+      test_list = self.options.test_type
+
+    for exec in executor_list:
+      for test_type in test_list:
 
         # TODO: Run for each test_type!
         if test_type not in ddtData.testDatasets:
@@ -165,14 +182,20 @@ class Verifier():
       self.exec = vplan.exec
 
       self.test_type = vplan.test_type
-      self.openVerifyFiles()
+
+      print('  Verifying test %s on %s executor' % (self.test_type, self.exec))
+      if not self.openVerifyFiles():
+        continue
       self.compareTestToExpected()
 
       # Save the results
-      self.report.saveReport()
-      self.report.createHtmlReport()
+      if not self.report.save_report():
+        print('!!! Count not save report for (%s, %s)' %
+              (self.test_type, self.exec))
+      else:
+        self.report.create_html_report()
 
-      if self.debug:
+      if self.debug > 0:
         print('\nTEST RESULTS in %s for %s. %d tests found' % (
             self.exec, self.test_type, len(self.results)))
         try:
@@ -183,7 +206,7 @@ class Verifier():
 
       # Experimental
       # TODO: Finish difference analysis
-      # self.report.createHtmlDiffReport()
+      # self.report.create_html_diff_report()
 
   def getResultsAndVerifyData(self):
     # Get the JSON data for results
@@ -223,9 +246,6 @@ class Verifier():
     for item in self.testdata['tests']:
       self.testdataDict[item['label']] = item
 
-    if self.debug > 1:
-      print('^^^ Verification file has %d entries' % (len(self.verifyExpected)))
-
     # Sort results and verify data by the label
     try:
       self.results.sort(key=lambda x: x['label'])
@@ -242,7 +262,7 @@ class Verifier():
     self.getResultsAndVerifyData()
 
     self.report.platform_info = self.resultData['platform']
-    self.report.testdata_environment = self.resultData['test_environment']
+    self.report.test_environment = self.resultData['test_environment']
     self.report.exec = self.report.platform_info['platform']
     self.report.test_type = self.test_type
     if not self.verifyExpected:
@@ -271,14 +291,14 @@ class Verifier():
         actual_result = test['result']
         test_label = test['label']
       except:
-        self.report.recordTestError(test)
+        self.report.record_test_error(test)
         continue
 
       verification_data = self.findExpectedWithLabel(test_label)
 
       if not verification_data:
         print('*** Cannot find verify data with label %s' % test_label)
-        self.report.recordMissingVerifyData(test)
+        self.report.record_missing_verify_data(test)
         # Bail on this test
         continue
 
@@ -288,11 +308,11 @@ class Verifier():
             (actual_result == expected_result),
             actual_result, expected_result))
       if actual_result == expected_result:
-        self.report.recordPass(test)
+        self.report.record_pass(test)
       else:
         # Add expected value to the report
         test['expected'] = expected_result
-        self.report.recordFail(test)
+        self.report.record_fail(test)
 
         # Get the info from the testsdata file for this label
         test_data = self.findTestdataWithLabel(test_label)
@@ -317,9 +337,6 @@ class Verifier():
 
   def findTestdataWithLabel(self, test_label):
     # Look for test_label in the expected data
-    # Very inefficient - use Binary Search on sorted labels.
-    # if self.debug:
-    #  print(' look for test_label %s' % test_label)
     if not self.testData:
       return None
 
@@ -337,20 +354,35 @@ class Verifier():
     # !!! TODO: something
     return
 
-  def setupPaths(self, exec, testfile, verifyfile):
+  def setupPaths(self, executor, testfile, verifyfile):
     baseDir = self.file_base
-    if self.debug:
+    if self.debug > 1:
       print('&&& FILE BASE = %s' % baseDir)
       self.resultPath = os.path.join(
-          baseDir, 'testResults', exec, testfile)
+          baseDir, 'testResults', executor, testfile)
       self.verifyPath = os.path.join(
           baseDir, 'testData', verifyfile)
       self.reportPath = os.path.join(
-          baseDir, 'testReports', exec, testfile)
-    if self.debug:
+          baseDir, 'testReports', executor, testfile)
+    if self.debug > 0:
       print('RESULT PATH = %s' % self.resultPath)
       print('VERIFY PATH = %s' % self.verifyPath)
       print('TESTDATA PATH = %s' % self.testdata_path)
+
+  # Create HTML summary files
+  def createSummaryReports(self):
+    if not self.file_base:
+      return None
+
+    # The following gets information from all the tests
+    summaryReport = SummaryReport(self.file_base)
+    summaryReport.setupAllTestResults()
+
+    # And make the output HTML results
+    result = summaryReport.createSummaryHtml()
+    if result == None:
+      print('!!!!!! SUMMARY HTML fails')
+
 
 class VerifyPlan():
 # Details of a verification plan
@@ -366,8 +398,8 @@ class VerifyPlan():
     # The generated data
     self.report_json = None
 
-  def setExec(self, exec):
-    self.exec = exec
+  def setExec(self, executor):
+    self.exec = executor
 
   def setTestType(self, test_type):
     self.test_type = test_type
@@ -382,15 +414,11 @@ class Tester():
     self.test_type = None
     self.verifier = None
 
-  def setupPathsAndRun(self, exec, testfile, verifyfile):
+  def setupPathsAndRun(self, executor, testfile, verifyfile):
     baseDir = '.'
-    self.resultPath = os.path.join(baseDir, 'testResults', exec, testfile)
+    self.resultPath = os.path.join(baseDir, 'testResults', executor, testfile)
     self.verifyPath = os.path.join(baseDir, 'testData', verifyfile)
-    self.reportPath = os.path.join(baseDir, 'testReports', exec, testfile)
-    if self.debug:
-      print('RESULT PATH = %s' % resultPath)
-      print('VERIFY PATH = %s' % verifyPath)
-      print('RESULT PATH = %s' % resultPath)
+    self.reportPath = os.path.join(baseDir, 'testReports', executor, testfile)
 
     result = self.openVerifyFiles()
 
@@ -398,24 +426,24 @@ class Tester():
 
     return result
 
-  def collationExec(self, exec):
+  def collationExec(self, executor):
     # Set up paths and run verify
-    self.title = exec.upper() + ' COLL_SHIFT_SHORT'
+    self.title = executor.upper() + ' COLL_SHIFT_SHORT'
     self.test_type = 'coll_shift_short'
     result = self.setupPathsAndRun(
-        exec, 'coll_test_shift.json', 'coll_verify_shift.json')
+        executor, 'coll_test_shift.json', 'coll_verify_shift.json')
 
-  def decimalFmtExec(self, exec):
-    self.title = exec.upper() + ' DECIMAL_FMT'
+  def decimalFmtExec(self, executor):
+    self.title = executor.upper() + ' DECIMAL_FMT'
     self.test_type = 'decimal_fmt'
     result = self.setupPathsAndRun(
-        exec, 'dcml_fmt_test_file.json', 'dcml_fmt_verify.json')
+        executor, 'dcml_fmt_test_file.json', 'dcml_fmt_verify.json')
 
-  def displayNamesExec(self, exec):
-    self.title = exec.upper() + ' DISPLAY_NAMES'
+  def displayNamesExec(self, executor):
+    self.title = executor.upper() + ' DISPLAY_NAMES'
     self.test_type = 'display_names'
     result = self.setupPathsAndRun(
-        exec, 'display_names.json', 'display_names_verify.json')
+        executor, 'display_names.json', 'display_names_verify.json')
 
   def printResult(self):
     print('\n  Test Report for %s' % self.title)
@@ -428,15 +456,15 @@ class Tester():
 def runVerifierTests(verifier):
   execs = ['node', 'rust']
 
-  for exec in execs:
+  for executor in execs:
     testerCollNode = Tester()
-    testerCollNode.collationExec(exec)
+    testerCollNode.collationExec(executor)
 
     testerDecimalFmt = Tester()
-    testerDecimalFmt.decimalFmtExec(exec)
+    testerDecimalFmt.decimalFmtExec(executor)
 
     testerDisplayNames = Tester()
-    testerDisplayNames.displayNamesExec(exec)
+    testerDisplayNames.displayNamesExec(executor)
 
 
 # For testing
@@ -450,10 +478,15 @@ def main(args):
     runVerifierTests(verifier)
     return
 
-  # Run the tests on the provided parameters.
-  verifier.verifyDataResults()
+  if not verifier.options.summary_only:
+    # Run the tests on the provided parameters.
+    print('Verifier starting on %d verify cases' %(len(verifier.verify_plans)))
+    verifier.verifyDataResults()
+    print('Verifier completed %d data reports' %(len(verifier.verify_plans)))
 
-  # TODO: Create summary display
+  # TODO: Should this be optional?
+  verifier.createSummaryReports()
+  print('Verifier completed summary report')
 
 
 if __name__ == '__main__':
