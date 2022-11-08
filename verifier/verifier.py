@@ -195,6 +195,9 @@ class Verifier():
       else:
         self.report.create_html_report()
 
+      # Do more analysis on the failures
+      self.report.summarizeFailures()
+
       if self.debug > 0:
         print('\nTEST RESULTS in %s for %s. %d tests found' % (
             self.exec, self.test_type, len(self.results)))
