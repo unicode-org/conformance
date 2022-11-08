@@ -319,6 +319,7 @@ class Verifier():
         test['input_data'] = test_data
       index += 1
 
+    print('')
     return
 
   def findExpectedWithLabel(self, test_label):

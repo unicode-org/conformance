@@ -123,12 +123,12 @@ def generateLanguageNameTestDataObjects(rawtestdata):
   verifydata_jobjs = []
 
   for item in test_list:
-    if recommentline.match(item):
-      print('Comment line')
+    # if recommentline.match(item):
+    #   print('Comment line')
     if not (recommentline.match(item) or reblankline.match(item)):
       test_data = parseLanguageNameData(item)
       if test_data == None:
-        print('Line \'%s\' not recognized as valid test data entry' % item)
+        print('  LanguageNames: Line \'%s\' not recognized as valid test data entry' % item)
         continue
       else:
         test_data_entry = '{\n  "label": "%s",\n  "language_label": "%s",\n  "locale_label": "%s"\n},' % (str(count).rjust(7, '0'), test_data[0], test_data[1])
@@ -141,6 +141,7 @@ def generateLanguageNameTestDataObjects(rawtestdata):
   testdata_jobjs[-1] = testdata_jobjs[-1].rstrip(',')
   verifydata_jobjs[-1] = verifydata_jobjs[-1].rstrip(',')
 
+  print('LangNames Test: %d lines processed' % count)
   return testdata_jobjs, verifydata_jobjs
 
 def generateNumberFmtTestDataObjects(rawtestdata):
@@ -232,6 +233,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count):
   testdata_jobjs[-1] = testdata_jobjs[-1].rstrip(',')
   verifydata_jobjs[-1] = verifydata_jobjs[-1].rstrip(',')
 
+  print('DcmlFmt Test: %d lines processed' % count)
   return testdata_jobjs, verifydata_jobjs
 
 def generateCollTestDataObjects(testdata_list):
@@ -247,7 +249,7 @@ def generateCollTestDataObjects(testdata_list):
         if int('0x' + cp, 16) < 32 or int('0x' + cp, 16) == 127:
           testdatastring = testdatastring + '\\u' + cp
         elif cp == '0022':
-          print('Double quote encountered')
+          # print('Double quote encountered')
           testdatastring = testdatastring +'\\"'
         elif cp == '005C':
           testdatastring = testdatastring +'\\\\'
@@ -257,7 +259,7 @@ def generateCollTestDataObjects(testdata_list):
       colltestdata.append(testdatastring)
       n += 1
 
-  print('Lines processed: %s' % n)
+  print('Coll Test: %d lines processed' % n)
 
   # Construct test data and verification entries in JSON.
   testdata_jobjs = []
@@ -311,7 +313,6 @@ def processTestData(rawtestdata):
   verify_object = generateVerifyObject(verify_list)
   tests_object = generateTestsObject(testdata_object_list)
   json_test, json_verify = insert_coll_descr(tests_object, verify_object)
-  print('================================================================================')
   #for t in json_test:
   #  print(t)
 
@@ -404,6 +405,7 @@ def processLangNameTestData(rawtestdata):
 
 
 def main():
+  print('Generating .json files for data driven testing')
   rawcolltestdata = readFile('CollationTest_SHIFTED_SHORT.txt')
   #rawtestdata = readFile('CollationTest_NON_IGNORABLE_SHORT.txt')
   json_test, json_verify = processTestData(rawcolltestdata)
@@ -461,6 +463,7 @@ def main():
     lang_name_verify_file.write(v)
     lang_name_verify_file.write('\n')
   lang_name_verify_file.close()
+  print('================================================================================')
 
 
 if __name__ == '__main__':

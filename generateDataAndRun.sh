@@ -19,18 +19,17 @@ mkdir -p $TEMP_DIR/testResults
 
 # Invoke all tests on all platforms
 cd testdriver
-python3 testdriver.py --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 1000
+python3 testdriver.py --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
-python3 testdriver.py --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 1000
+python3 testdriver.py --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # Verify everything
 cd ..
 mkdir -p $TEMP_DIR/testReports
 cd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec node --test_type coll_shift_short number_fmt lang_names
-echo $?python3
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust --test_type coll_shift_short number_fmt
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node python --test_type coll_shift_short number_fmt lang_names 
+
 
 # Push testresults and test reports to Cloud Storge
 # TODO
@@ -38,4 +37,4 @@ echo $?
 
 # Clean up directory
 # ... after results are reported
-rm -rf ../$TEMP_DIR
+#rm -rf ../$TEMP_DIR
