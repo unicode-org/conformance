@@ -84,7 +84,7 @@ module.exports = {
       }
       if (unsupported_options.length > 0) {
         return {'label': label,
-                "error": "unsupported_options",
+                "unsupported": "unsupported_options",
                 "error_detail": {'unsupported_options': unsupported_options}
                };
       }
@@ -126,5 +126,4 @@ module.exports = {
     }
     return outputLine
   }
-
 }

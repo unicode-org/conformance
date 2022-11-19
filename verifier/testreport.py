@@ -127,15 +127,15 @@ class TestReport():
     <p>Total: $total_tests.
     <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
     <p><i>Click on headings below to view/hide details</i></p>
-    <h2 id='testErrors' onclick="toggleElement('test_error_table');">Test Errors</h2>
+    <h2 id='testErrors' onclick="toggleElement('test_error_table');">Test Errors ($error_count)</h2>
     $error_summary
     $error_section
 
-    <h2 id='testUnsupported' onclick="toggleElement('test_unsupported_table');">Unsupported Tests</h2>
+    <h2 id='testUnsupported' onclick="toggleElement('test_unsupported_table');">Unsupported Tests  ($unsupported_count)</h2>
     $unsupported_summary
     $unsupported_section
 
-    <h2 id='testFailures' onclick="toggleElement('failing_tests_table');">Failing tests detail</h2>
+    <h2 id='testFailures' onclick="toggleElement('failing_tests_table');">Failing tests detail ($failing_tests)</h2>
     <table id='failing_tests_table' style="display:none">
     <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
       <!-- For each failing test, output row with columns
@@ -196,6 +196,20 @@ $failure_table
 
   def summary_status(self):
     return self.tests_fail == 0 and not self.missing_verify_data
+
+  def compute_category_summary(self, items, group_tag, detail_tag):
+    # For the items, count messages and arguments for each
+    groups = {}
+    for item in items:
+      print('@@@@@@@@@@@ item %s' % item)
+      group = item.get(group_tag)
+      detail = item.get(detail_tag)
+      if group:
+        if not groups.get(group):
+          groups[group].append(item)
+        else:
+          groups[group]= [item]
+    print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
 
   def createReport(self):
     # Make a JSON object with the data
@@ -297,7 +311,9 @@ $failure_table
     else:
       html_map['unsupported_section'] = 'No unsupported tests found'
 
-    print('!!!!! UNSUPPORTED LINES: %s' % (len(html_map['unsupported_section'])))
+    self.compute_category_summary(self.unsupported_cases,
+                                  'unsupported_options',
+                                  'unsupported_detail')
 
     # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
