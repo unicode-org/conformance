@@ -294,7 +294,10 @@ class Verifier():
         actual_result = test['result']
         test_label = test['label']
       except:
-        self.report.record_test_error(test)
+        if test.get('unsupported'):
+          self.report.record_unsupported(test)
+        else:
+          self.report.record_test_error(test)
         continue
 
       verification_data = self.findExpectedWithLabel(test_label)

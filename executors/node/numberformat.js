@@ -10,9 +10,38 @@
   patternsToOptions.set("0.0000E0", {notation: "scientific",
                                      minimunFractionDigits: 4});
 
+let debug = 1;
+
+// List of supported options. If unexpected options are seen, return
+// "unsupported" rather than an error.
+// Use array.includes(optionX) to check.
+// TODO: Should this also include the values for each option?
+const all_supported_options = [
+  "compactDisplay",
+  "currency",
+  "currencyDisplay",
+  "currencySign",
+  "localeMatcher",
+  "notation",
+  "numberingSystem",
+  "signDisplay",
+  "style",
+  "unit",
+  "unitDisplay",
+  "useGrouping",
+  "roundingMode",
+  "roundingPriority",
+  "roudingIncrement",
+  "trailingZeroDisplay",
+  "minimumIntegerDigits",
+  "minimumFractionDigits",
+  "maximumFractionDigits",
+  "minimumSignificantDigits",
+  "maximumSignificantDigits"
+];
+
 module.exports = {
   decimalPatternToOptions: function(pattern, rounding) {
-    // TODO: Fill in with options from
     let options = {};
     if (patternsToOptions.has(pattern)) {
       options = patternsToOptions.get(pattern);
@@ -32,6 +61,8 @@ module.exports = {
 
     let options;
     let error = "unimplemented pattern";
+    let unsupported_options = [];
+    let return_json = {};
 
     // If options are in the JSON, use them...
     options = json['options'];
@@ -40,34 +71,59 @@ module.exports = {
         options = this.decimalPatternToOptions(pattern, rounding);
       } catch (error) {
         // Some error - to return this message
+        return_json['error'] = "Can't convert pattern";
+        return_json['label'] = label;
         options = none;
+      }
+    } else {
+      // Check each option for implementation.
+      for (key in options) {
+        if (!all_supported_options.includes(key)) {
+          unsupported_options.push((key + ":" +  options[key]));
+        }
+      }
+      if (unsupported_options.length > 0) {
+        return {'label': label,
+                "error": "unsupported_options",
+                "error_detail": {'unsupported_options': unsupported_options}
+               };
       }
     }
 
     if (!options) {
       // Don't test, but return an error
       return {'label': label,
-              'test_error': 'No options found',
+              'error': 'No options found',
              };
     }
     let testLocale = json['locale'];
 
     let nf;
-    if (testLocale) {
-      nf = new Intl.NumberFormat(testLocale, options);
-    } else {
-      nf = new Intl.NumberFormat(options);
+    try {
+      if (testLocale) {
+        nf = new Intl.NumberFormat(testLocale, options);
+      } else {
+        nf = new Intl.NumberFormat(options);
+      }
+
+      let result = 'NOT IMPLEMENTED';
+      result = nf.format(input);
+
+      // Formatting as JSON
+      resultString = result ? result : 'None'
+
+      outputLine = {"label": json['label'],
+                    "result": resultString,
+                   };
+    } catch (error) {
+      // Handle type of the error
+      outputLine = {"label": json['label'],
+                    "error": "formatting error",
+                   };
+      if (error instanceof RangeError) {
+        outputLine["error_detail"] =  error.message;
+      }
     }
-    let result = 'NOT IMPLEMENTED';
-    result = nf.format(input);
-
-    // Formatting as JSON
-    resultString = result ? result : 'None'
-
-    outputLine = {"label": json['label'],
-                  "result": resultString,
-                  "pattern": pattern
-                 };
     return outputLine
   }
 

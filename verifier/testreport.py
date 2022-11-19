@@ -12,6 +12,8 @@ import os
 from string import Template
 import sys
 
+import unicodedata  # for info on particular characters
+
 # https://docs.python.org/3.6/library/string.html#template-strings
 
 # Consider Jinja2: https://jinja.palletsprojects.com/en/3.1.x/intro/
@@ -78,6 +80,7 @@ class TestReport():
     self.tests_fail = 0
     self.passing_tests = []
     self.test_errors = []
+    self.unsupported_cases = []
     self.error_count = 0
     self.tests_pass = 0
 
@@ -103,6 +106,16 @@ class TestReport():
     text-align: center;
     }
     </style>
+    <script>
+    function toggleElement(id) {
+      const element = document.getElementById(id);
+      if (element.style.display === "none") {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
+    }
+    </script>
   </head>
   <body>
     <h1>Verification report: $test_type on $exec</h1>
@@ -111,12 +124,19 @@ class TestReport():
     <p>$test_environment</p>
     <p>Result file created: $timestamp
     <h2>Test summary</h2>
-    <p>Total: $total_tests, passing: $passing_tests, failing: $failing_tests</p>
-    <h2>Test Errors</h2>
+    <p>Total: $total_tests.
+    <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
+    <p><i>Click on headings below to view/hide details</i></p>
+    <h2 id='testErrors' onclick="toggleElement('test_error_table');">Test Errors</h2>
+    $error_summary
     $error_section
 
-    <h2>Failing tests detail</h2>
-    <table id='failing_tests_table'>
+    <h2 id='testUnsupported' onclick="toggleElement('test_unsupported_table');">Unsupported Tests</h2>
+    $unsupported_summary
+    $unsupported_section
+
+    <h2 id='testFailures' onclick="toggleElement('failing_tests_table');">Failing tests detail</h2>
+    <table id='failing_tests_table' style="display:none">
     <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
       <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
@@ -127,11 +147,19 @@ $failure_table
 </html>
 """)
 
-    self.error_table_template = Template("""    <table id='test_error_table'>
+    self.error_table_template = Template("""    <table id='test_error_table' style="display:none">
        <tr><th width="10%">Label</th><th width="20%">Error message</th><th>Test input</tr>
        <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
       $test_error_table
+    </table>
+""")
+
+    self.unsupported_table_template = Template("""    <table id='test_unsupported_table' style="display:none">
+       <tr><th width="10%">Label</th><th width="20%">Unsupported message</th><th>Details</tr>
+       <!-- For each failing test, output row with columns
+           label, expected, actual, difference -->
+      $test_unsupported_table
     </table>
 """)
 
@@ -140,7 +168,11 @@ $failure_table
         )
 
     self.test_error_template = Template(
-        '<tr><td>$label</td><td>$error</td><td>$received_info</td></tr>'
+        '<tr><td>$label</td><td>$error</td><td>$error_detail</td></tr>'
+        )
+
+    self.test_unsupported_template = Template(
+        '<tr><td>$label</td><td>$unsupported</$unsupported><td>$error_detail</td></tr>'
         )
 
   def record_fail(self, test):
@@ -153,6 +185,10 @@ $failure_table
 
   def record_test_error(self, test):
     self.test_errors.append(test)
+    self.error_count +=1
+
+  def record_unsupported(self, test):
+    self.unsupported_cases.append(test)
     self.error_count +=1
 
   def record_missing_verify_data(self, test):
@@ -178,6 +214,7 @@ $failure_table
     report['test_error_count'] =  "{:,}".format(self.error_count)
 
     report['test_errors'] = self.test_errors
+    report['unsupported'] = self.unsupported_cases
     self.report = report
 
     return json.dumps(report)
@@ -205,7 +242,9 @@ $failure_table
                 'timestamp': self.timestamp,
                 'total_tests': "{:,}".format(self.number_tests),
                 'passing_tests': "{:,}".format(self.tests_pass),
-                'failing_tests': "{:,}".format(self.tests_fail)
+                'failing_tests': "{:,}".format(self.tests_fail),
+                'error_count': "{:,}".format(len(self.test_errors)),
+                'unsupported_count': "{:,}".format(len(self.unsupported_cases))
                 # ...
                 }
 
@@ -242,6 +281,23 @@ $failure_table
       )
     else:
       html_map['error_section'] = 'No test errors found'
+
+    unsupported_lines = []
+    if self.unsupported_cases:
+      # Create a table of all test errors.
+      error_lines = []
+      for unsupported in self.unsupported_cases:
+        line = self.test_unsupported_template.safe_substitute(unsupported)
+        unsupported_lines.append(line)
+
+      unsupported_line_data = ('\n').join(unsupported_lines)
+      html_map['unsupported_section'] = self.unsupported_table_template.safe_substitute(
+          {'test_unsupported_table': unsupported_line_data}
+      )
+    else:
+      html_map['unsupported_section'] = 'No unsupported tests found'
+
+    print('!!!!! UNSUPPORTED LINES: %s' % (len(html_map['unsupported_section'])))
 
     # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
@@ -398,6 +454,16 @@ class SummaryReport():
     text-align: center;
     }
     </style>
+    <script>
+    function toggleElement(id) {
+      const element = document.getElementById(id);
+      if (element.style.display === "none") {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
+    }
+    </script>
   </head>
   <body>
     <h1>Data Driven Test Summary</h1>
@@ -449,6 +515,16 @@ class SummaryReport():
     text-align: center;
     }
     </style>
+    <script>
+    function toggleElement(id) {
+      const element = document.getElementById(id);
+      if (element.style.display === "none") {
+        element.style.display = "block";
+      } else {
+        element.style.display = "none";
+      }
+    }
+    </script>
   </head>
   <body>
     <h1>Data Driven Test Summary</h1>
@@ -485,7 +561,7 @@ class SummaryReport():
 
   def setupAllTestResults(self):
     self.getJsonFiles()  # From testResults files.
-    self.summarizeReports()  # Initializes exec_summary ant test_summary
+    self.summarizeReports()  # Initializes exec_summary and test_summary
 
   def summarizeReports(self):
     # Get summary data by executor for each test and by test for each executor

@@ -38,8 +38,7 @@ let langnames = require('./langnames.js')
   * Started 28-July-2022, ccornelius@google.com
  */
 
-let doLogInput = false;
-
+let doLogInput = 0;
 // Test type support. Add new items as they are implemented
 const testTypes = {
   TestCollShiftShort : Symbol("coll_shift_short"),
@@ -51,6 +50,22 @@ const testTypes = {
   TestDisplayNames : Symbol("display_names"),
   TestLangNames : Symbol("language_display_name"),
 }
+
+const supported_test_types = [
+  Symbol("coll_shift_short"),
+  Symbol("decimal_fmt"),
+  Symbol("number_fmt"),
+  Symbol("display_names"),
+  Symbol("language_display_name")
+];
+const supported_tests_json = {"supported_tests":
+                              [
+                                "coll_shift_short",
+                                "decimal_fmt",
+                                "number_fmt",
+                                "display_names",
+                                "language_display_name"
+                              ]};
 
 // Test line-by-line input, with output as string.
 // Check on using Intl functions, e.g., DateTimeFormat()
@@ -65,30 +80,27 @@ let rl = readline.createInterface({
 /**
  * Given a JSON data structure, check for "test_type". If not present, then
  * infer the test ID from the label
+ * !!! Not used now.
  */
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  if (doLogInput) {
-    console.log("***** test_type = " + testId + " parsed = " + JSON.stringify(parsed));
+  console.log(testId);
+  if (testId == "coll_shift_short") {
+    return testTypes.TestCollShiftShort;
   }
+  if (testId == "decimal_fmt" || testId == "number_fmt") {
+    return testTypes.TestDecimalFormat;
+  }
+  if (testId == "display_names") {
+    return testTypes.TestDisplayNames;
+  }
+  if (testId == "language_display_name") {
+    return testTypes.TestLangNames;
+  }
+  console.log("#*********** Unknown test type = " + testId);
+  return null;
 
-  if (testId) {
-    if (testId == "coll_shift_short") {
-      return testTypes.TestCollShiftShort;
-    }
-    if (testId == "decimal_fmt" || testId == "number_fmt") {
-      return testTypes.TestDecimalFormat;
-    }
-    if (testId == "display_names") {
-      return testTypes.TestDisplayNames;
-    }
-    if (testId == "language_display_name") {
-      return testTypes.TestLangNames;
-    }
-    console.log("*********** Unknown test type = " + testId);
-    return null;
-  }
   // No test found.
   return null;
 }
@@ -99,8 +111,8 @@ let lineId = 0;
 rl.on('line', function(line) {
 
   // if logging input.
-  if (doLogInput) {
-    console.log("RECEIVED " + lineId + ' ' + line + '!!!!!');
+  if (doLogInput > 0) {
+    console.log("## NODE RECEIVED " + lineId + ' ' + line + '!!!!!');
   }
 
   // Protocol:
@@ -121,6 +133,10 @@ rl.on('line', function(line) {
   } else
   if (line == "#EXIT") {
     process.exit();
+  } else
+  if (line == "#TESTS") {
+    lineOut = JSON.stringify(supported_tests_json);
+    process.stdout.write(lineOut);
   }
   else {
     // Handle test cases.
@@ -138,33 +154,27 @@ rl.on('line', function(line) {
       process.stdout.write(jsonOut);
     }
 
-    if (doLogInput) {
-      console.log("PARSED JSON: " + parsedJson);
+    if (doLogInput > 0) {
+      console.log("#----- PARSED JSON: " + JSON.stringify(parsedJson));
     }
 
-    testId = parseJsonForTestId(parsedJson);
-    try {
-      switch (testId) {
-        case testTypes.TestCollShiftShort:
-          outputLine = collator.testCollationShort(parsedJson);
-          break;
-        case testTypes.TestDecimalFormat:
-          outputLine = numberformatter.testDecimalFormat(parsedJson);
-          break;
-        case testTypes.TestDisplayNames:
-          outputLine = displaynames.testDisplayNames(parsedJson);
-          break;
-        case testTypes.TestLangNames:
-          outputLine = langnames.testLangNames(parsedJson);
-          break;
-        default:
-          console.log("Unknown test id: %s" % (testId));
-          outputLine = {'error': 'unknown test type', 'testId': testId};
-      }
-    } catch (error) {
-      outputLine = {'test_error': error, 'label' : parsedJson['label'],
-                    'line': parsedJson,
-                    result: 'NONE'};
+    // testId = parseJsonForTestId(parsedJson);
+    // Handle the string directly to  call the correct function.
+    const test_type = parsedJson["test_type"];
+    if (test_type == "coll_shift_short") {
+      outputLine = collator.testCollationShort(parsedJson);
+    } else
+    if (test_type == "decimal_fmt" || test_type == "number_fmt") {
+      outputLine = numberformatter.testDecimalFormat(parsedJson);
+    } else
+    if (test_type == "display_names") {
+      outputLine = displaynames.testDisplayNames(parsedJson);
+    } else
+    if (test_type == "language_display_name") {
+      outputLine = langnames.testLangNames(parsedJson);
+    } else {
+      outputLine = {'error': 'unknown test type', 'testId': testId,
+                    'unsupported_test': testId};
     }
 
     // Send result to stdout for verification
