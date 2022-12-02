@@ -100,7 +100,10 @@ class TestPlan():
     else:
       if self.debug:
         print('EXECUTOR INFO = %s' % result)
-      self.jsonOutput["platform"] = json.loads(result)
+      try:
+        self.jsonOutput["platform"] = json.loads(result)
+      except:
+        return
 
   # Ask the executor to stop. May pass extra arguments in the messsage
   def requestExecutorTermination(self, terminateArgs=None):
@@ -311,7 +314,7 @@ class TestPlan():
     batchOut = []
     for item in result.split('\n'):
       if self.debug:
-        print(' RESULT %d = (%d) >%s<' % (index, len(item), item))
+        print(' RESULT %d = (%d)  >%s<' % (index, len(item), item))
       if item and len(item) > 0:
         # Check for debug data
         if item[0] == "#":
@@ -351,6 +354,9 @@ class TestPlan():
     return # TODO: status
 
   def openJsonTestData(self):
+    if self.debug:
+      print('TESTPLAN 355 input file path = %s' %
+            self.inputFilePath)
     try:
       inputFile = open(self.inputFilePath,
                        encoding='utf-8', mode='r')
