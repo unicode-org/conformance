@@ -1,3 +1,5 @@
+name: Artifacts Build
+
 ##### README #####
 #
 # The CI action in this file is used to build the artifacts on pushes to a repository containing
@@ -21,8 +23,10 @@
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
+    branches: '*'
 
-name: Artifacts Build
 
 jobs:
   credentials:
