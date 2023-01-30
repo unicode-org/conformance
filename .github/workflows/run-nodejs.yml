@@ -2,7 +2,7 @@ on:
   push:
   pull_request:
 
-name: Run Node sample tests
+name: Run Node JS tests
 
 jobs:
   nodejs_18:

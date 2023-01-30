@@ -8,7 +8,7 @@ on:
     - 'executors/rust/**'
     - '.github/**'
 
-name: Rust CI
+name: Run Rust tests
 
 jobs:
   rust_lint:
