@@ -54,7 +54,9 @@ module.exports = {
 
   testDecimalFormat: function(json) {
     const label = json['label'];
+    const skeleton = json['skeleton'];
 
+    console.log("# LABEL = " + label + " " + JSON.stringify(json));
     const pattern = json['pattern'];
     const rounding = json['rounding'];
     const input = parseFloat(json['input']);
@@ -66,7 +68,9 @@ module.exports = {
 
     // If options are in the JSON, use them...
     options = json['options'];
+    console.log("#    OPTIONS = " + options);
     if (!options) {
+      console.log("#   NOT OPTIONS " + JSON.stringify(options));
       try {
         options = this.decimalPatternToOptions(pattern, rounding);
       } catch (error) {
@@ -76,7 +80,22 @@ module.exports = {
         options = none;
       }
     } else {
+      console.log("#OPTIONS: " + options);
       // Check each option for implementation.
+      // Check for "code":. Change to "currency":
+      if (options["code"]) {
+        options["currency"] = options["code"];
+        delete options["code"];
+        console.log("Removing CODE " + label)
+        console.log(" Giving options: " + options);
+      }
+      // Fix "SignDisplay" --> "signDisplay"
+      if ("SignDisplay" in options) {
+        options["signDisplay"] = options["SignDisplay"];
+        delete options["SignDisplay"];
+        console.log("Removing SignDisplay " + label)
+        console.log(" Giving options: " + options);
+      }
       for (key in options) {
         if (!all_supported_options.includes(key)) {
           unsupported_options.push((key + ":" +  options[key]));

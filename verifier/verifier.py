@@ -264,9 +264,13 @@ class Verifier():
   def compareTestToExpected(self):
     self.getResultsAndVerifyData()
 
-    self.report.platform_info = self.resultData['platform']
     self.report.test_environment = self.resultData['test_environment']
-    self.report.exec = self.report.platform_info['platform']
+    try:
+      self.report.platform_info = self.resultData['platform']
+    except:
+      self.report.platform_info = self.report.test_environment['test_language']
+
+    self.report.exec = self.report.test_environment['test_language']
     self.report.test_type = self.test_type
     if not self.verifyExpected:
       sys.stderr.write('No expected data in %s' % self.verify_path)
