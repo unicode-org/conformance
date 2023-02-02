@@ -41,7 +41,7 @@ fn main() -> io::Result<()> {
 
     // Supported tests names mapping to functions.
     // Use these strings to respond to test requests.
-    let supported_test_map = HashMap::from([
+    let _supported_test_map = HashMap::from([
         ("coll_shift_short".to_string(), run_coll_test)
         // TODO: ,("number_fmt".to_string(), run_numberformat_test)
     ]);

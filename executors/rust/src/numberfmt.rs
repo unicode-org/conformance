@@ -17,8 +17,8 @@ use std::panic;
 use std::str::FromStr;
 
 // Support options - update when ICU4X adds support
-static SUPPORTED_OPTIONS: &[&str] =
-    &["minimumIntegerDigits", "maximumIntegerDigits",
+static SUPPORTED_OPTIONS: [&str; 5] =
+    ["minimumIntegerDigits", "maximumIntegerDigits",
       "minimumFractionDigits", "maximumFractionDigits",
       "RoundingMode"];
 
@@ -44,11 +44,11 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // "unsupported" rather than an error.
     let options = &json_obj["options"];  // This will be an array.
 
-    let mut unsupported_options : Vec<&str>;
+    let mut unsupported_options: Vec<&str> = Vec::new();
     // If any option is not yet supported, 
-    for (option, setting) in options.as_object().unwrap()  {
-        if ! SUPPORTED_OPTIONS.contains&(&option.to_string()) {
-            unsupported_options.append(option.to_string());
+    for (option, _setting) in options.as_object().unwrap()  {
+        if ! SUPPORTED_OPTIONS.contains(&option.as_str()) {
+            unsupported_options.push(&option);
         }
     }
     if unsupported_options.len() > 0 {
