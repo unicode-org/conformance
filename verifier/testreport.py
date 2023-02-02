@@ -198,6 +198,9 @@ $failure_table
     return self.tests_fail == 0 and not self.missing_verify_data
 
   def compute_category_summary(self, items, group_tag, detail_tag):
+    # TODO: remove this early exit
+    return
+    
     # For the items, count messages and arguments for each
     groups = {}
     for item in items:
