@@ -28,7 +28,7 @@ echo $?
 cd ..
 mkdir -p $TEMP_DIR/testReports
 cd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node python --test_type coll_shift_short number_fmt lang_names 
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
 
 
 # Push testresults and test reports to Cloud Storge
