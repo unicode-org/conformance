@@ -1,0 +1,17 @@
+name: End-to-end - data gen + tests on all platforms
+
+on:
+  workflow_run:
+    workflows:
+      - "Run Node JS tests"
+      - "Run Rust tests"
+    types: 
+      - completed
+
+jobs:
+  run_all:
+    name: Gen data + run tests (generateAndRun.sh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sh generateDataAndRun.sh

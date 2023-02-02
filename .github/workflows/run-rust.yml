@@ -1,14 +1,10 @@
+name: Run Rust tests
+
 on:
   push:
-    paths:
-    - 'executors/rust/**'
-    - '.github/**'
+    branches: [ main ]
   pull_request:
-    paths: 
-    - 'executors/rust/**'
-    - '.github/**'
-
-name: Rust CI
+    branches: '*'
 
 jobs:
   rust_lint:
