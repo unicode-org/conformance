@@ -29,7 +29,7 @@ class TestPlan():
     self.jsonOutput = {}  # Area for adding elements for the results file
 
     self.run_limit = None  # Set to positive integer to activate
-    self.debug = 0
+    self.debug = 1
 
     self.iteration = 0
     self.progress_interval = 1000
@@ -94,6 +94,10 @@ class TestPlan():
   def requestExecutorInfo(self):
     versionInfo = "#VERSION"
     result = self.sendOneLine(versionInfo)
+    if result and result[0] == "#":
+      # There's debug data. Take the 2nd line of this result
+      result_lines = result.split('\n')
+      result = result_lines[1]
 
     if not result:
       self.jsonOutput["platform error"] = self.run_error_message
@@ -210,6 +214,7 @@ class TestPlan():
     #   retrieve stdout result
     #   add format for JSON item
     #   output to result file
+    #   output to result file
 
     # Work with the executor, running N tests each invocation
     try:
@@ -313,7 +318,7 @@ class TestPlan():
     index = 0
     batchOut = []
     for item in result.split('\n'):
-      if self.debug:
+      if self.debug > 1:
         print(' RESULT %d = (%d)  >%s<' % (index, len(item), item))
       if item and len(item) > 0:
         # Check for debug data

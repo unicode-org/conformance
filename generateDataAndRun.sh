@@ -2,16 +2,34 @@
 # directory.
 # Save the results
 
+
+#
+# Setup
+#
+
 export TEMP_DIR=TEMP_DATA
 rm -rf $TEMP_DIR
 
 # Clear out old data, then create new directory and copy test / verify data there
 mkdir -p $TEMP_DIR/testData
 
+# Compile Rust executor code
+pushd executors/rust/
+cargo build --release
+popd
+
+#
+# Setup (generate) test data & expected values
+# 
+
 # Generates all new test data
 cd testgen
 python3 testdata_gen.py
 cp *.json ../$TEMP_DIR/testData
+
+#
+# Run test data tests through all executors
+#
 
 # Executes all tests on that new data in the new directory
 cd ..
@@ -24,11 +42,15 @@ echo $?
 python3 testdriver.py --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
+#
+# Run verifier
+#
+
 # Verify everything
 cd ..
 mkdir -p $TEMP_DIR/testReports
 cd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node python --test_type coll_shift_short number_fmt lang_names 
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
 
 
 # Push testresults and test reports to Cloud Storge

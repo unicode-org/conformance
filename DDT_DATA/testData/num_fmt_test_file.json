@@ -10,147 +10,498 @@
   "tests": [
     {
       "label": "0000000",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow",
+        "FAKE_OPTION": "fake data"
+      },
       "input": "0"
     },
     {
       "label": "0000001",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "91827.3645"
     },
     {
       "label": "0000002",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "-0.22222"
     },
     {
       "label": "0000003",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "0"
     },
     {
       "label": "0000004",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "91827.3645"
     },
     {
       "label": "0000005",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "-0.22222"
     },
     {
       "label": "0000006",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "0"
     },
     {
       "label": "0000007",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "91827.3645"
     },
     {
       "label": "0000008",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-narrow",
       "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "narrow"
+      },
       "input": "-0.22222"
     },
     {
       "label": "0000009",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "0"
     },
     {
       "label": "0000010",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "91827.3645"
     },
     {
       "label": "0000011",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "es-MX",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "-0.22222"
     },
     {
       "label": "0000012",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "0"
     },
     {
       "label": "0000013",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "91827.3645"
     },
     {
       "label": "0000014",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "bn-BD",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "-0.22222"
     },
     {
       "label": "0000015",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "0"
     },
     {
       "label": "0000016",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "91827.3645"
     },
     {
       "label": "0000017",
-      "notation": "compact-short",
-      "unit": "percent",
-      "unit-width": "unit-width-full-name",
       "locale": "zh-TW",
+      "skeleton": "compact-short percent unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "percent",
+        "unitDisplay": "long"
+      },
       "input": "-0.22222"
+    },
+    {
+      "label": "0000018",
+      "locale": "es-MX",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000019",
+      "locale": "es-MX",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000020",
+      "locale": "es-MX",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000021",
+      "locale": "bn-BD",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000022",
+      "locale": "bn-BD",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000023",
+      "locale": "bn-BD",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000024",
+      "locale": "zh-TW",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000025",
+      "locale": "zh-TW",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000026",
+      "locale": "zh-TW",
+      "skeleton": "compact-short currency/EUR unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "narrow"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000027",
+      "locale": "es-MX",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000028",
+      "locale": "es-MX",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000029",
+      "locale": "es-MX",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000030",
+      "locale": "bn-BD",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000031",
+      "locale": "bn-BD",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000032",
+      "locale": "bn-BD",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000033",
+      "locale": "zh-TW",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000034",
+      "locale": "zh-TW",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "91827.3645"
+    },
+    {
+      "label": "0000035",
+      "locale": "zh-TW",
+      "skeleton": "compact-short currency/EUR unit-width-full-name",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "currency",
+        "currencyDisplay": "code",
+        "code": "EUR",
+        "unitDisplay": "long"
+      },
+      "input": "-0.22222"
+    },
+    {
+      "label": "0000036",
+      "locale": "es-MX",
+      "skeleton": "compact-short measure-unit/length-furlong unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "unit",
+        "unit": "furlong",
+        "unitDisplay": "narrow"
+      },
+      "input": "0"
+    },
+    {
+      "label": "0000037",
+      "locale": "es-MX",
+      "skeleton": "compact-short measure-unit/length-furlong unit-width-narrow",
+      "options": {
+        "notation": "compact",
+        "compactDisplay": "short",
+        "style": "unit",
+        "unit": "furlong",
+        "unitDisplay": "narrow"
+      },
+      "input": "91827.3645"
     }
   ]
 }
