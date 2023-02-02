@@ -45,7 +45,7 @@ def mapFmtSkeletonToECMA402(options):
       "@@": '"maximumSignificantDigits": "2",\n  "minimumSignificantDigits": "2",\n',
       "rounding-mode-floor": '"roundingMode": "floor",\n',
       "integer-width/##00": '"maximumIntegerDigits": "4",\n  "minimumIntegerDigits":"2",\n',
-      "group-on-aligned": '"UseGrouping": "True",\n',
+      "group-on-aligned": '"useGrouping": "True",\n',
       "latin": '"NumberingSystem": "latn",\n',
       "sign-accounting-except-zero": '"SignDisplay": "exceptZero",\n',
       "0.0000E0": '"notation": "scientific",\n  "minimumIntegerDigits": "1",\n  "minimumFractionDigits": "4",\n  "maximumFractionDigits": "4",\n',

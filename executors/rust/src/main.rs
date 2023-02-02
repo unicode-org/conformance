@@ -20,6 +20,8 @@ mod numberfmt;
 
 use serde_json::{json, Value};
 
+use std::collections::HashMap;
+
 use std::env;
 use std::io::{self};
 use std::panic;
@@ -37,6 +39,14 @@ fn main() -> io::Result<()> {
     env_logger::init();
     log::info!("Welcome to the ICU4X Conformance Executor");
 
+    // Supported tests names mapping to functions.
+    // Use these strings to respond to test requests.
+    let _supported_test_map = HashMap::from([
+        ("coll_shift_short".to_string(), run_coll_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
+    ]);
+
+    // TODO: supported_test_map to call the functions.
+
     let mut buffer = String::new();
 
     loop {
@@ -47,6 +57,16 @@ fn main() -> io::Result<()> {
         if buffer.substring(0, 5) == "#EXIT" {
             break;
         }
+        if buffer.substring(0, 6) == "#TESTS" {
+            // Returns JSON list of supported tests.
+            // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
+            let json_result = json!(
+                { "supported_tests": ["coll_shift_short", "number_fmt", "decimal_fmt"] }
+                // { "supported_tests": test_vec }
+            );
+            println!("{}", json_result);
+        }
+
         if buffer.substring(0, 8) == "#VERSION" {
             // Get data version information from PackageMetadata
             // https://crates.io/crates/rustc_version_runtime
@@ -92,6 +112,7 @@ fn main() -> io::Result<()> {
             let test_type: &str = json_info["test_type"].as_str().unwrap();
             let label: &str = json_info["label"].as_str().unwrap();
 
+            // TODO!!! : supported_test_map to call the functions.
             let json_result = if test_type == "coll_shift_short" {
                 // TODO: Get the json result and print here
                 run_coll_test(&json_info)

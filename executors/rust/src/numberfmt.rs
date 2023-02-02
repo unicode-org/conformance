@@ -16,6 +16,15 @@ use icu_provider::DataLocale;
 use std::panic;
 use std::str::FromStr;
 
+// Support options - update when ICU4X adds support
+static SUPPORTED_OPTIONS: [&str; 5] = [
+    "minimumIntegerDigits",
+    "maximumIntegerDigits",
+    "minimumFractionDigits",
+    "maximumFractionDigits",
+    "RoundingMode",
+];
+
 // Runs decimal and number formatting given patterns or skeletons.
 pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let provider = icu_testdata::unstable();
@@ -34,8 +43,31 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let input = &json_obj["input"].as_str().unwrap();
 
+    // TODO: Get the options from JSON. If there are unsupported values, return
+    // "unsupported" rather than an error.
+    let options = &json_obj["options"]; // This will be an array.
+
+    let mut unsupported_options: Vec<&str> = Vec::new();
+    // If any option is not yet supported,
+    for (option, _setting) in options.as_object().unwrap() {
+        if !SUPPORTED_OPTIONS.contains(&option.as_str()) {
+            unsupported_options.push(&option);
+        }
+    }
+    if unsupported_options.len() > 0 {
+        let json_result = json!({
+            "label": label,
+            "unsupported": label,
+            "unsupported_options": unsupported_options
+        });
+        return Ok(json_result);
+    }
+
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
-    // TODO: populate option from input json_obj.
+    // TODO: Use options to call operations including pad and trunc with rounding.
+
+    // Iterator over options, applying the
+
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2;
 

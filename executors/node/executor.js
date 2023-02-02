@@ -39,6 +39,7 @@ let langnames = require('./langnames.js')
  */
 
 let doLogInput = 0;
+
 // Test type support. Add new items as they are implemented
 const testTypes = {
   TestCollShiftShort : Symbol("coll_shift_short"),
@@ -112,7 +113,7 @@ rl.on('line', function(line) {
 
   // if logging input.
   if (doLogInput > 0) {
-    console.log("## NODE RECEIVED " + lineId + ' ' + line + '!!!!!');
+    console.log("## NODE RECEIVED " + lineId + ' ' + line + ' !!!!!');
   }
 
   // Protocol:
