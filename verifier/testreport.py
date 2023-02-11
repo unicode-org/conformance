@@ -2,6 +2,9 @@
 
 from datasets import testType
 
+# TODO: get templates from this module instead of local class
+from report_template import reportTemplate
+
 import difflib
 from difflib import HtmlDiff
 
@@ -74,15 +77,18 @@ class TestReport():
     self.report_directory = None
     self.report_file_path = None
     self.report_html_path = None
-    self.number_tests = None
-    self.failing_tests = []  # Include label, result, and expected
+    self.number_tests = 0
 
+    self.failing_tests = []  # Include label, result, and expected
     self.tests_fail = 0
+
     self.passing_tests = []
-    self.test_errors = []
-    self.unsupported_cases = []
-    self.error_count = 0
     self.tests_pass = 0
+
+    self.test_errors = []
+    self.error_count = 0
+
+    self.unsupported_cases = []
 
     self.test_type = None
     self.exec = None
@@ -93,87 +99,22 @@ class TestReport():
 
     self.diff_summary = DiffSummary()
 
+    templates = reportTemplate()
+    self.templates = templates
+
     # For a simple template replacement
-    # This could be from a template file.
-    self.report_html_template = Template("""<html>
-  <head>
-    <title>$test_type with $exec</title>
-    <style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
-    </style>
-    <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <h1>Verification report: $test_type on $exec</h1>
-    <h2>Test details</h2>
-    <p>$platform_info</p>
-    <p>$test_environment</p>
-    <p>Result file created: $timestamp
-    <h2>Test summary</h2>
-    <p>Total: $total_tests.
-    <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
-    <p><i>Click on headings below to view/hide details</i></p>
-    <h2 id='testErrors' onclick="toggleElement('test_error_table');">Test Errors ($error_count)</h2>
-    $error_summary
-    $error_section
+    self.report_html_template = templates.reportOutline()
 
-    <h2 id='testUnsupported' onclick="toggleElement('test_unsupported_table');">Unsupported Tests  ($unsupported_count)</h2>
-    $unsupported_summary
-    $unsupported_section
+    self.error_table_template = templates.error_table_template
+    self.test_error_summary_template = templates.test_error_summary_template
 
-    <h2 id='testFailures' onclick="toggleElement('failing_tests_table');">Failing tests detail ($failing_tests)</h2>
-    <table id='failing_tests_table' style="display:none">
-    <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
-      <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-$failure_table
-    </table>
+    self.unsupported_table_template = templates.unsupported_table_template
 
-  </body>
-</html>
-""")
+    self.fail_line_template = templates.fail_line_template
 
-    self.error_table_template = Template("""    <table id='test_error_table' style="display:none">
-       <tr><th width="10%">Label</th><th width="20%">Error message</th><th>Test input</tr>
-       <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-      $test_error_table
-    </table>
-""")
+    self.test_error_detail_template = templates.test_error_detail_template
 
-    self.unsupported_table_template = Template("""    <table id='test_unsupported_table' style="display:none">
-       <tr><th width="10%">Label</th><th width="20%">Unsupported message</th><th>Details</tr>
-       <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-      $test_unsupported_table
-    </table>
-""")
-
-    self.fail_line_template = Template(
-        '<tr><td>$label</td><td>$expected</td><td>$result</td><td>$input_data</td></tr>'
-        )
-
-    self.test_error_template = Template(
-        '<tr><td>$label</td><td>$error</td><td>$error_detail</td></tr>'
-        )
-
-    self.test_unsupported_template = Template(
-        '<tr><td>$label</td><td>$unsupported</$unsupported><td>$error_detail</td></tr>'
-        )
+    self.test_unsupported_template = templates.test_unsupported_template
 
   def record_fail(self, test):
     self.failing_tests.append(test)
@@ -204,15 +145,42 @@ $failure_table
     # For the items, count messages and arguments for each
     groups = {}
     for item in items:
-      print('@@@@@@@@@@@ item %s' % item)
-      group = item.get(group_tag)
-      detail = item.get(detail_tag)
+      error_detail = item.get('error_detail')
+      if isinstance(error_detail, str):
+        detail = error_detail
+        group = group_tag
+      else:
+        detail = error_detail.get(group_tag)
+        group = group_tag
+
       if group:
-        if not groups.get(group):
-          groups[group].append(item)
+        if groups.get(group):
+          groups[group][str(detail)] += 1
         else:
-          groups[group]= [item]
+          groups[group]= {str(detail): 1}
+    # print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
+    return groups
+
+  def compute_unsupported_category_summary(self, items, group_tag, detail_tag):
+    # For the items, count messages and arguments for each
+    groups = {}
+    for item in items:
+      error_detail = item.get('error_detail')
+      if isinstance(error_detail, str):
+        detail = error_detail
+        group = group_tag
+      else:
+        detail = error_detail.get(group_tag)
+        group = group_tag
+
+      # Specific for unsupported options - count the occurrnces of the detail
+      value = str(detail)
+      if groups.get(value):
+        groups[value] += 1
+      else:
+        groups[value]=1
     print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
+    return groups
 
   def createReport(self):
     # Make a JSON object with the data
@@ -290,14 +258,32 @@ $failure_table
       # Create a table of all test errors.
       error_lines = []
       for test_error in self.test_errors:
-        line = self.test_error_template.safe_substitute(test_error)
+        line = self.test_error_detail_template.safe_substitute(test_error)
         error_lines.append(line)
 
       html_map['error_section'] = self.error_table_template.safe_substitute(
           {'test_error_table': ('\n').join(error_lines)}
       )
+      error_summary_lines = []
+
+      error_summary = self.compute_category_summary(self.test_errors,
+                                                  'error',
+                                                  'error_detail')
+      errors_in_error_summary = error_summary['error']
+      for key, count in errors_in_error_summary.items():
+        sub = {'error': key, 'count': count}
+        error_summary_lines.append(
+            self.test_error_summary_template.safe_substitute(sub))
+
+      table = self.templates.summary_table_template.safe_substitute(
+        {'table_content': ('\n').join(error_summary_lines),
+         'type': 'Error'}
+      )
+
+      html_map['error_summary'] =  table
     else:
       html_map['error_section'] = 'No test errors found'
+      html_map['error_summary'] =  ''
 
     unsupported_lines = []
     if self.unsupported_cases:
@@ -311,12 +297,26 @@ $failure_table
       html_map['unsupported_section'] = self.unsupported_table_template.safe_substitute(
           {'test_unsupported_table': unsupported_line_data}
       )
+      unsupported_summary = self.compute_unsupported_category_summary(
+          self.unsupported_cases,
+          'unsupported_options',
+          'unsupported_detail')
+
+      unsupported_summary_lines = []
+      for key, count in unsupported_summary.items():
+        sub = {'error': key, 'count': count}
+        unsupported_summary_lines.append(
+            self.test_error_summary_template.safe_substitute(sub)
+        )
+      unsupported_table = self.templates.summary_table_template.safe_substitute(
+          {'table_content': ('\n').join(unsupported_summary_lines),
+           'type': 'Unsupported options'}
+      )
+
+      html_map['unsupported_summary'] = unsupported_table
     else:
       html_map['unsupported_section'] = 'No unsupported tests found'
-
-    self.compute_category_summary(self.unsupported_cases,
-                                  'unsupported_options',
-                                  'unsupported_detail')
+      html_map['unsupported_summary'] = ''
 
     # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)

@@ -128,7 +128,7 @@ fn main() -> io::Result<()> {
                     "{}",
                     json!({"error": s, "label": label,
                            "type": "unknown test type",
-                           "received_info": json_info})
+                           "error_detail": json_info})
                 ),
             }
         }
