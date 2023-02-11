@@ -145,12 +145,15 @@ class TestReport():
     # For the items, count messages and arguments for each
     groups = {}
     for item in items:
-      error_detail = item.get('error_detail')
-      if isinstance(error_detail, str):
-        detail = error_detail
+      details = item.get('error_detail')
+      if not details:
+        # Try getting the group_tag
+        details = item.get(group_tag)
+      if isinstance(details, str):
+        detail = details
         group = group_tag
       else:
-        detail = error_detail.get(group_tag)
+        detail = details.get(group_tag)
         group = group_tag
 
       if group:
