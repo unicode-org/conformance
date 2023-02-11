@@ -9,6 +9,7 @@ class reportTemplate():
         self.report_outline = \
 """<html>
  <head>
+    <meta charset="UTF-8">
     <title>$test_type with $exec</title>
     <style>
     table, th, td {

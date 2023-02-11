@@ -26,8 +26,8 @@ def dict_to_html(dict_data):
   result = ['<ul>']
   for key in dict_data.keys():
     result.append('  <li>%s: %s</li>' % (key, dict_data[key]))
-    result.append('</ul>')
-    return ''.join(result)
+  result.append('</ul>')
+  return ''.join(result)
 
 def sort_dict_by_count(dict_data):
   return sorted(dict_data.items(),
@@ -191,7 +191,6 @@ class TestReport():
 
     # Fill in the important fields.
     report['title'] = self.title
-
     report['platform'] = self.platform_info
     report['test_environment'] = self.test_environment
     report['timestamp'] = self.timestamp
@@ -450,66 +449,6 @@ class TestReport():
       index += 1
     return diff_count, diffs, last_diff
 
-class SummaryReport():
-  # TODO: use a templating language for creating these reports
-  def __init__(self, file_base):
-    self.file_base = file_base
-    self.report_dir_name = 'testReports'
-    self.raw_reports = None
-    self.debug = 0
-
-    self.exec_summary = {}
-    self.type_summary = {}
-
-    if self.debug > 1:
-      print('SUMMARYREPORT base = %s' % (self.file_base))
-
-    self.summary_html_path = None
-    self.summary_html_template = Template("""<html>
-  <head>
-    <title>DDT Summary</title>
-    <style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
-    </style>
-    <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <h1>Data Driven Test Summary</h1>
-    <h3>Report generated: $datetime</h3>
-    <h2>Tests and platforms</h2>
-    <p>Executors verified: $all_platforms</p>
-    <p>Tests verified: $all_tests</p>
-    <h2>All Tests Summary</h2>
-    <table id='exec_test_table'>
-    $exec_header_line
-    $detail_lines
-    </table>
-  </body>
-</html>
-""")
-    self.header_item_template = Template(
-        '<th>$header_data</th>'
-        )
-    self.line_template = Template(
-        '<tr>$column_data</tr>'
-        )
-    self.entry_template = Template(
-        '<td>$report_detail</td>'
-        )
 
 class SummaryReport():
   # TODO: use a templating language for creating these reports
@@ -528,6 +467,7 @@ class SummaryReport():
     self.summary_html_path = None
     self.summary_html_template = Template("""<html>
   <head>
+    <meta charset="UTF-8">
     <title>DDT Summary</title>
     <style>
     table, th, td {
