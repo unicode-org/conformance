@@ -293,11 +293,16 @@ class Verifier():
       if index % 10000 == 0:
         print('  progress = %d / %s' % (index, total_results), end='\r')
 
+      # The input to the test
+      test_label = test['label']
+      test_data = self.findTestdataWithLabel(test_label)
+
       # Get the result
       try:
         actual_result = test['result']
-        test_label = test['label']
       except:
+        # Add input information to the test results
+        test['input_data'] = test_data
         if test.get('unsupported'):
           self.report.record_unsupported(test)
         else:
@@ -323,9 +328,6 @@ class Verifier():
         # Add expected value to the report
         test['expected'] = expected_result
         self.report.record_fail(test)
-
-        # Get the info from the testsdata file for this label
-        test_data = self.findTestdataWithLabel(test_label)
         test['input_data'] = test_data
       index += 1
 

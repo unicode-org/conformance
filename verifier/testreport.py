@@ -139,12 +139,10 @@ class TestReport():
     return self.tests_fail == 0 and not self.missing_verify_data
 
   def compute_category_summary(self, items, group_tag, detail_tag):
-    # TODO: remove this early exit
-    return
-    
     # For the items, count messages and arguments for each
     groups = {}
     for item in items:
+      label = item['label']
       details = item.get('error_detail')
       if not details:
         # Try getting the group_tag
@@ -158,9 +156,9 @@ class TestReport():
 
       if group:
         if groups.get(group):
-          groups[group][str(detail)] += 1
+          groups[group][str(detail)].append(label)
         else:
-          groups[group]= {str(detail): 1}
+          groups[group]= {str(detail): [label]}
     # print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
     return groups
 
@@ -169,6 +167,7 @@ class TestReport():
     groups = {}
     for item in items:
       error_detail = item.get('error_detail')
+      label = item['label']
       if isinstance(error_detail, str):
         detail = error_detail
         group = group_tag
@@ -179,10 +178,10 @@ class TestReport():
       # Specific for unsupported options - count the occurrnces of the detail
       value = str(detail)
       if groups.get(value):
-        groups[value] += 1
+        groups[value].append(label)
       else:
-        groups[value]=1
-    print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
+        groups[value]= [label]
+    # print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
     return groups
 
   def createReport(self):
@@ -246,15 +245,17 @@ class TestReport():
         max_label = fail['label']
         max_fail = fail
 
-      if len(fail['result']) > 30:
+      if len(fail_result) > 30:
         fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
-      line = self.fail_line_template.safe_substitute(fail)
-      fail_lines.append(line)
+        line = self.fail_line_template.safe_substitute(fail)
+        fail_lines.append(line)
 
-    if self.debug >= 2:
-      print('MAX FAIL = %s, %s, %s' % (max_label, max_fail_length, max_fail))
+    html_map['failure_table_lines'] = ('\n').join(fail_lines)
 
-    html_map['failure_table'] = ('\n').join(fail_lines)
+    fail_characterized = self.characterizeFailuresByOptions()
+    # A dictionary of failure info.
+    html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
+    html_map['characterized_failure_labels'] = fail_characterized
 
     if self.test_errors:
       # Create a table of all test errors.
@@ -263,20 +264,24 @@ class TestReport():
         line = self.test_error_detail_template.safe_substitute(test_error)
         error_lines.append(line)
 
-      html_map['error_section'] = self.error_table_template.safe_substitute(
+      error_table = self.error_table_template.safe_substitute(
           {'test_error_table': ('\n').join(error_lines)}
       )
-      error_summary_lines = []
+      html_map['error_section'] = error_table
 
       error_summary = self.compute_category_summary(self.test_errors,
                                                   'error',
                                                   'error_detail')
-      errors_in_error_summary = error_summary['error']
-      for key, count in errors_in_error_summary.items():
-        sub = {'error': key, 'count': count}
-        error_summary_lines.append(
-            self.test_error_summary_template.safe_substitute(sub))
+      error_summary_lines = []
+      if error_summary and 'error' in error_summary:
+        errors_in_error_summary = error_summary['error']
+        for key, items in errors_in_error_summary.items():
+          count = len(items)
+          sub = {'error': key, 'count': count}
+          error_summary_lines.append(
+              self.test_error_summary_template.safe_substitute(sub))
 
+      html_map['test_error_labels'] = errors_in_error_summary
       table = self.templates.summary_table_template.safe_substitute(
         {'table_content': ('\n').join(error_summary_lines),
          'type': 'Error'}
@@ -305,7 +310,8 @@ class TestReport():
           'unsupported_detail')
 
       unsupported_summary_lines = []
-      for key, count in unsupported_summary.items():
+      for key, labels in unsupported_summary.items():
+        count = len(labels)
         sub = {'error': key, 'count': count}
         unsupported_summary_lines.append(
             self.test_error_summary_template.safe_substitute(sub)
@@ -319,8 +325,9 @@ class TestReport():
     else:
       html_map['unsupported_section'] = 'No unsupported tests found'
       html_map['unsupported_summary'] = ''
+    html_map['unsupported_labels'] = unsupported_summary
 
-    # For each failed test base, add an HTML table element with the info
+  # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
 
     try:
@@ -333,6 +340,58 @@ class TestReport():
     file.write(html_output)
     file.close()
     return html_output
+
+  def setsize(s):
+    return len(s)
+
+  def characterizeFailuresByOptions(self):
+    # User self.failing_tests, looking at options
+    results = {}
+    fail_combos = {}
+    for test in self.failing_tests:
+      # Get input_data, if available
+      label = test['label']
+      if test.get('input_data'):
+        # Look at locale
+        input_data = test.get('input_data')
+
+        if input_data.get('locale'):
+          failure_combo = 'locale' + ':' + input_data.get('locale')
+          if failure_combo not in results:
+            results[failure_combo] = set()
+          results[failure_combo].add(label)
+
+        if input_data.get('options'):
+          # Get each combo of key/value
+          for key,value in input_data.get('options').items():
+            failure_combo = key + ':' + value
+            if failure_combo not in results:
+              results[failure_combo] = set()
+            results[failure_combo].add(label)
+      # Sort these by number of items in each set.
+
+      # Find the largest intersections of these sets
+      combo_list = [ (combo, len(results[combo])) for combo in results]  #.sort(key=takeSecond)
+      # sort combo_list by size of sets
+      combo_list.sort(key=takeSecond, reverse=True)
+
+    return results
+
+  def characterizeFailuresByTestType(self):
+    # TODO: Use types type to look for patterns of failures.
+
+    # NUMBER FORMAT: look for differencs in "%", white space,
+    #   currency, e.g., EUR vs. symbol, Exponential notation,
+
+    if self.test_type == 'coll_shift_short':
+      num_flags = []
+    elif self.test_type == 'number_fmt':
+      # Consider locale
+      num_flags = ['€', 'EUR', "$", "0." "০.", ]
+    elif self.test_type == 'lang_names':
+      # Consider locale
+      lang_names_flags = {'[': '(', }
+
 
   def create_html_diff_report(self):
     # Use difflib to createfile of differences
@@ -449,6 +508,8 @@ class TestReport():
       index += 1
     return diff_count, diffs, last_diff
 
+def takeSecond(elem):
+  return elem[1]
 
 class SummaryReport():
   # TODO: use a templating language for creating these reports

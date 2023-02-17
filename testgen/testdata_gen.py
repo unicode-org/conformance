@@ -46,7 +46,7 @@ def mapFmtSkeletonToECMA402(options):
       "rounding-mode-floor": '"roundingMode": "floor",\n',
       "integer-width/##00": '"maximumIntegerDigits": "4",\n  "minimumIntegerDigits":"2",\n',
       "group-on-aligned": '"useGrouping": "True",\n',
-      "latin": '"NumberingSystem": "latn",\n',
+      "latin": '"numberingSystem": "latn",\n',
       "sign-accounting-except-zero": '"SignDisplay": "exceptZero",\n',
       "0.0000E0": '"notation": "scientific",\n  "minimumIntegerDigits": "1",\n  "minimumFractionDigits": "4",\n  "maximumFractionDigits": "4",\n',
       "00": '"minimumIntegerDigits":"2",\n',
@@ -213,7 +213,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count):
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
-      rounding =  '"RoundingMode": "%s",\n' % mapRoundingToECMA402(round_mode)
+      rounding =  '"roundingMode": "%s",\n' % mapRoundingToECMA402(round_mode)
       entry_top = '{\n  "label": "%s",\n  "op": "format",\n  "skeleton": "%s",\n' % (str(count).rjust(7, '0'), pattern)
       entry_bottom = '"input": "%s"\n},' % test_input
       ecma402_options_body = mapFmtSkeletonToECMA402([pattern]) + [rounding]

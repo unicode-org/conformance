@@ -28,6 +28,14 @@ class reportTemplate():
         element.style.display = "none";
       }
     }
+    // For viewing certain kinds of problems.
+    const test_error_labels =
+      $test_error_labels;
+    const unsupported_labels =
+      $unsupported_labels;
+
+    const characterized_failure_labels =
+      $characterized_failure_labels;;
     </script>
   </head>
   <body>
@@ -45,6 +53,7 @@ class reportTemplate():
     <details>
     <summary>Open for all test errors</summary>
     <h3>All errors</h3>
+   $error_section
     </details>
 
     <h2 id='testUnsupported'>Unsupported Tests  ($unsupported_count)</h2>
@@ -63,16 +72,19 @@ class reportTemplate():
     <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
       <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
-$failure_table
+$failure_table_lines
+</table>
     </details>
-  </body>
+    <h3>Failures characterized</h3>
+    $failures_characterized
+</body>
 </html>
 """
         self.html_template = Template(self.report_outline)
 
         self.error_table_template = Template(
 """    <table id='test_error_table' >
-       <tr><th width="10%">Label</th><th width="20%">Error message</th><th>Test input</tr>
+       <tr><th width="10%">Label</th><th width="20%">Error</th><th>Error detail</th><th>Test input</th></tr>
        <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
       $test_error_table
@@ -83,7 +95,7 @@ $failure_table
 
         self.unsupported_table_template = Template(
 """    <table id='test_unsupported_table'>
-       <tr><th width="10%">Label</th><th width="20%">Unsupported message</th><th>Details</tr>
+       <tr><th width="10%">Label</th><th width="20%">Unsupported message</th><th>Details</th><th>Input data</th></tr>
        <!-- For each failing test, output row with columns
            label, expected, actual, difference -->
       $test_unsupported_table
@@ -95,7 +107,7 @@ $failure_table
     )
 
         self.test_error_detail_template = Template(
-        '<tr><td>$label</td><td>$error</td><td>$error_detail</td></tr>'
+        '<tr><td>$label</td><td>$error</td><td>$error_detail</td><td>$input_data</td></tr>'
     )
 
         self.test_error_summary_template = Template(
@@ -107,13 +119,13 @@ $failure_table
        <tr><th width="10%">$type</th><th width="20%">Count</th></tr>
        <!-- For each failing test, output row with columns
            item, count -->
-      $table_content
-    </table>
+       $table_content
+       </table>
 """)
 
 
         self.test_unsupported_template = Template(
-        '<tr><td>$label</td><td>$unsupported</$unsupported><td>$error_detail</td></tr>'
+        '<tr><td>$label</td><td>$unsupported</$unsupported><td>$error_detail</td><td>$input_data</td></tr>'
     )
 
     def reportOutline(self):
