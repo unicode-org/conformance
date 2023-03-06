@@ -479,7 +479,6 @@ def runVerifierTests(verifier):
     testerDisplayNames = Tester()
     testerDisplayNames.displayNamesExec(executor)
 
-
 # For testing
 def main(args):
 

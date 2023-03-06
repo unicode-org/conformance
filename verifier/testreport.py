@@ -5,21 +5,22 @@ from datasets import testType
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
 
-import difflib
+from collections import defaultdict
+
 from difflib import HtmlDiff
 
 from datetime import datetime
 import glob
 import json
+import operator
 import os
 from string import Template
 import sys
 
-import unicodedata  # for info on particular characters
-
 # https://docs.python.org/3.6/library/string.html#template-strings
 
 # Consider Jinja2: https://jinja.palletsprojects.com/en/3.1.x/intro/
+
 
 def dict_to_html(dict_data):
   # Expands a dictionary to HTML data
@@ -138,15 +139,15 @@ class TestReport():
   def summary_status(self):
     return self.tests_fail == 0 and not self.missing_verify_data
 
-  def compute_category_summary(self, items, group_tag, detail_tag):
+  def compute_test_error_summary(self, test_errors, group_tag, detail_tag):
     # For the items, count messages and arguments for each
-    groups = {}
-    for item in items:
-      label = item['label']
-      details = item.get('error_detail')
+    groups = defaultdict(list)
+    for error in test_errors:
+      label = error['label']
+      details = error.get('error_detail')
       if not details:
         # Try getting the group_tag
-        details = item.get(group_tag)
+        details = error.get(group_tag)
       if isinstance(details, str):
         detail = details
         group = group_tag
@@ -159,21 +160,22 @@ class TestReport():
           groups[group][str(detail)].append(label)
         else:
           groups[group]= {str(detail): [label]}
-    # print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
-    return groups
+    return dict(groups)
 
-  def compute_unsupported_category_summary(self, items, group_tag, detail_tag):
+  def compute_unsupported_category_summary(self, unsupported_cases, group_tag, detail_tag):
     # For the items, count messages and arguments for each
     groups = {}
-    for item in items:
-      error_detail = item.get('error_detail')
-      label = item['label']
+    for case in unsupported_cases:
+      error_detail = case.get('error_detail')
+      label = case['label']
       if isinstance(error_detail, str):
         detail = error_detail
-        group = group_tag
       else:
-        detail = error_detail.get(group_tag)
-        group = group_tag
+        if isinstance(error_detail, dict):
+          detail = error_detail.get(group_tag)
+        else:
+          detail = error_detail
+      group = group_tag
 
       # Specific for unsupported options - count the occurrnces of the detail
       value = str(detail)
@@ -181,7 +183,6 @@ class TestReport():
         groups[value].append(label)
       else:
         groups[value]= [label]
-    # print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
     return groups
 
   def createReport(self):
@@ -246,15 +247,34 @@ class TestReport():
         max_fail = fail
 
       if len(fail_result) > 30:
+        # Make the actual text shorter so it doesn't distort the table column
         fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
-        line = self.fail_line_template.safe_substitute(fail)
-        fail_lines.append(line)
+      line = self.fail_line_template.safe_substitute(fail)
+      fail_lines.append(line)
 
     html_map['failure_table_lines'] = ('\n').join(fail_lines)
 
     fail_characterized = self.characterizeFailuresByOptions()
+
+    # ?? Compute top 3-5 overlaps for each set ??
+
+    checkboxes = []
+    new_dict = {}
+    for key, value in fail_characterized.items():
+      new_dict[key] = len(value)
+    keys = new_dict.keys()
+    sorted_dict = dict(sorted(new_dict.items(), key=operator.itemgetter(1), reverse=True))
+
+    for key in sorted_dict.keys():
+      value = fail_characterized[key]
+      count = '%5d' % len(value)
+      values = {'id': key, 'name': key, 'value': value, 'count': count}
+      line = self.templates.checkbox_option_template.safe_substitute(values)
+      checkboxes.append(line)
+    html_map['failures_characterized'] = '\n'.join(checkboxes)
+
     # A dictionary of failure info.
-    html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
+    # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
     html_map['characterized_failure_labels'] = fail_characterized
 
     if self.test_errors:
@@ -269,10 +289,11 @@ class TestReport():
       )
       html_map['error_section'] = error_table
 
-      error_summary = self.compute_category_summary(self.test_errors,
+      error_summary = self.compute_test_error_summary(self.test_errors,
                                                   'error',
                                                   'error_detail')
       error_summary_lines = []
+      errors_in_error_summary = error_summary['error']
       if error_summary and 'error' in error_summary:
         errors_in_error_summary = error_summary['error']
         for key, items in errors_in_error_summary.items():
@@ -325,7 +346,6 @@ class TestReport():
     else:
       html_map['unsupported_section'] = 'No unsupported tests found'
       html_map['unsupported_summary'] = ''
-    html_map['unsupported_labels'] = unsupported_summary
 
   # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
@@ -341,12 +361,10 @@ class TestReport():
     file.close()
     return html_output
 
-  def setsize(s):
-    return len(s)
-
   def characterizeFailuresByOptions(self):
     # User self.failing_tests, looking at options
-    results = {}
+    results = defaultdict(list)
+    fail_combos = {}
     fail_combos = {}
     for test in self.failing_tests:
       # Get input_data, if available
@@ -355,43 +373,37 @@ class TestReport():
         # Look at locale
         input_data = test.get('input_data')
 
-        if input_data.get('locale'):
-          failure_combo = 'locale' + ':' + input_data.get('locale')
-          if failure_combo not in results:
-            results[failure_combo] = set()
-          results[failure_combo].add(label)
+        locale_info = input_data.get('locale')
+        if locale_info:
+          failure_combo = 'locale' + ':' + locale_info
+          results[failure_combo].append(label)
 
-        if input_data.get('options'):
+          options = input_data.get('options')
           # Get each combo of key/value
-          for key,value in input_data.get('options').items():
+          for key,value in options.items():
             failure_combo = key + ':' + value
-            if failure_combo not in results:
-              results[failure_combo] = set()
-            results[failure_combo].add(label)
+            results[failure_combo].append(label)
+
+        # Try fields in language_names
+        if input_data.get('language_label'):
+          key = 'language_label'
+          value = input_data[key]
+          failure_combo = key + ':' + value
+          results[failure_combo].append(label)
+
+        if input_data.get('locale_label'):
+          key = 'locale_label'
+          value = input_data[key]
+          failure_combo = key + ':' + value
+          results[failure_combo].append(label)
+
       # Sort these by number of items in each set.
 
-      # Find the largest intersections of these sets
-      combo_list = [ (combo, len(results[combo])) for combo in results]  #.sort(key=takeSecond)
-      # sort combo_list by size of sets
+      # Find the largest intersections of these sets and sort by size
+      combo_list = [(combo, len(results[combo])) for combo in results]
       combo_list.sort(key=takeSecond, reverse=True)
 
-    return results
-
-  def characterizeFailuresByTestType(self):
-    # TODO: Use types type to look for patterns of failures.
-
-    # NUMBER FORMAT: look for differencs in "%", white space,
-    #   currency, e.g., EUR vs. symbol, Exponential notation,
-
-    if self.test_type == 'coll_shift_short':
-      num_flags = []
-    elif self.test_type == 'number_fmt':
-      # Consider locale
-      num_flags = ['€', 'EUR', "$", "0." "০.", ]
-    elif self.test_type == 'lang_names':
-      # Consider locale
-      lang_names_flags = {'[': '(', }
-
+    return dict(results)
 
   def create_html_diff_report(self):
     # Use difflib to createfile of differences
@@ -522,47 +534,13 @@ class SummaryReport():
     self.exec_summary = {}
     self.type_summary = {}
 
+    self.templates = reportTemplate()
+
     if self.debug > 1:
       print('SUMMARYREPORT base = %s' % (self.file_base))
 
     self.summary_html_path = None
-    self.summary_html_template = Template("""<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>DDT Summary</title>
-    <style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
-    </style>
-    <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <h1>Data Driven Test Summary</h1>
-    <h3>Report generated: $datetime</h3>
-    <h2>Tests and platforms</h2>
-    <p>Executors verified: $all_platforms</p>
-    <p>Tests verified: $all_tests</p>
-    <h2>All Tests Summary</h2>
-    <table id='exec_test_table'>
-    $exec_header_line
-    $detail_lines
-    </table>
-  </body>
-</html>
-""")
+
     self.header_item_template = Template(
         '<th>$header_data</th>'
         )
@@ -595,6 +573,7 @@ class SummaryReport():
       test_json = json.loads(file.read())
 
       test_environment = test_json['test_environment']
+      executor = ''
       try:
         executor = test_environment['test_language']
         test_type = test_environment['test_type']
@@ -641,7 +620,7 @@ class SummaryReport():
     outList.append('Missing verify: %s' % entry['missing_verify_count'])
     outList.append('<a href="%s"  target="_blank">Details</a>' %
                    entry['html_file_name'])
-    return '<br>'.join(outList) + '</a>'
+    return '    \n<br>'.join(outList) + '</a>'
 
   def createSummaryHtml(self):
     # Generate HTML page containing this information
@@ -672,7 +651,7 @@ class SummaryReport():
       header_list.append(self.header_item_template.safe_substitute(header_vals))
 
     html_map['exec_header_line'] = self.line_template.safe_substitute(
-        { 'column_data': ''.join(header_list) }
+        { 'column_data': '\n'.join(header_list) }
     )
 
     # Generate a row containing the test data, including the test type
@@ -700,7 +679,7 @@ class SummaryReport():
         index += 1
 
       data_rows.append(self.line_template.safe_substitute(
-          {'column_data': ''.join(row_items)}))
+          {'column_data': '\n'.join(row_items)}))
 
     html_map['detail_lines'] = '\n'.join(data_rows)
 
@@ -718,7 +697,7 @@ class SummaryReport():
           self.summary_html_path, err))
       return None
 
-    html_output = self.summary_html_template.safe_substitute(html_map)
+    html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
     if self.debug > 1:
       print('HTML OUTPUT =\n%s' % (html_output))
