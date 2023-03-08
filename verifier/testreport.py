@@ -8,6 +8,7 @@ from report_template import reportTemplate
 from collections import defaultdict
 
 from difflib import HtmlDiff
+from difflib import Differ
 
 from datetime import datetime
 import glob
@@ -102,6 +103,8 @@ class TestReport():
 
     templates = reportTemplate()
     self.templates = templates
+
+    self.differ = Differ()
 
     # For a simple template replacement
     self.report_html_template = templates.reportOutline()
@@ -256,26 +259,34 @@ class TestReport():
 
     fail_characterized = self.characterizeFailuresByOptions()
 
+    fail_simple_diffs = self.check_simple_text_diffs()
+
     # ?? Compute top 3-5 overlaps for each set ??
 
     checkboxes = []
     new_dict = {}
     for key, value in fail_characterized.items():
-      new_dict[key] = len(value)
-    keys = new_dict.keys()
-    sorted_dict = dict(sorted(new_dict.items(), key=operator.itemgetter(1), reverse=True))
+      new_dict[key] = value
+    for key, value in fail_simple_diffs.items():
+      if len(value):
+        new_dict[key] = value
 
-    for key in sorted_dict.keys():
-      value = fail_characterized[key]
+    failure_labels = []
+    for key in sorted(new_dict, key=lambda k: len(new_dict[k]), reverse=True):
+      value = new_dict[key]
       count = '%5d' % len(value)
       values = {'id': key, 'name': key, 'value': value, 'count': count}
       line = self.templates.checkbox_option_template.safe_substitute(values)
       checkboxes.append(line)
+      failure_labels.append(key)
     html_map['failures_characterized'] = '\n'.join(checkboxes)
 
     # A dictionary of failure info.
-    # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
-    html_map['characterized_failure_labels'] = fail_characterized
+    html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
+    new_dict = fail_characterized
+    for key, val in fail_simple_diffs.items():
+      new_dict[key] = val
+    html_map['characterized_failure_labels'] = failure_labels
 
     if self.test_errors:
       # Create a table of all test errors.
@@ -397,6 +408,13 @@ class TestReport():
           failure_combo = key + ':' + value
           results[failure_combo].append(label)
 
+        if test.get('compare'):  # For collation results
+          key = 'compare'
+          value = test[key]
+          failure_combo = key + ':' + str(value)
+          results[failure_combo].append(label)
+
+
       # Sort these by number of items in each set.
 
       # Find the largest intersections of these sets and sort by size
@@ -405,8 +423,48 @@ class TestReport():
 
     return dict(results)
 
+  def check_simple_text_diffs(self):
+    results = defaultdict(list)
+    results['insert'] = []
+    results['delete'] = []
+    results['insert_digit'] = []
+    results['insert_space'] = []
+    results['delete_digit'] = []
+    for fail in self.failing_tests:
+      actual = fail['result']
+      expected = fail['expected']
+      # Special case for differing by a single character.
+      # Look for white space difference
+      if abs(len(actual) - len(expected)) <= 1:
+        comp_diff = self.differ.compare(expected, actual)
+        changes = list(comp_diff)
+        # Look for number of additions and deletions
+        num_deletes = num_inserts = 0
+        for c in changes:
+          if c[0] == '+':
+            num_inserts += 1
+          if c[0] == '-':
+            num_deletes += 1
+        if num_inserts == 1 or num_deletes == 1:
+          # Look at the results for simple insert or delete
+          result = {'label': fail['label']}
+          for x in changes:
+            if x[0] == '+':
+              if x[2] in [' ', '\u00a0']:
+                results['insert_space'].append(fail['label'])
+              elif x[2].isdigit():
+                results['insert_digit'].append(fail['label'])
+              else:
+                results['insert'].append(fail['label'])
+            if x[0] == '-':
+              if x[2].isdigit():
+                results['delete_digit'].append(fail['label'])
+              else:
+                results['delete'].append(fail['label'])
+    return dict(results)
+
   def create_html_diff_report(self):
-    # Use difflib to createfile of differences
+    # Use difflib to create file of differences
     fromlines = []
     tolines = []
     for fail in self.failing_tests:
@@ -483,7 +541,9 @@ class TestReport():
       if num_diffs == 1:
         self.diff_summary.add_diff(
             num_diffs, diff_list, last_diff)
-      # ?? Look for diffs in whitespace only
+
+    # ?? Look for diffs in whitespace only
+    differ = self.differ.compare(test['result'], test['expected'])
 
     if self.test_type == testType.number_fmt.value:
       params = test['input_data']

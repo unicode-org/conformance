@@ -55,7 +55,8 @@ class TestDriver():
             resolvedCldrVersion = ddtData.resolveCldr(self.cldrVersion)
             exec_command = ddtData.allExecutors.versionForCldr(
                 exec, resolvedCldrVersion)
-          newPlan = TestPlan(exec_command['path'], test_type)
+            # The command needs to be something else!
+          newPlan = TestPlan(exec_command, test_type)
           newPlan.setOptions(argOptions)
           newPlan.test_lang = exec.split()[0]
 

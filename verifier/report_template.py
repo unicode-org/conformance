@@ -126,7 +126,7 @@ class reportTemplate():
      <div bp="16">
    $error_section
      </div>
-     <div bp="4">
+     <div bp="6">
        Summary details
      </div>
    </div>

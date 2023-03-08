@@ -1,5 +1,6 @@
 #*#
 *~
+*#
 executors/rust/target/
 **/__pycache__/
 DDT_DATA/test*/*
@@ -10,3 +11,6 @@ DDT_DATA/test*/*
 **/target/
 
 *~
+
+# C / CPP compiled
+*.o

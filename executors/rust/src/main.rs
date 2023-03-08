@@ -6,10 +6,10 @@
 // TODO:
 // 3. Check compatibility of versions with data
 // DONE 5. Move parameter extraction into function.
-// 6. Add NumberFormat test
+// 6. Fix NumberFormat with options
 // 7. Clean up code
 // 8. Decide on a repository structure
-// 9. Modularize into separate files for each type of test
+// DONE 9. Modularize into separate files for each type of test
 // 10. Fix test_type and switch statement
 
 // References for ICU4X:

@@ -34,12 +34,18 @@ def mapFmtSkeletonToECMA402(options):
   ecma402_map = {
       "compact-short": '"notation": "compact",\n  "compactDisplay": "short",\n',
       "scientific/+ee/sign-always": '"notation": "scientific",\n',
+      # Percent with word "percent":
+      #    {'style': 'unit', unit:'percent', 'unitDisplay': 'long'})
+
       "percent": '"style": "percent",\n',
-      "currency/EUR": '"style": "currency",\n  "currencyDisplay": "code",\n  "code": "EUR",\n',
-      "measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
+      # "currency/EUR": '"style": "currency",\n  "currencyDisplay": "code",\n  "code": "EUR",\n',
+      "currency/EUR": '"style": "currency",\n  "currencyDisplay": "symbol",\n  "code": "EUR",\n',
+      "measure-unit/length-meter": '"style": "unit",\n  "unit": "meter",\n',
+      # "measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
       "unit-width-narrow": '"unitDisplay": "narrow",\n',
-      "unit-width-full-name": '"unitDisplay": "long",\n',
-      "precision-integer": '"maximumFractionDigits": "0",\n  "minimumFractionDigits": "0",\n  "RoundingType": "fractionDigits",\n',
+      "unit-width-full-name": '"unitDisplay": "long", "currencyDisplay":"name", \n',
+      #"unit-width-full-name": '"unitDisplay": "long",\n',
+      "precision-integer": '"maximumFractionDigits": "0",\n  "minimumFractionDigits": "0",\n  "roundingType": "fractionDigits",\n',
       ".000": '"maximumFractionDigits": "3",\n  "minimumFractionDigits": "3",\n',
       ".##/@@@+": '"maximumFractionDigits": "2",\n  "minimumSignificantDigits": "3",\n',
       "@@": '"maximumSignificantDigits": "2",\n  "minimumSignificantDigits": "2",\n',
@@ -47,7 +53,7 @@ def mapFmtSkeletonToECMA402(options):
       "integer-width/##00": '"maximumIntegerDigits": "4",\n  "minimumIntegerDigits":"2",\n',
       "group-on-aligned": '"useGrouping": "true",\n',
       "latin": '"numberingSystem": "latn",\n',
-      "sign-accounting-except-zero": '"SignDisplay": "exceptZero",\n',
+      "sign-accounting-except-zero": '"signDisplay": "exceptZero",\n',
       "0.0000E0": '"notation": "scientific",\n  "minimumIntegerDigits": "1",\n  "minimumFractionDigits": "4",\n  "maximumFractionDigits": "4",\n',
       "00": '"minimumIntegerDigits":"2",\n',
       "#.#": '"maximumFractionDigits": "1",\n',
@@ -70,10 +76,13 @@ def mapFmtSkeletonToECMA402(options):
       }
 
   ecma402_options = []
+
+  # Which combinatins of skeleton entries need modificiation?
+  # Look at the expected output...
   for o in options:
     if o != 'scale/0.5' and o != 'decimal-always':
       ecma402_options.append(ecma402_map[o])
-
+   # TODO: resolve some combinations of entries that are in conflict
   # Remove comma after last entry, add closing bracket.
   #(start, comma, end) = ecma402_options[-1].rpartition(',')
   #ecma402_options[-1] = start + '\n},' + end
@@ -150,7 +159,8 @@ def generateNumberFmtTestDataObjects(rawtestdata):
       "scientific/+ee/sign-always": "notation",
       "percent": "unit",
       "currency/EUR": "unit",
-      "measure-unit/length-furlong": "unit",
+      "measure-unit/length-meter": "unit",
+      #"measure-unit/length-furlong": "unit",
       "unit-width-narrow": "unit-width",
       "unit-width-full-name": "unit-width",
       "precision-integer": "precision",
@@ -174,9 +184,12 @@ def generateNumberFmtTestDataObjects(rawtestdata):
 
   for t in test_list:
     # The first three specify the formatting.
+    # Example: compact-short percent unit-width-full-name
     part1 = entry_types[t[0]]
     part2 = entry_types[t[1]]
     part3 = entry_types[t[2]]
+
+    # TODO: use combinations of part1, part2, and part3 to generate options.
     # Locales are in element 3, 7, and 11 of parsed structure.
     for l in { 3, 7, 11 }:
       for n in range(len(numbers_to_test)):

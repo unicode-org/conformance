@@ -103,6 +103,8 @@ def setCommonArgs(parser):
   parser.add_argument('--exec', action='extend', nargs='*',
                       help='Execution platforms') #, default='ALL')
 
+  parser.add_argument('--environment', help="Environment variables, e.g., 'a=x;b=y'")
+
   # TODO: are these being used? How?
   parser.add_argument('--icu', default='LATEST')
   parser.add_argument('--cldr', default='LATEST')
