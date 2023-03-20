@@ -743,8 +743,7 @@ class SummaryReport():
 
     html_map['detail_lines'] = '\n'.join(data_rows)
 
-    output_name = 'summary_report_' + datetime.now().strftime(
-        '%Y%m%d_%H%M%S') + '.html'
+    output_name = 'summary_report.html'
     # Write HTML output
     self.summary_html_path = os.path.join(self.file_base,
                                           self.report_dir_name,
