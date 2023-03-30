@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import json
 import os
 import re
 import sys
@@ -40,8 +43,8 @@ def mapFmtSkeletonToECMA402(options):
       "percent": '"style": "percent",\n',
       # "currency/EUR": '"style": "currency",\n  "currencyDisplay": "code",\n  "code": "EUR",\n',
       "currency/EUR": '"style": "currency",\n  "currencyDisplay": "symbol",\n  "code": "EUR",\n',
-      #"measure-unit/length-meter": '"style": "unit",\n  "unit": "meter",\n',
-      "measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
+      "measure-unit/length-meter": '"style": "unit",\n  "unit": "meter",\n',
+      #"measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
       "unit-width-narrow": '"unitDisplay": "narrow",\n',
       "unit-width-full-name": '"unitDisplay": "long", "currencyDisplay":"name", \n',
       #"unit-width-full-name": '"unitDisplay": "long",\n',
@@ -77,17 +80,27 @@ def mapFmtSkeletonToECMA402(options):
 
   ecma402_options = []
 
+  options_dict = {}
   # Which combinatins of skeleton entries need modificiation?
   # Look at the expected output...
   for o in options:
     if o != 'scale/0.5' and o != 'decimal-always':
+      options_str = ecma402_map[o]
       ecma402_options.append(ecma402_map[o])
-   # TODO: resolve some combinations of entries that are in conflict
-  # Remove comma after last entry, add closing bracket.
-  #(start, comma, end) = ecma402_options[-1].rpartition(',')
-  #ecma402_options[-1] = start + '\n},' + end
+      options_split = options_str.split(',\n')
+      for item in options_split:
+        if not item:
+            continue
+        try:
+          text = item[1:-1].replace('"', '')
+          details = text.split(':')
+          options_dict[details[0].strip()] = details[1].replace('"', '').strip()
+        except IndexError:
+          print('FAIL WITH DETAILS: %s in options_split: %s' % (item, options_split))
 
-  return ecma402_options
+   # TODO: resolve some combinations of entries that are in conflict
+  return ecma402_options, options_dict
+
 
 def mapRoundingToECMA402(rounding):
   ecma402_rounding_map = {
@@ -124,43 +137,42 @@ def parseLanguageNameData(rawtestdata):
     return None
 
 
-def generateLanguageNameTestDataObjects(rawtestdata):
+def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
+  # Get the JSON data for tests and verification for language names
   recommentline = re.compile('^\s*#')
-  test_list = rawtestdata.splitlines()
   count = 0
-  testdata_jobjs = []
-  verifydata_jobjs = []
 
-  for item in test_list:
-    # if recommentline.match(item):
-    #   print('Comment line')
+  jtests = []
+  jverify = []
+
+  for item in rawtestdata.splitlines():
     if not (recommentline.match(item) or reblankline.match(item)):
       test_data = parseLanguageNameData(item)
       if test_data == None:
         print('  LanguageNames: Line \'%s\' not recognized as valid test data entry' % item)
         continue
       else:
-        test_data_entry = '{\n  "label": "%s",\n  "language_label": "%s",\n  "locale_label": "%s"\n},' % (str(count).rjust(7, '0'), test_data[0], test_data[1])
-        testdata_jobjs.append(test_data_entry)
-        verifydata = '{\n  "label": "%s",\n  "verify": "%s"\n},' % (str(count).rjust(7, '0'), test_data[2])
-        verifydata_jobjs.append(verifydata)
+        label = str(count).rjust(7, '0')
+        test_json = {'label': label, 'language_label': test_data[0], 'locale_label': test_data[1]}
+        jtests.append(test_json)
+        jverify.append({'label': label, 'verify': test_data[2]})
         count += 1
 
-  # Special op: remove ',' from end of last list entry.
-  testdata_jobjs[-1] = testdata_jobjs[-1].rstrip(',')
-  verifydata_jobjs[-1] = verifydata_jobjs[-1].rstrip(',')
+  json_tests['tests'] = jtests
+  json_verify['verifications'] = jverify
 
   print('LangNames Test: %d lines processed' % count)
-  return testdata_jobjs, verifydata_jobjs
+  return
 
 def generateNumberFmtTestDataObjects(rawtestdata):
+  # Returns 2 lists JSON-formatted: all_tests_list, verify_list
   entry_types = {
       "compact-short": "notation",
       "scientific/+ee/sign-always": "notation",
       "percent": "unit",
-      "currency/EUR": "unit",
-      #"measure-unit/length-meter": "unit",
-      "measure-unit/length-furlong": "unit",
+      "currency/EUR": "unit",  ## TODO: Change the unit
+      "measure-unit/length-meter": "unit",
+      #"measure-unit/length-furlong": "unit",
       "unit-width-narrow": "unit-width",
       "unit-width-full-name": "unit-width",
       "precision-integer": "precision",
@@ -178,10 +190,10 @@ def generateNumberFmtTestDataObjects(rawtestdata):
   numbers_to_test = ['0', '91827.3645', '-0.22222']
   test_list = parseNumberFmtTestData(rawtestdata)
   count = 0
-  testdata_jobjs = []
-  verifydata_jobjs = []
   ecma402_options_start = ['"options": {\n']
 
+  all_tests_list = []
+  verify_list = []
   for t in test_list:
     # The first three specify the formatting.
     # Example: compact-short percent unit-width-full-name
@@ -191,63 +203,87 @@ def generateNumberFmtTestDataObjects(rawtestdata):
 
     # TODO: use combinations of part1, part2, and part3 to generate options.
     # Locales are in element 3, 7, and 11 of parsed structure.
+
     for l in { 3, 7, 11 }:
       for n in range(len(numbers_to_test)):
         ecma402_options = []
-
+        label = str(count).rjust(7, '0')
+        expected = t[l + 1 + n]
         verifydata = '{\n  "label": "%s",\n  "verify": "%s"\n},' % (str(count).rjust(7, '0'), t[l + 1 + n])
-        verifydata_jobjs.append(verifydata)
+        verify_json = {'label': label, 'verify': expected}
+        verify_list.append(verify_json)
+
+        # TODO: Use JSON module instead of print formatting
+        skeleton = '%s %s %s' % (t[0], t[1], t[2])
+        entry = {'label': str(count).rjust(7, '0'),
+                 'locale': t[l],
+                 'skeleton': skeleton,
+                 'input': numbers_to_test[n]
+                 }
 
         entry_top = '{\n  "label": "%s",\n  "locale": "%s",\n  "skeleton": "%s %s %s",\n' % (str(count).rjust(7, '0'), t[l], t[0], t[1], t[2])
         entry_bottom = '"input": "%s"\n},' % numbers_to_test[n]
-        ecma402_options_body = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
+        ecma402_options_body, options_dict = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
+
+        # TODO: Look at the items in the options_dict to resolve conflicts and set up things better.
+        resolved_options_dict = resolveOptions(options_dict, t)
+        # include these options in the entry
+        entry = entry | resolved_options_dict
+
+        # TODO: add resolved options to entry as json.
+
         # Remove comma after last entry, add closing bracket.
         (start, comma, end) = ecma402_options_body[-1].rpartition(',')
         ecma402_options_body[-1] = start + '\n},' + end
         ecma402_options = ecma402_options_start +  ecma402_options_body   # mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
         ecma402_jobj = ''.join(ecma402_options)
         ecma402_entry = [entry_top] + insertJObj(ecma402_options, 2) + [entry_bottom]
-        testdata_jobjs.append(''.join(ecma402_entry))
+
+        # Use the entry rather than the string here
+        all_tests_list.append(entry)  # All the tests in JSON form
         count += 1
 
-  # Special op: remove ',' from end of last list entry.
-  #testdata_jobjs[-1] = testdata_jobjs[-1].rstrip(',')
-  #verifydata_jobjs[-1] = verifydata_jobjs[-1].rstrip(',')
+  return all_tests_list, verify_list, count
 
-  return testdata_jobjs, verifydata_jobjs, count
+def resolveOptions(raw_options, skeleton_list):
+  # Resolve conflicts with options before putting them into the test's options.
+  # TODO: fix
+  resolved = raw_options
+  if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
+    resolved.pop('minimumSignificantDigits')
+
+  if 'percent' in skeleton_list and 'unit-width-full-name' in skeleton_list:
+    resolved['style'] = 'unit'
+    resolved['unit'] = 'percent'
+    resolved['unitDisplay'] = 'long'
+  return resolved
 
 def generateDcmlFmtTestDataObjects(rawtestdata, count):
   recommentline = re.compile('^\s*#')
   test_list = rawtestdata.splitlines()
-  # count = 0
-  testdata_jobjs = []
-  verifydata_jobjs = []
+  count = 0
 
+  all_tests_list = []
+  verify_list = []
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
-      rounding =  '"roundingMode": "%s",\n' % mapRoundingToECMA402(round_mode)
-      entry_top = '{\n  "label": "%s",\n  "op": "format",\n  "skeleton": "%s",\n' % (str(count).rjust(7, '0'), pattern)
-      entry_bottom = '"input": "%s"\n},' % test_input
-      ecma402_options_body = mapFmtSkeletonToECMA402([pattern]) + [rounding]
-      # Remove comma after last entry, add closing bracket.
-      (start, comma, end) = ecma402_options_body[-1].rpartition(',')
-      ecma402_options_body[-1] = start + '\n},' + end
-      ecma402_options = ['"options": {\n'] + ecma402_options_body   # mapFmtSkeletonToECMA402([pattern]) + [rounding]
+      rounding_mode = mapRoundingToECMA402(round_mode)
+      label = str(count).rjust(7, '0')
+      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
-      ecma402_jobj = ''.join(ecma402_options)
-      ecma402_entry = [entry_top] + insertJObj(ecma402_options, 2) + [entry_bottom]
-      testdata_jobjs.append(''.join(ecma402_entry))
-      verifydata = '{\n  "label": "%s",\n  "verify": "%s"\n},' % (str(count).rjust(7, '0'), expected)
-      verifydata_jobjs.append(verifydata)
+      pattern_part, json_part = mapFmtSkeletonToECMA402([pattern])
+      if rounding_mode:
+          entry['options']['roundingMode'] = rounding_mode
+      entry['options'] |= json_part
+
+      all_tests_list.append(entry)
+      verify_list.append({'label': label,
+                          'verify': expected})
       count += 1
 
-  # Special op: remove ',' from end of last list entry.
-  testdata_jobjs[-1] = testdata_jobjs[-1].rstrip(',')
-  verifydata_jobjs[-1] = verifydata_jobjs[-1].rstrip(',')
-
   print('DcmlFmt Test: %d lines processed' % count)
-  return testdata_jobjs, verifydata_jobjs
+  return all_tests_list, verify_list  # testdata_jobjs, verifydata_jobjs
 
 def generateCollTestDataObjects(testdata_list):
   recommentline = re.compile('^\s*#')
@@ -256,6 +292,7 @@ def generateCollTestDataObjects(testdata_list):
   colltestdata = []
   for item in testdata_list:
     if not (recommentline.match(item) or reblankline.match(item)):
+      # Get the code points for each test
       codepoints = parseCollTestData(item)
       testdatastring = ''
       for cp in codepoints:
@@ -275,63 +312,66 @@ def generateCollTestDataObjects(testdata_list):
   print('Coll Test: %d lines processed' % n)
 
   # Construct test data and verification entries in JSON.
-  testdata_jobjs = []
-  verify_jobjs = []
   count = 0
   prev = colltestdata[0]
+  test_list = []
+  verify_list = []
   for t in colltestdata[1:]:
-    entry = '{\n  "label": "%s",\n  "string1": "%s",\n  "string2": "%s"\n},' % (str(count).rjust(7, '0'), prev, t)
-    testdata_jobjs.append(entry)
-    verify = '{\n  "label": "%s",\n  "verify": "True"\n},' % (str(count).rjust(7, '0'))
-    verify_jobjs.append(verify)
+    label = str(count).rjust(7, '0')
+    test_list.append({'label': label, 'string1': prev, 'string2': t})
+    verify_list.append({'label': label, 'verify': True})
     prev = t
     count += 1
 
   # Special op: remove ',' from end of last list entry.
-  testdata_jobjs[-1] = testdata_jobjs[-1].rstrip(',')
-  verify_jobjs[-1] = verify_jobjs[-1].rstrip(',')
-
-  return testdata_jobjs, verify_jobjs
+  # TODO: Clean up old string types
+  return test_list, verify_list  # testdata_jobjs, verify_jobjs
 
 def generateTestsObject(testdata_object_list):
-  tests_begin = '"tests": ['
-  tests_end = ']'
+  #tests_begin = '"tests": ['
+  #tests_end = ']'
 
-  tests_jobj = [tests_begin] + insertJObj(testdata_object_list, 2) + [tests_end]
-  return tests_jobj
+  #tests_jobj = [tests_begin] + insertJObj(testdata_object_list, 2) + [tests_end]
+  return {'tests': testdata_object_list}
 
 def generateVerifyObject(verification_object_list):
-  verify_begin = '"verifications": ['
-  verify_end = ']'
-
-  verify_jobj = [verify_begin] + insertJObj(verification_object_list, 2) + [verify_end]
-  return verify_jobj
+  return {'verifications': verification_object_list}
 
 def insert_coll_descr(tests_obj, verify_obj):
-  descr =   ('{\n'
-             '  "description": "UCA conformance test. Compare the first data\\n'
-             '   string with the second and with strength = identical level\\n'
-             '   (using S3.10). If the second string is greater than the first\\n'
-             '   string, then stop with an error.",')
-  test_id =  '  "Test scenario": "coll_shift_short",'
-  end = '}'
+  verify_obj['Test Scenario'] = tests_obj['Test scenario'] = "coll_shift_short"
+  tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
+  return
 
-  verify_head = '{\n  "Test scenario": "coll_shift_short",'
+def processCollationTestData():
+  # Alternate set of data, not used right now.
+  #rawtestdata = readFile('CollationTest_NON_IGNORABLE_SHORT.txt')
 
-  return [descr] + [test_id] + insertJObj(tests_obj, 2) + [end], [verify_head] + insertJObj(verify_obj, 2) + [end]
+  # Read raw data
+  rawcolltestdata = readFile('CollationTest_SHIFTED_SHORT.txt')
 
-def processTestData(rawtestdata):
-  test_list = rawtestdata.splitlines()
+  test_list = rawcolltestdata.splitlines()
+
+  # Get lists of tests and verify info
   testdata_object_list, verify_list = generateCollTestDataObjects(test_list)
-  verify_object = generateVerifyObject(verify_list)
-  tests_object = generateTestsObject(testdata_object_list)
-  json_test, json_verify = insert_coll_descr(tests_object, verify_object)
-  #for t in json_test:
-  #  print(t)
+  json_test = {}
+  json_verify = {}
+  insert_coll_descr(json_test, json_verify)
+  json_verify['verifications'] = verify_list
+  json_test['tests'] = testdata_object_list
 
-  return json_test, json_verify
+  # And write the files
+  coll_test_file = open('coll_test_shift.json', 'w')
+  json.dump(json_test, coll_test_file, indent=1)
+  coll_test_file.close()
 
-def insert_descr(tests_obj, verify_obj):
+  coll_verify_file = open('coll_verify_shift.json', 'w')
+  # The verify file doesn't need to be pretty-printed
+  json.dump(json_verify, coll_verify_file)
+  coll_verify_file.close()
+
+  return
+
+def insert_decml_fmt_descr(tests_obj, verify_obj):
   descr =   ('{\n'
              '  "description": "Decimal formatter test cases for parsing and formatting.\\n'
              '  Formatting test case elements:\\n'
@@ -350,89 +390,47 @@ def insert_descr(tests_obj, verify_obj):
 
   return [descr] + [test_id] + [version] + [source] + insertJObj(tests_obj, 2) + [end], [verify_head] + insertJObj(verify_obj, 2) + [end]
 
-def languageNameDescr(tests_obj, verify_obj):
-  descr =   ('{\n'
-             '  "description": "Language display name test cases. The first\\n'
-             '  code declares the language whose display name is requested\\n'
-             '  while the second code declares the locale to display the\\n'
-             '  language name in.",')
-  test_id =  '  "Test scenario": "language_display_name",'
-  version = ('  "source":\n'
-             '    {\n'
-             '      "repository": "conformance-test",\n'
-             '      "version": "trunk"\n'
-             '    },')
-  source =   '  "url": "No URL yet.",'
-  end = '}'
-  verify_head = '{\n  "Test scenario": "language_display_name",'
+def languageNameDescr(tests_json, verify_json):
+  # Adds information to LanguageName tests and verify JSON
+  descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
+  test_id =  'language_display_name'
+  version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
+  source = 'No URL yet.'
+  tests_json['Test scenario'] = test_id
+  tests_json['description'] = descr
+  tests_json['version'] = version
+  tests_json['url'] = source
+  verify_json['Test scenario'] = test_id
 
-  return [descr] + [test_id] + [version] + [source] + insertJObj(tests_obj, 2) + [end], [verify_head] + insertJObj(verify_obj, 2) + [end]
-
+  return
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
-  descr =   ('{\n'
-             '  "description": "Number formatter test cases. The skeleton entry corresponds to\\n'
-             '  the formating specification used by ICU while the option entries adhere to\\n'
-             '  ECMA-402 syntax.",')
-  test_id =  '  "Test scenario": "number_fmt",'
-  version = ('  "source":\n'
-             '    {\n'
-             '      "repository": "icu",\n'
-             '      "version": "trunk"\n'
-             '    },')
-  source =   '  "url": "https://raw.githubusercontent.com/unicode-org/icu/main/icu4c/source/test/testdata/numberpermutationtest.txt",'
-  end = '}'
-  verify_head = '{\n  "Test scenario": "number_fmt",'
+  # returns JSON data for tests and verification
+  test_scenario = 'number_fmt'
+  test_data = {"Test scenario": test_scenario,
+           'description':
+               'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
+           "source": {"repository": "icu", "version": "trunk"},
+           "url": "https://raw.githubusercontent.com/unicode-org/icu/main/icu4c/source/test/testdata/numberpermutationtest.txt",
+           'tests': tests_obj
+           }
+  verify_data = {"Test scenario": test_scenario, 'verifications': verify_obj}
+  return test_data, verify_data
 
-  return [descr] + [test_id] + [version] + [source] + insertJObj(tests_obj, 2) + [end], [verify_head] + insertJObj(verify_obj, 2) + [end]
+  return
 
 
 def processDcmlFmtTestDataObjects(rawtestdata):
   testdata_object_list, verify_object_list = generateDcmlFmtTestDataObjects(rawtestdata, 0)
-  tests_object = generateTestsObject(testdata_object_list)
-  verify_object = generateVerifyObject(verify_object_list)
-  json_test, verify = insert_descr(tests_object, verify_object)
+  json_test = {}
+  json_verify = {}
+  json_test['tests'] = generateTestsObject(testdata_object_list)
+  json_verify['verification'] = generateVerifyObject(verify_object_list)
+  insert_decml_fmt_descr(json_test, json_verify)
 
   return json_test, verify
 
-def processNumberFmtTestData(rawnumfmttestdata, rawdcmlfmttestdata):
-  num_testdata_object_list, num_verify_object_list, count = generateNumberFmtTestDataObjects(rawnumfmttestdata)
-  dcml_testdata_object_list, dcml_verify_object_list = generateDcmlFmtTestDataObjects(rawdcmlfmttestdata, count)
-
-  tests_object = generateTestsObject(num_testdata_object_list + dcml_testdata_object_list)
-  verify_object = generateVerifyObject(num_verify_object_list + dcml_verify_object_list)
-  json_test, verify = insertNumberFmtDescr(tests_object, verify_object)
-
-  return json_test, verify
-
-
-def processLangNameTestData(rawtestdata):
-  testdata_object_list, verify_object_list = generateLanguageNameTestDataObjects(rawtestdata)
-  tests_object = generateTestsObject(testdata_object_list)
-  verify_object = generateVerifyObject(verify_object_list)
-  json_test, verify = languageNameDescr(tests_object, verify_object)
-
-  #for t in json_test:
-  #  print(t)
-  return json_test, verify
-
-
-def main():
-  print('Generating .json files for data driven testing')
-  rawcolltestdata = readFile('CollationTest_SHIFTED_SHORT.txt')
-  #rawtestdata = readFile('CollationTest_NON_IGNORABLE_SHORT.txt')
-  json_test, json_verify = processTestData(rawcolltestdata)
-  coll_test_file = open('coll_test_shift.json', 'w')
-  for t in json_test:
-    coll_test_file.write(t)
-    coll_test_file.write('\n')
-  coll_test_file.close()
-  coll_verify_file = open('coll_verify_shift.json', 'w')
-  for v in json_verify:
-    coll_verify_file.write(v)
-    coll_verify_file.write('\n')
-  coll_verify_file.close()
-
+def processNumberFmtTestData():
   rawdcmlfmttestdata = readFile('dcfmtest.txt')
   BOM = '\xef\xbb\xbf'
   if rawdcmlfmttestdata.startswith(BOM):
@@ -450,32 +448,57 @@ def main():
   #  dcml_fmt_verify_file.write(v)
   #  dcml_fmt_verify_file.write('\n')
   #dcml_fmt_verify_file.close()
-
+  # Get the raw string data
   rawnumfmttestdata = readFile('numberpermutationtest.txt')
-  num_fmt_test, num_fmt_verify = processNumberFmtTestData(rawnumfmttestdata, rawdcmlfmttestdata)
+
+  num_testdata_object_list, num_verify_object_list, count = generateNumberFmtTestDataObjects(rawnumfmttestdata)
+  dcml_testdata_object_list, dcml_verify_object_list = generateDcmlFmtTestDataObjects(rawdcmlfmttestdata, count)
+
+  test_list = generateTestsObject(num_testdata_object_list + dcml_testdata_object_list)
+  verify_list = generateVerifyObject(num_verify_object_list + dcml_verify_object_list)
+  json_test, json_verify = insertNumberFmtDescr(test_list, verify_list)
+
   num_fmt_test_file = open('num_fmt_test_file.json', 'w')
-  for t in num_fmt_test:
-    num_fmt_test_file.write(t)
-    num_fmt_test_file.write('\n')
+  json.dump(json_test, num_fmt_test_file, indent=1)
   num_fmt_test_file.close()
+
   num_fmt_verify_file = open('num_fmt_verify_file.json', 'w')
-  for v in num_fmt_verify:
-    num_fmt_verify_file.write(v)
-    num_fmt_verify_file.write('\n')
+  json.dump(json_verify, num_fmt_verify_file)
   num_fmt_verify_file.close()
 
-  rawlangnametestdata = readFile('languageNameTable.txt')
-  lang_name_test, lang_name_verify = processLangNameTestData(rawlangnametestdata)
-  lang_name_test_file = open('lang_name_test_file.json', 'w')
-  for t in lang_name_test:
-    lang_name_test_file.write(t)
-    lang_name_test_file.write('\n')
-  lang_name_test_file.close()
-  lang_name_verify_file = open('lang_name_verify_file.json', 'w')
-  for v in lang_name_verify:
-    lang_name_verify_file.write(v)
-    lang_name_verify_file.write('\n')
-  lang_name_verify_file.close()
+  return
+
+
+def processLangNameTestData():
+
+    json_test = {}
+    json_verify = {}
+    languageNameDescr(json_test, json_verify)
+    rawlangnametestdata = readFile('languageNameTable.txt')
+
+    generateLanguageNameTestDataObjects(
+        rawlangnametestdata, json_test, json_verify)
+
+    lang_name_test_file = open('lang_name_test_file.json', 'w')
+    json.dump(json_test, lang_name_test_file)
+    lang_name_test_file.close()
+
+    lang_name_verify_file = open('lang_name_verify_file.json', 'w')
+    json.dump(json_verify, lang_name_verify_file)
+    lang_name_verify_file.close()
+
+    return
+
+
+def main():
+  print('Generating .json files for data driven testing')
+
+  processLangNameTestData()
+
+  processCollationTestData()
+
+  processNumberFmtTestData()
+
   print('================================================================================')
 
 

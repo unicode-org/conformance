@@ -57,7 +57,7 @@ compact-short currency/EUR unit-width-full-name
     ৯২ হা ইউরো
     -০.২২ ইউরো
 
-compact-short measure-unit/length-furlong unit-width-narrow
+compact-short measure-unit/length-meter unit-width-narrow
   es-MX
     0fur
     92 kfur
@@ -71,11 +71,11 @@ compact-short measure-unit/length-furlong unit-width-narrow
     ৯২ হা ফার্লং
     -০.২২ ফার্লং
 
-compact-short measure-unit/length-furlong unit-width-full-name
+compact-short measure-unit/length-meter unit-width-full-name
   es-MX
-    0 furlongs
-    92 k furlongs
-    -0.22 furlongs
+    0 meters
+    92 k meters
+    -0.22 meters
   zh-TW
     0 化朗
     9.2萬 化朗
@@ -141,7 +141,7 @@ scientific/+ee/sign-always currency/EUR unit-width-full-name
     ৯.১৮E+০৪ ইউরো
     -২.২২E-০১ ইউরো
 
-scientific/+ee/sign-always measure-unit/length-furlong unit-width-narrow
+scientific/+ee/sign-always measure-unit/length-meter unit-width-narrow
   es-MX
     0E+00fur
     9.182736E+04fur
@@ -155,11 +155,11 @@ scientific/+ee/sign-always measure-unit/length-furlong unit-width-narrow
     ৯.১৮২৭৩৬E+০৪ ফার্লং
     -২.২২২২E-০১ ফার্লং
 
-scientific/+ee/sign-always measure-unit/length-furlong unit-width-full-name
+scientific/+ee/sign-always measure-unit/length-meter unit-width-full-name
   es-MX
-    0E+00 furlongs
-    9.182736E+04 furlongs
-    -2.2222E-01 furlongs
+    0E+00 meters
+    9.182736E+04 meters
+    -2.2222E-01 meters
   zh-TW
     0E+00 化朗
     9.182736E+04 化朗
@@ -281,7 +281,7 @@ compact-short currency/EUR @@
     ৯২ হা€
     -০.২২€
 
-compact-short measure-unit/length-furlong precision-integer
+compact-short measure-unit/length-meter precision-integer
   es-MX
     0 fur
     92 k fur
@@ -295,7 +295,7 @@ compact-short measure-unit/length-furlong precision-integer
     ৯২ হা ফার্লং
     -০ ফার্লং
 
-compact-short measure-unit/length-furlong .000
+compact-short measure-unit/length-meter .000
   es-MX
     0.000 fur
     91.827 k fur
@@ -309,7 +309,7 @@ compact-short measure-unit/length-furlong .000
     ৯১.৮২৭ হা ফার্লং
     -০.২২২ ফার্লং
 
-compact-short measure-unit/length-furlong .##/@@@+
+compact-short measure-unit/length-meter .##/@@@+
   es-MX
     0 fur
     91.83 k fur
@@ -323,7 +323,7 @@ compact-short measure-unit/length-furlong .##/@@@+
     ৯১.৮৩ হা ফার্লং
     -০.২২২ ফার্লং
 
-compact-short measure-unit/length-furlong @@
+compact-short measure-unit/length-meter @@
   es-MX
     0.0 fur
     92 k fur
@@ -449,7 +449,7 @@ scientific/+ee/sign-always currency/EUR @@
     ৯.২E+০৪€
     -২.২E-০১€
 
-scientific/+ee/sign-always measure-unit/length-furlong precision-integer
+scientific/+ee/sign-always measure-unit/length-meter precision-integer
   es-MX
     0E+00 fur
     9E+04 fur
@@ -463,7 +463,7 @@ scientific/+ee/sign-always measure-unit/length-furlong precision-integer
     ৯E+০৪ ফার্লং
     -২E-০১ ফার্লং
 
-scientific/+ee/sign-always measure-unit/length-furlong .000
+scientific/+ee/sign-always measure-unit/length-meter .000
   es-MX
     0.000E+00 fur
     9.183E+04 fur
@@ -477,7 +477,7 @@ scientific/+ee/sign-always measure-unit/length-furlong .000
     ৯.১৮৩E+০৪ ফার্লং
     -২.২২২E-০১ ফার্লং
 
-scientific/+ee/sign-always measure-unit/length-furlong .##/@@@+
+scientific/+ee/sign-always measure-unit/length-meter .##/@@@+
   es-MX
     0E+00 fur
     9.18E+04 fur
@@ -491,7 +491,7 @@ scientific/+ee/sign-always measure-unit/length-furlong .##/@@@+
     ৯.১৮E+০৪ ফার্লং
     -২.২২E-০১ ফার্লং
 
-scientific/+ee/sign-always measure-unit/length-furlong @@
+scientific/+ee/sign-always measure-unit/length-meter @@
   es-MX
     0.0E+00 fur
     9.2E+04 fur
@@ -533,7 +533,7 @@ compact-short currency/EUR rounding-mode-floor
     ৯১ হা€
     -০.২৩€
 
-compact-short measure-unit/length-furlong rounding-mode-floor
+compact-short measure-unit/length-meter rounding-mode-floor
   es-MX
     0 fur
     91 k fur
@@ -575,7 +575,7 @@ scientific/+ee/sign-always currency/EUR rounding-mode-floor
     ৯.১৮E+০৪€
     -২.২৩E-০১€
 
-scientific/+ee/sign-always measure-unit/length-furlong rounding-mode-floor
+scientific/+ee/sign-always measure-unit/length-meter rounding-mode-floor
   es-MX
     0E+00 fur
     9.182736E+04 fur
@@ -617,7 +617,7 @@ compact-short currency/EUR integer-width/##00
     ৯২ হা€
     -০০.২২€
 
-compact-short measure-unit/length-furlong integer-width/##00
+compact-short measure-unit/length-meter integer-width/##00
   es-MX
     00 fur
     92 k fur
@@ -659,7 +659,7 @@ scientific/+ee/sign-always currency/EUR integer-width/##00
     ০৯.১৮E+০৪€
     -০২.২২E-০১€
 
-scientific/+ee/sign-always measure-unit/length-furlong integer-width/##00
+scientific/+ee/sign-always measure-unit/length-meter integer-width/##00
   es-MX
     00E+00 fur
     09.182736E+04 fur
@@ -701,7 +701,7 @@ compact-short currency/EUR scale/0.5
     ৪৬ হা€
     -০.১১€
 
-compact-short measure-unit/length-furlong scale/0.5
+compact-short measure-unit/length-meter scale/0.5
   es-MX
     0 fur
     46 k fur
@@ -743,7 +743,7 @@ scientific/+ee/sign-always currency/EUR scale/0.5
     ৪.৫৯E+০৪€
     -১.১১E-০১€
 
-scientific/+ee/sign-always measure-unit/length-furlong scale/0.5
+scientific/+ee/sign-always measure-unit/length-meter scale/0.5
   es-MX
     0E+00 fur
     4.591368E+04 fur
@@ -785,7 +785,7 @@ compact-short currency/EUR group-on-aligned
     ৯২ হা€
     -০.২২€
 
-compact-short measure-unit/length-furlong group-on-aligned
+compact-short measure-unit/length-meter group-on-aligned
   es-MX
     0 fur
     92 k fur
@@ -827,7 +827,7 @@ scientific/+ee/sign-always currency/EUR group-on-aligned
     ৯.১৮E+০৪€
     -২.২২E-০১€
 
-scientific/+ee/sign-always measure-unit/length-furlong group-on-aligned
+scientific/+ee/sign-always measure-unit/length-meter group-on-aligned
   es-MX
     0E+00 fur
     9.182736E+04 fur
@@ -869,7 +869,7 @@ compact-short currency/EUR latin
     92 হা€
     -0.22€
 
-compact-short measure-unit/length-furlong latin
+compact-short measure-unit/length-meter latin
   es-MX
     0 fur
     92 k fur
@@ -911,7 +911,7 @@ scientific/+ee/sign-always currency/EUR latin
     9.18E+04€
     -2.22E-01€
 
-scientific/+ee/sign-always measure-unit/length-furlong latin
+scientific/+ee/sign-always measure-unit/length-meter latin
   es-MX
     0E+00 fur
     9.182736E+04 fur
@@ -953,7 +953,7 @@ compact-short currency/EUR sign-accounting-except-zero
     +৯২ হা€
     (০.২২€)
 
-compact-short measure-unit/length-furlong sign-accounting-except-zero
+compact-short measure-unit/length-meter sign-accounting-except-zero
   es-MX
     0 fur
     +92 k fur
@@ -995,7 +995,7 @@ scientific/+ee/sign-always currency/EUR sign-accounting-except-zero
     +৯.১৮E+০৪€
     (২.২২E-০১€)
 
-scientific/+ee/sign-always measure-unit/length-furlong sign-accounting-except-zero
+scientific/+ee/sign-always measure-unit/length-meter sign-accounting-except-zero
   es-MX
     0E+00 fur
     +9.182736E+04 fur
@@ -1037,7 +1037,7 @@ compact-short currency/EUR decimal-always
     ৯২. হা€
     -০.২২€
 
-compact-short measure-unit/length-furlong decimal-always
+compact-short measure-unit/length-meter decimal-always
   es-MX
     0. fur
     92. k fur
@@ -1079,7 +1079,7 @@ scientific/+ee/sign-always currency/EUR decimal-always
     ৯.১৮E+০৪€
     -২.২২E-০১€
 
-scientific/+ee/sign-always measure-unit/length-furlong decimal-always
+scientific/+ee/sign-always measure-unit/length-meter decimal-always
   es-MX
     0.E+00 fur
     9.182736E+04 fur
@@ -3305,7 +3305,7 @@ currency/EUR unit-width-full-name @@
     ৯২,০০০ ইউরো
     -০.২২ ইউরো
 
-measure-unit/length-furlong unit-width-narrow precision-integer
+measure-unit/length-meter unit-width-narrow precision-integer
   es-MX
     0fur
     91,827fur
@@ -3319,7 +3319,7 @@ measure-unit/length-furlong unit-width-narrow precision-integer
     ৯১,৮২৭ ফার্লং
     -০ ফার্লং
 
-measure-unit/length-furlong unit-width-narrow .000
+measure-unit/length-meter unit-width-narrow .000
   es-MX
     0.000fur
     91,827.364fur
@@ -3333,7 +3333,7 @@ measure-unit/length-furlong unit-width-narrow .000
     ৯১,৮২৭.৩৬৪ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-narrow .##/@@@+
+measure-unit/length-meter unit-width-narrow .##/@@@+
   es-MX
     0fur
     91,827.36fur
@@ -3347,7 +3347,7 @@ measure-unit/length-furlong unit-width-narrow .##/@@@+
     ৯১,৮২৭.৩৬ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-narrow @@
+measure-unit/length-meter unit-width-narrow @@
   es-MX
     0.0fur
     92,000fur
@@ -3361,11 +3361,11 @@ measure-unit/length-furlong unit-width-narrow @@
     ৯২,০০০ ফার্লং
     -০.২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name precision-integer
+measure-unit/length-meter unit-width-full-name precision-integer
   es-MX
-    0 furlongs
-    91,827 furlongs
-    -0 furlongs
+    0 meters
+    91,827 meters
+    -0 meters
   zh-TW
     0 化朗
     91,827 化朗
@@ -3375,11 +3375,11 @@ measure-unit/length-furlong unit-width-full-name precision-integer
     ৯১,৮২৭ ফার্লং
     -০ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name .000
+measure-unit/length-meter unit-width-full-name .000
   es-MX
-    0.000 furlongs
-    91,827.364 furlongs
-    -0.222 furlongs
+    0.000 meters
+    91,827.364 meters
+    -0.222 meters
   zh-TW
     0.000 化朗
     91,827.364 化朗
@@ -3389,11 +3389,11 @@ measure-unit/length-furlong unit-width-full-name .000
     ৯১,৮২৭.৩৬৪ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name .##/@@@+
+measure-unit/length-meter unit-width-full-name .##/@@@+
   es-MX
-    0 furlongs
-    91,827.36 furlongs
-    -0.222 furlongs
+    0 meters
+    91,827.36 meters
+    -0.222 meters
   zh-TW
     0 化朗
     91,827.36 化朗
@@ -3403,11 +3403,11 @@ measure-unit/length-furlong unit-width-full-name .##/@@@+
     ৯১,৮২৭.৩৬ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name @@
+measure-unit/length-meter unit-width-full-name @@
   es-MX
-    0.0 furlongs
-    92,000 furlongs
-    -0.22 furlongs
+    0.0 meters
+    92,000 meters
+    -0.22 meters
   zh-TW
     0.0 化朗
     92,000 化朗
@@ -3473,7 +3473,7 @@ currency/EUR unit-width-full-name rounding-mode-floor
     ৯১,৮২৭.৩৬ ইউরো
     -০.২৩ ইউরো
 
-measure-unit/length-furlong unit-width-narrow rounding-mode-floor
+measure-unit/length-meter unit-width-narrow rounding-mode-floor
   es-MX
     0fur
     91,827.3645fur
@@ -3487,11 +3487,11 @@ measure-unit/length-furlong unit-width-narrow rounding-mode-floor
     ৯১,৮২৭.৩৬৪৫ ফার্লং
     -০.২২২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name rounding-mode-floor
+measure-unit/length-meter unit-width-full-name rounding-mode-floor
   es-MX
-    0 furlongs
-    91,827.3645 furlongs
-    -0.22222 furlongs
+    0 meters
+    91,827.3645 meters
+    -0.22222 meters
   zh-TW
     0 化朗
     91,827.3645 化朗
@@ -3557,7 +3557,7 @@ currency/EUR unit-width-full-name integer-width/##00
     ১,৮২৭.৩৬ ইউরো
     -০০.২২ ইউরো
 
-measure-unit/length-furlong unit-width-narrow integer-width/##00
+measure-unit/length-meter unit-width-narrow integer-width/##00
   es-MX
     00fur
     1,827.3645fur
@@ -3571,11 +3571,11 @@ measure-unit/length-furlong unit-width-narrow integer-width/##00
     ১,৮২৭.৩৬৪৫ ফার্লং
     -০০.২২২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name integer-width/##00
+measure-unit/length-meter unit-width-full-name integer-width/##00
   es-MX
-    00 furlongs
-    1,827.3645 furlongs
-    -00.22222 furlongs
+    00 meters
+    1,827.3645 meters
+    -00.22222 meters
   zh-TW
     00 化朗
     1,827.3645 化朗
@@ -3641,7 +3641,7 @@ currency/EUR unit-width-full-name scale/0.5
     ৪৫,৯১৩.৬৮ ইউরো
     -০.১১ ইউরো
 
-measure-unit/length-furlong unit-width-narrow scale/0.5
+measure-unit/length-meter unit-width-narrow scale/0.5
   es-MX
     0fur
     45,913.68225fur
@@ -3655,11 +3655,11 @@ measure-unit/length-furlong unit-width-narrow scale/0.5
     ৪৫,৯১৩.৬৮২২৫ ফার্লং
     -০.১১১১১ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name scale/0.5
+measure-unit/length-meter unit-width-full-name scale/0.5
   es-MX
-    0 furlongs
-    45,913.68225 furlongs
-    -0.11111 furlongs
+    0 meters
+    45,913.68225 meters
+    -0.11111 meters
   zh-TW
     0 化朗
     45,913.68225 化朗
@@ -3725,7 +3725,7 @@ currency/EUR unit-width-full-name group-on-aligned
     ৯১,৮২৭.৩৬ ইউরো
     -০.২২ ইউরো
 
-measure-unit/length-furlong unit-width-narrow group-on-aligned
+measure-unit/length-meter unit-width-narrow group-on-aligned
   es-MX
     0fur
     91,827.3645fur
@@ -3739,11 +3739,11 @@ measure-unit/length-furlong unit-width-narrow group-on-aligned
     ৯১,৮২৭.৩৬৪৫ ফার্লং
     -০.২২২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name group-on-aligned
+measure-unit/length-meter unit-width-full-name group-on-aligned
   es-MX
-    0 furlongs
-    91,827.3645 furlongs
-    -0.22222 furlongs
+    0 meters
+    91,827.3645 meters
+    -0.22222 meters
   zh-TW
     0 化朗
     91,827.3645 化朗
@@ -3809,7 +3809,7 @@ currency/EUR unit-width-full-name latin
     91,827.36 ইউরো
     -0.22 ইউরো
 
-measure-unit/length-furlong unit-width-narrow latin
+measure-unit/length-meter unit-width-narrow latin
   es-MX
     0fur
     91,827.3645fur
@@ -3823,11 +3823,11 @@ measure-unit/length-furlong unit-width-narrow latin
     91,827.3645 ফার্লং
     -0.22222 ফার্লং
 
-measure-unit/length-furlong unit-width-full-name latin
+measure-unit/length-meter unit-width-full-name latin
   es-MX
-    0 furlongs
-    91,827.3645 furlongs
-    -0.22222 furlongs
+    0 meters
+    91,827.3645 meters
+    -0.22222 meters
   zh-TW
     0 化朗
     91,827.3645 化朗
@@ -3893,7 +3893,7 @@ currency/EUR unit-width-full-name sign-accounting-except-zero
     +৯১,৮২৭.৩৬ ইউরো
     -০.২২ ইউরো
 
-measure-unit/length-furlong unit-width-narrow sign-accounting-except-zero
+measure-unit/length-meter unit-width-narrow sign-accounting-except-zero
   es-MX
     0fur
     +91,827.3645fur
@@ -3907,11 +3907,11 @@ measure-unit/length-furlong unit-width-narrow sign-accounting-except-zero
     +৯১,৮২৭.৩৬৪৫ ফার্লং
     -০.২২২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name sign-accounting-except-zero
+measure-unit/length-meter unit-width-full-name sign-accounting-except-zero
   es-MX
-    0 furlongs
-    +91,827.3645 furlongs
-    -0.22222 furlongs
+    0 meters
+    +91,827.3645 meters
+    -0.22222 meters
   zh-TW
     0 化朗
     +91,827.3645 化朗
@@ -3977,7 +3977,7 @@ currency/EUR unit-width-full-name decimal-always
     ৯১,৮২৭.৩৬ ইউরো
     -০.২২ ইউরো
 
-measure-unit/length-furlong unit-width-narrow decimal-always
+measure-unit/length-meter unit-width-narrow decimal-always
   es-MX
     0.fur
     91,827.3645fur
@@ -3991,11 +3991,11 @@ measure-unit/length-furlong unit-width-narrow decimal-always
     ৯১,৮২৭.৩৬৪৫ ফার্লং
     -০.২২২২২ ফার্লং
 
-measure-unit/length-furlong unit-width-full-name decimal-always
+measure-unit/length-meter unit-width-full-name decimal-always
   es-MX
-    0. furlongs
-    91,827.3645 furlongs
-    -0.22222 furlongs
+    0. meters
+    91,827.3645 meters
+    -0.22222 meters
   zh-TW
     0. 化朗
     91,827.3645 化朗
@@ -4117,7 +4117,7 @@ currency/EUR @@ rounding-mode-floor
     ৯১,০০০€
     -০.২৩€
 
-measure-unit/length-furlong precision-integer rounding-mode-floor
+measure-unit/length-meter precision-integer rounding-mode-floor
   es-MX
     0 fur
     91,827 fur
@@ -4131,7 +4131,7 @@ measure-unit/length-furlong precision-integer rounding-mode-floor
     ৯১,৮২৭ ফার্লং
     -১ ফার্লং
 
-measure-unit/length-furlong .000 rounding-mode-floor
+measure-unit/length-meter .000 rounding-mode-floor
   es-MX
     0.000 fur
     91,827.364 fur
@@ -4145,7 +4145,7 @@ measure-unit/length-furlong .000 rounding-mode-floor
     ৯১,৮২৭.৩৬৪ ফার্লং
     -০.২২৩ ফার্লং
 
-measure-unit/length-furlong .##/@@@+ rounding-mode-floor
+measure-unit/length-meter .##/@@@+ rounding-mode-floor
   es-MX
     0 fur
     91,827.36 fur
@@ -4159,7 +4159,7 @@ measure-unit/length-furlong .##/@@@+ rounding-mode-floor
     ৯১,৮২৭.৩৬ ফার্লং
     -০.২২৩ ফার্লং
 
-measure-unit/length-furlong @@ rounding-mode-floor
+measure-unit/length-meter @@ rounding-mode-floor
   es-MX
     0.0 fur
     91,000 fur
@@ -4285,7 +4285,7 @@ currency/EUR @@ integer-width/##00
     ২,০০০€
     -০০.২২€
 
-measure-unit/length-furlong precision-integer integer-width/##00
+measure-unit/length-meter precision-integer integer-width/##00
   es-MX
     00 fur
     1,827 fur
@@ -4299,7 +4299,7 @@ measure-unit/length-furlong precision-integer integer-width/##00
     ১,৮২৭ ফার্লং
     -০০ ফার্লং
 
-measure-unit/length-furlong .000 integer-width/##00
+measure-unit/length-meter .000 integer-width/##00
   es-MX
     00.000 fur
     1,827.364 fur
@@ -4313,7 +4313,7 @@ measure-unit/length-furlong .000 integer-width/##00
     ১,৮২৭.৩৬৪ ফার্লং
     -০০.২২২ ফার্লং
 
-measure-unit/length-furlong .##/@@@+ integer-width/##00
+measure-unit/length-meter .##/@@@+ integer-width/##00
   es-MX
     00 fur
     1,827.36 fur
@@ -4327,7 +4327,7 @@ measure-unit/length-furlong .##/@@@+ integer-width/##00
     ১,৮২৭.৩৬ ফার্লং
     -০০.২২২ ফার্লং
 
-measure-unit/length-furlong @@ integer-width/##00
+measure-unit/length-meter @@ integer-width/##00
   es-MX
     00.0 fur
     2,000 fur
@@ -4453,7 +4453,7 @@ currency/EUR @@ scale/0.5
     ৪৬,০০০€
     -০.১১€
 
-measure-unit/length-furlong precision-integer scale/0.5
+measure-unit/length-meter precision-integer scale/0.5
   es-MX
     0 fur
     45,914 fur
@@ -4467,7 +4467,7 @@ measure-unit/length-furlong precision-integer scale/0.5
     ৪৫,৯১৪ ফার্লং
     -০ ফার্লং
 
-measure-unit/length-furlong .000 scale/0.5
+measure-unit/length-meter .000 scale/0.5
   es-MX
     0.000 fur
     45,913.682 fur
@@ -4481,7 +4481,7 @@ measure-unit/length-furlong .000 scale/0.5
     ৪৫,৯১৩.৬৮২ ফার্লং
     -০.১১১ ফার্লং
 
-measure-unit/length-furlong .##/@@@+ scale/0.5
+measure-unit/length-meter .##/@@@+ scale/0.5
   es-MX
     0 fur
     45,913.68 fur
@@ -4495,7 +4495,7 @@ measure-unit/length-furlong .##/@@@+ scale/0.5
     ৪৫,৯১৩.৬৮ ফার্লং
     -০.১১১ ফার্লং
 
-measure-unit/length-furlong @@ scale/0.5
+measure-unit/length-meter @@ scale/0.5
   es-MX
     0.0 fur
     46,000 fur
@@ -4621,7 +4621,7 @@ currency/EUR @@ group-on-aligned
     ৯২,০০০€
     -০.২২€
 
-measure-unit/length-furlong precision-integer group-on-aligned
+measure-unit/length-meter precision-integer group-on-aligned
   es-MX
     0 fur
     91,827 fur
@@ -4635,7 +4635,7 @@ measure-unit/length-furlong precision-integer group-on-aligned
     ৯১,৮২৭ ফার্লং
     -০ ফার্লং
 
-measure-unit/length-furlong .000 group-on-aligned
+measure-unit/length-meter .000 group-on-aligned
   es-MX
     0.000 fur
     91,827.364 fur
@@ -4649,7 +4649,7 @@ measure-unit/length-furlong .000 group-on-aligned
     ৯১,৮২৭.৩৬৪ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong .##/@@@+ group-on-aligned
+measure-unit/length-meter .##/@@@+ group-on-aligned
   es-MX
     0 fur
     91,827.36 fur
@@ -4663,7 +4663,7 @@ measure-unit/length-furlong .##/@@@+ group-on-aligned
     ৯১,৮২৭.৩৬ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong @@ group-on-aligned
+measure-unit/length-meter @@ group-on-aligned
   es-MX
     0.0 fur
     92,000 fur
@@ -4789,7 +4789,7 @@ currency/EUR @@ latin
     92,000€
     -0.22€
 
-measure-unit/length-furlong precision-integer latin
+measure-unit/length-meter precision-integer latin
   es-MX
     0 fur
     91,827 fur
@@ -4803,7 +4803,7 @@ measure-unit/length-furlong precision-integer latin
     91,827 ফার্লং
     -0 ফার্লং
 
-measure-unit/length-furlong .000 latin
+measure-unit/length-meter .000 latin
   es-MX
     0.000 fur
     91,827.364 fur
@@ -4817,7 +4817,7 @@ measure-unit/length-furlong .000 latin
     91,827.364 ফার্লং
     -0.222 ফার্লং
 
-measure-unit/length-furlong .##/@@@+ latin
+measure-unit/length-meter .##/@@@+ latin
   es-MX
     0 fur
     91,827.36 fur
@@ -4831,7 +4831,7 @@ measure-unit/length-furlong .##/@@@+ latin
     91,827.36 ফার্লং
     -0.222 ফার্লং
 
-measure-unit/length-furlong @@ latin
+measure-unit/length-meter @@ latin
   es-MX
     0.0 fur
     92,000 fur
@@ -4957,7 +4957,7 @@ currency/EUR @@ sign-accounting-except-zero
     +৯২,০০০€
     (০.২২€)
 
-measure-unit/length-furlong precision-integer sign-accounting-except-zero
+measure-unit/length-meter precision-integer sign-accounting-except-zero
   es-MX
     0 fur
     +91,827 fur
@@ -4971,7 +4971,7 @@ measure-unit/length-furlong precision-integer sign-accounting-except-zero
     +৯১,৮২৭ ফার্লং
     ০ ফার্লং
 
-measure-unit/length-furlong .000 sign-accounting-except-zero
+measure-unit/length-meter .000 sign-accounting-except-zero
   es-MX
     0.000 fur
     +91,827.364 fur
@@ -4985,7 +4985,7 @@ measure-unit/length-furlong .000 sign-accounting-except-zero
     +৯১,৮২৭.৩৬৪ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong .##/@@@+ sign-accounting-except-zero
+measure-unit/length-meter .##/@@@+ sign-accounting-except-zero
   es-MX
     0 fur
     +91,827.36 fur
@@ -4999,7 +4999,7 @@ measure-unit/length-furlong .##/@@@+ sign-accounting-except-zero
     +৯১,৮২৭.৩৬ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong @@ sign-accounting-except-zero
+measure-unit/length-meter @@ sign-accounting-except-zero
   es-MX
     0.0 fur
     +92,000 fur
@@ -5125,7 +5125,7 @@ currency/EUR @@ decimal-always
     ৯২,০০০.€
     -০.২২€
 
-measure-unit/length-furlong precision-integer decimal-always
+measure-unit/length-meter precision-integer decimal-always
   es-MX
     0. fur
     91,827. fur
@@ -5139,7 +5139,7 @@ measure-unit/length-furlong precision-integer decimal-always
     ৯১,৮২৭. ফার্লং
     -০. ফার্লং
 
-measure-unit/length-furlong .000 decimal-always
+measure-unit/length-meter .000 decimal-always
   es-MX
     0.000 fur
     91,827.364 fur
@@ -5153,7 +5153,7 @@ measure-unit/length-furlong .000 decimal-always
     ৯১,৮২৭.৩৬৪ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong .##/@@@+ decimal-always
+measure-unit/length-meter .##/@@@+ decimal-always
   es-MX
     0. fur
     91,827.36 fur
@@ -5167,7 +5167,7 @@ measure-unit/length-furlong .##/@@@+ decimal-always
     ৯১,৮২৭.৩৬ ফার্লং
     -০.২২২ ফার্লং
 
-measure-unit/length-furlong @@ decimal-always
+measure-unit/length-meter @@ decimal-always
   es-MX
     0.0 fur
     92,000. fur
@@ -5209,7 +5209,7 @@ currency/EUR rounding-mode-floor integer-width/##00
     ১,৮২৭.৩৬€
     -০০.২৩€
 
-measure-unit/length-furlong rounding-mode-floor integer-width/##00
+measure-unit/length-meter rounding-mode-floor integer-width/##00
   es-MX
     00 fur
     1,827.3645 fur
@@ -5251,7 +5251,7 @@ currency/EUR rounding-mode-floor scale/0.5
     ৪৫,৯১৩.৬৮€
     -০.১২€
 
-measure-unit/length-furlong rounding-mode-floor scale/0.5
+measure-unit/length-meter rounding-mode-floor scale/0.5
   es-MX
     0 fur
     45,913.68225 fur
@@ -5293,7 +5293,7 @@ currency/EUR rounding-mode-floor group-on-aligned
     ৯১,৮২৭.৩৬€
     -০.২৩€
 
-measure-unit/length-furlong rounding-mode-floor group-on-aligned
+measure-unit/length-meter rounding-mode-floor group-on-aligned
   es-MX
     0 fur
     91,827.3645 fur
@@ -5335,7 +5335,7 @@ currency/EUR rounding-mode-floor latin
     91,827.36€
     -0.23€
 
-measure-unit/length-furlong rounding-mode-floor latin
+measure-unit/length-meter rounding-mode-floor latin
   es-MX
     0 fur
     91,827.3645 fur
@@ -5377,7 +5377,7 @@ currency/EUR rounding-mode-floor sign-accounting-except-zero
     +৯১,৮২৭.৩৬€
     (০.২৩€)
 
-measure-unit/length-furlong rounding-mode-floor sign-accounting-except-zero
+measure-unit/length-meter rounding-mode-floor sign-accounting-except-zero
   es-MX
     0 fur
     +91,827.3645 fur
@@ -5419,7 +5419,7 @@ currency/EUR rounding-mode-floor decimal-always
     ৯১,৮২৭.৩৬€
     -০.২৩€
 
-measure-unit/length-furlong rounding-mode-floor decimal-always
+measure-unit/length-meter rounding-mode-floor decimal-always
   es-MX
     0. fur
     91,827.3645 fur
@@ -5461,7 +5461,7 @@ currency/EUR integer-width/##00 scale/0.5
     ৫,৯১৩.৬৮€
     -০০.১১€
 
-measure-unit/length-furlong integer-width/##00 scale/0.5
+measure-unit/length-meter integer-width/##00 scale/0.5
   es-MX
     00 fur
     5,913.68225 fur
@@ -5503,7 +5503,7 @@ currency/EUR integer-width/##00 group-on-aligned
     ১,৮২৭.৩৬€
     -০০.২২€
 
-measure-unit/length-furlong integer-width/##00 group-on-aligned
+measure-unit/length-meter integer-width/##00 group-on-aligned
   es-MX
     00 fur
     1,827.3645 fur
@@ -5545,7 +5545,7 @@ currency/EUR integer-width/##00 latin
     1,827.36€
     -00.22€
 
-measure-unit/length-furlong integer-width/##00 latin
+measure-unit/length-meter integer-width/##00 latin
   es-MX
     00 fur
     1,827.3645 fur
@@ -5587,7 +5587,7 @@ currency/EUR integer-width/##00 sign-accounting-except-zero
     +১,৮২৭.৩৬€
     (০০.২২€)
 
-measure-unit/length-furlong integer-width/##00 sign-accounting-except-zero
+measure-unit/length-meter integer-width/##00 sign-accounting-except-zero
   es-MX
     00 fur
     +1,827.3645 fur
@@ -5629,7 +5629,7 @@ currency/EUR integer-width/##00 decimal-always
     ১,৮২৭.৩৬€
     -০০.২২€
 
-measure-unit/length-furlong integer-width/##00 decimal-always
+measure-unit/length-meter integer-width/##00 decimal-always
   es-MX
     00. fur
     1,827.3645 fur
@@ -5671,7 +5671,7 @@ currency/EUR scale/0.5 group-on-aligned
     ৪৫,৯১৩.৬৮€
     -০.১১€
 
-measure-unit/length-furlong scale/0.5 group-on-aligned
+measure-unit/length-meter scale/0.5 group-on-aligned
   es-MX
     0 fur
     45,913.68225 fur
@@ -5713,7 +5713,7 @@ currency/EUR scale/0.5 latin
     45,913.68€
     -0.11€
 
-measure-unit/length-furlong scale/0.5 latin
+measure-unit/length-meter scale/0.5 latin
   es-MX
     0 fur
     45,913.68225 fur
@@ -5755,7 +5755,7 @@ currency/EUR scale/0.5 sign-accounting-except-zero
     +৪৫,৯১৩.৬৮€
     (০.১১€)
 
-measure-unit/length-furlong scale/0.5 sign-accounting-except-zero
+measure-unit/length-meter scale/0.5 sign-accounting-except-zero
   es-MX
     0 fur
     +45,913.68225 fur
@@ -5797,7 +5797,7 @@ currency/EUR scale/0.5 decimal-always
     ৪৫,৯১৩.৬৮€
     -০.১১€
 
-measure-unit/length-furlong scale/0.5 decimal-always
+measure-unit/length-meter scale/0.5 decimal-always
   es-MX
     0. fur
     45,913.68225 fur
@@ -5839,7 +5839,7 @@ currency/EUR group-on-aligned latin
     91,827.36€
     -0.22€
 
-measure-unit/length-furlong group-on-aligned latin
+measure-unit/length-meter group-on-aligned latin
   es-MX
     0 fur
     91,827.3645 fur
@@ -5881,7 +5881,7 @@ currency/EUR group-on-aligned sign-accounting-except-zero
     +৯১,৮২৭.৩৬€
     (০.২২€)
 
-measure-unit/length-furlong group-on-aligned sign-accounting-except-zero
+measure-unit/length-meter group-on-aligned sign-accounting-except-zero
   es-MX
     0 fur
     +91,827.3645 fur
@@ -5923,7 +5923,7 @@ currency/EUR group-on-aligned decimal-always
     ৯১,৮২৭.৩৬€
     -০.২২€
 
-measure-unit/length-furlong group-on-aligned decimal-always
+measure-unit/length-meter group-on-aligned decimal-always
   es-MX
     0. fur
     91,827.3645 fur
@@ -5965,7 +5965,7 @@ currency/EUR latin sign-accounting-except-zero
     +91,827.36€
     (0.22€)
 
-measure-unit/length-furlong latin sign-accounting-except-zero
+measure-unit/length-meter latin sign-accounting-except-zero
   es-MX
     0 fur
     +91,827.3645 fur
@@ -6007,7 +6007,7 @@ currency/EUR latin decimal-always
     91,827.36€
     -0.22€
 
-measure-unit/length-furlong latin decimal-always
+measure-unit/length-meter latin decimal-always
   es-MX
     0. fur
     91,827.3645 fur
@@ -6049,7 +6049,7 @@ currency/EUR sign-accounting-except-zero decimal-always
     +৯১,৮২৭.৩৬€
     (০.২২€)
 
-measure-unit/length-furlong sign-accounting-except-zero decimal-always
+measure-unit/length-meter sign-accounting-except-zero decimal-always
   es-MX
     0. fur
     +91,827.3645 fur

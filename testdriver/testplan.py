@@ -37,7 +37,7 @@ class TestPlan():
     self.resultsFile = None
 
     self.jsonOutput = {}  # Area for adding elements for the results file
-
+    self.platformVersion = ''  # Used for creating the output subdirectory
     self.run_limit = None  # Set to positive integer to activate
     self.debug = 1
 
@@ -116,6 +116,7 @@ class TestPlan():
         print('EXECUTOR INFO = %s' % result)
       try:
         self.jsonOutput["platform"] = json.loads(result)
+        self.platformVersion =  self.jsonOutput["platform"]["platformVersion"]
       except:
         return
 
@@ -172,6 +173,10 @@ class TestPlan():
     if self.debug:
       print('  Running OneTestMode %s on data %s' %
             (self.exec_command, self.inputFilePath))
+
+    # Set up calls for version data --> results
+    # Use for directory of the output results
+    self.requestExecutorInfo()
 
     # Check if report directory exists
     try:

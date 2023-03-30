@@ -42,10 +42,14 @@ class reportTemplate():
       // Update the group selected with the intersection of values
       selectedSet = null;
       let first = true;
-      for (let tag in characterized_failure_labels) {
-        let checked = document.getElementById(tag).checked;
-        if (checked) {
-          const newSet = new Set(characterized_failure_labels[tag]);
+      for (let index in characterized_failure_labels) {
+        const tag = characterized_failure_labels[index];
+        const check_item = document.getElementById(tag);
+        if (check_item.checked) {
+          const label_string = check_item.value;
+          const str_len = label_string.length;
+          const labels = label_string.substring(2, str_len - 2). split("', '");
+          const newSet = new Set(labels);
 
           if (first) {
              selectedSet = newSet;

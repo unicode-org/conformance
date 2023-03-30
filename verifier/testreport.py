@@ -279,10 +279,10 @@ class TestReport():
       line = self.templates.checkbox_option_template.safe_substitute(values)
       checkboxes.append(line)
       failure_labels.append(key)
-    html_map['failures_characterized'] = '\n'.join(checkboxes)
+    html_map['failures_characterized'] = '<br />'.join(checkboxes)
 
     # A dictionary of failure info.
-    html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
+   # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
     new_dict = fail_characterized
     for key, val in fail_simple_diffs.items():
       new_dict[key] = val

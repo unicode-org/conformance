@@ -106,11 +106,7 @@ module.exports = {
         options["currency"] = options["code"];
         delete options["code"];
       }
-      // Fix "SignDisplay" --> "signDisplay"
-      if ("SignDisplay" in options) {
-        options["signDisplay"] = options["SignDisplay"];
-        delete options["SignDisplay"];
-      }
+
       for (key in options) {
         if (!all_supported_options.includes(key)) {
           unsupported_options.push((key + ":" +  options[key]));
