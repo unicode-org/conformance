@@ -40,12 +40,13 @@ class ICUVersion(Enum):
   ICU71 = "71.1"
   ICU72rc = "72rc"
   ICU72 = "72.1"
+  ICU73 = "73"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
 
 def latestIcuVersion():
-  return ICUVersion.ICU71
+  return ICUVersion.ICU72
 
 # TODO: consider how to handle trunk version vs "LATEST"
 # e.g., use wget on file uvernum.h, looking up #define U_ICU_VERSION
@@ -59,9 +60,11 @@ class CLDRVersion(Enum):
   CLDR39 = "39"
   CLDR40 = "40"
   CLDR41 = "41"
+  CLDR42 = "42"
+  CLDR43 = "43"
 
 def latestCldrVersion():
-  return CLDRVersion.CLDR41
+  return CLDRVersion.CLDR42
 
 def resolveCldr(text):
   if not text or text == 'LATEST':
@@ -133,15 +136,15 @@ testDatasets[testName] = DataSet(testType.number_fmt.value,
 class ExecutorLang(Enum):
   NODE = "node"
   RUST = "rust"
-  CPP = "c++"
+  CPP = "cpp"
   JAVA = "java"
   DART = "dart"
 
 # Actual commmands to run the executors.
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
-    "rust" : "executor/rust/target/release/executor",
-    "cpp": None,
+    "rust" : "executors/rust/target/release/executor",
+    "cpp":   "executors/cpp/executor",
     "java" : None
     };
 
@@ -151,15 +154,32 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
+  Node19 = "19.7.0"
   Node18 = "18.7"
+  Node16 = "17.9.1"
 
 class RustVersion(Enum):
+  Rust01 = "0.1"
   Rust1 = "1.0"
+
+class CppVersion(Enum):
+  Cpp = "1.0"
 
 class ICU4XVersion(Enum):
   ICU4XV1 = "1.0"
 
 
+# What versions of NodeJS use specific ICU versions
+# https://nodejs.org/en/download/releases/
+NodeICUVersionMap = {
+    "19.7.0": "72.1",
+    "18.14.2": "72.1",
+    "17.9.1": "70.1",
+    "16.19.1": "71.1",
+    "16.1.0": "69.1",
+    "15.14.0": "68.1",
+    "13.14.0": "66.1",
+    }
 
 # Executor programs organized by langs and version
 class ExecutorInfo():
@@ -169,7 +189,7 @@ class ExecutorInfo():
 
   # Add or modify an entry.
   def addSystem(self, lang, systemVersion, systemPath,
-                versionCLDR, versionICU, argList=None):
+                versionCLDR, versionICU, argList=None, env=None):
     if lang not in self.systems:
       # Add new item
       entry = self.systems[lang] = defaultdict(def_value)
@@ -179,7 +199,8 @@ class ExecutorInfo():
     entry[systemVersion] = {'path': systemPath,
                             'argList': argList,
                             'cldr': versionCLDR,
-                            'icu': versionICU
+                            'icu': versionICU,
+                            'env': env
                             }
 
   def pathForVersion(self, lang, sys_version):
@@ -190,13 +211,15 @@ class ExecutorInfo():
 
   def versionForCldr(self, lang, cldr_needed):
     try:
+      # TODO: Add option for ANY or latest available
       system = self.systems[lang]
       for version in system:
         if system[version]['cldr'] == cldr_needed:
           return system[version]
+      return {'path': lang}  # Nothing found
     except KeyError as err:
       print('versionForCldr error = %s' % err)
-      return None
+      return {'path': lang}  # Nothing found
 
   def has(self, exec) :
     if self.debug:
@@ -210,22 +233,35 @@ class ExecutorInfo():
 allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODE.value
+allExecutors.addSystem(system, NodeVersion.Node19,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
+
 allExecutors.addSystem(system, NodeVersion.Node18,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.RUST.value
-allExecutors.addSystem(system, RustVersion.Rust1,
+allExecutors.addSystem(system, RustVersion.Rust01,
                        '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
+
+allExecutors.addSystem(system, RustVersion.Rust1,
+                       '../executors/rust/target/release/executor',
+                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU72)
+
+system = ExecutorLang.CPP.value
+allExecutors.addSystem(
+    system, CppVersion.Cpp,
+    '../executors/cpp/executor',
+    CLDRVersion.CLDR42, versionICU=ICUVersion.ICU73,
+    env={'LD_LIBRARY_PATH': '/tmp/icu73/lib', 'PATH': '/tmp/icu73/bin'})
 
 system = "newLanguage"
 allExecutors.addSystem(system, '0.1.0',
                        '/bin/newExecutor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71,
                        argList=['argA', 'argB', 'argZ'])
-
-system = ExecutorLang.CPP
 
 system = ExecutorLang.JAVA
 
