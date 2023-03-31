@@ -31,9 +31,9 @@ pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
     let result = comparison == Ordering::Less;
 
     // TODO: How to do this easier?
-    let mut result_string = "True";
+    let mut result_string = true;
     if !result {
-        result_string = "False";
+        result_string = false;
     }
     let json_result = json!({
         "label": label,

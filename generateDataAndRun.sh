@@ -1,7 +1,8 @@
+#/bin/bash
 # Generates new test data, then executes all tests on that new in the new
 # directory.
 # Save the results
-
+set -e
 
 #
 # Setup
@@ -41,6 +42,8 @@ python3 testdriver.py --exec node --test_type coll_shift_short number_fmt lang_n
 echo $?
 python3 testdriver.py --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
+#python3 testdriver.py --exec cpp --test_type coll_shift_short --file_base ../$TEMP_DIR --per_execution 10000
+#echo $?
 
 #
 # Run verifier
@@ -52,7 +55,9 @@ mkdir -p $TEMP_DIR/testReports
 cd verifier
 python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
 
+#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type coll_shift_short number_fmt lang_names 
 
+#
 # Push testresults and test reports to Cloud Storge
 # TODO
 echo $?
