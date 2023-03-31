@@ -164,7 +164,7 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
   print('LangNames Test: %d lines processed' % count)
   return
 
-def generateNumberFmtTestDataObjects(rawtestdata):
+def generateNumberFmtTestDataObjects(rawtestdata, count=0):
   # Returns 2 lists JSON-formatted: all_tests_list, verify_list
   entry_types = {
       "compact-short": "notation",
@@ -189,7 +189,6 @@ def generateNumberFmtTestDataObjects(rawtestdata):
       }
   numbers_to_test = ['0', '91827.3645', '-0.22222']
   test_list = parseNumberFmtTestData(rawtestdata)
-  count = 0
   ecma402_options_start = ['"options": {\n']
 
   all_tests_list = []
@@ -224,11 +223,14 @@ def generateNumberFmtTestDataObjects(rawtestdata):
         entry_top = '{\n  "label": "%s",\n  "locale": "%s",\n  "skeleton": "%s %s %s",\n' % (str(count).rjust(7, '0'), t[l], t[0], t[1], t[2])
         entry_bottom = '"input": "%s"\n},' % numbers_to_test[n]
         ecma402_options_body, options_dict = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
-
+        if not options_dict:
+            print(
+                '$$$ OPTIONS not found for %s' % label
+            )
         # TODO: Look at the items in the options_dict to resolve conflicts and set up things better.
         resolved_options_dict = resolveOptions(options_dict, t)
         # include these options in the entry
-        entry = entry | resolved_options_dict
+        entry = entry | {'options': resolved_options_dict}
 
         # TODO: add resolved options to entry as json.
 
@@ -252,16 +254,15 @@ def resolveOptions(raw_options, skeleton_list):
   if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
     resolved.pop('minimumSignificantDigits')
 
-  if 'percent' in skeleton_list and 'unit-width-full-name' in skeleton_list:
+  if skeleton_list and 'percent' in skeleton_list and 'unit-width-full-name' in skeleton_list:
     resolved['style'] = 'unit'
     resolved['unit'] = 'percent'
     resolved['unitDisplay'] = 'long'
   return resolved
 
-def generateDcmlFmtTestDataObjects(rawtestdata, count):
+def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   recommentline = re.compile('^\s*#')
   test_list = rawtestdata.splitlines()
-  count = 0
 
   all_tests_list = []
   verify_list = []
@@ -273,6 +274,11 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count):
       entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       pattern_part, json_part = mapFmtSkeletonToECMA402([pattern])
+
+      resolved_options_dict = resolveOptions(json_part, None)
+
+      if not json_part:
+          x = 1
       if rounding_mode:
           entry['options']['roundingMode'] = rounding_mode
       entry['options'] |= json_part
@@ -282,8 +288,8 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count):
                           'verify': expected})
       count += 1
 
-  print('DcmlFmt Test: %d lines processed' % count)
-  return all_tests_list, verify_list  # testdata_jobjs, verifydata_jobjs
+  return all_tests_list, verify_list, count
+
 
 def generateCollTestDataObjects(testdata_list):
   recommentline = re.compile('^\s*#')
@@ -366,7 +372,7 @@ def processCollationTestData():
 
   coll_verify_file = open('coll_verify_shift.json', 'w')
   # The verify file doesn't need to be pretty-printed
-  json.dump(json_verify, coll_verify_file)
+  json.dump(json_verify, coll_verify_file, indent=1)
   coll_verify_file.close()
 
   return
@@ -421,7 +427,7 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 
 
 def processDcmlFmtTestDataObjects(rawtestdata):
-  testdata_object_list, verify_object_list = generateDcmlFmtTestDataObjects(rawtestdata, 0)
+  testdata_object_list, verify_object_list, count = generateDcmlFmtTestDataObjects(rawtestdata, 0)
   json_test = {}
   json_verify = {}
   json_test['tests'] = generateTestsObject(testdata_object_list)
@@ -452,10 +458,10 @@ def processNumberFmtTestData():
   rawnumfmttestdata = readFile('numberpermutationtest.txt')
 
   num_testdata_object_list, num_verify_object_list, count = generateNumberFmtTestDataObjects(rawnumfmttestdata)
-  dcml_testdata_object_list, dcml_verify_object_list = generateDcmlFmtTestDataObjects(rawdcmlfmttestdata, count)
+  dcml_testdata_object_list, dcml_verify_object_list, count = generateDcmlFmtTestDataObjects(rawdcmlfmttestdata, count)
 
-  test_list = generateTestsObject(num_testdata_object_list + dcml_testdata_object_list)
-  verify_list = generateVerifyObject(num_verify_object_list + dcml_verify_object_list)
+  test_list = num_testdata_object_list + dcml_testdata_object_list
+  verify_list = num_verify_object_list + dcml_verify_object_list
   json_test, json_verify = insertNumberFmtDescr(test_list, verify_list)
 
   num_fmt_test_file = open('num_fmt_test_file.json', 'w')
@@ -463,9 +469,10 @@ def processNumberFmtTestData():
   num_fmt_test_file.close()
 
   num_fmt_verify_file = open('num_fmt_verify_file.json', 'w')
-  json.dump(json_verify, num_fmt_verify_file)
+  json.dump(json_verify, num_fmt_verify_file, indent=1)
   num_fmt_verify_file.close()
 
+  print('NumberFormat Test: %s tests created' % count)
   return
 
 
@@ -480,11 +487,11 @@ def processLangNameTestData():
         rawlangnametestdata, json_test, json_verify)
 
     lang_name_test_file = open('lang_name_test_file.json', 'w')
-    json.dump(json_test, lang_name_test_file)
+    json.dump(json_test, lang_name_test_file, indent=1)
     lang_name_test_file.close()
 
     lang_name_verify_file = open('lang_name_verify_file.json', 'w')
-    json.dump(json_verify, lang_name_verify_file)
+    json.dump(json_verify, lang_name_verify_file, indent=1)
     lang_name_verify_file.close()
 
     return

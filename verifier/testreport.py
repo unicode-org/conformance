@@ -243,7 +243,7 @@ class TestReport():
     max_label = ''
     max_fail = None
     for fail in self.failing_tests:
-      fail_result = fail['result']
+      fail_result = str(fail['result'])
       if len(fail_result) > max_fail_length:
         max_fail_length = len(fail_result)
         max_label = fail['label']
@@ -435,32 +435,36 @@ class TestReport():
       expected = fail['expected']
       # Special case for differing by a single character.
       # Look for white space difference
-      if abs(len(actual) - len(expected)) <= 1:
-        comp_diff = self.differ.compare(expected, actual)
-        changes = list(comp_diff)
-        # Look for number of additions and deletions
-        num_deletes = num_inserts = 0
-        for c in changes:
-          if c[0] == '+':
-            num_inserts += 1
-          if c[0] == '-':
-            num_deletes += 1
-        if num_inserts == 1 or num_deletes == 1:
-          # Look at the results for simple insert or delete
-          result = {'label': fail['label']}
-          for x in changes:
-            if x[0] == '+':
-              if x[2] in [' ', '\u00a0']:
-                results['insert_space'].append(fail['label'])
-              elif x[2].isdigit():
-                results['insert_digit'].append(fail['label'])
-              else:
-                results['insert'].append(fail['label'])
-            if x[0] == '-':
-              if x[2].isdigit():
-                results['delete_digit'].append(fail['label'])
-              else:
-                results['delete'].append(fail['label'])
+      try:
+        if abs(len(actual) - len(expected)) <= 1:
+          comp_diff = self.differ.compare(expected, actual)
+          changes = list(comp_diff)
+          # Look for number of additions and deletions
+          num_deletes = num_inserts = 0
+          for c in changes:
+            if c[0] == '+':
+              num_inserts += 1
+            if c[0] == '-':
+              num_deletes += 1
+          if num_inserts == 1 or num_deletes == 1:
+            # Look at the results for simple insert or delete
+            result = {'label': fail['label']}
+            for x in changes:
+              if x[0] == '+':
+                if x[2] in [' ', '\u00a0']:
+                  results['insert_space'].append(fail['label'])
+                elif x[2].isdigit():
+                  results['insert_digit'].append(fail['label'])
+                else:
+                  results['insert'].append(fail['label'])
+              if x[0] == '-':
+                if x[2].isdigit():
+                  results['delete_digit'].append(fail['label'])
+                else:
+                  results['delete'].append(fail['label'])
+      except BaseException as err:
+        # a non-string result
+        continue
     return dict(results)
 
   def create_html_diff_report(self):

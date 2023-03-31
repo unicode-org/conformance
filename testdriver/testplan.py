@@ -17,6 +17,7 @@ class TestPlan():
     self.exec_data = exec_data
     self.exec_env = None
     self.exec_command = None
+    self.exec_list = None
     if exec_data:
       if 'path' in exec_data:
         self.exec_command = exec_data['path']
