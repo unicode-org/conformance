@@ -1,7 +1,8 @@
+#/bin/bash
 # Generates new test data, then executes all tests on that new in the new
 # directory.
 # Save the results
-
+set -e
 
 #
 # Setup
