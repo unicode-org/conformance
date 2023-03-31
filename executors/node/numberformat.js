@@ -59,7 +59,6 @@ module.exports = {
     const label = json['label'];
     const skeleton = json['skeleton'];
 
-    // console.log("# LABEL = " + label + " " + JSON.stringify(json));
     const pattern = json['pattern'];
     const rounding = json['rounding'];
     let input = parseFloat(json['input']);  // May be changed with some options
@@ -72,7 +71,6 @@ module.exports = {
     // If options are in the JSON, use them...
     options = json['options'];
     if (!options) {
-      console.log("# NO OPTIONS for " + label)
       try {
         options = this.decimalPatternToOptions(pattern, rounding);
       } catch (error) {
