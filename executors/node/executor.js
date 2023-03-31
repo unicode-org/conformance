@@ -117,7 +117,7 @@ rl.on('line', function(line) {
   }
 
   // Protocol:
-  //  #VERSION to get version informatin
+  //  #VERSION to get version information
   // {....}   test line
   // EXIT
   // Check for commands starting with "#".

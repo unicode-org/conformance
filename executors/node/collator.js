@@ -23,9 +23,9 @@ module.exports = {
 
       const compared = coll.compare(d1, d2);
       let result = compared<= 0 ? true : false;
-      let resultString = result ? "True" : "False";
+      let resultString = result ? true : false;
       outputLine = {'label':json['label'],
-                    "result": resultString
+                    "result": result
                    }
 
       if (result != true) {

@@ -72,7 +72,7 @@ module.exports = {
     // If options are in the JSON, use them...
     options = json['options'];
     if (!options) {
-      console.log("#   NOT OPTIONS " + JSON.stringify(options));
+      console.log("# NO OPTIONS for " + label)
       try {
         options = this.decimalPatternToOptions(pattern, rounding);
       } catch (error) {
