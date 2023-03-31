@@ -27,7 +27,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: TEMP_DATA/testResults/
+          path: TEMP_DATA/testReports/
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
