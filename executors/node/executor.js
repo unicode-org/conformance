@@ -86,7 +86,6 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  console.log(testId);
   if (testId == "coll_shift_short") {
     return testTypes.TestCollShiftShort;
   }

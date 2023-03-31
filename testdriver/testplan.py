@@ -112,6 +112,7 @@ class TestPlan():
 
     if not result:
       self.jsonOutput["platform error"] = self.run_error_message
+      return None
     else:
       if self.debug:
         print('EXECUTOR INFO = %s' % result)
@@ -119,7 +120,8 @@ class TestPlan():
         self.jsonOutput["platform"] = json.loads(result)
         self.platformVersion =  self.jsonOutput["platform"]["platformVersion"]
       except:
-        return
+        return None
+    return True
 
   # Ask the executor to stop. May pass extra arguments in the messsage
   def requestExecutorTermination(self, terminateArgs=None):
@@ -219,7 +221,9 @@ class TestPlan():
     # Start the JSON output
 
     # Set up calls for version data --> results
-    self.requestExecutorInfo()
+    is_executor_ok = self.requestExecutorInfo()
+    if not is_executor_ok:
+      return None
 
     # Store information the test run
     test_environment = self.generateHeader();
