@@ -2,29 +2,34 @@
 
 from datasets import testType
 
-import difflib
+# TODO: get templates from this module instead of local class
+from report_template import reportTemplate
+
+from collections import defaultdict
+
 from difflib import HtmlDiff
+from difflib import Differ
 
 from datetime import datetime
 import glob
 import json
+import operator
 import os
 from string import Template
 import sys
 
-import unicodedata  # for info on particular characters
-
 # https://docs.python.org/3.6/library/string.html#template-strings
 
 # Consider Jinja2: https://jinja.palletsprojects.com/en/3.1.x/intro/
+
 
 def dict_to_html(dict_data):
   # Expands a dictionary to HTML data
   result = ['<ul>']
   for key in dict_data.keys():
     result.append('  <li>%s: %s</li>' % (key, dict_data[key]))
-    result.append('</ul>')
-    return ''.join(result)
+  result.append('</ul>')
+  return ''.join(result)
 
 def sort_dict_by_count(dict_data):
   return sorted(dict_data.items(),
@@ -74,15 +79,18 @@ class TestReport():
     self.report_directory = None
     self.report_file_path = None
     self.report_html_path = None
-    self.number_tests = None
-    self.failing_tests = []  # Include label, result, and expected
+    self.number_tests = 0
 
+    self.failing_tests = []  # Include label, result, and expected
     self.tests_fail = 0
+
     self.passing_tests = []
-    self.test_errors = []
-    self.unsupported_cases = []
-    self.error_count = 0
     self.tests_pass = 0
+
+    self.test_errors = []
+    self.error_count = 0
+
+    self.unsupported_cases = []
 
     self.test_type = None
     self.exec = None
@@ -93,87 +101,24 @@ class TestReport():
 
     self.diff_summary = DiffSummary()
 
+    templates = reportTemplate()
+    self.templates = templates
+
+    self.differ = Differ()
+
     # For a simple template replacement
-    # This could be from a template file.
-    self.report_html_template = Template("""<html>
-  <head>
-    <title>$test_type with $exec</title>
-    <style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
-    </style>
-    <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <h1>Verification report: $test_type on $exec</h1>
-    <h2>Test details</h2>
-    <p>$platform_info</p>
-    <p>$test_environment</p>
-    <p>Result file created: $timestamp
-    <h2>Test summary</h2>
-    <p>Total: $total_tests.
-    <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
-    <p><i>Click on headings below to view/hide details</i></p>
-    <h2 id='testErrors' onclick="toggleElement('test_error_table');">Test Errors ($error_count)</h2>
-    $error_summary
-    $error_section
+    self.report_html_template = templates.reportOutline()
 
-    <h2 id='testUnsupported' onclick="toggleElement('test_unsupported_table');">Unsupported Tests  ($unsupported_count)</h2>
-    $unsupported_summary
-    $unsupported_section
+    self.error_table_template = templates.error_table_template
+    self.test_error_summary_template = templates.test_error_summary_template
 
-    <h2 id='testFailures' onclick="toggleElement('failing_tests_table');">Failing tests detail ($failing_tests)</h2>
-    <table id='failing_tests_table' style="display:none">
-    <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
-      <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-$failure_table
-    </table>
+    self.unsupported_table_template = templates.unsupported_table_template
 
-  </body>
-</html>
-""")
+    self.fail_line_template = templates.fail_line_template
 
-    self.error_table_template = Template("""    <table id='test_error_table' style="display:none">
-       <tr><th width="10%">Label</th><th width="20%">Error message</th><th>Test input</tr>
-       <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-      $test_error_table
-    </table>
-""")
+    self.test_error_detail_template = templates.test_error_detail_template
 
-    self.unsupported_table_template = Template("""    <table id='test_unsupported_table' style="display:none">
-       <tr><th width="10%">Label</th><th width="20%">Unsupported message</th><th>Details</tr>
-       <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-      $test_unsupported_table
-    </table>
-""")
-
-    self.fail_line_template = Template(
-        '<tr><td>$label</td><td>$expected</td><td>$result</td><td>$input_data</td></tr>'
-        )
-
-    self.test_error_template = Template(
-        '<tr><td>$label</td><td>$error</td><td>$error_detail</td></tr>'
-        )
-
-    self.test_unsupported_template = Template(
-        '<tr><td>$label</td><td>$unsupported</$unsupported><td>$error_detail</td></tr>'
-        )
+    self.test_unsupported_template = templates.test_unsupported_template
 
   def record_fail(self, test):
     self.failing_tests.append(test)
@@ -197,22 +142,51 @@ $failure_table
   def summary_status(self):
     return self.tests_fail == 0 and not self.missing_verify_data
 
-  def compute_category_summary(self, items, group_tag, detail_tag):
-    # TODO: remove this early exit
-    return
-    
+  def compute_test_error_summary(self, test_errors, group_tag, detail_tag):
+    # For the items, count messages and arguments for each
+    groups = defaultdict(list)
+    for error in test_errors:
+      label = error['label']
+      details = error.get('error_detail')
+      if not details:
+        # Try getting the group_tag
+        details = error.get(group_tag)
+      if isinstance(details, str):
+        detail = details
+        group = group_tag
+      else:
+        detail = details.get(group_tag)
+        group = group_tag
+
+      if group:
+        if groups.get(group):
+          groups[group][str(detail)].append(label)
+        else:
+          groups[group]= {str(detail): [label]}
+    return dict(groups)
+
+  def compute_unsupported_category_summary(self, unsupported_cases, group_tag, detail_tag):
     # For the items, count messages and arguments for each
     groups = {}
-    for item in items:
-      print('@@@@@@@@@@@ item %s' % item)
-      group = item.get(group_tag)
-      detail = item.get(detail_tag)
-      if group:
-        if not groups.get(group):
-          groups[group].append(item)
+    for case in unsupported_cases:
+      error_detail = case.get('error_detail')
+      label = case['label']
+      if isinstance(error_detail, str):
+        detail = error_detail
+      else:
+        if isinstance(error_detail, dict):
+          detail = error_detail.get(group_tag)
         else:
-          groups[group]= [item]
-    print('GROUPS FOR %s %s = \n%s' % (group_tag, detail_tag, groups.keys()))
+          detail = error_detail
+      group = group_tag
+
+      # Specific for unsupported options - count the occurrnces of the detail
+      value = str(detail)
+      if groups.get(value):
+        groups[value].append(label)
+      else:
+        groups[value]= [label]
+    return groups
 
   def createReport(self):
     # Make a JSON object with the data
@@ -220,7 +194,6 @@ $failure_table
 
     # Fill in the important fields.
     report['title'] = self.title
-
     report['platform'] = self.platform_info
     report['test_environment'] = self.test_environment
     report['timestamp'] = self.timestamp
@@ -270,34 +243,86 @@ $failure_table
     max_label = ''
     max_fail = None
     for fail in self.failing_tests:
-      fail_result = fail['result']
+      fail_result = str(fail['result'])
       if len(fail_result) > max_fail_length:
         max_fail_length = len(fail_result)
         max_label = fail['label']
         max_fail = fail
 
-      if len(fail['result']) > 30:
+      if len(fail_result) > 30:
+        # Make the actual text shorter so it doesn't distort the table column
         fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
       line = self.fail_line_template.safe_substitute(fail)
       fail_lines.append(line)
 
-    if self.debug >= 2:
-      print('MAX FAIL = %s, %s, %s' % (max_label, max_fail_length, max_fail))
+    html_map['failure_table_lines'] = ('\n').join(fail_lines)
 
-    html_map['failure_table'] = ('\n').join(fail_lines)
+    fail_characterized = self.characterizeFailuresByOptions()
+
+    fail_simple_diffs = self.check_simple_text_diffs()
+
+    # ?? Compute top 3-5 overlaps for each set ??
+
+    checkboxes = []
+    new_dict = {}
+    for key, value in fail_characterized.items():
+      new_dict[key] = value
+    for key, value in fail_simple_diffs.items():
+      if len(value):
+        new_dict[key] = value
+
+    failure_labels = []
+    for key in sorted(new_dict, key=lambda k: len(new_dict[k]), reverse=True):
+      value = new_dict[key]
+      count = '%5d' % len(value)
+      values = {'id': key, 'name': key, 'value': value, 'count': count}
+      line = self.templates.checkbox_option_template.safe_substitute(values)
+      checkboxes.append(line)
+      failure_labels.append(key)
+    html_map['failures_characterized'] = '<br />'.join(checkboxes)
+
+    # A dictionary of failure info.
+   # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
+    new_dict = fail_characterized
+    for key, val in fail_simple_diffs.items():
+      new_dict[key] = val
+    html_map['characterized_failure_labels'] = failure_labels
 
     if self.test_errors:
       # Create a table of all test errors.
       error_lines = []
       for test_error in self.test_errors:
-        line = self.test_error_template.safe_substitute(test_error)
+        line = self.test_error_detail_template.safe_substitute(test_error)
         error_lines.append(line)
 
-      html_map['error_section'] = self.error_table_template.safe_substitute(
+      error_table = self.error_table_template.safe_substitute(
           {'test_error_table': ('\n').join(error_lines)}
       )
+      html_map['error_section'] = error_table
+
+      error_summary = self.compute_test_error_summary(self.test_errors,
+                                                  'error',
+                                                  'error_detail')
+      error_summary_lines = []
+      errors_in_error_summary = error_summary['error']
+      if error_summary and 'error' in error_summary:
+        errors_in_error_summary = error_summary['error']
+        for key, items in errors_in_error_summary.items():
+          count = len(items)
+          sub = {'error': key, 'count': count}
+          error_summary_lines.append(
+              self.test_error_summary_template.safe_substitute(sub))
+
+      html_map['test_error_labels'] = errors_in_error_summary
+      table = self.templates.summary_table_template.safe_substitute(
+        {'table_content': ('\n').join(error_summary_lines),
+         'type': 'Error'}
+      )
+
+      html_map['error_summary'] =  table
     else:
       html_map['error_section'] = 'No test errors found'
+      html_map['error_summary'] =  ''
 
     unsupported_lines = []
     if self.unsupported_cases:
@@ -311,14 +336,29 @@ $failure_table
       html_map['unsupported_section'] = self.unsupported_table_template.safe_substitute(
           {'test_unsupported_table': unsupported_line_data}
       )
+      unsupported_summary = self.compute_unsupported_category_summary(
+          self.unsupported_cases,
+          'unsupported_options',
+          'unsupported_detail')
+
+      unsupported_summary_lines = []
+      for key, labels in unsupported_summary.items():
+        count = len(labels)
+        sub = {'error': key, 'count': count}
+        unsupported_summary_lines.append(
+            self.test_error_summary_template.safe_substitute(sub)
+        )
+      unsupported_table = self.templates.summary_table_template.safe_substitute(
+          {'table_content': ('\n').join(unsupported_summary_lines),
+           'type': 'Unsupported options'}
+      )
+
+      html_map['unsupported_summary'] = unsupported_table
     else:
       html_map['unsupported_section'] = 'No unsupported tests found'
+      html_map['unsupported_summary'] = ''
 
-    self.compute_category_summary(self.unsupported_cases,
-                                  'unsupported_options',
-                                  'unsupported_detail')
-
-    # For each failed test base, add an HTML table element with the info
+  # For each failed test base, add an HTML table element with the info
     html_output = self.report_html_template.safe_substitute(html_map)
 
     try:
@@ -332,8 +372,103 @@ $failure_table
     file.close()
     return html_output
 
+  def characterizeFailuresByOptions(self):
+    # User self.failing_tests, looking at options
+    results = defaultdict(list)
+    fail_combos = {}
+    fail_combos = {}
+    for test in self.failing_tests:
+      # Get input_data, if available
+      label = test['label']
+      if test.get('input_data'):
+        # Look at locale
+        input_data = test.get('input_data')
+
+        locale_info = input_data.get('locale')
+        if locale_info:
+          failure_combo = 'locale' + ':' + locale_info
+          results[failure_combo].append(label)
+
+          options = input_data.get('options')
+          # Get each combo of key/value
+          for key,value in options.items():
+            failure_combo = key + ':' + value
+            results[failure_combo].append(label)
+
+        # Try fields in language_names
+        if input_data.get('language_label'):
+          key = 'language_label'
+          value = input_data[key]
+          failure_combo = key + ':' + value
+          results[failure_combo].append(label)
+
+        if input_data.get('locale_label'):
+          key = 'locale_label'
+          value = input_data[key]
+          failure_combo = key + ':' + value
+          results[failure_combo].append(label)
+
+        if test.get('compare'):  # For collation results
+          key = 'compare'
+          value = test[key]
+          failure_combo = key + ':' + str(value)
+          results[failure_combo].append(label)
+
+
+      # Sort these by number of items in each set.
+
+      # Find the largest intersections of these sets and sort by size
+      combo_list = [(combo, len(results[combo])) for combo in results]
+      combo_list.sort(key=takeSecond, reverse=True)
+
+    return dict(results)
+
+  def check_simple_text_diffs(self):
+    results = defaultdict(list)
+    results['insert'] = []
+    results['delete'] = []
+    results['insert_digit'] = []
+    results['insert_space'] = []
+    results['delete_digit'] = []
+    for fail in self.failing_tests:
+      actual = fail['result']
+      expected = fail['expected']
+      # Special case for differing by a single character.
+      # Look for white space difference
+      try:
+        if abs(len(actual) - len(expected)) <= 1:
+          comp_diff = self.differ.compare(expected, actual)
+          changes = list(comp_diff)
+          # Look for number of additions and deletions
+          num_deletes = num_inserts = 0
+          for c in changes:
+            if c[0] == '+':
+              num_inserts += 1
+            if c[0] == '-':
+              num_deletes += 1
+          if num_inserts == 1 or num_deletes == 1:
+            # Look at the results for simple insert or delete
+            result = {'label': fail['label']}
+            for x in changes:
+              if x[0] == '+':
+                if x[2] in [' ', '\u00a0']:
+                  results['insert_space'].append(fail['label'])
+                elif x[2].isdigit():
+                  results['insert_digit'].append(fail['label'])
+                else:
+                  results['insert'].append(fail['label'])
+              if x[0] == '-':
+                if x[2].isdigit():
+                  results['delete_digit'].append(fail['label'])
+                else:
+                  results['delete'].append(fail['label'])
+      except BaseException as err:
+        # a non-string result
+        continue
+    return dict(results)
+
   def create_html_diff_report(self):
-    # Use difflib to createfile of differences
+    # Use difflib to create file of differences
     fromlines = []
     tolines = []
     for fail in self.failing_tests:
@@ -410,7 +545,9 @@ $failure_table
       if num_diffs == 1:
         self.diff_summary.add_diff(
             num_diffs, diff_list, last_diff)
-      # ?? Look for diffs in whitespace only
+
+    # ?? Look for diffs in whitespace only
+    differ = self.differ.compare(test['result'], test['expected'])
 
     if self.test_type == testType.number_fmt.value:
       params = test['input_data']
@@ -447,66 +584,8 @@ $failure_table
       index += 1
     return diff_count, diffs, last_diff
 
-class SummaryReport():
-  # TODO: use a templating language for creating these reports
-  def __init__(self, file_base):
-    self.file_base = file_base
-    self.report_dir_name = 'testReports'
-    self.raw_reports = None
-    self.debug = 0
-
-    self.exec_summary = {}
-    self.type_summary = {}
-
-    if self.debug > 1:
-      print('SUMMARYREPORT base = %s' % (self.file_base))
-
-    self.summary_html_path = None
-    self.summary_html_template = Template("""<html>
-  <head>
-    <title>DDT Summary</title>
-    <style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
-    </style>
-    <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <h1>Data Driven Test Summary</h1>
-    <h3>Report generated: $datetime</h3>
-    <h2>Tests and platforms</h2>
-    <p>Executors verified: $all_platforms</p>
-    <p>Tests verified: $all_tests</p>
-    <h2>All Tests Summary</h2>
-    <table id='exec_test_table'>
-    $exec_header_line
-    $detail_lines
-    </table>
-  </body>
-</html>
-""")
-    self.header_item_template = Template(
-        '<th>$header_data</th>'
-        )
-    self.line_template = Template(
-        '<tr>$column_data</tr>'
-        )
-    self.entry_template = Template(
-        '<td>$report_detail</td>'
-        )
+def takeSecond(elem):
+  return elem[1]
 
 class SummaryReport():
   # TODO: use a templating language for creating these reports
@@ -519,46 +598,13 @@ class SummaryReport():
     self.exec_summary = {}
     self.type_summary = {}
 
+    self.templates = reportTemplate()
+
     if self.debug > 1:
       print('SUMMARYREPORT base = %s' % (self.file_base))
 
     self.summary_html_path = None
-    self.summary_html_template = Template("""<html>
-  <head>
-    <title>DDT Summary</title>
-    <style>
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
-    </style>
-    <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <h1>Data Driven Test Summary</h1>
-    <h3>Report generated: $datetime</h3>
-    <h2>Tests and platforms</h2>
-    <p>Executors verified: $all_platforms</p>
-    <p>Tests verified: $all_tests</p>
-    <h2>All Tests Summary</h2>
-    <table id='exec_test_table'>
-    $exec_header_line
-    $detail_lines
-    </table>
-  </body>
-</html>
-""")
+
     self.header_item_template = Template(
         '<th>$header_data</th>'
         )
@@ -591,6 +637,7 @@ class SummaryReport():
       test_json = json.loads(file.read())
 
       test_environment = test_json['test_environment']
+      executor = ''
       try:
         executor = test_environment['test_language']
         test_type = test_environment['test_type']
@@ -637,7 +684,7 @@ class SummaryReport():
     outList.append('Missing verify: %s' % entry['missing_verify_count'])
     outList.append('<a href="%s"  target="_blank">Details</a>' %
                    entry['html_file_name'])
-    return '<br>'.join(outList) + '</a>'
+    return '    \n<br>'.join(outList) + '</a>'
 
   def createSummaryHtml(self):
     # Generate HTML page containing this information
@@ -668,7 +715,7 @@ class SummaryReport():
       header_list.append(self.header_item_template.safe_substitute(header_vals))
 
     html_map['exec_header_line'] = self.line_template.safe_substitute(
-        { 'column_data': ''.join(header_list) }
+        { 'column_data': '\n'.join(header_list) }
     )
 
     # Generate a row containing the test data, including the test type
@@ -696,12 +743,12 @@ class SummaryReport():
         index += 1
 
       data_rows.append(self.line_template.safe_substitute(
-          {'column_data': ''.join(row_items)}))
+          {'column_data': '\n'.join(row_items)}))
 
     html_map['detail_lines'] = '\n'.join(data_rows)
 
-    output_name = 'summary_report_' + datetime.now().strftime(
-        '%Y%m%d_%H%M%S') + '.html'
+    # output_name = 'summary_report.html'
+    output_name = 'index.html'
     # Write HTML output
     self.summary_html_path = os.path.join(self.file_base,
                                           self.report_dir_name,
@@ -714,7 +761,7 @@ class SummaryReport():
           self.summary_html_path, err))
       return None
 
-    html_output = self.summary_html_template.safe_substitute(html_map)
+    html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
     if self.debug > 1:
       print('HTML OUTPUT =\n%s' % (html_output))

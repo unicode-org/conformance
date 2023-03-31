@@ -12,14 +12,25 @@ import ddtargs
 # Set up and execute a testing plan for DDT
 
 class TestPlan():
-  def __init__(self, exec_command, test_type):
+  def __init__(self, exec_data, test_type, args=None):
     self.planId = None
-    self.exec_command = exec_command
+    self.exec_data = exec_data
+    self.exec_env = None
+    self.exec_command = None
+    self.exec_list = None
+    if exec_data:
+      if 'path' in exec_data:
+        self.exec_command = exec_data['path']
+      if 'env' in exec_data:
+        self.exec_env = exec_data['env']
     self.test_type = test_type
     self.runStyle = 'one_test'
     self.parallelMode = None
     self.options = None
     self.testData = None
+
+    # Additional args to subprocess.run
+    self.args = args
 
     self.run_error_messge = None  # Set if execution
     self.test_lang = None
@@ -27,7 +38,7 @@ class TestPlan():
     self.resultsFile = None
 
     self.jsonOutput = {}  # Area for adding elements for the results file
-
+    self.platformVersion = ''  # Used for creating the output subdirectory
     self.run_limit = None  # Set to positive integer to activate
     self.debug = 1
 
@@ -107,6 +118,7 @@ class TestPlan():
         print('EXECUTOR INFO = %s' % result)
       try:
         self.jsonOutput["platform"] = json.loads(result)
+        self.platformVersion =  self.jsonOutput["platform"]["platformVersion"]
       except:
         return None
     return True
@@ -165,6 +177,10 @@ class TestPlan():
       print('  Running OneTestMode %s on data %s' %
             (self.exec_command, self.inputFilePath))
 
+    # Set up calls for version data --> results
+    # Use for directory of the output results
+    self.requestExecutorInfo()
+
     # Check if report directory exists
     try:
       result_dir = os.path.dirname(self.outputFilePath)
@@ -197,6 +213,7 @@ class TestPlan():
     # Initialize JSON output headers --> results
 
     self.exec_list = self.exec_command.split()
+    # TODO: get other things about the exec
     if self.debug:
       print('EXEC info: exec_command %s, exec_list >%s<' % (self.exec_command,
       self.exec_list))
@@ -226,6 +243,19 @@ class TestPlan():
     except:
       per_execution = 1
     numErrors = self.runAllSingleTests(per_execution)
+
+    env_dict = {}
+    try:
+      env_string = self.options.environment
+      env_options = env_string.split(';')
+      # Set the environment from the options, each separated with '='
+      for option in env_options:
+        parts = option.split('=')
+        env_dict[parts[0]] = parts[1]
+      # The environment variables for running the command line.
+      self.exec_env = env_dict
+    except:
+      env_string = ''
 
     # Complete outputFile
     self.completeOutputFile(numErrors)
@@ -400,7 +430,8 @@ class TestPlan():
       result = subprocess.run(self.exec_list,
                               input=input_line, # Usually a JSON string.
                               encoding='utf-8',
-                              capture_output=True)
+                              capture_output=True,
+                              env=self.exec_env)
       if not result.returncode:
         return result.stdout
       else:

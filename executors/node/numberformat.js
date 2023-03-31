@@ -40,6 +40,9 @@ const all_supported_options = [
   "maximumSignificantDigits"
 ];
 
+// TODO: supported options should be indexed by Node version
+// TODO: supported options and allowed values should be indexed by Node version
+
 module.exports = {
   decimalPatternToOptions: function(pattern, rounding) {
     let options = {};
@@ -56,9 +59,10 @@ module.exports = {
     const label = json['label'];
     const skeleton = json['skeleton'];
 
+    // console.log("# LABEL = " + label + " " + JSON.stringify(json));
     const pattern = json['pattern'];
     const rounding = json['rounding'];
-    const input = parseFloat(json['input']);
+    let input = parseFloat(json['input']);  // May be changed with some options
 
     let options;
     let error = "unimplemented pattern";
@@ -68,6 +72,7 @@ module.exports = {
     // If options are in the JSON, use them...
     options = json['options'];
     if (!options) {
+      console.log("# NO OPTIONS for " + label)
       try {
         options = this.decimalPatternToOptions(pattern, rounding);
       } catch (error) {
@@ -78,16 +83,30 @@ module.exports = {
       }
     } else {
       // Check each option for implementation.
+
+      // Handle percent - input value is the basis of the actual percent
+      // expected, e.g., input='0.25' should be interpreted '0.25%'
+      if (options['style'] && options['style'] === 'percent') {
+        input = input / 100.0;
+      }
+
+      // Handle scale in the skeleton
+      if (skeleton) {
+        const scale_regex = /scale\/(\d+\.\d*)/;
+        const match_scale = skeleton.match(scale_regex);
+        if (match_scale) {
+          // Get the value and use it
+          const scale_value = parseFloat(match_scale[1]);
+          input = input * scale_value;
+        }
+      }
+
       // Check for "code":. Change to "currency":
       if (options["code"]) {
         options["currency"] = options["code"];
         delete options["code"];
       }
-      // Fix "SignDisplay" --> "signDisplay"
-      if ("SignDisplay" in options) {
-        options["signDisplay"] = options["SignDisplay"];
-        delete options["SignDisplay"];
-      }
+
       for (key in options) {
         if (!all_supported_options.includes(key)) {
           unsupported_options.push((key + ":" +  options[key]));
