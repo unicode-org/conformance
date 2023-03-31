@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: sh generateDataAndRun.sh
+      - run: bash generateDataAndRun.sh
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
