@@ -1,4 +1,5 @@
-#/bin/bash
+#!/bin/bash
+
 # Generates new test data, then executes all tests on that new in the new
 # directory.
 # Save the results
@@ -60,7 +61,7 @@ python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_s
 #
 # Push testresults and test reports to Cloud Storge
 # TODO
-echo $?
+echo "End-to-end script finished successfully"
 
 # Clean up directory
 # ... after results are reported
