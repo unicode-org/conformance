@@ -59,17 +59,17 @@ compact-short currency/EUR unit-width-full-name
 
 compact-short measure-unit/length-meter unit-width-narrow
   es-MX
-    0fur
-    92 kfur
-    -0.22fur
+    0m
+    92 km
+    -0.22m
   zh-TW
-    0化朗
-    9.2萬化朗
-    -0.22化朗
+    0公尺
+    9.2萬公尺
+    -0.22公尺
   bn-BD
-    ০ ফার্লং
-    ৯২ হা ফার্লং
-    -০.২২ ফার্লং
+    ০ মি
+    ৯২ হা মি
+    -০.২২ মি
 
 compact-short measure-unit/length-meter unit-width-full-name
   es-MX
@@ -77,13 +77,13 @@ compact-short measure-unit/length-meter unit-width-full-name
     92 k meters
     -0.22 meters
   zh-TW
-    0 化朗
-    9.2萬 化朗
-    -0.22 化朗
+    0 公尺
+    9.2萬 公尺
+    -0.22 公尺
   bn-BD
-    ০ ফার্লং
-    ৯২ হা ফার্লং
-    -০.২২ ফার্লং
+    ০ মি
+    ৯২ হা মি
+    -০.২২ মি
 
 scientific/+ee/sign-always percent unit-width-narrow
   es-MX
@@ -143,17 +143,17 @@ scientific/+ee/sign-always currency/EUR unit-width-full-name
 
 scientific/+ee/sign-always measure-unit/length-meter unit-width-narrow
   es-MX
-    0E+00fur
-    9.182736E+04fur
-    -2.2222E-01fur
+    0E+00m
+    9.182736E+04m
+    -2.2222E-01m
   zh-TW
-    0E+00化朗
-    9.182736E+04化朗
-    -2.2222E-01化朗
+    0E+00公尺
+    9.182736E+04公尺
+    -2.2222E-01公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৯.১৮২৭৩৬E+০৪ ফার্লং
-    -২.২২২২E-০১ ফার্লং
+    ০E+০০ মি
+    ৯.১৮২৭৩৬E+০৪ মি
+    -২.২২২২E-০১ মি
 
 scientific/+ee/sign-always measure-unit/length-meter unit-width-full-name
   es-MX
@@ -161,13 +161,13 @@ scientific/+ee/sign-always measure-unit/length-meter unit-width-full-name
     9.182736E+04 meters
     -2.2222E-01 meters
   zh-TW
-    0E+00 化朗
-    9.182736E+04 化朗
-    -2.2222E-01 化朗
+    0E+00 公尺
+    9.182736E+04 公尺
+    -2.2222E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৯.১৮২৭৩৬E+০৪ ফার্লং
-    -২.২২২২E-০১ ফার্লং
+    ০E+০০ মি
+    ৯.১৮২৭৩৬E+০৪ মি
+    -২.২২২২E-০১ মি
 
 compact-short percent precision-integer
   es-MX
@@ -283,59 +283,59 @@ compact-short currency/EUR @@
 
 compact-short measure-unit/length-meter precision-integer
   es-MX
-    0 fur
-    92 k fur
-    -0 fur
+    0 m
+    92 k m
+    -0 m
   zh-TW
-    0 化朗
-    9萬 化朗
-    -0 化朗
+    0 公尺
+    9萬 公尺
+    -0 公尺
   bn-BD
-    ০ ফার্লং
-    ৯২ হা ফার্লং
-    -০ ফার্লং
+    ০ মি
+    ৯২ হা মি
+    -০ মি
 
 compact-short measure-unit/length-meter .000
   es-MX
-    0.000 fur
-    91.827 k fur
-    -0.222 fur
+    0.000 m
+    91.827 k m
+    -0.222 m
   zh-TW
-    0.000 化朗
-    9.183萬 化朗
-    -0.222 化朗
+    0.000 公尺
+    9.183萬 公尺
+    -0.222 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৯১.৮২৭ হা ফার্লং
-    -০.২২২ ফার্লং
+    ০.০০০ মি
+    ৯১.৮২৭ হা মি
+    -০.২২২ মি
 
 compact-short measure-unit/length-meter .##/@@@+
   es-MX
-    0 fur
-    91.83 k fur
-    -0.222 fur
+    0 m
+    91.83 k m
+    -0.222 m
   zh-TW
-    0 化朗
-    9.18萬 化朗
-    -0.222 化朗
+    0 公尺
+    9.18萬 公尺
+    -0.222 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১.৮৩ হা ফার্লং
-    -০.২২২ ফার্লং
+    ০ মি
+    ৯১.৮৩ হা মি
+    -০.২২২ মি
 
 compact-short measure-unit/length-meter @@
   es-MX
-    0.0 fur
-    92 k fur
-    -0.22 fur
+    0.0 m
+    92 k m
+    -0.22 m
   zh-TW
-    0.0 化朗
-    9.2萬 化朗
-    -0.22 化朗
+    0.0 公尺
+    9.2萬 公尺
+    -0.22 公尺
   bn-BD
-    ০.০ ফার্লং
-    ৯২ হা ফার্লং
-    -০.২২ ফার্লং
+    ০.০ মি
+    ৯২ হা মি
+    -০.২২ মি
 
 scientific/+ee/sign-always percent precision-integer
   es-MX
@@ -451,59 +451,59 @@ scientific/+ee/sign-always currency/EUR @@
 
 scientific/+ee/sign-always measure-unit/length-meter precision-integer
   es-MX
-    0E+00 fur
-    9E+04 fur
-    -2E-01 fur
+    0E+00 m
+    9E+04 m
+    -2E-01 m
   zh-TW
-    0E+00 化朗
-    9E+04 化朗
-    -2E-01 化朗
+    0E+00 公尺
+    9E+04 公尺
+    -2E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৯E+০৪ ফার্লং
-    -২E-০১ ফার্লং
+    ০E+০০ মি
+    ৯E+০৪ মি
+    -২E-০১ মি
 
 scientific/+ee/sign-always measure-unit/length-meter .000
   es-MX
-    0.000E+00 fur
-    9.183E+04 fur
-    -2.222E-01 fur
+    0.000E+00 m
+    9.183E+04 m
+    -2.222E-01 m
   zh-TW
-    0.000E+00 化朗
-    9.183E+04 化朗
-    -2.222E-01 化朗
+    0.000E+00 公尺
+    9.183E+04 公尺
+    -2.222E-01 公尺
   bn-BD
-    ০.০০০E+০০ ফার্লং
-    ৯.১৮৩E+০৪ ফার্লং
-    -২.২২২E-০১ ফার্লং
+    ০.০০০E+০০ মি
+    ৯.১৮৩E+০৪ মি
+    -২.২২২E-০১ মি
 
 scientific/+ee/sign-always measure-unit/length-meter .##/@@@+
   es-MX
-    0E+00 fur
-    9.18E+04 fur
-    -2.22E-01 fur
+    0E+00 m
+    9.18E+04 m
+    -2.22E-01 m
   zh-TW
-    0E+00 化朗
-    9.18E+04 化朗
-    -2.22E-01 化朗
+    0E+00 公尺
+    9.18E+04 公尺
+    -2.22E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৯.১৮E+০৪ ফার্লং
-    -২.২২E-০১ ফার্লং
+    ০E+০০ মি
+    ৯.১৮E+০৪ মি
+    -২.২২E-০১ মি
 
 scientific/+ee/sign-always measure-unit/length-meter @@
   es-MX
-    0.0E+00 fur
-    9.2E+04 fur
-    -2.2E-01 fur
+    0.0E+00 m
+    9.2E+04 m
+    -2.2E-01 m
   zh-TW
-    0.0E+00 化朗
-    9.2E+04 化朗
-    -2.2E-01 化朗
+    0.0E+00 公尺
+    9.2E+04 公尺
+    -2.2E-01 公尺
   bn-BD
-    ০.০E+০০ ফার্লং
-    ৯.২E+০৪ ফার্লং
-    -২.২E-০১ ফার্লং
+    ০.০E+০০ মি
+    ৯.২E+০৪ মি
+    -২.২E-০১ মি
 
 compact-short percent rounding-mode-floor
   es-MX
@@ -535,17 +535,17 @@ compact-short currency/EUR rounding-mode-floor
 
 compact-short measure-unit/length-meter rounding-mode-floor
   es-MX
-    0 fur
-    91 k fur
-    -0.23 fur
+    0 m
+    91 k m
+    -0.23 m
   zh-TW
-    0 化朗
-    9.1萬 化朗
-    -0.23 化朗
+    0 公尺
+    9.1萬 公尺
+    -0.23 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১ হা ফার্লং
-    -০.২৩ ফার্লং
+    ০ মি
+    ৯১ হা মি
+    -০.২৩ মি
 
 scientific/+ee/sign-always percent rounding-mode-floor
   es-MX
@@ -577,17 +577,17 @@ scientific/+ee/sign-always currency/EUR rounding-mode-floor
 
 scientific/+ee/sign-always measure-unit/length-meter rounding-mode-floor
   es-MX
-    0E+00 fur
-    9.182736E+04 fur
-    -2.2222E-01 fur
+    0E+00 m
+    9.182736E+04 m
+    -2.2222E-01 m
   zh-TW
-    0E+00 化朗
-    9.182736E+04 化朗
-    -2.2222E-01 化朗
+    0E+00 公尺
+    9.182736E+04 公尺
+    -2.2222E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৯.১৮২৭৩৬E+০৪ ফার্লং
-    -২.২২২২E-০১ ফার্লং
+    ০E+০০ মি
+    ৯.১৮২৭৩৬E+০৪ মি
+    -২.২২২২E-০১ মি
 
 compact-short percent integer-width/##00
   es-MX
@@ -619,17 +619,17 @@ compact-short currency/EUR integer-width/##00
 
 compact-short measure-unit/length-meter integer-width/##00
   es-MX
-    00 fur
-    92 k fur
-    -00.22 fur
+    00 m
+    92 k m
+    -00.22 m
   zh-TW
-    00 化朗
-    09.2萬 化朗
-    -00.22 化朗
+    00 公尺
+    09.2萬 公尺
+    -00.22 公尺
   bn-BD
-    ০০ ফার্লং
-    ৯২ হা ফার্লং
-    -০০.২২ ফার্লং
+    ০০ মি
+    ৯২ হা মি
+    -০০.২২ মি
 
 scientific/+ee/sign-always percent integer-width/##00
   es-MX
@@ -661,17 +661,17 @@ scientific/+ee/sign-always currency/EUR integer-width/##00
 
 scientific/+ee/sign-always measure-unit/length-meter integer-width/##00
   es-MX
-    00E+00 fur
-    09.182736E+04 fur
-    -02.2222E-01 fur
+    00E+00 m
+    09.182736E+04 m
+    -02.2222E-01 m
   zh-TW
-    00E+00 化朗
-    09.182736E+04 化朗
-    -02.2222E-01 化朗
+    00E+00 公尺
+    09.182736E+04 公尺
+    -02.2222E-01 公尺
   bn-BD
-    ০০E+০০ ফার্লং
-    ০৯.১৮২৭৩৬E+০৪ ফার্লং
-    -০২.২২২২E-০১ ফার্লং
+    ০০E+০০ মি
+    ০৯.১৮২৭৩৬E+০৪ মি
+    -০২.২২২২E-০১ মি
 
 compact-short percent scale/0.5
   es-MX
@@ -703,17 +703,17 @@ compact-short currency/EUR scale/0.5
 
 compact-short measure-unit/length-meter scale/0.5
   es-MX
-    0 fur
-    46 k fur
-    -0.11 fur
+    0 m
+    46 k m
+    -0.11 m
   zh-TW
-    0 化朗
-    4.6萬 化朗
-    -0.11 化朗
+    0 公尺
+    4.6萬 公尺
+    -0.11 公尺
   bn-BD
-    ০ ফার্লং
-    ৪৬ হা ফার্লং
-    -০.১১ ফার্লং
+    ০ মি
+    ৪৬ হা মি
+    -০.১১ মি
 
 scientific/+ee/sign-always percent scale/0.5
   es-MX
@@ -745,17 +745,17 @@ scientific/+ee/sign-always currency/EUR scale/0.5
 
 scientific/+ee/sign-always measure-unit/length-meter scale/0.5
   es-MX
-    0E+00 fur
-    4.591368E+04 fur
-    -1.1111E-01 fur
+    0E+00 m
+    4.591368E+04 m
+    -1.1111E-01 m
   zh-TW
-    0E+00 化朗
-    4.591368E+04 化朗
-    -1.1111E-01 化朗
+    0E+00 公尺
+    4.591368E+04 公尺
+    -1.1111E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৪.৫৯১৩৬৮E+০৪ ফার্লং
-    -১.১১১১E-০১ ফার্লং
+    ০E+০০ মি
+    ৪.৫৯১৩৬৮E+০৪ মি
+    -১.১১১১E-০১ মি
 
 compact-short percent group-on-aligned
   es-MX
@@ -787,17 +787,17 @@ compact-short currency/EUR group-on-aligned
 
 compact-short measure-unit/length-meter group-on-aligned
   es-MX
-    0 fur
-    92 k fur
-    -0.22 fur
+    0 m
+    92 k m
+    -0.22 m
   zh-TW
-    0 化朗
-    9.2萬 化朗
-    -0.22 化朗
+    0 公尺
+    9.2萬 公尺
+    -0.22 公尺
   bn-BD
-    ০ ফার্লং
-    ৯২ হা ফার্লং
-    -০.২২ ফার্লং
+    ০ মি
+    ৯২ হা মি
+    -০.২২ মি
 
 scientific/+ee/sign-always percent group-on-aligned
   es-MX
@@ -829,17 +829,17 @@ scientific/+ee/sign-always currency/EUR group-on-aligned
 
 scientific/+ee/sign-always measure-unit/length-meter group-on-aligned
   es-MX
-    0E+00 fur
-    9.182736E+04 fur
-    -2.2222E-01 fur
+    0E+00 m
+    9.182736E+04 m
+    -2.2222E-01 m
   zh-TW
-    0E+00 化朗
-    9.182736E+04 化朗
-    -2.2222E-01 化朗
+    0E+00 公尺
+    9.182736E+04 公尺
+    -2.2222E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    ৯.১৮২৭৩৬E+০৪ ফার্লং
-    -২.২২২২E-০১ ফার্লং
+    ০E+০০ মি
+    ৯.১৮২৭৩৬E+০৪ মি
+    -২.২২২২E-০১ মি
 
 compact-short percent latin
   es-MX
@@ -871,17 +871,17 @@ compact-short currency/EUR latin
 
 compact-short measure-unit/length-meter latin
   es-MX
-    0 fur
-    92 k fur
-    -0.22 fur
+    0 m
+    92 k m
+    -0.22 m
   zh-TW
-    0 化朗
-    9.2萬 化朗
-    -0.22 化朗
+    0 公尺
+    9.2萬 公尺
+    -0.22 公尺
   bn-BD
-    0 ফার্লং
-    92 হা ফার্লং
-    -0.22 ফার্লং
+    0 মি
+    92 হা মি
+    -0.22 মি
 
 scientific/+ee/sign-always percent latin
   es-MX
@@ -913,17 +913,17 @@ scientific/+ee/sign-always currency/EUR latin
 
 scientific/+ee/sign-always measure-unit/length-meter latin
   es-MX
-    0E+00 fur
-    9.182736E+04 fur
-    -2.2222E-01 fur
+    0E+00 m
+    9.182736E+04 m
+    -2.2222E-01 m
   zh-TW
-    0E+00 化朗
-    9.182736E+04 化朗
-    -2.2222E-01 化朗
+    0E+00 公尺
+    9.182736E+04 公尺
+    -2.2222E-01 公尺
   bn-BD
-    0E+00 ফার্লং
-    9.182736E+04 ফার্লং
-    -2.2222E-01 ফার্লং
+    0E+00 মি
+    9.182736E+04 মি
+    -2.2222E-01 মি
 
 compact-short percent sign-accounting-except-zero
   es-MX
@@ -955,17 +955,17 @@ compact-short currency/EUR sign-accounting-except-zero
 
 compact-short measure-unit/length-meter sign-accounting-except-zero
   es-MX
-    0 fur
-    +92 k fur
-    -0.22 fur
+    0 m
+    +92 k m
+    -0.22 m
   zh-TW
-    0 化朗
-    +9.2萬 化朗
-    -0.22 化朗
+    0 公尺
+    +9.2萬 公尺
+    -0.22 公尺
   bn-BD
-    ০ ফার্লং
-    +৯২ হা ফার্লং
-    -০.২২ ফার্লং
+    ০ মি
+    +৯২ হা মি
+    -০.২২ মি
 
 scientific/+ee/sign-always percent sign-accounting-except-zero
   es-MX
@@ -997,17 +997,17 @@ scientific/+ee/sign-always currency/EUR sign-accounting-except-zero
 
 scientific/+ee/sign-always measure-unit/length-meter sign-accounting-except-zero
   es-MX
-    0E+00 fur
-    +9.182736E+04 fur
-    -2.2222E-01 fur
+    0E+00 m
+    +9.182736E+04 m
+    -2.2222E-01 m
   zh-TW
-    0E+00 化朗
-    +9.182736E+04 化朗
-    -2.2222E-01 化朗
+    0E+00 公尺
+    +9.182736E+04 公尺
+    -2.2222E-01 公尺
   bn-BD
-    ০E+০০ ফার্লং
-    +৯.১৮২৭৩৬E+০৪ ফার্লং
-    -২.২২২২E-০১ ফার্লং
+    ০E+০০ মি
+    +৯.১৮২৭৩৬E+০৪ মি
+    -২.২২২২E-০১ মি
 
 compact-short percent decimal-always
   es-MX
@@ -1039,17 +1039,17 @@ compact-short currency/EUR decimal-always
 
 compact-short measure-unit/length-meter decimal-always
   es-MX
-    0. fur
-    92. k fur
-    -0.22 fur
+    0. m
+    92. k m
+    -0.22 m
   zh-TW
-    0. 化朗
-    9.2萬 化朗
-    -0.22 化朗
+    0. 公尺
+    9.2萬 公尺
+    -0.22 公尺
   bn-BD
-    ০. ফার্লং
-    ৯২. হা ফার্লং
-    -০.২২ ফার্লং
+    ০. মি
+    ৯২. হা মি
+    -০.২২ মি
 
 scientific/+ee/sign-always percent decimal-always
   es-MX
@@ -1081,17 +1081,17 @@ scientific/+ee/sign-always currency/EUR decimal-always
 
 scientific/+ee/sign-always measure-unit/length-meter decimal-always
   es-MX
-    0.E+00 fur
-    9.182736E+04 fur
-    -2.2222E-01 fur
+    0.E+00 m
+    9.182736E+04 m
+    -2.2222E-01 m
   zh-TW
-    0.E+00 化朗
-    9.182736E+04 化朗
-    -2.2222E-01 化朗
+    0.E+00 公尺
+    9.182736E+04 公尺
+    -2.2222E-01 公尺
   bn-BD
-    ০.E+০০ ফার্লং
-    ৯.১৮২৭৩৬E+০৪ ফার্লং
-    -২.২২২২E-০১ ফার্লং
+    ০.E+০০ মি
+    ৯.১৮২৭৩৬E+০৪ মি
+    -২.২২২২E-০১ মি
 
 compact-short unit-width-narrow precision-integer
   es-MX
@@ -3307,59 +3307,59 @@ currency/EUR unit-width-full-name @@
 
 measure-unit/length-meter unit-width-narrow precision-integer
   es-MX
-    0fur
-    91,827fur
-    -0fur
+    0m
+    91,827m
+    -0m
   zh-TW
-    0化朗
-    91,827化朗
-    -0化朗
+    0公尺
+    91,827公尺
+    -0公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭ ফার্লং
-    -০ ফার্লং
+    ০ মি
+    ৯১,৮২৭ মি
+    -০ মি
 
 measure-unit/length-meter unit-width-narrow .000
   es-MX
-    0.000fur
-    91,827.364fur
-    -0.222fur
+    0.000m
+    91,827.364m
+    -0.222m
   zh-TW
-    0.000化朗
-    91,827.364化朗
-    -0.222化朗
+    0.000公尺
+    91,827.364公尺
+    -0.222公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৯১,৮২৭.৩৬৪ ফার্লং
-    -০.২২২ ফার্লং
+    ০.০০০ মি
+    ৯১,৮২৭.৩৬৪ মি
+    -০.২২২ মি
 
 measure-unit/length-meter unit-width-narrow .##/@@@+
   es-MX
-    0fur
-    91,827.36fur
-    -0.222fur
+    0m
+    91,827.36m
+    -0.222m
   zh-TW
-    0化朗
-    91,827.36化朗
-    -0.222化朗
+    0公尺
+    91,827.36公尺
+    -0.222公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬ ফার্লং
-    -০.২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬ মি
+    -০.২২২ মি
 
 measure-unit/length-meter unit-width-narrow @@
   es-MX
-    0.0fur
-    92,000fur
-    -0.22fur
+    0.0m
+    92,000m
+    -0.22m
   zh-TW
-    0.0化朗
-    92,000化朗
-    -0.22化朗
+    0.0公尺
+    92,000公尺
+    -0.22公尺
   bn-BD
-    ০.০ ফার্লং
-    ৯২,০০০ ফার্লং
-    -০.২২ ফার্লং
+    ০.০ মি
+    ৯২,০০০ মি
+    -০.২২ মি
 
 measure-unit/length-meter unit-width-full-name precision-integer
   es-MX
@@ -3367,13 +3367,13 @@ measure-unit/length-meter unit-width-full-name precision-integer
     91,827 meters
     -0 meters
   zh-TW
-    0 化朗
-    91,827 化朗
-    -0 化朗
+    0 公尺
+    91,827 公尺
+    -0 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭ ফার্লং
-    -০ ফার্লং
+    ০ মি
+    ৯১,৮২৭ মি
+    -০ মি
 
 measure-unit/length-meter unit-width-full-name .000
   es-MX
@@ -3381,13 +3381,13 @@ measure-unit/length-meter unit-width-full-name .000
     91,827.364 meters
     -0.222 meters
   zh-TW
-    0.000 化朗
-    91,827.364 化朗
-    -0.222 化朗
+    0.000 公尺
+    91,827.364 公尺
+    -0.222 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৯১,৮২৭.৩৬৪ ফার্লং
-    -০.২২২ ফার্লং
+    ০.০০০ মি
+    ৯১,৮২৭.৩৬৪ মি
+    -০.২২২ মি
 
 measure-unit/length-meter unit-width-full-name .##/@@@+
   es-MX
@@ -3395,13 +3395,13 @@ measure-unit/length-meter unit-width-full-name .##/@@@+
     91,827.36 meters
     -0.222 meters
   zh-TW
-    0 化朗
-    91,827.36 化朗
-    -0.222 化朗
+    0 公尺
+    91,827.36 公尺
+    -0.222 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬ ফার্লং
-    -০.২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬ মি
+    -০.২২২ মি
 
 measure-unit/length-meter unit-width-full-name @@
   es-MX
@@ -3409,13 +3409,13 @@ measure-unit/length-meter unit-width-full-name @@
     92,000 meters
     -0.22 meters
   zh-TW
-    0.0 化朗
-    92,000 化朗
-    -0.22 化朗
+    0.0 公尺
+    92,000 公尺
+    -0.22 公尺
   bn-BD
-    ০.০ ফার্লং
-    ৯২,০০০ ফার্লং
-    -০.২২ ফার্লং
+    ০.০ মি
+    ৯২,০০০ মি
+    -০.২২ মি
 
 percent unit-width-narrow rounding-mode-floor
   es-MX
@@ -3475,17 +3475,17 @@ currency/EUR unit-width-full-name rounding-mode-floor
 
 measure-unit/length-meter unit-width-narrow rounding-mode-floor
   es-MX
-    0fur
-    91,827.3645fur
-    -0.22222fur
+    0m
+    91,827.3645m
+    -0.22222m
   zh-TW
-    0化朗
-    91,827.3645化朗
-    -0.22222化朗
+    0公尺
+    91,827.3645公尺
+    -0.22222公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 measure-unit/length-meter unit-width-full-name rounding-mode-floor
   es-MX
@@ -3493,13 +3493,13 @@ measure-unit/length-meter unit-width-full-name rounding-mode-floor
     91,827.3645 meters
     -0.22222 meters
   zh-TW
-    0 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent unit-width-narrow integer-width/##00
   es-MX
@@ -3559,17 +3559,17 @@ currency/EUR unit-width-full-name integer-width/##00
 
 measure-unit/length-meter unit-width-narrow integer-width/##00
   es-MX
-    00fur
-    1,827.3645fur
-    -00.22222fur
+    00m
+    1,827.3645m
+    -00.22222m
   zh-TW
-    00化朗
-    1,827.3645化朗
-    -00.22222化朗
+    00公尺
+    1,827.3645公尺
+    -00.22222公尺
   bn-BD
-    ০০ ফার্লং
-    ১,৮২৭.৩৬৪৫ ফার্লং
-    -০০.২২২২২ ফার্লং
+    ০০ মি
+    ১,৮২৭.৩৬৪৫ মি
+    -০০.২২২২২ মি
 
 measure-unit/length-meter unit-width-full-name integer-width/##00
   es-MX
@@ -3577,13 +3577,13 @@ measure-unit/length-meter unit-width-full-name integer-width/##00
     1,827.3645 meters
     -00.22222 meters
   zh-TW
-    00 化朗
-    1,827.3645 化朗
-    -00.22222 化朗
+    00 公尺
+    1,827.3645 公尺
+    -00.22222 公尺
   bn-BD
-    ০০ ফার্লং
-    ১,৮২৭.৩৬৪৫ ফার্লং
-    -০০.২২২২২ ফার্লং
+    ০০ মি
+    ১,৮২৭.৩৬৪৫ মি
+    -০০.২২২২২ মি
 
 percent unit-width-narrow scale/0.5
   es-MX
@@ -3643,17 +3643,17 @@ currency/EUR unit-width-full-name scale/0.5
 
 measure-unit/length-meter unit-width-narrow scale/0.5
   es-MX
-    0fur
-    45,913.68225fur
-    -0.11111fur
+    0m
+    45,913.68225m
+    -0.11111m
   zh-TW
-    0化朗
-    45,913.68225化朗
-    -0.11111化朗
+    0公尺
+    45,913.68225公尺
+    -0.11111公尺
   bn-BD
-    ০ ফার্লং
-    ৪৫,৯১৩.৬৮২২৫ ফার্লং
-    -০.১১১১১ ফার্লং
+    ০ মি
+    ৪৫,৯১৩.৬৮২২৫ মি
+    -০.১১১১১ মি
 
 measure-unit/length-meter unit-width-full-name scale/0.5
   es-MX
@@ -3661,13 +3661,13 @@ measure-unit/length-meter unit-width-full-name scale/0.5
     45,913.68225 meters
     -0.11111 meters
   zh-TW
-    0 化朗
-    45,913.68225 化朗
-    -0.11111 化朗
+    0 公尺
+    45,913.68225 公尺
+    -0.11111 公尺
   bn-BD
-    ০ ফার্লং
-    ৪৫,৯১৩.৬৮২২৫ ফার্লং
-    -০.১১১১১ ফার্লং
+    ০ মি
+    ৪৫,৯১৩.৬৮২২৫ মি
+    -০.১১১১১ মি
 
 percent unit-width-narrow group-on-aligned
   es-MX
@@ -3727,17 +3727,17 @@ currency/EUR unit-width-full-name group-on-aligned
 
 measure-unit/length-meter unit-width-narrow group-on-aligned
   es-MX
-    0fur
-    91,827.3645fur
-    -0.22222fur
+    0m
+    91,827.3645m
+    -0.22222m
   zh-TW
-    0化朗
-    91,827.3645化朗
-    -0.22222化朗
+    0公尺
+    91,827.3645公尺
+    -0.22222公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 measure-unit/length-meter unit-width-full-name group-on-aligned
   es-MX
@@ -3745,13 +3745,13 @@ measure-unit/length-meter unit-width-full-name group-on-aligned
     91,827.3645 meters
     -0.22222 meters
   zh-TW
-    0 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent unit-width-narrow latin
   es-MX
@@ -3811,17 +3811,17 @@ currency/EUR unit-width-full-name latin
 
 measure-unit/length-meter unit-width-narrow latin
   es-MX
-    0fur
-    91,827.3645fur
-    -0.22222fur
+    0m
+    91,827.3645m
+    -0.22222m
   zh-TW
-    0化朗
-    91,827.3645化朗
-    -0.22222化朗
+    0公尺
+    91,827.3645公尺
+    -0.22222公尺
   bn-BD
-    0 ফার্লং
-    91,827.3645 ফার্লং
-    -0.22222 ফার্লং
+    0 মি
+    91,827.3645 মি
+    -0.22222 মি
 
 measure-unit/length-meter unit-width-full-name latin
   es-MX
@@ -3829,13 +3829,13 @@ measure-unit/length-meter unit-width-full-name latin
     91,827.3645 meters
     -0.22222 meters
   zh-TW
-    0 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    0 ফার্লং
-    91,827.3645 ফার্লং
-    -0.22222 ফার্লং
+    0 মি
+    91,827.3645 মি
+    -0.22222 মি
 
 percent unit-width-narrow sign-accounting-except-zero
   es-MX
@@ -3895,17 +3895,17 @@ currency/EUR unit-width-full-name sign-accounting-except-zero
 
 measure-unit/length-meter unit-width-narrow sign-accounting-except-zero
   es-MX
-    0fur
-    +91,827.3645fur
-    -0.22222fur
+    0m
+    +91,827.3645m
+    -0.22222m
   zh-TW
-    0化朗
-    +91,827.3645化朗
-    -0.22222化朗
+    0公尺
+    +91,827.3645公尺
+    -0.22222公尺
   bn-BD
-    ০ ফার্লং
-    +৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    +৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 measure-unit/length-meter unit-width-full-name sign-accounting-except-zero
   es-MX
@@ -3913,13 +3913,13 @@ measure-unit/length-meter unit-width-full-name sign-accounting-except-zero
     +91,827.3645 meters
     -0.22222 meters
   zh-TW
-    0 化朗
-    +91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    +91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০ ফার্লং
-    +৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    +৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent unit-width-narrow decimal-always
   es-MX
@@ -3979,17 +3979,17 @@ currency/EUR unit-width-full-name decimal-always
 
 measure-unit/length-meter unit-width-narrow decimal-always
   es-MX
-    0.fur
-    91,827.3645fur
-    -0.22222fur
+    0.m
+    91,827.3645m
+    -0.22222m
   zh-TW
-    0.化朗
-    91,827.3645化朗
-    -0.22222化朗
+    0.公尺
+    91,827.3645公尺
+    -0.22222公尺
   bn-BD
-    ০. ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০. মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 measure-unit/length-meter unit-width-full-name decimal-always
   es-MX
@@ -3997,13 +3997,13 @@ measure-unit/length-meter unit-width-full-name decimal-always
     91,827.3645 meters
     -0.22222 meters
   zh-TW
-    0. 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0. 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০. ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০. মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent precision-integer rounding-mode-floor
   es-MX
@@ -4119,59 +4119,59 @@ currency/EUR @@ rounding-mode-floor
 
 measure-unit/length-meter precision-integer rounding-mode-floor
   es-MX
-    0 fur
-    91,827 fur
-    -1 fur
+    0 m
+    91,827 m
+    -1 m
   zh-TW
-    0 化朗
-    91,827 化朗
-    -1 化朗
+    0 公尺
+    91,827 公尺
+    -1 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭ ফার্লং
-    -১ ফার্লং
+    ০ মি
+    ৯১,৮২৭ মি
+    -১ মি
 
 measure-unit/length-meter .000 rounding-mode-floor
   es-MX
-    0.000 fur
-    91,827.364 fur
-    -0.223 fur
+    0.000 m
+    91,827.364 m
+    -0.223 m
   zh-TW
-    0.000 化朗
-    91,827.364 化朗
-    -0.223 化朗
+    0.000 公尺
+    91,827.364 公尺
+    -0.223 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৯১,৮২৭.৩৬৪ ফার্লং
-    -০.২২৩ ফার্লং
+    ০.০০০ মি
+    ৯১,৮২৭.৩৬৪ মি
+    -০.২২৩ মি
 
 measure-unit/length-meter .##/@@@+ rounding-mode-floor
   es-MX
-    0 fur
-    91,827.36 fur
-    -0.223 fur
+    0 m
+    91,827.36 m
+    -0.223 m
   zh-TW
-    0 化朗
-    91,827.36 化朗
-    -0.223 化朗
+    0 公尺
+    91,827.36 公尺
+    -0.223 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬ ফার্লং
-    -০.২২৩ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬ মি
+    -০.২২৩ মি
 
 measure-unit/length-meter @@ rounding-mode-floor
   es-MX
-    0.0 fur
-    91,000 fur
-    -0.23 fur
+    0.0 m
+    91,000 m
+    -0.23 m
   zh-TW
-    0.0 化朗
-    91,000 化朗
-    -0.23 化朗
+    0.0 公尺
+    91,000 公尺
+    -0.23 公尺
   bn-BD
-    ০.০ ফার্লং
-    ৯১,০০০ ফার্লং
-    -০.২৩ ফার্লং
+    ০.০ মি
+    ৯১,০০০ মি
+    -০.২৩ মি
 
 percent precision-integer integer-width/##00
   es-MX
@@ -4287,59 +4287,59 @@ currency/EUR @@ integer-width/##00
 
 measure-unit/length-meter precision-integer integer-width/##00
   es-MX
-    00 fur
-    1,827 fur
-    -00 fur
+    00 m
+    1,827 m
+    -00 m
   zh-TW
-    00 化朗
-    1,827 化朗
-    -00 化朗
+    00 公尺
+    1,827 公尺
+    -00 公尺
   bn-BD
-    ০০ ফার্লং
-    ১,৮২৭ ফার্লং
-    -০০ ফার্লং
+    ০০ মি
+    ১,৮২৭ মি
+    -০০ মি
 
 measure-unit/length-meter .000 integer-width/##00
   es-MX
-    00.000 fur
-    1,827.364 fur
-    -00.222 fur
+    00.000 m
+    1,827.364 m
+    -00.222 m
   zh-TW
-    00.000 化朗
-    1,827.364 化朗
-    -00.222 化朗
+    00.000 公尺
+    1,827.364 公尺
+    -00.222 公尺
   bn-BD
-    ০০.০০০ ফার্লং
-    ১,৮২৭.৩৬৪ ফার্লং
-    -০০.২২২ ফার্লং
+    ০০.০০০ মি
+    ১,৮২৭.৩৬৪ মি
+    -০০.২২২ মি
 
 measure-unit/length-meter .##/@@@+ integer-width/##00
   es-MX
-    00 fur
-    1,827.36 fur
-    -00.222 fur
+    00 m
+    1,827.36 m
+    -00.222 m
   zh-TW
-    00 化朗
-    1,827.36 化朗
-    -00.222 化朗
+    00 公尺
+    1,827.36 公尺
+    -00.222 公尺
   bn-BD
-    ০০ ফার্লং
-    ১,৮২৭.৩৬ ফার্লং
-    -০০.২২২ ফার্লং
+    ০০ মি
+    ১,৮২৭.৩৬ মি
+    -০০.২২২ মি
 
 measure-unit/length-meter @@ integer-width/##00
   es-MX
-    00.0 fur
-    2,000 fur
-    -00.22 fur
+    00.0 m
+    2,000 m
+    -00.22 m
   zh-TW
-    00.0 化朗
-    2,000 化朗
-    -00.22 化朗
+    00.0 公尺
+    2,000 公尺
+    -00.22 公尺
   bn-BD
-    ০০.০ ফার্লং
-    ২,০০০ ফার্লং
-    -০০.২২ ফার্লং
+    ০০.০ মি
+    ২,০০০ মি
+    -০০.২২ মি
 
 percent precision-integer scale/0.5
   es-MX
@@ -4455,59 +4455,59 @@ currency/EUR @@ scale/0.5
 
 measure-unit/length-meter precision-integer scale/0.5
   es-MX
-    0 fur
-    45,914 fur
-    -0 fur
+    0 m
+    45,914 m
+    -0 m
   zh-TW
-    0 化朗
-    45,914 化朗
-    -0 化朗
+    0 公尺
+    45,914 公尺
+    -0 公尺
   bn-BD
-    ০ ফার্লং
-    ৪৫,৯১৪ ফার্লং
-    -০ ফার্লং
+    ০ মি
+    ৪৫,৯১৪ মি
+    -০ মি
 
 measure-unit/length-meter .000 scale/0.5
   es-MX
-    0.000 fur
-    45,913.682 fur
-    -0.111 fur
+    0.000 m
+    45,913.682 m
+    -0.111 m
   zh-TW
-    0.000 化朗
-    45,913.682 化朗
-    -0.111 化朗
+    0.000 公尺
+    45,913.682 公尺
+    -0.111 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৪৫,৯১৩.৬৮২ ফার্লং
-    -০.১১১ ফার্লং
+    ০.০০০ মি
+    ৪৫,৯১৩.৬৮২ মি
+    -০.১১১ মি
 
 measure-unit/length-meter .##/@@@+ scale/0.5
   es-MX
-    0 fur
-    45,913.68 fur
-    -0.111 fur
+    0 m
+    45,913.68 m
+    -0.111 m
   zh-TW
-    0 化朗
-    45,913.68 化朗
-    -0.111 化朗
+    0 公尺
+    45,913.68 公尺
+    -0.111 公尺
   bn-BD
-    ০ ফার্লং
-    ৪৫,৯১৩.৬৮ ফার্লং
-    -০.১১১ ফার্লং
+    ০ মি
+    ৪৫,৯১৩.৬৮ মি
+    -০.১১১ মি
 
 measure-unit/length-meter @@ scale/0.5
   es-MX
-    0.0 fur
-    46,000 fur
-    -0.11 fur
+    0.0 m
+    46,000 m
+    -0.11 m
   zh-TW
-    0.0 化朗
-    46,000 化朗
-    -0.11 化朗
+    0.0 公尺
+    46,000 公尺
+    -0.11 公尺
   bn-BD
-    ০.০ ফার্লং
-    ৪৬,০০০ ফার্লং
-    -০.১১ ফার্লং
+    ০.০ মি
+    ৪৬,০০০ মি
+    -০.১১ মি
 
 percent precision-integer group-on-aligned
   es-MX
@@ -4623,59 +4623,59 @@ currency/EUR @@ group-on-aligned
 
 measure-unit/length-meter precision-integer group-on-aligned
   es-MX
-    0 fur
-    91,827 fur
-    -0 fur
+    0 m
+    91,827 m
+    -0 m
   zh-TW
-    0 化朗
-    91,827 化朗
-    -0 化朗
+    0 公尺
+    91,827 公尺
+    -0 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭ ফার্লং
-    -০ ফার্লং
+    ০ মি
+    ৯১,৮২৭ মি
+    -০ মি
 
 measure-unit/length-meter .000 group-on-aligned
   es-MX
-    0.000 fur
-    91,827.364 fur
-    -0.222 fur
+    0.000 m
+    91,827.364 m
+    -0.222 m
   zh-TW
-    0.000 化朗
-    91,827.364 化朗
-    -0.222 化朗
+    0.000 公尺
+    91,827.364 公尺
+    -0.222 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৯১,৮২৭.৩৬৪ ফার্লং
-    -০.২২২ ফার্লং
+    ০.০০০ মি
+    ৯১,৮২৭.৩৬৪ মি
+    -০.২২২ মি
 
 measure-unit/length-meter .##/@@@+ group-on-aligned
   es-MX
-    0 fur
-    91,827.36 fur
-    -0.222 fur
+    0 m
+    91,827.36 m
+    -0.222 m
   zh-TW
-    0 化朗
-    91,827.36 化朗
-    -0.222 化朗
+    0 公尺
+    91,827.36 公尺
+    -0.222 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬ ফার্লং
-    -০.২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬ মি
+    -০.২২২ মি
 
 measure-unit/length-meter @@ group-on-aligned
   es-MX
-    0.0 fur
-    92,000 fur
-    -0.22 fur
+    0.0 m
+    92,000 m
+    -0.22 m
   zh-TW
-    0.0 化朗
-    92,000 化朗
-    -0.22 化朗
+    0.0 公尺
+    92,000 公尺
+    -0.22 公尺
   bn-BD
-    ০.০ ফার্লং
-    ৯২,০০০ ফার্লং
-    -০.২২ ফার্লং
+    ০.০ মি
+    ৯২,০০০ মি
+    -০.২২ মি
 
 percent precision-integer latin
   es-MX
@@ -4791,59 +4791,59 @@ currency/EUR @@ latin
 
 measure-unit/length-meter precision-integer latin
   es-MX
-    0 fur
-    91,827 fur
-    -0 fur
+    0 m
+    91,827 m
+    -0 m
   zh-TW
-    0 化朗
-    91,827 化朗
-    -0 化朗
+    0 公尺
+    91,827 公尺
+    -0 公尺
   bn-BD
-    0 ফার্লং
-    91,827 ফার্লং
-    -0 ফার্লং
+    0 মি
+    91,827 মি
+    -0 মি
 
 measure-unit/length-meter .000 latin
   es-MX
-    0.000 fur
-    91,827.364 fur
-    -0.222 fur
+    0.000 m
+    91,827.364 m
+    -0.222 m
   zh-TW
-    0.000 化朗
-    91,827.364 化朗
-    -0.222 化朗
+    0.000 公尺
+    91,827.364 公尺
+    -0.222 公尺
   bn-BD
-    0.000 ফার্লং
-    91,827.364 ফার্লং
-    -0.222 ফার্লং
+    0.000 মি
+    91,827.364 মি
+    -0.222 মি
 
 measure-unit/length-meter .##/@@@+ latin
   es-MX
-    0 fur
-    91,827.36 fur
-    -0.222 fur
+    0 m
+    91,827.36 m
+    -0.222 m
   zh-TW
-    0 化朗
-    91,827.36 化朗
-    -0.222 化朗
+    0 公尺
+    91,827.36 公尺
+    -0.222 公尺
   bn-BD
-    0 ফার্লং
-    91,827.36 ফার্লং
-    -0.222 ফার্লং
+    0 মি
+    91,827.36 মি
+    -0.222 মি
 
 measure-unit/length-meter @@ latin
   es-MX
-    0.0 fur
-    92,000 fur
-    -0.22 fur
+    0.0 m
+    92,000 m
+    -0.22 m
   zh-TW
-    0.0 化朗
-    92,000 化朗
-    -0.22 化朗
+    0.0 公尺
+    92,000 公尺
+    -0.22 公尺
   bn-BD
-    0.0 ফার্লং
-    92,000 ফার্লং
-    -0.22 ফার্লং
+    0.0 মি
+    92,000 মি
+    -0.22 মি
 
 percent precision-integer sign-accounting-except-zero
   es-MX
@@ -4959,59 +4959,59 @@ currency/EUR @@ sign-accounting-except-zero
 
 measure-unit/length-meter precision-integer sign-accounting-except-zero
   es-MX
-    0 fur
-    +91,827 fur
-    0 fur
+    0 m
+    +91,827 m
+    0 m
   zh-TW
-    0 化朗
-    +91,827 化朗
-    0 化朗
+    0 公尺
+    +91,827 公尺
+    0 公尺
   bn-BD
-    ০ ফার্লং
-    +৯১,৮২৭ ফার্লং
-    ০ ফার্লং
+    ০ মি
+    +৯১,৮২৭ মি
+    ০ মি
 
 measure-unit/length-meter .000 sign-accounting-except-zero
   es-MX
-    0.000 fur
-    +91,827.364 fur
-    -0.222 fur
+    0.000 m
+    +91,827.364 m
+    -0.222 m
   zh-TW
-    0.000 化朗
-    +91,827.364 化朗
-    -0.222 化朗
+    0.000 公尺
+    +91,827.364 公尺
+    -0.222 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    +৯১,৮২৭.৩৬৪ ফার্লং
-    -০.২২২ ফার্লং
+    ০.০০০ মি
+    +৯১,৮২৭.৩৬৪ মি
+    -০.২২২ মি
 
 measure-unit/length-meter .##/@@@+ sign-accounting-except-zero
   es-MX
-    0 fur
-    +91,827.36 fur
-    -0.222 fur
+    0 m
+    +91,827.36 m
+    -0.222 m
   zh-TW
-    0 化朗
-    +91,827.36 化朗
-    -0.222 化朗
+    0 公尺
+    +91,827.36 公尺
+    -0.222 公尺
   bn-BD
-    ০ ফার্লং
-    +৯১,৮২৭.৩৬ ফার্লং
-    -০.২২২ ফার্লং
+    ০ মি
+    +৯১,৮২৭.৩৬ মি
+    -০.২২২ মি
 
 measure-unit/length-meter @@ sign-accounting-except-zero
   es-MX
-    0.0 fur
-    +92,000 fur
-    -0.22 fur
+    0.0 m
+    +92,000 m
+    -0.22 m
   zh-TW
-    0.0 化朗
-    +92,000 化朗
-    -0.22 化朗
+    0.0 公尺
+    +92,000 公尺
+    -0.22 公尺
   bn-BD
-    ০.০ ফার্লং
-    +৯২,০০০ ফার্লং
-    -০.২২ ফার্লং
+    ০.০ মি
+    +৯২,০০০ মি
+    -০.২২ মি
 
 percent precision-integer decimal-always
   es-MX
@@ -5127,59 +5127,59 @@ currency/EUR @@ decimal-always
 
 measure-unit/length-meter precision-integer decimal-always
   es-MX
-    0. fur
-    91,827. fur
-    -0. fur
+    0. m
+    91,827. m
+    -0. m
   zh-TW
-    0. 化朗
-    91,827. 化朗
-    -0. 化朗
+    0. 公尺
+    91,827. 公尺
+    -0. 公尺
   bn-BD
-    ০. ফার্লং
-    ৯১,৮২৭. ফার্লং
-    -০. ফার্লং
+    ০. মি
+    ৯১,৮২৭. মি
+    -০. মি
 
 measure-unit/length-meter .000 decimal-always
   es-MX
-    0.000 fur
-    91,827.364 fur
-    -0.222 fur
+    0.000 m
+    91,827.364 m
+    -0.222 m
   zh-TW
-    0.000 化朗
-    91,827.364 化朗
-    -0.222 化朗
+    0.000 公尺
+    91,827.364 公尺
+    -0.222 公尺
   bn-BD
-    ০.০০০ ফার্লং
-    ৯১,৮২৭.৩৬৪ ফার্লং
-    -০.২২২ ফার্লং
+    ০.০০০ মি
+    ৯১,৮২৭.৩৬৪ মি
+    -০.২২২ মি
 
 measure-unit/length-meter .##/@@@+ decimal-always
   es-MX
-    0. fur
-    91,827.36 fur
-    -0.222 fur
+    0. m
+    91,827.36 m
+    -0.222 m
   zh-TW
-    0. 化朗
-    91,827.36 化朗
-    -0.222 化朗
+    0. 公尺
+    91,827.36 公尺
+    -0.222 公尺
   bn-BD
-    ০. ফার্লং
-    ৯১,৮২৭.৩৬ ফার্লং
-    -০.২২২ ফার্লং
+    ০. মি
+    ৯১,৮২৭.৩৬ মি
+    -০.২২২ মি
 
 measure-unit/length-meter @@ decimal-always
   es-MX
-    0.0 fur
-    92,000. fur
-    -0.22 fur
+    0.0 m
+    92,000. m
+    -0.22 m
   zh-TW
-    0.0 化朗
-    92,000. 化朗
-    -0.22 化朗
+    0.0 公尺
+    92,000. 公尺
+    -0.22 公尺
   bn-BD
-    ০.০ ফার্লং
-    ৯২,০০০. ফার্লং
-    -০.২২ ফার্লং
+    ০.০ মি
+    ৯২,০০০. মি
+    -০.২২ মি
 
 percent rounding-mode-floor integer-width/##00
   es-MX
@@ -5211,17 +5211,17 @@ currency/EUR rounding-mode-floor integer-width/##00
 
 measure-unit/length-meter rounding-mode-floor integer-width/##00
   es-MX
-    00 fur
-    1,827.3645 fur
-    -00.22222 fur
+    00 m
+    1,827.3645 m
+    -00.22222 m
   zh-TW
-    00 化朗
-    1,827.3645 化朗
-    -00.22222 化朗
+    00 公尺
+    1,827.3645 公尺
+    -00.22222 公尺
   bn-BD
-    ০০ ফার্লং
-    ১,৮২৭.৩৬৪৫ ফার্লং
-    -০০.২২২২২ ফার্লং
+    ০০ মি
+    ১,৮২৭.৩৬৪৫ মি
+    -০০.২২২২২ মি
 
 percent rounding-mode-floor scale/0.5
   es-MX
@@ -5253,17 +5253,17 @@ currency/EUR rounding-mode-floor scale/0.5
 
 measure-unit/length-meter rounding-mode-floor scale/0.5
   es-MX
-    0 fur
-    45,913.68225 fur
-    -0.11111 fur
+    0 m
+    45,913.68225 m
+    -0.11111 m
   zh-TW
-    0 化朗
-    45,913.68225 化朗
-    -0.11111 化朗
+    0 公尺
+    45,913.68225 公尺
+    -0.11111 公尺
   bn-BD
-    ০ ফার্লং
-    ৪৫,৯১৩.৬৮২২৫ ফার্লং
-    -০.১১১১১ ফার্লং
+    ০ মি
+    ৪৫,৯১৩.৬৮২২৫ মি
+    -০.১১১১১ মি
 
 percent rounding-mode-floor group-on-aligned
   es-MX
@@ -5295,17 +5295,17 @@ currency/EUR rounding-mode-floor group-on-aligned
 
 measure-unit/length-meter rounding-mode-floor group-on-aligned
   es-MX
-    0 fur
-    91,827.3645 fur
-    -0.22222 fur
+    0 m
+    91,827.3645 m
+    -0.22222 m
   zh-TW
-    0 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০ ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent rounding-mode-floor latin
   es-MX
@@ -5337,17 +5337,17 @@ currency/EUR rounding-mode-floor latin
 
 measure-unit/length-meter rounding-mode-floor latin
   es-MX
-    0 fur
-    91,827.3645 fur
-    -0.22222 fur
+    0 m
+    91,827.3645 m
+    -0.22222 m
   zh-TW
-    0 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    0 ফার্লং
-    91,827.3645 ফার্লং
-    -0.22222 ফার্লং
+    0 মি
+    91,827.3645 মি
+    -0.22222 মি
 
 percent rounding-mode-floor sign-accounting-except-zero
   es-MX
@@ -5379,17 +5379,17 @@ currency/EUR rounding-mode-floor sign-accounting-except-zero
 
 measure-unit/length-meter rounding-mode-floor sign-accounting-except-zero
   es-MX
-    0 fur
-    +91,827.3645 fur
-    -0.22222 fur
+    0 m
+    +91,827.3645 m
+    -0.22222 m
   zh-TW
-    0 化朗
-    +91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    +91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০ ফার্লং
-    +৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    +৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent rounding-mode-floor decimal-always
   es-MX
@@ -5421,17 +5421,17 @@ currency/EUR rounding-mode-floor decimal-always
 
 measure-unit/length-meter rounding-mode-floor decimal-always
   es-MX
-    0. fur
-    91,827.3645 fur
-    -0.22222 fur
+    0. m
+    91,827.3645 m
+    -0.22222 m
   zh-TW
-    0. 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0. 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০. ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০. মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent integer-width/##00 scale/0.5
   es-MX
@@ -5463,17 +5463,17 @@ currency/EUR integer-width/##00 scale/0.5
 
 measure-unit/length-meter integer-width/##00 scale/0.5
   es-MX
-    00 fur
-    5,913.68225 fur
-    -00.11111 fur
+    00 m
+    5,913.68225 m
+    -00.11111 m
   zh-TW
-    00 化朗
-    5,913.68225 化朗
-    -00.11111 化朗
+    00 公尺
+    5,913.68225 公尺
+    -00.11111 公尺
   bn-BD
-    ০০ ফার্লং
-    ৫,৯১৩.৬৮২২৫ ফার্লং
-    -০০.১১১১১ ফার্লং
+    ০০ মি
+    ৫,৯১৩.৬৮২২৫ মি
+    -০০.১১১১১ মি
 
 percent integer-width/##00 group-on-aligned
   es-MX
@@ -5505,17 +5505,17 @@ currency/EUR integer-width/##00 group-on-aligned
 
 measure-unit/length-meter integer-width/##00 group-on-aligned
   es-MX
-    00 fur
-    1,827.3645 fur
-    -00.22222 fur
+    00 m
+    1,827.3645 m
+    -00.22222 m
   zh-TW
-    00 化朗
-    1,827.3645 化朗
-    -00.22222 化朗
+    00 公尺
+    1,827.3645 公尺
+    -00.22222 公尺
   bn-BD
-    ০০ ফার্লং
-    ১,৮২৭.৩৬৪৫ ফার্লং
-    -০০.২২২২২ ফার্লং
+    ০০ মি
+    ১,৮২৭.৩৬৪৫ মি
+    -০০.২২২২২ মি
 
 percent integer-width/##00 latin
   es-MX
@@ -5547,17 +5547,17 @@ currency/EUR integer-width/##00 latin
 
 measure-unit/length-meter integer-width/##00 latin
   es-MX
-    00 fur
-    1,827.3645 fur
-    -00.22222 fur
+    00 m
+    1,827.3645 m
+    -00.22222 m
   zh-TW
-    00 化朗
-    1,827.3645 化朗
-    -00.22222 化朗
+    00 公尺
+    1,827.3645 公尺
+    -00.22222 公尺
   bn-BD
-    00 ফার্লং
-    1,827.3645 ফার্লং
-    -00.22222 ফার্লং
+    00 মি
+    1,827.3645 মি
+    -00.22222 মি
 
 percent integer-width/##00 sign-accounting-except-zero
   es-MX
@@ -5589,17 +5589,17 @@ currency/EUR integer-width/##00 sign-accounting-except-zero
 
 measure-unit/length-meter integer-width/##00 sign-accounting-except-zero
   es-MX
-    00 fur
-    +1,827.3645 fur
-    -00.22222 fur
+    00 m
+    +1,827.3645 m
+    -00.22222 m
   zh-TW
-    00 化朗
-    +1,827.3645 化朗
-    -00.22222 化朗
+    00 公尺
+    +1,827.3645 公尺
+    -00.22222 公尺
   bn-BD
-    ০০ ফার্লং
-    +১,৮২৭.৩৬৪৫ ফার্লং
-    -০০.২২২২২ ফার্লং
+    ০০ মি
+    +১,৮২৭.৩৬৪৫ মি
+    -০০.২২২২২ মি
 
 percent integer-width/##00 decimal-always
   es-MX
@@ -5631,17 +5631,17 @@ currency/EUR integer-width/##00 decimal-always
 
 measure-unit/length-meter integer-width/##00 decimal-always
   es-MX
-    00. fur
-    1,827.3645 fur
-    -00.22222 fur
+    00. m
+    1,827.3645 m
+    -00.22222 m
   zh-TW
-    00. 化朗
-    1,827.3645 化朗
-    -00.22222 化朗
+    00. 公尺
+    1,827.3645 公尺
+    -00.22222 公尺
   bn-BD
-    ০০. ফার্লং
-    ১,৮২৭.৩৬৪৫ ফার্লং
-    -০০.২২২২২ ফার্লং
+    ০০. মি
+    ১,৮২৭.৩৬৪৫ মি
+    -০০.২২২২২ মি
 
 percent scale/0.5 group-on-aligned
   es-MX
@@ -5673,17 +5673,17 @@ currency/EUR scale/0.5 group-on-aligned
 
 measure-unit/length-meter scale/0.5 group-on-aligned
   es-MX
-    0 fur
-    45,913.68225 fur
-    -0.11111 fur
+    0 m
+    45,913.68225 m
+    -0.11111 m
   zh-TW
-    0 化朗
-    45,913.68225 化朗
-    -0.11111 化朗
+    0 公尺
+    45,913.68225 公尺
+    -0.11111 公尺
   bn-BD
-    ০ ফার্লং
-    ৪৫,৯১৩.৬৮২২৫ ফার্লং
-    -০.১১১১১ ফার্লং
+    ০ মি
+    ৪৫,৯১৩.৬৮২২৫ মি
+    -০.১১১১১ মি
 
 percent scale/0.5 latin
   es-MX
@@ -5715,17 +5715,17 @@ currency/EUR scale/0.5 latin
 
 measure-unit/length-meter scale/0.5 latin
   es-MX
-    0 fur
-    45,913.68225 fur
-    -0.11111 fur
+    0 m
+    45,913.68225 m
+    -0.11111 m
   zh-TW
-    0 化朗
-    45,913.68225 化朗
-    -0.11111 化朗
+    0 公尺
+    45,913.68225 公尺
+    -0.11111 公尺
   bn-BD
-    0 ফার্লং
-    45,913.68225 ফার্লং
-    -0.11111 ফার্লং
+    0 মি
+    45,913.68225 মি
+    -0.11111 মি
 
 percent scale/0.5 sign-accounting-except-zero
   es-MX
@@ -5757,17 +5757,17 @@ currency/EUR scale/0.5 sign-accounting-except-zero
 
 measure-unit/length-meter scale/0.5 sign-accounting-except-zero
   es-MX
-    0 fur
-    +45,913.68225 fur
-    -0.11111 fur
+    0 m
+    +45,913.68225 m
+    -0.11111 m
   zh-TW
-    0 化朗
-    +45,913.68225 化朗
-    -0.11111 化朗
+    0 公尺
+    +45,913.68225 公尺
+    -0.11111 公尺
   bn-BD
-    ০ ফার্লং
-    +৪৫,৯১৩.৬৮২২৫ ফার্লং
-    -০.১১১১১ ফার্লং
+    ০ মি
+    +৪৫,৯১৩.৬৮২২৫ মি
+    -০.১১১১১ মি
 
 percent scale/0.5 decimal-always
   es-MX
@@ -5799,17 +5799,17 @@ currency/EUR scale/0.5 decimal-always
 
 measure-unit/length-meter scale/0.5 decimal-always
   es-MX
-    0. fur
-    45,913.68225 fur
-    -0.11111 fur
+    0. m
+    45,913.68225 m
+    -0.11111 m
   zh-TW
-    0. 化朗
-    45,913.68225 化朗
-    -0.11111 化朗
+    0. 公尺
+    45,913.68225 公尺
+    -0.11111 公尺
   bn-BD
-    ০. ফার্লং
-    ৪৫,৯১৩.৬৮২২৫ ফার্লং
-    -০.১১১১১ ফার্লং
+    ০. মি
+    ৪৫,৯১৩.৬৮২২৫ মি
+    -০.১১১১১ মি
 
 percent group-on-aligned latin
   es-MX
@@ -5841,17 +5841,17 @@ currency/EUR group-on-aligned latin
 
 measure-unit/length-meter group-on-aligned latin
   es-MX
-    0 fur
-    91,827.3645 fur
-    -0.22222 fur
+    0 m
+    91,827.3645 m
+    -0.22222 m
   zh-TW
-    0 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    0 ফার্লং
-    91,827.3645 ফার্লং
-    -0.22222 ফার্লং
+    0 মি
+    91,827.3645 মি
+    -0.22222 মি
 
 percent group-on-aligned sign-accounting-except-zero
   es-MX
@@ -5883,17 +5883,17 @@ currency/EUR group-on-aligned sign-accounting-except-zero
 
 measure-unit/length-meter group-on-aligned sign-accounting-except-zero
   es-MX
-    0 fur
-    +91,827.3645 fur
-    -0.22222 fur
+    0 m
+    +91,827.3645 m
+    -0.22222 m
   zh-TW
-    0 化朗
-    +91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    +91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০ ফার্লং
-    +৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০ মি
+    +৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent group-on-aligned decimal-always
   es-MX
@@ -5925,17 +5925,17 @@ currency/EUR group-on-aligned decimal-always
 
 measure-unit/length-meter group-on-aligned decimal-always
   es-MX
-    0. fur
-    91,827.3645 fur
-    -0.22222 fur
+    0. m
+    91,827.3645 m
+    -0.22222 m
   zh-TW
-    0. 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0. 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০. ফার্লং
-    ৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০. মি
+    ৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 percent latin sign-accounting-except-zero
   es-MX
@@ -5967,17 +5967,17 @@ currency/EUR latin sign-accounting-except-zero
 
 measure-unit/length-meter latin sign-accounting-except-zero
   es-MX
-    0 fur
-    +91,827.3645 fur
-    -0.22222 fur
+    0 m
+    +91,827.3645 m
+    -0.22222 m
   zh-TW
-    0 化朗
-    +91,827.3645 化朗
-    -0.22222 化朗
+    0 公尺
+    +91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    0 ফার্লং
-    +91,827.3645 ফার্লং
-    -0.22222 ফার্লং
+    0 মি
+    +91,827.3645 মি
+    -0.22222 মি
 
 percent latin decimal-always
   es-MX
@@ -6009,17 +6009,17 @@ currency/EUR latin decimal-always
 
 measure-unit/length-meter latin decimal-always
   es-MX
-    0. fur
-    91,827.3645 fur
-    -0.22222 fur
+    0. m
+    91,827.3645 m
+    -0.22222 m
   zh-TW
-    0. 化朗
-    91,827.3645 化朗
-    -0.22222 化朗
+    0. 公尺
+    91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    0. ফার্লং
-    91,827.3645 ফার্লং
-    -0.22222 ফার্লং
+    0. মি
+    91,827.3645 মি
+    -0.22222 মি
 
 percent sign-accounting-except-zero decimal-always
   es-MX
@@ -6051,17 +6051,17 @@ currency/EUR sign-accounting-except-zero decimal-always
 
 measure-unit/length-meter sign-accounting-except-zero decimal-always
   es-MX
-    0. fur
-    +91,827.3645 fur
-    -0.22222 fur
+    0. m
+    +91,827.3645 m
+    -0.22222 m
   zh-TW
-    0. 化朗
-    +91,827.3645 化朗
-    -0.22222 化朗
+    0. 公尺
+    +91,827.3645 公尺
+    -0.22222 公尺
   bn-BD
-    ০. ফার্লং
-    +৯১,৮২৭.৩৬৪৫ ফার্লং
-    -০.২২২২২ ফার্লং
+    ০. মি
+    +৯১,৮২৭.৩৬৪৫ মি
+    -০.২২২২২ মি
 
 unit-width-narrow precision-integer rounding-mode-floor
   es-MX

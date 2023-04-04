@@ -40,13 +40,13 @@ def mapFmtSkeletonToECMA402(options):
       # Percent with word "percent":
       #    {'style': 'unit', unit:'percent', 'unitDisplay': 'long'})
 
-      "percent": '"style": "percent",\n',
+      "percent": '"style": "unit", "unit": "percent"',  # "style": "percent",\n',
       # "currency/EUR": '"style": "currency",\n  "currencyDisplay": "code",\n  "code": "EUR",\n',
       "currency/EUR": '"style": "currency",\n  "currencyDisplay": "symbol",\n  "code": "EUR",\n',
       "measure-unit/length-meter": '"style": "unit",\n  "unit": "meter",\n',
       #"measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
       "unit-width-narrow": '"unitDisplay": "narrow",\n',
-      "unit-width-full-name": '"unitDisplay": "long", "currencyDisplay":"name", \n',
+      "unit-width-full-name": '"unitDisplay": "long",\n',
       #"unit-width-full-name": '"unitDisplay": "long",\n',
       "precision-integer": '"maximumFractionDigits": "0",\n  "minimumFractionDigits": "0",\n  "roundingType": "fractionDigits",\n',
       ".000": '"maximumFractionDigits": "3",\n  "minimumFractionDigits": "3",\n',
@@ -254,10 +254,11 @@ def resolveOptions(raw_options, skeleton_list):
   if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
     resolved.pop('minimumSignificantDigits')
 
-  if skeleton_list and 'percent' in skeleton_list and 'unit-width-full-name' in skeleton_list:
+  if skeleton_list and 'percent' in skeleton_list:
     resolved['style'] = 'unit'
     resolved['unit'] = 'percent'
-    resolved['unitDisplay'] = 'long'
+    if 'unit-width-full-name' in skeleton_list:
+        resolved['unitDisplay'] = 'long'
   return resolved
 
 def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
@@ -378,6 +379,8 @@ def processCollationTestData():
   return
 
 def insert_decml_fmt_descr(tests_obj, verify_obj):
+  icu_tag = 'maint-71'
+  source_url = "http://raw.githubusercontent.com/unicode-org/icu/maint/%s/icu4c/source/test/testdata/dcfmtest.txt" % (icu-tag)
   descr =   ('{\n'
              '  "description": "Decimal formatter test cases for parsing and formatting.\\n'
              '  Formatting test case elements:\\n'
@@ -390,7 +393,8 @@ def insert_decml_fmt_descr(tests_obj, verify_obj):
              '      "repository": "icu",\n'
              '      "version": "trunk"\n'
              '    },')
-  source =   '  "url": "http://raw.githubusercontent.com/unicode-org/icu/maint/maint-71/icu4c/source/test/testdata/dcfmtest.txt",'
+  source =   '  "url": "%s,"' % source_url
+#  source =   '  "url": "http://raw.githubusercontent.com/unicode-org/icu/maint/maint-71/icu4c/source/test/testdata/dcfmtest.txt",'
   end = '}'
   verify_head = '{\n  "Test scenario": "decimal_fmt",'
 
@@ -413,14 +417,17 @@ def languageNameDescr(tests_json, verify_json):
 def insertNumberFmtDescr(tests_obj, verify_obj):
   # returns JSON data for tests and verification
   test_scenario = 'number_fmt'
-  test_data = {"Test scenario": test_scenario,
-           'description':
-               'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
-           "source": {"repository": "icu", "version": "trunk"},
-           "url": "https://raw.githubusercontent.com/unicode-org/icu/main/icu4c/source/test/testdata/numberpermutationtest.txt",
-           'tests': tests_obj
-           }
-  verify_data = {"Test scenario": test_scenario, 'verifications': verify_obj}
+  test_data = {
+      "Test scenario": test_scenario,
+      'description':
+          'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
+      "source": {"repository": "icu", "version": "trunk"},
+      "url": "https://raw.githubusercontent.com/unicode-org/icu/main/icu4c/source/test/testdata/numberpermutationtest.txt",
+      'tests': tests_obj
+  }
+  verify_data = {
+      "Test scenario": test_scenario, 'verifications': verify_obj
+  }
   return test_data, verify_data
 
   return
