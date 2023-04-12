@@ -7,13 +7,13 @@ module.exports = {
     let options = {};
     if (json['locale_label']) {
       // Fix to use dash, not underscore.
-      locale = json['locale_label'].replaceAll('_', '-');
+      locale = json['locale_label'].replace(/_/g, '-');
     }
 
     // options = json['options'];
     options = {'type': 'language'};
     let label = json['label'];
-    let input = json['language_label'].replaceAll('_', '-');
+    let input = json['language_label'].replace(/_/g, '-');
 
     let outputLine;
     //console.log("langnames input: " + input +

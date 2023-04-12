@@ -35,47 +35,46 @@ def parseDcmlFmtTestData(rawtestdata):
 
 def mapFmtSkeletonToECMA402(options):
   ecma402_map = {
-      "compact-short": '"notation": "compact",\n  "compactDisplay": "short",\n',
-      "scientific/+ee/sign-always": '"notation": "scientific",\n',
+      "compact-short": {"notation": "compact",  "compactDisplay": "short"},
+      "scientific/+ee/sign-always": {"notation": "scientific"},
       # Percent with word "percent":
-      #    {'style': 'unit', unit:'percent', 'unitDisplay': 'long'})
+      "percent": {"style": "unit", "unit": "percent"},  # "style": "percent",
+      "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
+      "measure-unit/length-meter": {"style": "unit",  "unit": "meter"},
+      #"measure-unit/length-furlong": {"style": "unit", "unit": "furlong"},
+      "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "symbol"},
+      "unit-width-full-name": {"unitDisplay": "long", "currencyDisplay": "name"},
+      #"unit-width-full-name": {"unitDisplay": "long"},
+      "precision-integer": {"maximumFractionDigits": "0", "minimumFractionDigits": "0", "roundingType": "fractionDigits"},
+      ".000": {"maximumFractionDigits": "3", "minimumFractionDigits": "3"},
 
-      "percent": '"style": "unit", "unit": "percent"',  # "style": "percent",\n',
-      # "currency/EUR": '"style": "currency",\n  "currencyDisplay": "code",\n  "code": "EUR",\n',
-      "currency/EUR": '"style": "currency",\n  "currencyDisplay": "symbol",\n  "code": "EUR",\n',
-      "measure-unit/length-meter": '"style": "unit",\n  "unit": "meter",\n',
-      #"measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
-      "unit-width-narrow": '"unitDisplay": "narrow",\n',
-      "unit-width-full-name": '"unitDisplay": "long",\n',
-      #"unit-width-full-name": '"unitDisplay": "long",\n',
-      "precision-integer": '"maximumFractionDigits": "0",\n  "minimumFractionDigits": "0",\n  "roundingType": "fractionDigits",\n',
-      ".000": '"maximumFractionDigits": "3",\n  "minimumFractionDigits": "3",\n',
-      ".##/@@@+": '"maximumFractionDigits": "2",\n  "minimumSignificantDigits": "3",\n',
-      "@@": '"maximumSignificantDigits": "2",\n  "minimumSignificantDigits": "2",\n',
-      "rounding-mode-floor": '"roundingMode": "floor",\n',
-      "integer-width/##00": '"maximumIntegerDigits": "4",\n  "minimumIntegerDigits":"2",\n',
-      "group-on-aligned": '"useGrouping": "true",\n',
-      "latin": '"numberingSystem": "latn",\n',
-      "sign-accounting-except-zero": '"signDisplay": "exceptZero",\n',
-      "0.0000E0": '"notation": "scientific",\n  "minimumIntegerDigits": "1",\n  "minimumFractionDigits": "4",\n  "maximumFractionDigits": "4",\n',
-      "00": '"minimumIntegerDigits":"2",\n',
-      "#.#": '"maximumFractionDigits": "1",\n',
-      "@@@": '"minimumSignificantDigits": "3",\n  "maximumSignificantDigits": "3",\n',
-      "@@###": '"minimumSignificantDigits": "2",\n  "maximumSignificantDigits": "5",\n',
-      "@@@@E0": '"notation": "scientific",\n  "minimumSignificantDigits": "4",\n  "maximumSignificantDigits": "4",\n',
-      "0.0##E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "3",\n',
-      "00.##E0": '"notation": "scientific",\n  "minimumIntegerDigits":"2",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "3",\n',
-      "0005": '"minimumIntegerDigits":"2",\n',
-      "0.00": '"minimumIntegerDigits":"1",\n  "minimumFractionDigits": "2",\n  "maximumFractionDigits": "2",\n',
-      "0.000E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "minimumFractionDigits": "3",\n  "maximumFractionDigits": "3",\n',
-      "0.0##": '"minimumIntegerDigits":"1",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "3",\n',
-      "#": '"minimumIntegerDigits":"1",\n  "maximumFractionDigits": "0",\n',
-      "0.#E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "maximumFractionDigits": "1",\n',
-      "0.##E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "maximumFractionDigits": "2",\n',
-      ".0E0": '"notation": "scientific",\n  "minimumIntegerDigits":"0",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "1",\n',
-      ".0#E0": '"notation": "scientific",\n  "minimumIntegerDigits":"0",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "2",\n',
-      "@@@@@@@@@@@@@@@@@@@@@@@@@": '"minimumSignificantDigits": "25",\n  "maximumSignificantDigits": "25",\n',
-      "0.0": '"minimumIntegerDigits":"1",\n  "minimumFractionDigits": "2",\n  "maximumFractionDigits": "2",\n'
+      # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
+      ".##/@@@+": {"maximumFractionDigits": "2", "maximumSignificantDigits": "3","roundingPriority": "morePrecision"},
+      "@@": {"maximumSignificantDigits": "2", "minimumSignificantDigits": "2"},
+      "rounding-mode-floor": {"roundingMode": "floor"},
+      "integer-width/##00": {"maximumIntegerDigits": "4", "minimumIntegerDigits":"2"},
+      "group-on-aligned": {"useGrouping": "true"},
+      "latin": {"numberingSystem": "latn"},
+      "sign-accounting-except-zero": {"signDisplay": "exceptZero"},
+      "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": "1", "minimumFractionDigits": "4", "maximumFractionDigits": "4"},
+      "00": {"minimumIntegerDigits":"2"},
+      "#.#": {"maximumFractionDigits": "1"},
+      "@@@": {"minimumSignificantDigits": "3", "maximumSignificantDigits": "3"},
+      "@@###": {"minimumSignificantDigits": "2", "maximumSignificantDigits": "5"},
+      "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": "4", "maximumSignificantDigits": "4"},
+      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
+      "00.##E0": {"notation": "scientific", "minimumIntegerDigits":"2", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
+      "0005": {"minimumIntegerDigits":"2"},
+      "0.00": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"},
+      "0.000E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "3", "maximumFractionDigits": "3"},
+      "0.0##": {"minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
+      "#": {"minimumIntegerDigits":"1", "maximumFractionDigits": "0"},
+      "0.#E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "1"},
+      "0.##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "2"},
+      ".0E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "1"},
+      ".0#E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "2"},
+      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": "25", "maximumSignificantDigits": "25"},
+      "0.0": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"}
       }
 
   ecma402_options = []
@@ -85,21 +84,11 @@ def mapFmtSkeletonToECMA402(options):
   # Look at the expected output...
   for o in options:
     if o != 'scale/0.5' and o != 'decimal-always':
-      options_str = ecma402_map[o]
-      ecma402_options.append(ecma402_map[o])
-      options_split = options_str.split(',\n')
-      for item in options_split:
-        if not item:
-            continue
-        try:
-          text = item[1:-1].replace('"', '')
-          details = text.split(':')
-          options_dict[details[0].strip()] = details[1].replace('"', '').strip()
-        except IndexError:
-          print('FAIL WITH DETAILS: %s in options_split: %s' % (item, options_split))
+      option_detail = ecma402_map[o]
+      options_dict = options_dict | option_detail
 
    # TODO: resolve some combinations of entries that are in conflict
-  return ecma402_options, options_dict
+  return  options_dict
 
 
 def mapRoundingToECMA402(rounding):
@@ -208,7 +197,6 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
         ecma402_options = []
         label = str(count).rjust(7, '0')
         expected = t[l + 1 + n]
-        verifydata = '{\n  "label": "%s",\n  "verify": "%s"\n},' % (str(count).rjust(7, '0'), t[l + 1 + n])
         verify_json = {'label': label, 'verify': expected}
         verify_list.append(verify_json)
 
@@ -220,9 +208,7 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
                  'input': numbers_to_test[n]
                  }
 
-        entry_top = '{\n  "label": "%s",\n  "locale": "%s",\n  "skeleton": "%s %s %s",\n' % (str(count).rjust(7, '0'), t[l], t[0], t[1], t[2])
-        entry_bottom = '"input": "%s"\n},' % numbers_to_test[n]
-        ecma402_options_body, options_dict = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
+        options_dict = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
         if not options_dict:
             print(
                 '$$$ OPTIONS not found for %s' % label
@@ -232,16 +218,6 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
         # include these options in the entry
         entry = entry | {'options': resolved_options_dict}
 
-        # TODO: add resolved options to entry as json.
-
-        # Remove comma after last entry, add closing bracket.
-        (start, comma, end) = ecma402_options_body[-1].rpartition(',')
-        ecma402_options_body[-1] = start + '\n},' + end
-        ecma402_options = ecma402_options_start +  ecma402_options_body   # mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
-        ecma402_jobj = ''.join(ecma402_options)
-        ecma402_entry = [entry_top] + insertJObj(ecma402_options, 2) + [entry_bottom]
-
-        # Use the entry rather than the string here
         all_tests_list.append(entry)  # All the tests in JSON form
         count += 1
 
@@ -258,6 +234,7 @@ def resolveOptions(raw_options, skeleton_list):
     resolved['style'] = 'unit'
     resolved['unit'] = 'percent'
     if 'unit-width-full-name' in skeleton_list:
+        resolved['currencyDisplay'] = 'name'
         resolved['unitDisplay'] = 'long'
   return resolved
 
@@ -274,7 +251,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       label = str(count).rjust(7, '0')
       entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
-      pattern_part, json_part = mapFmtSkeletonToECMA402([pattern])
+      json_part = mapFmtSkeletonToECMA402([pattern])
 
       resolved_options_dict = resolveOptions(json_part, None)
 
@@ -507,11 +484,10 @@ def processLangNameTestData():
 def main():
   print('Generating .json files for data driven testing')
 
+  processNumberFmtTestData()
   processLangNameTestData()
 
   processCollationTestData()
-
-  processNumberFmtTestData()
 
   print('================================================================================')
 

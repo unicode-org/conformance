@@ -430,7 +430,9 @@ class TestReport():
     results['insert_digit'] = []
     results['insert_space'] = []
     results['delete_digit'] = []
+    results['exponent_diff'] = []
     for fail in self.failing_tests:
+      label = fail['label']
       actual = fail['result']
       expected = fail['expected']
       # Special case for differing by a single character.
@@ -452,19 +454,24 @@ class TestReport():
             for x in changes:
               if x[0] == '+':
                 if x[2] in [' ', '\u00a0']:
-                  results['insert_space'].append(fail['label'])
+                  results['insert_space'].append(label)
                 elif x[2].isdigit():
-                  results['insert_digit'].append(fail['label'])
+                  results['insert_digit'].append(label)
+                elif x[2] in ['+', '0', '+0']:
+                  results['exponent_diff'] = append(label)
                 else:
-                  results['insert'].append(fail['label'])
+                  results['insert'].append(label)
               if x[0] == '-':
                 if x[2].isdigit():
                   results['delete_digit'].append(fail['label'])
+                elif x[2] in ['+', '0', '+0']:
+                  results['exponent_diff'] = append(label)
                 else:
                   results['delete'].append(fail['label'])
       except BaseException as err:
         # a non-string result
         continue
+
     return dict(results)
 
   def create_html_diff_report(self):
@@ -680,7 +687,7 @@ class SummaryReport():
     outList.append('Test count: %s' % entry['test_count'])
     outList.append('Succeeded: %s' % entry['pass_count'])
     outList.append('Failed: %s' % entry['fail_count'])
-    outList.append('Errors: %s' % entry['error_count'])
+    outList.append('Unsupported: %s' % entry['error_count'])
     outList.append('Missing verify: %s' % entry['missing_verify_count'])
     outList.append('<a href="%s"  target="_blank">Details</a>' %
                    entry['html_file_name'])

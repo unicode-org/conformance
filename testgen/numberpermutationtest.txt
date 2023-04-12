@@ -73,9 +73,9 @@ compact-short measure-unit/length-meter unit-width-narrow
 
 compact-short measure-unit/length-meter unit-width-full-name
   es-MX
-    0 meters
-    92 k meters
-    -0.22 meters
+    0 metros
+    92 k metros
+    -0.22 metros
   zh-TW
     0 公尺
     9.2萬 公尺
@@ -157,9 +157,9 @@ scientific/+ee/sign-always measure-unit/length-meter unit-width-narrow
 
 scientific/+ee/sign-always measure-unit/length-meter unit-width-full-name
   es-MX
-    0E+00 meters
-    9.182736E+04 meters
-    -2.2222E-01 meters
+    0E+00 metros
+    9.182736E+04 metros
+    -2.2222E-01 metros
   zh-TW
     0E+00 公尺
     9.182736E+04 公尺
@@ -3363,9 +3363,9 @@ measure-unit/length-meter unit-width-narrow @@
 
 measure-unit/length-meter unit-width-full-name precision-integer
   es-MX
-    0 meters
-    91,827 meters
-    -0 meters
+    0 metros
+    91,827 metros
+    -0 metros
   zh-TW
     0 公尺
     91,827 公尺
@@ -3377,9 +3377,9 @@ measure-unit/length-meter unit-width-full-name precision-integer
 
 measure-unit/length-meter unit-width-full-name .000
   es-MX
-    0.000 meters
-    91,827.364 meters
-    -0.222 meters
+    0.000 metros
+    91,827.364 metros
+    -0.222 metros
   zh-TW
     0.000 公尺
     91,827.364 公尺
@@ -3391,9 +3391,9 @@ measure-unit/length-meter unit-width-full-name .000
 
 measure-unit/length-meter unit-width-full-name .##/@@@+
   es-MX
-    0 meters
-    91,827.36 meters
-    -0.222 meters
+    0 metros
+    91,827.36 metros
+    -0.222 metros
   zh-TW
     0 公尺
     91,827.36 公尺
@@ -3405,9 +3405,9 @@ measure-unit/length-meter unit-width-full-name .##/@@@+
 
 measure-unit/length-meter unit-width-full-name @@
   es-MX
-    0.0 meters
-    92,000 meters
-    -0.22 meters
+    0.0 metros
+    92,000 metros
+    -0.22 metros
   zh-TW
     0.0 公尺
     92,000 公尺
@@ -3489,9 +3489,9 @@ measure-unit/length-meter unit-width-narrow rounding-mode-floor
 
 measure-unit/length-meter unit-width-full-name rounding-mode-floor
   es-MX
-    0 meters
-    91,827.3645 meters
-    -0.22222 meters
+    0 metros
+    91,827.3645 metros
+    -0.22222 metros
   zh-TW
     0 公尺
     91,827.3645 公尺
@@ -3573,9 +3573,9 @@ measure-unit/length-meter unit-width-narrow integer-width/##00
 
 measure-unit/length-meter unit-width-full-name integer-width/##00
   es-MX
-    00 meters
-    1,827.3645 meters
-    -00.22222 meters
+    00 metros
+    1,827.3645 metros
+    -00.22222 metros
   zh-TW
     00 公尺
     1,827.3645 公尺
@@ -3657,9 +3657,9 @@ measure-unit/length-meter unit-width-narrow scale/0.5
 
 measure-unit/length-meter unit-width-full-name scale/0.5
   es-MX
-    0 meters
-    45,913.68225 meters
-    -0.11111 meters
+    0 metros
+    45,913.68225 metros
+    -0.11111 metros
   zh-TW
     0 公尺
     45,913.68225 公尺
@@ -3741,9 +3741,9 @@ measure-unit/length-meter unit-width-narrow group-on-aligned
 
 measure-unit/length-meter unit-width-full-name group-on-aligned
   es-MX
-    0 meters
-    91,827.3645 meters
-    -0.22222 meters
+    0 metros
+    91,827.3645 metros
+    -0.22222 metros
   zh-TW
     0 公尺
     91,827.3645 公尺
@@ -3825,9 +3825,9 @@ measure-unit/length-meter unit-width-narrow latin
 
 measure-unit/length-meter unit-width-full-name latin
   es-MX
-    0 meters
-    91,827.3645 meters
-    -0.22222 meters
+    0 metros
+    91,827.3645 metros
+    -0.22222 metros
   zh-TW
     0 公尺
     91,827.3645 公尺
@@ -3909,9 +3909,9 @@ measure-unit/length-meter unit-width-narrow sign-accounting-except-zero
 
 measure-unit/length-meter unit-width-full-name sign-accounting-except-zero
   es-MX
-    0 meters
-    +91,827.3645 meters
-    -0.22222 meters
+    0 metros
+    +91,827.3645 metros
+    -0.22222 metros
   zh-TW
     0 公尺
     +91,827.3645 公尺
@@ -3993,9 +3993,9 @@ measure-unit/length-meter unit-width-narrow decimal-always
 
 measure-unit/length-meter unit-width-full-name decimal-always
   es-MX
-    0. meters
-    91,827.3645 meters
-    -0.22222 meters
+    0. metros
+    91,827.3645 metros
+    -0.22222 metros
   zh-TW
     0. 公尺
     91,827.3645 公尺
