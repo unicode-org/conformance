@@ -121,6 +121,15 @@ def setCommonArgs(parser):
   parser.add_argument('--parallel_mode', default=None)
   parser.add_argument('--run_limit', default=None)
 
+  # Arguments for setting versions of executors
+  parser.add_argument('--node_version', default='node')  # Sets the version of node to test
+  parser.add_argument('--rust_version', default='latest')
+  parser.add_argument('--icu4c_version', default='latest')
+  parser.add_argument('--icu4j_version', default='latest')
+
+  # Base version to test on version of ICU requested
+  parser.add_argument('--icu_version', default='latest')
+
   parser.add_argument(
       '--custom_testfile', default=None, action='extend', nargs='*',
       help='full path to test data file in JSON format')

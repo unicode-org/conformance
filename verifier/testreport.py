@@ -625,8 +625,10 @@ class SummaryReport():
   def getJsonFiles(self):
     # For each executor directory in testReports,
     #  Get each json report file
+    self.version_directories = glob.glob(
+      os.path.join(self.file_base, self.report_dir_name, '*', '*'))
     self.raw_reports = glob.glob(
-        os.path.join(self.file_base, self.report_dir_name, '*', '*.json'))
+        os.path.join(self.file_base, self.report_dir_name, '*', '*', '*.json'))
     if self.debug > 1:
       print('SUMMARY JSON RAW FILES = %s' % (self.raw_reports))
     return self.raw_reports

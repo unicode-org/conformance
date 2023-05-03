@@ -177,6 +177,11 @@ rl.on('line', function(line) {
                     'unsupported_test': testId};
     }
 
+    if ('error' in outputLine) {
+      // To get the attention of the driver
+      console.log("#!! ERROR in NODE call: " + JSON.stringify(outputLine));
+    }
+
     // Send result to stdout for verification
     jsonOut = JSON.stringify(outputLine);
     process.stdout.write(jsonOut + '\n');
