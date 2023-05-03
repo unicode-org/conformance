@@ -157,20 +157,23 @@ class Verifier():
                                      result_version,
                                      self.testData.testDataFilename)
 
-          report_path = os.path.join(
-              self.file_base,
-              self.options.report_path,
-              exec,
-              result_version,
-              self.testData.testDataFilename)
+          # Where the HTML and JSON reports are created
+          report_directory = os.path.join(
+            self.file_base,
+            self.options.report_path,
+            exec,
+            result_version)
 
-          # Make file.html
+          report_path = os.path.join(report_directory, self.testData.testDataFilename)
+
+          # Make file.html, removing the .json part
+          report_html_name = self.testData.testDataFilename.rpartition('.')[0] + '.html'
           report_html_path = os.path.join(
               self.file_base,
               self.options.report_path,
               exec,
               result_version,
-              self.testData.testDataFilename + '.html')
+              report_html_name)
 
           # Set the name of the verification file. These files are
           # usually in the same directory as the test data files.
@@ -181,12 +184,14 @@ class Verifier():
           # The test report to use for verification summary.
           new_report = TestReport()
           new_report.report_file_path = report_path
+          new_report.report_directory = os.path.dirname(report_path)
 
           new_report.report_html_path = report_html_path
 
           # The verify plan for this
           new_verify_plan = VerifyPlan(
-              testdata_path, result_path, verify_file_path, report_path, result_version)
+              testdata_path, result_path, verify_file_path, report_path, result_version,
+          )
           new_verify_plan.setTestType(test_type)
           new_verify_plan.setExec(exec)
           new_verify_plan.setReport(new_report)
@@ -426,6 +431,7 @@ class VerifyPlan():
     self.result_path = result_path
     self.verify_path = verify_path
     self.report_path = report_path
+    self.report_directory = os.path.dirname(report_path)
     self.report_version = report_version
     self.exec = None
     self.test_type = None

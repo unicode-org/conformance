@@ -214,14 +214,48 @@ class TestReport():
       file = open(self.report_file_path, mode='w', encoding='utf-8')
     except BaseException as err:
       sys.stderr.write('!!! Cannot write report at %s: Error = %s' % (
-
           self.report_file_path, err))
       return None
 
     self.createReport()
     file.write(json.dumps(self.report))
     file.close()
+
+    # TODO: Create subdirectory for json results of each type
+    self.create_json_report_tree()
     return True
+
+  def create_json_report_tree(self):
+    # In that directory, create a file for the catetory output as JSON
+    # Close
+    categories = {'pass': self.passing_tests,
+                  'failing_tests': self.failing_tests,
+                  'test_errors': self.test_errors,
+                  'unsupported': self.unsupported_cases}
+    for category, case_list in categories.items():
+      dir_name = os.path.join(self.report_directory, self.test_type)
+      category_dir_name = os.path.join(dir_name, category)
+      try:
+        os.mkdir(dir_name)
+
+      except FileExistsError:
+        # It's OK if the directory is already there.
+        pass
+      try:
+        os.mkdir(category_dir_name)
+      except FileExistsError:
+        # It's OK if the directory is already there.
+        pass
+      # In that directory, create a file or files for the category output as JSON
+      output_name = os.path.join(category_dir_name, category + ".json")  # TODO: Change to a list of files
+      try:
+        file = open(output_name, mode='w', encoding='utf-8')
+        file.write(json.dumps(case_list))
+        file.close()
+      except BaseException as err:
+        sys.stderr.write('!!! Cannot write report at %s\n    Error = %s' % (
+          output_name, err))
+    return
 
   def create_html_report(self):
     # Human readable summary of test results
@@ -641,7 +675,9 @@ class SummaryReport():
     # Get summary data by executor for each test and by test for each executor
     for filename in self.raw_reports:
       file = open(filename, encoding='utf-8', mode='r')
-      html_name = os.path.basename(filename) + '.html'
+      # Remove the .json part of the name
+      filename_base = filename.rpartition('.')[0]
+      html_name = os.path.basename(filename_base) + '.html'
 
       test_json = json.loads(file.read())
 
@@ -661,7 +697,8 @@ class SummaryReport():
             'error_count': test_json['test_error_count'],
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
-            'html_file_name': os.path.join(executor, html_name)
+            'html_file_name': os.path.join(executor, html_name),
+            'version': test_json['platform']
         }
 
       except BaseException as err:
@@ -669,8 +706,12 @@ class SummaryReport():
 
       try:
         # Categorize by executor and test_type
+        # TODO: Add detail of version, too
+        slot = '%s_%s' % (executor, test_results['version']['platformVersion'])
         if executor not in self.exec_summary:
-          self.exec_summary[executor] = [test_results]
+          ## TESTING
+          self.exec_summary[slot] = [test_results]
+          # self.exec_summary[executor] = [test_results]
         else:
           self.exec_summary[executor].append(test_results)
 
