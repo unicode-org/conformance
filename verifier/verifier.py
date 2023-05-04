@@ -138,12 +138,12 @@ class Verifier():
                                         verify_file_name)
 
         # All the version directories of the executor results
-
         results_root = os.path.join(self.file_base,
                                    self.options.output_path,
                                    exec,
                                    '*'
                                   )
+        # All the result directories for this executor.
         version_result_directories = glob.glob(results_root)
 
         # Create a report plan for each version found for this executor.
@@ -151,42 +151,26 @@ class Verifier():
           result_version = os.path.basename(result_version_path)
 
           # Where the results are, under the exec path.
-          result_path = os.path.join(self.file_base,
-                                     self.options.output_path,
-                                     exec,
-                                     result_version,
+          result_path = os.path.join(result_version_path,
                                      self.testData.testDataFilename)
 
           # Where the HTML and JSON reports are created
           report_directory = os.path.join(
             self.file_base,
             self.options.report_path,
-            exec,
-            result_version)
+            exec, result_version, test_type)
 
           report_path = os.path.join(report_directory, self.testData.testDataFilename)
 
           # Make file.html, removing the .json part
           report_html_name = self.testData.testDataFilename.rpartition('.')[0] + '.html'
           report_html_path = os.path.join(
-              self.file_base,
-              self.options.report_path,
-              exec,
-              result_version,
-              report_html_name)
-
-          # Set the name of the verification file. These files are
-          # usually in the same directory as the test data files.
-          verify_file_path = os.path.join(self.file_base,
-                                          self.options.input_path,
-                                          verify_file_name)
+              report_directory, report_html_name)
 
           # The test report to use for verification summary.
-          new_report = TestReport()
-          new_report.report_file_path = report_path
-          new_report.report_directory = os.path.dirname(report_path)
-
-          new_report.report_html_path = report_html_path
+          new_report = TestReport(report_path, report_html_path)
+          # new_report.setExec
+          # new_report.setTestType
 
           # The verify plan for this
           new_verify_plan = VerifyPlan(
@@ -448,8 +432,8 @@ class VerifyPlan():
   def setReport(self, new_report):
     self.report_json = new_report
 
-
 class Tester():
+
   def __init__(self, title=None):
     self.title = title
     self.test_type = None

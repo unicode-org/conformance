@@ -64,7 +64,7 @@ class TestReport():
   # Holds information describing the results of running tests vs.
   # the expected results.
   # TODO: use a templating language for creating these reports
-  def __init__(self):
+  def __init__(self, report_path, report_html_path):
     self.debug = 1
 
     self.timestamp = None
@@ -76,9 +76,10 @@ class TestReport():
     self.platform_info = None
     self.test_environment = None
 
-    self.report_directory = None
-    self.report_file_path = None
-    self.report_html_path = None
+    self.report_directory = os.path.dirname(report_path)
+
+    self.report_file_path = report_path
+    self.report_html_path = report_html_path
     self.number_tests = 0
 
     self.failing_tests = []  # Include label, result, and expected
@@ -233,11 +234,10 @@ class TestReport():
                   'test_errors': self.test_errors,
                   'unsupported': self.unsupported_cases}
     for category, case_list in categories.items():
-      dir_name = os.path.join(self.report_directory, self.test_type)
+      dir_name = self.report_directory
       category_dir_name = os.path.join(dir_name, category)
       try:
         os.mkdir(dir_name)
-
       except FileExistsError:
         # It's OK if the directory is already there.
         pass
@@ -659,10 +659,13 @@ class SummaryReport():
   def getJsonFiles(self):
     # For each executor directory in testReports,
     #  Get each json report file
-    self.version_directories = glob.glob(
-      os.path.join(self.file_base, self.report_dir_name, '*', '*'))
-    self.raw_reports = glob.glob(
-        os.path.join(self.file_base, self.report_dir_name, '*', '*', '*.json'))
+    report_dir_base = os.path.join(self.file_base, self.report_dir_name)
+    version_join = os.path.join(report_dir_base, '*', '*')
+    self.version_directories = glob.glob(version_join)
+
+    json_raw_join = os.path.join(version_join, '*', '*.json')
+    raw_reports = glob.glob(json_raw_join)
+    self.raw_reports = raw_reports
     if self.debug > 1:
       print('SUMMARY JSON RAW FILES = %s' % (self.raw_reports))
     return self.raw_reports
@@ -677,18 +680,21 @@ class SummaryReport():
       file = open(filename, encoding='utf-8', mode='r')
       # Remove the .json part of the name
       filename_base = filename.rpartition('.')[0]
+      dir_path = os.path.dirname(filename_base)
       html_name = os.path.basename(filename_base) + '.html'
-
+      html_path = os.path.join(dir_path, html_name)
       test_json = json.loads(file.read())
 
       test_environment = test_json['test_environment']
+      platform = test_json['platform']
       executor = ''
       try:
         executor = test_environment['test_language']
         test_type = test_environment['test_type']
-
+        # TODO !!!: get the executor + version in here
         test_results = {
             'exec': executor,
+            'exec_version': '%s_%s' % (executor, platform['platformVersion']),
             'test_type': test_type,
             'date_time': test_environment['datetime'],
             'test_count': test_environment['test_count'],
@@ -697,7 +703,7 @@ class SummaryReport():
             'error_count': test_json['test_error_count'],
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
-            'html_file_name': os.path.join(executor, html_name),
+            'html_file_name': html_path,
             'version': test_json['platform']
         }
 
@@ -780,7 +786,7 @@ class SummaryReport():
       for exec in exec_list:
         # Generate a TD element with the test data
         for entry in self.type_summary[test]:
-          if entry['test_type'] == test and entry['exec'] == exec:
+          if entry['test_type'] == test and entry['exec_version'] == exec:
             try:
               test_results = self.getStats(entry)
               # Add data

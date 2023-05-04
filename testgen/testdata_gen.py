@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import math
 import os
 import re
 import sys
@@ -134,14 +135,18 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
   jtests = []
   jverify = []
 
-  for item in rawtestdata.splitlines():
+  # Compute max size needed for label number
+  test_lines = rawtestdata.splitlines()
+  num_samples = len(test_lines)
+  max_digits = math.ceil(math.log10(num_samples + 1))
+  for item in test_lines:
     if not (recommentline.match(item) or reblankline.match(item)):
       test_data = parseLanguageNameData(item)
       if test_data == None:
         print('  LanguageNames: Line \'%s\' not recognized as valid test data entry' % item)
         continue
       else:
-        label = str(count).rjust(7, '0')
+        label = str(count).rjust(max_digits, '0')
         test_json = {'label': label, 'language_label': test_data[0], 'locale_label': test_data[1]}
         jtests.append(test_json)
         jverify.append({'label': label, 'verify': test_data[2]})
@@ -155,6 +160,7 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
 
 def generateNumberFmtTestDataObjects(rawtestdata, count=0):
   # Returns 2 lists JSON-formatted: all_tests_list, verify_list
+  original_count = count
   entry_types = {
       "compact-short": "notation",
       "scientific/+ee/sign-always": "notation",
@@ -182,6 +188,9 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
   all_tests_list = []
   verify_list = []
+  expected_count = len(test_list) * len([3, 7, 11]) * len(numbers_to_test) + count
+  max_digits = math.ceil(math.log10(expected_count + 1))
+  print('  Expected count = %s' % expected_count)
   for t in test_list:
     # The first three specify the formatting.
     # Example: compact-short percent unit-width-full-name
@@ -195,14 +204,14 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
     for l in { 3, 7, 11 }:
       for n in range(len(numbers_to_test)):
         ecma402_options = []
-        label = str(count).rjust(7, '0')
+        label = str(count).rjust(max_digits, '0')
         expected = t[l + 1 + n]
         verify_json = {'label': label, 'verify': expected}
         verify_list.append(verify_json)
 
         # TODO: Use JSON module instead of print formatting
         skeleton = '%s %s %s' % (t[0], t[1], t[2])
-        entry = {'label': str(count).rjust(7, '0'),
+        entry = {'label': label,
                  'locale': t[l],
                  'skeleton': skeleton,
                  'input': numbers_to_test[n]
@@ -220,7 +229,8 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
         all_tests_list.append(entry)  # All the tests in JSON form
         count += 1
-
+  print('  generateNumberFmtTestDataObjects gives %d tests' % (
+      count - original_count))
   return all_tests_list, verify_list, count
 
 def resolveOptions(raw_options, skeleton_list):
@@ -238,17 +248,24 @@ def resolveOptions(raw_options, skeleton_list):
         resolved['unitDisplay'] = 'long'
   return resolved
 
+# Count is the starting point for the values
 def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
+  original_count = count
   recommentline = re.compile('^\s*#')
   test_list = rawtestdata.splitlines()
 
   all_tests_list = []
   verify_list = []
+
+  expected = len(test_list) + count
+  print('  expected count = %s' % (len(test_list) -1))
+  max_digits = math.ceil(math.log10(expected + 1))
+
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
-      label = str(count).rjust(7, '0')
+      label = str(count).rjust(max_digits, '0')
       entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
@@ -266,6 +283,8 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
                           'verify': expected})
       count += 1
 
+  print('  generateDcmlFmtTestDataObjects gives %d tests' % (
+      count - original_count))
   return all_tests_list, verify_list, count
 
 
@@ -294,14 +313,16 @@ def generateCollTestDataObjects(testdata_list):
       n += 1
 
   print('Coll Test: %d lines processed' % n)
-
+  # Compute max size needed for label number
+  num_samples = len(colltestdata)
+  max_digits = math.ceil(math.log10(num_samples + 1))
   # Construct test data and verification entries in JSON.
   count = 0
   prev = colltestdata[0]
   test_list = []
   verify_list = []
   for t in colltestdata[1:]:
-    label = str(count).rjust(7, '0')
+    label = str(count).rjust(max_digits, '0')
     test_list.append({'label': label, 'string1': prev, 'string2': t})
     verify_list.append({'label': label, 'verify': True})
     prev = t
@@ -350,7 +371,7 @@ def processCollationTestData():
 
   coll_verify_file = open('coll_verify_shift.json', 'w')
   # The verify file doesn't need to be pretty-printed
-  json.dump(json_verify, coll_verify_file, indent=1)
+  json.dump(json_verify, coll_verify_file)  # , indent=1)
   coll_verify_file.close()
 
   return
