@@ -682,7 +682,10 @@ class SummaryReport():
       filename_base = filename.rpartition('.')[0]
       dir_path = os.path.dirname(filename_base)
       html_name = os.path.basename(filename_base) + '.html'
+      # Get the relative path for the link
       html_path = os.path.join(dir_path, html_name)
+      reports_base_dir = os.path.join(self.file_base, self.report_dir_name)
+      relative_html_path = os.path.relpath(html_path, reports_base_dir)
       test_json = json.loads(file.read())
 
       test_environment = test_json['test_environment']
@@ -703,7 +706,7 @@ class SummaryReport():
             'error_count': test_json['test_error_count'],
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
-            'html_file_name': html_path,
+            'html_file_name': relative_html_path,  # Relative to the report base
             'version': test_json['platform']
         }
 

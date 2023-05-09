@@ -104,7 +104,26 @@ class reportTemplate():
         }
       }
     }
-    </script>
+
+    function loadJson(json_data) {
+
+    }
+
+    // Get up the JSON data from the tests.
+    let pass_json;
+    let fail_json;
+    let error_json;
+    let unsupported_json;
+
+    fetch('./pass/pass.json')
+      .then((response) => pass_json = response.json());
+    fetch('./failing_tests/failing_tests.json')
+      .then((response) => fail_json = response.json());
+    fetch('./test_errors/test_errors.json')
+      .then((response) => error_json = response.json());
+    fetch('./unsupported/unsupported.json')
+      .then((response) => unsupportd_json = response.json());
+</script>
   </head>
   <body>
     <h1>Verification report: $test_type on $exec</h1>
@@ -120,7 +139,10 @@ class reportTemplate():
     <h2>Test summary</h2>
     <p>Total: $total_tests.
     <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
-    <h2 id='testErrors'">Test Errors ($error_count)</h2>
+    <h2 id='passingTests'>Passing tests</h2>
+    <button onclick="loadJson('./pass/pass.json')">Load passing tests</button>
+
+    <h2 id='testErrors'>Test Errors ($error_count)</h2>
     <h3>Summary of test errors</h3>
     $error_summary
     <details>
