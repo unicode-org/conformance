@@ -17,6 +17,7 @@ mkdir -p $TEMP_DIR/testData
 
 # Compile Rust executor code
 pushd executors/rust/
+clean
 cargo build --release
 popd
 
