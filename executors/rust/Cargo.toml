@@ -24,3 +24,12 @@ icu_testdata = { version="1.0.0", features = ["metadata"] }
 icu_provider = { version="1.0.0"}
 
 [features]
+
+[profile.icu4x_1_0]
+rust-version = "1.61"
+
+[profile.icu4x_1_1]
+rust-version = "1.61"
+
+[profile.icu4x_1_2]
+rust-version = "1.68.2"
