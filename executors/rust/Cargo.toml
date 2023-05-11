@@ -14,7 +14,7 @@ substring = "1.0"
 json = "0.12.4"
 serde = { version = "1.0.143", features = ["derive"] }
 serde_json = "1.0.48"
-rustc_version_runtime = "0.1.61"
+rustc_version_runtime = "0.1.*"
     
 fixed_decimal = {version="0.5.0"}
 writeable =  {version="0.5.0"}
