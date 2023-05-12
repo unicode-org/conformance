@@ -123,7 +123,7 @@ def setCommonArgs(parser):
 
   # Arguments for setting versions of executors
   parser.add_argument('--node_version', default='node')  # Sets the version of node to test
-  parser.add_argument('--rust_version', default='latest')
+  parser.add_argument('--icu4x_version', default='latest')
   parser.add_argument('--icu4c_version', default='latest')
   parser.add_argument('--icu4j_version', default='latest')
 

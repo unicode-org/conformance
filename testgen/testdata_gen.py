@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
 import math
 import os
 import re
@@ -8,6 +9,9 @@ import sys
 
 reblankline = re.compile('^\s*$')
 
+# Utility functions
+def computeMaxDigitsForCount(count):
+    return math.ceil(math.log10(count + 1))
 def readFile(filename):
   with open(filename, 'r', encoding='utf8') as testdata:
     return testdata.read()
@@ -138,12 +142,12 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
   # Compute max size needed for label number
   test_lines = rawtestdata.splitlines()
   num_samples = len(test_lines)
-  max_digits = math.ceil(math.log10(num_samples + 1))
+  max_digits = computeMaxDigitsForCount(num_samples)
   for item in test_lines:
     if not (recommentline.match(item) or reblankline.match(item)):
       test_data = parseLanguageNameData(item)
       if test_data == None:
-        print('  LanguageNames: Line \'%s\' not recognized as valid test data entry' % item)
+        logging.warning('  LanguageNames: Line \'%s\' not recognized as valid test data entry', (item))
         continue
       else:
         label = str(count).rjust(max_digits, '0')
@@ -155,7 +159,7 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
   json_tests['tests'] = jtests
   json_verify['verifications'] = jverify
 
-  print('LangNames Test: %d lines processed' % count)
+  logging.info('LangNames Test: %d lines processed', (count))
   return
 
 def generateNumberFmtTestDataObjects(rawtestdata, count=0):
@@ -182,55 +186,59 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
       "sign-accounting-except-zero": "sign-display",
       "decimal-always": "decimal-separator-display"
       }
-  numbers_to_test = ['0', '91827.3645', '-0.22222']
+  NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
   test_list = parseNumberFmtTestData(rawtestdata)
   ecma402_options_start = ['"options": {\n']
 
   all_tests_list = []
   verify_list = []
-  expected_count = len(test_list) * len([3, 7, 11]) * len(numbers_to_test) + count
-  max_digits = math.ceil(math.log10(expected_count + 1))
-  print('  Expected count = %s' % expected_count)
-  for t in test_list:
+  
+  # Which locales are selected for this testing.
+  # This selects es-MX, zh-TW, bn-BD
+  NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
+  
+  expected_count = len(test_list) * len(NUMBERFORMAT_LOCALE_INDICES) * len(NUMBERS_TO_TEST) + count
+  max_digits = computeMaxDigitsForCount(expected_count)
+  logging.info('  Expected count  of number fmt tests: %s', expected_count)
+
+  for test_options in test_list:
     # The first three specify the formatting.
     # Example: compact-short percent unit-width-full-name
-    part1 = entry_types[t[0]]
-    part2 = entry_types[t[1]]
-    part3 = entry_types[t[2]]
+    part1 = entry_types[test_options[0]]
+    part2 = entry_types[test_options[1]]
+    part3 = entry_types[test_options[2]]
 
     # TODO: use combinations of part1, part2, and part3 to generate options.
     # Locales are in element 3, 7, and 11 of parsed structure.
 
-    for l in { 3, 7, 11 }:
-      for n in range(len(numbers_to_test)):
+    for locale_idx in NUMBERFORMAT_LOCALE_INDICES:
+      for number_idx in range(len(NUMBERS_TO_TEST)):
         ecma402_options = []
         label = str(count).rjust(max_digits, '0')
-        expected = t[l + 1 + n]
+        expected = test_options[locale_idx + 1 + number_idx]
         verify_json = {'label': label, 'verify': expected}
         verify_list.append(verify_json)
 
         # TODO: Use JSON module instead of print formatting
-        skeleton = '%s %s %s' % (t[0], t[1], t[2])
+        skeleton = '%s %s %s' % (test_options[0], test_options[1], test_options[2])
         entry = {'label': label,
-                 'locale': t[l],
+                 'locale': test_options[locale_idx],
                  'skeleton': skeleton,
-                 'input': numbers_to_test[n]
+                 'input': NUMBERS_TO_TEST[number_idx]
                  }
 
-        options_dict = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
+        options_dict = mapFmtSkeletonToECMA402([test_options[0], test_options[1], test_options[2]])
         if not options_dict:
-            print(
-                '$$$ OPTIONS not found for %s' % label
-            )
+            logging.warning('$$$ OPTIONS not found for %s', label)
         # TODO: Look at the items in the options_dict to resolve conflicts and set up things better.
-        resolved_options_dict = resolveOptions(options_dict, t)
+        resolved_options_dict = resolveOptions(options_dict, test_options)
         # include these options in the entry
         entry = entry | {'options': resolved_options_dict}
 
         all_tests_list.append(entry)  # All the tests in JSON form
         count += 1
-  print('  generateNumberFmtTestDataObjects gives %d tests' % (
-      count - original_count))
+  logging.info('  generateNumberFmtTestDataObjects gives %d tests',
+               (count - original_count))
   return all_tests_list, verify_list, count
 
 def resolveOptions(raw_options, skeleton_list):
@@ -258,7 +266,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   verify_list = []
 
   expected = len(test_list) + count
-  print('  expected count = %s' % (len(test_list) -1))
+  logging.info('  expected count = %s', (len(test_list) -1))
   max_digits = math.ceil(math.log10(expected + 1))
 
   for item in test_list[1:]:
@@ -283,8 +291,8 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
                           'verify': expected})
       count += 1
 
-  print('  generateDcmlFmtTestDataObjects gives %d tests' % (
-      count - original_count))
+  logging.info('  generateDcmlFmtTestDataObjects gives %d tests',
+               (count - original_count))
   return all_tests_list, verify_list, count
 
 
@@ -302,7 +310,7 @@ def generateCollTestDataObjects(testdata_list):
         if int('0x' + cp, 16) < 32 or int('0x' + cp, 16) == 127:
           testdatastring = testdatastring + '\\u' + cp
         elif cp == '0022':
-          # print('Double quote encountered')
+          # Double quote encountered
           testdatastring = testdatastring +'\\"'
         elif cp == '005C':
           testdatastring = testdatastring +'\\\\'
@@ -312,7 +320,7 @@ def generateCollTestDataObjects(testdata_list):
       colltestdata.append(testdatastring)
       n += 1
 
-  print('Coll Test: %d lines processed' % n)
+  logging.info('Coll Test: %d lines processed', n)
   # Compute max size needed for label number
   num_samples = len(colltestdata)
   max_digits = math.ceil(math.log10(num_samples + 1))
@@ -445,7 +453,7 @@ def processNumberFmtTestData():
   rawdcmlfmttestdata = readFile('dcfmtest.txt')
   BOM = '\xef\xbb\xbf'
   if rawdcmlfmttestdata.startswith(BOM):
-    print('Skip BOM')
+    logging.info('Skip BOM')
     rawdcmlfmttestdata = rawdcmlfmttestdata[3:]
   #dcml_fmt_test, dcml_fmt_verify = processDcmlFmtTestDataObjects(rawdcmlfmttestdata)
   #dcml_fmt_test_file = open('dcml_fmt_test_file.json', 'w')
@@ -477,7 +485,7 @@ def processNumberFmtTestData():
   json.dump(json_verify, num_fmt_verify_file, indent=1)
   num_fmt_verify_file.close()
 
-  print('NumberFormat Test: %s tests created' % count)
+  logging.warning('NumberFormat Test: %s tests created', count)
   return
 
 
@@ -503,14 +511,14 @@ def processLangNameTestData():
 
 
 def main():
-  print('Generating .json files for data driven testing')
+  logging.info('Generating .json files for data driven testing')
 
   processNumberFmtTestData()
   processLangNameTestData()
 
   processCollationTestData()
 
-  print('================================================================================')
+  logging.info('================================================================================')
 
 
 if __name__ == '__main__':
