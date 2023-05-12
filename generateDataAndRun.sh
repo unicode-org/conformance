@@ -18,7 +18,7 @@ mkdir -p $TEMP_DIR/testData
 # Compile Rust executor code for ICU4X 1.0
 pushd executors/rust/
 cargo clean
-cargo build --release --profile icu4x_1_0
+rustup run 1.61 cargo build --release
 popd
 
 #
