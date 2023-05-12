@@ -12,8 +12,8 @@ class reportTemplate():
     <meta charset="UTF-8">
     <!-- https://blueprintcss.dev/docs -->
     <link href="https://unpkg.com/blueprint-css@3.1.3/dist/blueprint.min.css" rel="stylesheet" />
-    <title>$test_type with $exec</title>
-    <style>
+  <title>$test_type with $exec</title>
+  <style>
     body {   font-family: Sans-Serif; }
 
     table, th, td {
@@ -22,7 +22,46 @@ class reportTemplate():
     padding: 15px;
     text-align: center;
     }
-    </style>
+
+    body {   font-family: Sans-Serif; }
+
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 15px;o
+    text-align: center;
+    }
+  </style>
+
+    <!--Load the AJAX API for visualizing stacked bars-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- JQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+     // Callback that creates and populates a data table
+     // Instantiates it with data, and draws it.
+     // TODO: Update with all the data loaded
+     function drawChart() {
+       // For each test type:
+       //   Get a div for the chart
+       let chart = document.getElementById('chart_div')
+       //   Create data for each executor in all versions under that test type
+       //   Set up options and links
+       //   Get the div where the output should be drawn s chart
+       if (chart) {
+         chart.draw(data, options);
+       }
+     }
+</script>
+
     <script>
     function toggleElement(id) {
       const element = document.getElementById(id);
@@ -116,13 +155,17 @@ class reportTemplate():
     let unsupported_json;
 
     fetch('./pass/pass.json')
-      .then((response) => pass_json = response.json());
+      .then((response) => response.json())
+      .then((data) => {pass_json = data});
     fetch('./failing_tests/failing_tests.json')
-      .then((response) => fail_json = response.json());
+      .then((response) => response.json())
+      .then((data) => {fail_json = data});
     fetch('./test_errors/test_errors.json')
-      .then((response) => error_json = response.json());
+      .then((response) => error_json = response.json())
+      .then((data) => {error_json = data});
     fetch('./unsupported/unsupported.json')
-      .then((response) => unsupportd_json = response.json());
+      .then((response) => unsupportd_json = response.json())
+      .then((data) => {unsupported_json = data});
 </script>
   </head>
   <body>
@@ -167,6 +210,12 @@ class reportTemplate():
     $unsupported_section
 </details>
 
+<table id='passing_tests_table' >
+    <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
+      <!-- For each passing test, create the output line with label
+           -->
+</table>
+
 <h2 id='testFailures'>Failing tests detail ($failing_tests)</h2>
     <details>
        <summary>Open for all failing tests.</summary>
@@ -199,17 +248,106 @@ $failure_table_lines
     <!-- https://blueprintcss.dev/docs -->
     <link href="https://unpkg.com/blueprint-css@3.1.3/dist/blueprint.min.css" rel="stylesheet" />
     <title>DDT Summary</title>
-    <style>
-    body {   font-family: Sans-Serif; }
 
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;o
-    text-align: center;
+    <!--Load the AJAX API for visualizing stacked bars-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- JQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+    // The summary data for all the tests.
+    let exec_summary_json;
+    fetch('exec_summary.json')
+      .then((response) => response.json())
+      .then((data) => {exec_summary_json = data});
+
+    function loadJson(json_data) {
+      // For testing
     }
-    </style>
-    <script>
+
+    // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+     // Callback that creates and populates a data table
+     // Instantiates it with data, and draws it.
+     // TODO: Update with all the data loaded
+     function drawChart() {
+       // For each test type:
+       let table = document.getElementById('exec_summary_table')
+
+       let data_groups = ['Result', 'Pass', 'Fail', 'Error', 'Unsupported',
+           {role: 'annotation'}];
+
+       // Get all the types of tests available
+       const test_types = Object.keys(exec_summary_json);
+       /* Get all the execs */
+       let tests_by_type_and_exec = {};
+
+       // Find all the kinds of executors
+       let execs = new Set();
+       for (const test_type of test_types) {
+         const tests = exec_summary_json[test_type];
+         for (node_version of tests) {
+           execs.add(node_version['exec']);
+         }
+       }
+
+       // Create header ??
+       let tr;
+       let td;
+       for (const test_type of test_types) {
+         tr = table.insertRow();
+         td = tr.insertCell();
+         td.innerHTML = test_type
+
+         const tests = exec_summary_json[test_type];
+         for (const exec of execs) {
+           td = tr.insertCell();
+
+           // Get all the report info for this test and this exec
+           let reports = [];
+           let data = [data_groups];
+           for (const report of tests) {
+             if (report['exec'] == exec) {
+               reports.push(report);
+               // Add data for this report.
+               const report_data = [
+                 report['exec_version'],
+                 report['pass_count'],
+                 report['fail_count'],
+                 report['error_count'],
+                 report['unsupported_count'],
+                 ''
+               ];
+               data.push(report_data);
+             }
+           }
+           // Create the data for the reports
+           // Make a new area for displaying ig.
+           let options = {
+             legend: {position: 'bottom', maxLines: 3},
+             isStacked: true,
+             width: 500, height:300, bar: {groupWidth: '75%' }
+           };
+           td = tr.insertCell();
+           //   Set up options and links
+           const chart = new google.visualization.BarChart(td);
+           const chart_data = google.visualization.arrayToDataTable(data);
+           if (reports && reports.length > 0 && chart) {  // TODO: debug
+             chart.draw(chart_data, options);
+          } else {
+            td.innerHTML = "%s not tested in %s" % (test_type, exec);
+            td.style.textAlign = "center";
+          }
+         }
+       }
+     }
+  </script>
+
+  <script>
     function toggleElement(id) {
       const element = document.getElementById(id);
       if (element.style.display === "none") {
@@ -218,7 +356,7 @@ $failure_table_lines
         element.style.display = "none";
       }
     }
-    </script>
+  </script>
   </head>
   <body>
     <h1>Data Driven Test Summary</h1>
@@ -227,6 +365,10 @@ $failure_table_lines
     <p>Executors verified: $all_platforms</p>
     <p>Tests verified: $all_tests</p>
     <h2>All Tests Summary</h2>
+
+    <table id='exec_summary_table'>
+    </table>
+
     <table id='exec_test_table'>
     $exec_header_line
     $detail_lines

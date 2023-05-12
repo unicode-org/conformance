@@ -5,12 +5,20 @@
 # Save the results
 set -e
 
+# Enable seting the version of NodeJS
+export NVM_DIR=$HOME/.nvm;
+source $NVM_DIR/nvm.sh;
+
 #
 # Setup
 #
 
 export TEMP_DIR=TEMP_DATA
 rm -rf $TEMP_DIR
+
+# Node version
+nvm use --lts
+echo 'USING NODE version:' `nvm version`
 
 # Clear out old data, then create new directory and copy test / verify data there
 mkdir -p $TEMP_DIR/testData

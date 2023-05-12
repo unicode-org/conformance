@@ -198,11 +198,12 @@ class TestReport():
     report['platform'] = self.platform_info
     report['test_environment'] = self.test_environment
     report['timestamp'] = self.timestamp
-    report['failCount'] =  "{:,}".format(self.tests_fail)
-    report['passCount'] =  "{:,}".format(self.tests_pass)
+    report['failCount'] =  self.tests_fail
+    report['passCount'] =  self.tests_pass
     report['failingTests'] =  self.failing_tests
+    report['unsupportedTests'] = len(self.unsupported_cases)
     report['missing_verify_data'] = self.missing_verify_data
-    report['test_error_count'] =  "{:,}".format(self.error_count)
+    report['test_error_count'] = self.error_count
 
     report['test_errors'] = self.test_errors
     report['unsupported'] = self.unsupported_cases
@@ -264,11 +265,11 @@ class TestReport():
                 'platform_info': dict_to_html(self.platform_info),
                 'test_environment': dict_to_html(self.test_environment),
                 'timestamp': self.timestamp,
-                'total_tests': "{:,}".format(self.number_tests),
-                'passing_tests': "{:,}".format(self.tests_pass),
-                'failing_tests': "{:,}".format(self.tests_fail),
-                'error_count': "{:,}".format(len(self.test_errors)),
-                'unsupported_count': "{:,}".format(len(self.unsupported_cases))
+                'total_tests': self.number_tests,
+                'passing_tests': self.tests_pass,
+                'failing_tests': self.tests_fail,
+                'error_count': self.test_errors,
+                'unsupported_count': len(self.unsupported_cases)
                 # ...
                 }
 
@@ -499,7 +500,7 @@ class TestReport():
                 if x[2].isdigit():
                   results['delete_digit'].append(fail['label'])
                 elif x[2] in ['+', '0', '+0']:
-                  results['exponent_diff'] = append(label)
+                  results['exponent_diff'].append(label)
                 else:
                   results['delete'].append(fail['label'])
       except BaseException as err:
@@ -637,6 +638,7 @@ class SummaryReport():
     self.debug = 0
 
     self.exec_summary = {}
+    self.summary_by_test_type = {}
     self.type_summary = {}
 
     self.templates = reportTemplate()
@@ -675,6 +677,7 @@ class SummaryReport():
     self.summarizeReports()  # Initializes exec_summary and test_summary
 
   def summarizeReports(self):
+
     # Get summary data by executor for each test and by test for each executor
     for filename in self.raw_reports:
       file = open(filename, encoding='utf-8', mode='r')
@@ -700,10 +703,11 @@ class SummaryReport():
             'exec_version': '%s_%s' % (executor, platform['platformVersion']),
             'test_type': test_type,
             'date_time': test_environment['datetime'],
-            'test_count': test_environment['test_count'],
-            'fail_count': test_json['failCount'],
-            'pass_count': test_json['passCount'],
-            'error_count': test_json['test_error_count'],
+            'test_count': int(test_environment['test_count']),
+            'fail_count': int(test_json['failCount']),
+            'pass_count': int(test_json['passCount']),
+            'error_count': int(test_json['test_error_count']),
+            'unsupported_count': len(test_json['unsupported']),
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
             'html_file_name': relative_html_path,  # Relative to the report base
@@ -712,6 +716,11 @@ class SummaryReport():
 
       except BaseException as err:
         print('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
+
+      if test_type not in self.summary_by_test_type:
+        self.summary_by_test_type[test_type] = [test_results]
+      else:
+        self.summary_by_test_type[test_type].append(test_results)
 
       try:
         # Categorize by executor and test_type
@@ -732,15 +741,14 @@ class SummaryReport():
       except BaseException as err:
         print('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s' % (
             executor, test_type, err))
-
   def getStats(self, entry):
     # Process items in a map to give HTML table value
     outList = []
-    outList.append('Test count: %s' % entry['test_count'])
-    outList.append('Succeeded: %s' % entry['pass_count'])
-    outList.append('Failed: %s' % entry['fail_count'])
-    outList.append('Unsupported: %s' % entry['error_count'])
-    outList.append('Missing verify: %s' % entry['missing_verify_count'])
+    outList.append('Test count: %s' % '{:,}'.format(entry['test_count']))
+    outList.append('Succeeded: %s' % '{:,}'.format(entry['pass_count']))
+    outList.append('Failed: %s' % '{:,}'.format(entry['fail_count']))
+    outList.append('Unsupported: %s' % '{:,}'.format(entry['error_count']))
+    outList.append('Missing verify: %s' % '{:,}'.format(entry['missing_verify_count']))
     outList.append('<a href="%s"  target="_blank">Details</a>' %
                    entry['html_file_name'])
     return '    \n<br>'.join(outList) + '</a>'
@@ -827,6 +835,19 @@ class SummaryReport():
       print('HTML OUTPUT FILEPATH =%s' % (self.summary_html_path))
     file.write(html_output)
     file.close()
+
+    # Save the exec_summary.json
+    exec_summary_json_path = os.path.join(self.file_base,
+                                          self.report_dir_name,
+                                          'exec_summary.json')
+    try:
+      exec_json_file = open(exec_summary_json_path, mode='w', encoding='utf-8')
+      summary_by_test_type = json.dumps(self.summary_by_test_type, indent=2)
+      exec_json_file.write(summary_by_test_type)
+      exec_json_file.close()
+    except BaseException as err:
+      sys.stderr.write('!!! Cannot write exec_summary.json')
+
     return html_output
 
   def publish_results(self):
