@@ -15,9 +15,11 @@ rm -rf $TEMP_DIR
 # Clear out old data, then create new directory and copy test / verify data there
 mkdir -p $TEMP_DIR/testData
 
-# Compile Rust executor code
+# Compile Rust executor code for ICU4X 1.0
 pushd executors/rust/
-cargo build --release
+cargo clean
+rustup install 1.61
+rustup run 1.61 cargo build --release
 popd
 
 #
