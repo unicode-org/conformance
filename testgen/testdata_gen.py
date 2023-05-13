@@ -11,7 +11,7 @@ reblankline = re.compile('^\s*$')
 
 # Global constants
 # Values to be formatted in number format tests
-# NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
+NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
 
 # Which locales are selected for this testing.
 # This selects es-MX, zh-TW, bn-BD
