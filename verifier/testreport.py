@@ -237,11 +237,7 @@ class TestReport():
       dir_name = self.report_directory
       category_dir_name = os.path.join(dir_name, category)
 
-      try:
-        os.makedirs(category_dir_name)  # Creates the full directory path.
-      except:
-        # OK if this already exists
-        pass
+      os.makedirs(category_dir_name, exist_ok=True)  # Creates the full directory path.
 
       # In that directory, create a file or files for the category output as JSON
       output_name = os.path.join(category_dir_name, category + ".json")  # TODO: Change to a list of files
