@@ -132,7 +132,7 @@ class TestPlan():
         self.platformVersion =  self.jsonOutput["platform"]["platformVersion"]
         self.icuVersion =  self.jsonOutput["platform"]["icuVersion"]
 
-        # Reset the output patch based on the version.
+        # Reset the output path based on the version.
         self.outputFilePath = os.path.join(self.options.file_base,
                                            self.options.output_path,
                                            self.test_lang,
@@ -375,7 +375,10 @@ class TestPlan():
       if self.debug > 1:
         print(' RESULT %d = (%d)  >%s<' % (index, len(item), item))
       if item and len(item) > 0:
-        # Check for debug data
+        # Check for special results returned from the executor,
+        # indicated by '#' in the first column of the line returned.
+        # An error is indicated by "#!!" in the first 3 columns.
+        # TODO: Document these, perhaps in the project's JSON schema.        #
         if item[0] == "#":
           print('#### DEBUG OUTPUT = %s' % item)
 

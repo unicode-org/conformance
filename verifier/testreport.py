@@ -237,16 +237,9 @@ class TestReport():
     for category, case_list in categories.items():
       dir_name = self.report_directory
       category_dir_name = os.path.join(dir_name, category)
-      try:
-        os.mkdir(dir_name)
-      except FileExistsError:
-        # It's OK if the directory is already there.
-        pass
-      try:
-        os.mkdir(category_dir_name)
-      except FileExistsError:
-        # It's OK if the directory is already there.
-        pass
+
+      os.makedirs(category_dir_name, exist_ok=True)  # Creates the full directory path.
+
       # In that directory, create a file or files for the category output as JSON
       output_name = os.path.join(category_dir_name, category + ".json")  # TODO: Change to a list of files
       try:

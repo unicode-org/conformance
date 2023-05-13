@@ -177,8 +177,8 @@ NodeICUVersionMap = {
     "14": "70.1",
     }
 
-# For Rust
-RustICUVersionMap = {
+# Versions of ICU in each ICU4X release
+ICU4XVersionMap = {
     # TODO: fill this in
     "1.0": '71.1'
 }
