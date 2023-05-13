@@ -64,7 +64,7 @@ class TestReport():
   # Holds information describing the results of running tests vs.
   # the expected results.
   # TODO: use a templating language for creating these reports
-  def __init__(self):
+  def __init__(self, report_path, report_html_path):
     self.debug = 1
 
     self.timestamp = None
@@ -76,9 +76,10 @@ class TestReport():
     self.platform_info = None
     self.test_environment = None
 
-    self.report_directory = None
-    self.report_file_path = None
-    self.report_html_path = None
+    self.report_directory = os.path.dirname(report_path)
+
+    self.report_file_path = report_path
+    self.report_html_path = report_html_path
     self.number_tests = 0
 
     self.failing_tests = []  # Include label, result, and expected
@@ -214,14 +215,40 @@ class TestReport():
       file = open(self.report_file_path, mode='w', encoding='utf-8')
     except BaseException as err:
       sys.stderr.write('!!! Cannot write report at %s: Error = %s' % (
-
           self.report_file_path, err))
       return None
 
     self.createReport()
     file.write(json.dumps(self.report))
     file.close()
+
+    # TODO: Create subdirectory for json results of each type
+    self.create_json_report_tree()
     return True
+
+  def create_json_report_tree(self):
+    # In that directory, create a file for the catetory output as JSON
+    # Close
+    categories = {'pass': self.passing_tests,
+                  'failing_tests': self.failing_tests,
+                  'test_errors': self.test_errors,
+                  'unsupported': self.unsupported_cases}
+    for category, case_list in categories.items():
+      dir_name = self.report_directory
+      category_dir_name = os.path.join(dir_name, category)
+
+      os.makedirs(category_dir_name, exist_ok=True)  # Creates the full directory path.
+
+      # In that directory, create a file or files for the category output as JSON
+      output_name = os.path.join(category_dir_name, category + ".json")  # TODO: Change to a list of files
+      try:
+        file = open(output_name, mode='w', encoding='utf-8')
+        file.write(json.dumps(case_list))
+        file.close()
+      except BaseException as err:
+        sys.stderr.write('!!! Cannot write report at %s\n    Error = %s' % (
+          output_name, err))
+    return
 
   def create_html_report(self):
     # Human readable summary of test results
@@ -430,7 +457,9 @@ class TestReport():
     results['insert_digit'] = []
     results['insert_space'] = []
     results['delete_digit'] = []
+    results['exponent_diff'] = []
     for fail in self.failing_tests:
+      label = fail['label']
       actual = fail['result']
       expected = fail['expected']
       # Special case for differing by a single character.
@@ -452,19 +481,24 @@ class TestReport():
             for x in changes:
               if x[0] == '+':
                 if x[2] in [' ', '\u00a0']:
-                  results['insert_space'].append(fail['label'])
+                  results['insert_space'].append(label)
                 elif x[2].isdigit():
-                  results['insert_digit'].append(fail['label'])
+                  results['insert_digit'].append(label)
+                elif x[2] in ['+', '0', '+0']:
+                  results['exponent_diff'] = append(label)
                 else:
-                  results['insert'].append(fail['label'])
+                  results['insert'].append(label)
               if x[0] == '-':
                 if x[2].isdigit():
                   results['delete_digit'].append(fail['label'])
+                elif x[2] in ['+', '0', '+0']:
+                  results['exponent_diff'] = append(label)
                 else:
                   results['delete'].append(fail['label'])
       except BaseException as err:
         # a non-string result
         continue
+
     return dict(results)
 
   def create_html_diff_report(self):
@@ -618,8 +652,13 @@ class SummaryReport():
   def getJsonFiles(self):
     # For each executor directory in testReports,
     #  Get each json report file
-    self.raw_reports = glob.glob(
-        os.path.join(self.file_base, self.report_dir_name, '*', '*.json'))
+    report_dir_base = os.path.join(self.file_base, self.report_dir_name)
+    version_join = os.path.join(report_dir_base, '*', '*')
+    self.version_directories = glob.glob(version_join)
+
+    json_raw_join = os.path.join(version_join, '*', '*.json')
+    raw_reports = glob.glob(json_raw_join)
+    self.raw_reports = raw_reports
     if self.debug > 1:
       print('SUMMARY JSON RAW FILES = %s' % (self.raw_reports))
     return self.raw_reports
@@ -632,18 +671,26 @@ class SummaryReport():
     # Get summary data by executor for each test and by test for each executor
     for filename in self.raw_reports:
       file = open(filename, encoding='utf-8', mode='r')
-      html_name = os.path.basename(filename) + '.html'
-
+      # Remove the .json part of the name
+      filename_base = filename.rpartition('.')[0]
+      dir_path = os.path.dirname(filename_base)
+      html_name = os.path.basename(filename_base) + '.html'
+      # Get the relative path for the link
+      html_path = os.path.join(dir_path, html_name)
+      reports_base_dir = os.path.join(self.file_base, self.report_dir_name)
+      relative_html_path = os.path.relpath(html_path, reports_base_dir)
       test_json = json.loads(file.read())
 
       test_environment = test_json['test_environment']
+      platform = test_json['platform']
       executor = ''
       try:
         executor = test_environment['test_language']
         test_type = test_environment['test_type']
-
+        # TODO !!!: get the executor + version in here
         test_results = {
             'exec': executor,
+            'exec_version': '%s_%s' % (executor, platform['platformVersion']),
             'test_type': test_type,
             'date_time': test_environment['datetime'],
             'test_count': test_environment['test_count'],
@@ -652,7 +699,8 @@ class SummaryReport():
             'error_count': test_json['test_error_count'],
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
-            'html_file_name': os.path.join(executor, html_name)
+            'html_file_name': relative_html_path,  # Relative to the report base
+            'version': test_json['platform']
         }
 
       except BaseException as err:
@@ -660,8 +708,12 @@ class SummaryReport():
 
       try:
         # Categorize by executor and test_type
+        # TODO: Add detail of version, too
+        slot = '%s_%s' % (executor, test_results['version']['platformVersion'])
         if executor not in self.exec_summary:
-          self.exec_summary[executor] = [test_results]
+          ## TESTING
+          self.exec_summary[slot] = [test_results]
+          # self.exec_summary[executor] = [test_results]
         else:
           self.exec_summary[executor].append(test_results)
 
@@ -680,7 +732,7 @@ class SummaryReport():
     outList.append('Test count: %s' % entry['test_count'])
     outList.append('Succeeded: %s' % entry['pass_count'])
     outList.append('Failed: %s' % entry['fail_count'])
-    outList.append('Errors: %s' % entry['error_count'])
+    outList.append('Unsupported: %s' % entry['error_count'])
     outList.append('Missing verify: %s' % entry['missing_verify_count'])
     outList.append('<a href="%s"  target="_blank">Details</a>' %
                    entry['html_file_name'])
@@ -730,7 +782,7 @@ class SummaryReport():
       for exec in exec_list:
         # Generate a TD element with the test data
         for entry in self.type_summary[test]:
-          if entry['test_type'] == test and entry['exec'] == exec:
+          if entry['test_type'] == test and entry['exec_version'] == exec:
             try:
               test_results = self.getStats(entry)
               # Add data

@@ -1,12 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
+import math
 import os
 import re
 import sys
 
 reblankline = re.compile('^\s*$')
 
+# Global constants
+# Values to be formatted in number format tests
+NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
+
+# Which locales are selected for this testing.
+# This selects es-MX, zh-TW, bn-BD
+NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
+
+
+# Utility functions
+def computeMaxDigitsForCount(count):
+    return math.ceil(math.log10(count + 1))
 def readFile(filename):
   with open(filename, 'r', encoding='utf8') as testdata:
     return testdata.read()
@@ -35,47 +49,46 @@ def parseDcmlFmtTestData(rawtestdata):
 
 def mapFmtSkeletonToECMA402(options):
   ecma402_map = {
-      "compact-short": '"notation": "compact",\n  "compactDisplay": "short",\n',
-      "scientific/+ee/sign-always": '"notation": "scientific",\n',
+      "compact-short": {"notation": "compact",  "compactDisplay": "short"},
+      "scientific/+ee/sign-always": {"notation": "scientific"},
       # Percent with word "percent":
-      #    {'style': 'unit', unit:'percent', 'unitDisplay': 'long'})
+      "percent": {"style": "unit", "unit": "percent"},  # "style": "percent",
+      "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
+      "measure-unit/length-meter": {"style": "unit",  "unit": "meter"},
+      #"measure-unit/length-furlong": {"style": "unit", "unit": "furlong"},
+      "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "symbol"},
+      "unit-width-full-name": {"unitDisplay": "long", "currencyDisplay": "name"},
+      #"unit-width-full-name": {"unitDisplay": "long"},
+      "precision-integer": {"maximumFractionDigits": "0", "minimumFractionDigits": "0", "roundingType": "fractionDigits"},
+      ".000": {"maximumFractionDigits": "3", "minimumFractionDigits": "3"},
 
-      "percent": '"style": "unit", "unit": "percent"',  # "style": "percent",\n',
-      # "currency/EUR": '"style": "currency",\n  "currencyDisplay": "code",\n  "code": "EUR",\n',
-      "currency/EUR": '"style": "currency",\n  "currencyDisplay": "symbol",\n  "code": "EUR",\n',
-      "measure-unit/length-meter": '"style": "unit",\n  "unit": "meter",\n',
-      #"measure-unit/length-furlong": '"style": "unit",\n  "unit": "furlong",\n',
-      "unit-width-narrow": '"unitDisplay": "narrow",\n',
-      "unit-width-full-name": '"unitDisplay": "long",\n',
-      #"unit-width-full-name": '"unitDisplay": "long",\n',
-      "precision-integer": '"maximumFractionDigits": "0",\n  "minimumFractionDigits": "0",\n  "roundingType": "fractionDigits",\n',
-      ".000": '"maximumFractionDigits": "3",\n  "minimumFractionDigits": "3",\n',
-      ".##/@@@+": '"maximumFractionDigits": "2",\n  "minimumSignificantDigits": "3",\n',
-      "@@": '"maximumSignificantDigits": "2",\n  "minimumSignificantDigits": "2",\n',
-      "rounding-mode-floor": '"roundingMode": "floor",\n',
-      "integer-width/##00": '"maximumIntegerDigits": "4",\n  "minimumIntegerDigits":"2",\n',
-      "group-on-aligned": '"useGrouping": "true",\n',
-      "latin": '"numberingSystem": "latn",\n',
-      "sign-accounting-except-zero": '"signDisplay": "exceptZero",\n',
-      "0.0000E0": '"notation": "scientific",\n  "minimumIntegerDigits": "1",\n  "minimumFractionDigits": "4",\n  "maximumFractionDigits": "4",\n',
-      "00": '"minimumIntegerDigits":"2",\n',
-      "#.#": '"maximumFractionDigits": "1",\n',
-      "@@@": '"minimumSignificantDigits": "3",\n  "maximumSignificantDigits": "3",\n',
-      "@@###": '"minimumSignificantDigits": "2",\n  "maximumSignificantDigits": "5",\n',
-      "@@@@E0": '"notation": "scientific",\n  "minimumSignificantDigits": "4",\n  "maximumSignificantDigits": "4",\n',
-      "0.0##E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "3",\n',
-      "00.##E0": '"notation": "scientific",\n  "minimumIntegerDigits":"2",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "3",\n',
-      "0005": '"minimumIntegerDigits":"2",\n',
-      "0.00": '"minimumIntegerDigits":"1",\n  "minimumFractionDigits": "2",\n  "maximumFractionDigits": "2",\n',
-      "0.000E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "minimumFractionDigits": "3",\n  "maximumFractionDigits": "3",\n',
-      "0.0##": '"minimumIntegerDigits":"1",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "3",\n',
-      "#": '"minimumIntegerDigits":"1",\n  "maximumFractionDigits": "0",\n',
-      "0.#E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "maximumFractionDigits": "1",\n',
-      "0.##E0": '"notation": "scientific",\n  "minimumIntegerDigits":"1",\n  "maximumFractionDigits": "2",\n',
-      ".0E0": '"notation": "scientific",\n  "minimumIntegerDigits":"0",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "1",\n',
-      ".0#E0": '"notation": "scientific",\n  "minimumIntegerDigits":"0",\n  "minimumFractionDigits": "1",\n  "maximumFractionDigits": "2",\n',
-      "@@@@@@@@@@@@@@@@@@@@@@@@@": '"minimumSignificantDigits": "25",\n  "maximumSignificantDigits": "25",\n',
-      "0.0": '"minimumIntegerDigits":"1",\n  "minimumFractionDigits": "2",\n  "maximumFractionDigits": "2",\n'
+      # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
+      ".##/@@@+": {"maximumFractionDigits": "2", "maximumSignificantDigits": "3","roundingPriority": "morePrecision"},
+      "@@": {"maximumSignificantDigits": "2", "minimumSignificantDigits": "2"},
+      "rounding-mode-floor": {"roundingMode": "floor"},
+      "integer-width/##00": {"maximumIntegerDigits": "4", "minimumIntegerDigits":"2"},
+      "group-on-aligned": {"useGrouping": "true"},
+      "latin": {"numberingSystem": "latn"},
+      "sign-accounting-except-zero": {"signDisplay": "exceptZero"},
+      "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": "1", "minimumFractionDigits": "4", "maximumFractionDigits": "4"},
+      "00": {"minimumIntegerDigits":"2"},
+      "#.#": {"maximumFractionDigits": "1"},
+      "@@@": {"minimumSignificantDigits": "3", "maximumSignificantDigits": "3"},
+      "@@###": {"minimumSignificantDigits": "2", "maximumSignificantDigits": "5"},
+      "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": "4", "maximumSignificantDigits": "4"},
+      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
+      "00.##E0": {"notation": "scientific", "minimumIntegerDigits":"2", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
+      "0005": {"minimumIntegerDigits":"2"},
+      "0.00": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"},
+      "0.000E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "3", "maximumFractionDigits": "3"},
+      "0.0##": {"minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
+      "#": {"minimumIntegerDigits":"1", "maximumFractionDigits": "0"},
+      "0.#E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "1"},
+      "0.##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "2"},
+      ".0E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "1"},
+      ".0#E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "2"},
+      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": "25", "maximumSignificantDigits": "25"},
+      "0.0": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"}
       }
 
   ecma402_options = []
@@ -85,21 +98,11 @@ def mapFmtSkeletonToECMA402(options):
   # Look at the expected output...
   for o in options:
     if o != 'scale/0.5' and o != 'decimal-always':
-      options_str = ecma402_map[o]
-      ecma402_options.append(ecma402_map[o])
-      options_split = options_str.split(',\n')
-      for item in options_split:
-        if not item:
-            continue
-        try:
-          text = item[1:-1].replace('"', '')
-          details = text.split(':')
-          options_dict[details[0].strip()] = details[1].replace('"', '').strip()
-        except IndexError:
-          print('FAIL WITH DETAILS: %s in options_split: %s' % (item, options_split))
+      option_detail = ecma402_map[o]
+      options_dict = options_dict | option_detail
 
    # TODO: resolve some combinations of entries that are in conflict
-  return ecma402_options, options_dict
+  return  options_dict
 
 
 def mapRoundingToECMA402(rounding):
@@ -145,14 +148,18 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
   jtests = []
   jverify = []
 
-  for item in rawtestdata.splitlines():
+  # Compute max size needed for label number
+  test_lines = rawtestdata.splitlines()
+  num_samples = len(test_lines)
+  max_digits = computeMaxDigitsForCount(num_samples)
+  for item in test_lines:
     if not (recommentline.match(item) or reblankline.match(item)):
       test_data = parseLanguageNameData(item)
       if test_data == None:
-        print('  LanguageNames: Line \'%s\' not recognized as valid test data entry' % item)
+        logging.warning('  LanguageNames: Line \'%s\' not recognized as valid test data entry', (item))
         continue
       else:
-        label = str(count).rjust(7, '0')
+        label = str(count).rjust(max_digits, '0')
         test_json = {'label': label, 'language_label': test_data[0], 'locale_label': test_data[1]}
         jtests.append(test_json)
         jverify.append({'label': label, 'verify': test_data[2]})
@@ -161,11 +168,12 @@ def generateLanguageNameTestDataObjects(rawtestdata, json_tests, json_verify):
   json_tests['tests'] = jtests
   json_verify['verifications'] = jverify
 
-  print('LangNames Test: %d lines processed' % count)
+  logging.info('LangNames Test: %d lines processed', (count))
   return
 
 def generateNumberFmtTestDataObjects(rawtestdata, count=0):
   # Returns 2 lists JSON-formatted: all_tests_list, verify_list
+  original_count = count
   entry_types = {
       "compact-short": "notation",
       "scientific/+ee/sign-always": "notation",
@@ -187,64 +195,54 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
       "sign-accounting-except-zero": "sign-display",
       "decimal-always": "decimal-separator-display"
       }
-  numbers_to_test = ['0', '91827.3645', '-0.22222']
   test_list = parseNumberFmtTestData(rawtestdata)
   ecma402_options_start = ['"options": {\n']
 
   all_tests_list = []
   verify_list = []
-  for t in test_list:
+
+  expected_count = len(test_list) * len(NUMBERFORMAT_LOCALE_INDICES) * len(NUMBERS_TO_TEST) + count
+  max_digits = computeMaxDigitsForCount(expected_count)
+  logging.info('  Expected count  of number fmt tests: %s', expected_count)
+
+  for test_options in test_list:
     # The first three specify the formatting.
     # Example: compact-short percent unit-width-full-name
-    part1 = entry_types[t[0]]
-    part2 = entry_types[t[1]]
-    part3 = entry_types[t[2]]
+    part1 = entry_types[test_options[0]]
+    part2 = entry_types[test_options[1]]
+    part3 = entry_types[test_options[2]]
 
     # TODO: use combinations of part1, part2, and part3 to generate options.
     # Locales are in element 3, 7, and 11 of parsed structure.
 
-    for l in { 3, 7, 11 }:
-      for n in range(len(numbers_to_test)):
+    for locale_idx in NUMBERFORMAT_LOCALE_INDICES:
+      for number_idx in range(len(NUMBERS_TO_TEST)):
         ecma402_options = []
-        label = str(count).rjust(7, '0')
-        expected = t[l + 1 + n]
-        verifydata = '{\n  "label": "%s",\n  "verify": "%s"\n},' % (str(count).rjust(7, '0'), t[l + 1 + n])
+        label = str(count).rjust(max_digits, '0')
+        expected = test_options[locale_idx + 1 + number_idx]
         verify_json = {'label': label, 'verify': expected}
         verify_list.append(verify_json)
 
         # TODO: Use JSON module instead of print formatting
-        skeleton = '%s %s %s' % (t[0], t[1], t[2])
-        entry = {'label': str(count).rjust(7, '0'),
-                 'locale': t[l],
+        skeleton = '%s %s %s' % (test_options[0], test_options[1], test_options[2])
+        entry = {'label': label,
+                 'locale': test_options[locale_idx],
                  'skeleton': skeleton,
-                 'input': numbers_to_test[n]
+                 'input': NUMBERS_TO_TEST[number_idx]
                  }
 
-        entry_top = '{\n  "label": "%s",\n  "locale": "%s",\n  "skeleton": "%s %s %s",\n' % (str(count).rjust(7, '0'), t[l], t[0], t[1], t[2])
-        entry_bottom = '"input": "%s"\n},' % numbers_to_test[n]
-        ecma402_options_body, options_dict = mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
+        options_dict = mapFmtSkeletonToECMA402([test_options[0], test_options[1], test_options[2]])
         if not options_dict:
-            print(
-                '$$$ OPTIONS not found for %s' % label
-            )
+            logging.warning('$$$ OPTIONS not found for %s', label)
         # TODO: Look at the items in the options_dict to resolve conflicts and set up things better.
-        resolved_options_dict = resolveOptions(options_dict, t)
+        resolved_options_dict = resolveOptions(options_dict, test_options)
         # include these options in the entry
         entry = entry | {'options': resolved_options_dict}
 
-        # TODO: add resolved options to entry as json.
-
-        # Remove comma after last entry, add closing bracket.
-        (start, comma, end) = ecma402_options_body[-1].rpartition(',')
-        ecma402_options_body[-1] = start + '\n},' + end
-        ecma402_options = ecma402_options_start +  ecma402_options_body   # mapFmtSkeletonToECMA402([t[0], t[1], t[2]])
-        ecma402_jobj = ''.join(ecma402_options)
-        ecma402_entry = [entry_top] + insertJObj(ecma402_options, 2) + [entry_bottom]
-
-        # Use the entry rather than the string here
         all_tests_list.append(entry)  # All the tests in JSON form
         count += 1
-
+  logging.info('  generateNumberFmtTestDataObjects gives %d tests',
+               (count - original_count))
   return all_tests_list, verify_list, count
 
 def resolveOptions(raw_options, skeleton_list):
@@ -258,23 +256,31 @@ def resolveOptions(raw_options, skeleton_list):
     resolved['style'] = 'unit'
     resolved['unit'] = 'percent'
     if 'unit-width-full-name' in skeleton_list:
+        resolved['currencyDisplay'] = 'name'
         resolved['unitDisplay'] = 'long'
   return resolved
 
+# Count is the starting point for the values
 def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
+  original_count = count
   recommentline = re.compile('^\s*#')
   test_list = rawtestdata.splitlines()
 
   all_tests_list = []
   verify_list = []
+
+  expected = len(test_list) + count
+  logging.info('  expected count = %s', (len(test_list) -1))
+  max_digits = math.ceil(math.log10(expected + 1))
+
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
-      label = str(count).rjust(7, '0')
+      label = str(count).rjust(max_digits, '0')
       entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
-      pattern_part, json_part = mapFmtSkeletonToECMA402([pattern])
+      json_part = mapFmtSkeletonToECMA402([pattern])
 
       resolved_options_dict = resolveOptions(json_part, None)
 
@@ -289,6 +295,8 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
                           'verify': expected})
       count += 1
 
+  logging.info('  generateDcmlFmtTestDataObjects gives %d tests',
+               (count - original_count))
   return all_tests_list, verify_list, count
 
 
@@ -306,7 +314,7 @@ def generateCollTestDataObjects(testdata_list):
         if int('0x' + cp, 16) < 32 or int('0x' + cp, 16) == 127:
           testdatastring = testdatastring + '\\u' + cp
         elif cp == '0022':
-          # print('Double quote encountered')
+          # Double quote encountered
           testdatastring = testdatastring +'\\"'
         elif cp == '005C':
           testdatastring = testdatastring +'\\\\'
@@ -316,15 +324,17 @@ def generateCollTestDataObjects(testdata_list):
       colltestdata.append(testdatastring)
       n += 1
 
-  print('Coll Test: %d lines processed' % n)
-
+  logging.info('Coll Test: %d lines processed', n)
+  # Compute max size needed for label number
+  num_samples = len(colltestdata)
+  max_digits = math.ceil(math.log10(num_samples + 1))
   # Construct test data and verification entries in JSON.
   count = 0
   prev = colltestdata[0]
   test_list = []
   verify_list = []
   for t in colltestdata[1:]:
-    label = str(count).rjust(7, '0')
+    label = str(count).rjust(max_digits, '0')
     test_list.append({'label': label, 'string1': prev, 'string2': t})
     verify_list.append({'label': label, 'verify': True})
     prev = t
@@ -373,7 +383,7 @@ def processCollationTestData():
 
   coll_verify_file = open('coll_verify_shift.json', 'w')
   # The verify file doesn't need to be pretty-printed
-  json.dump(json_verify, coll_verify_file, indent=1)
+  json.dump(json_verify, coll_verify_file)  # , indent=1)
   coll_verify_file.close()
 
   return
@@ -447,7 +457,7 @@ def processNumberFmtTestData():
   rawdcmlfmttestdata = readFile('dcfmtest.txt')
   BOM = '\xef\xbb\xbf'
   if rawdcmlfmttestdata.startswith(BOM):
-    print('Skip BOM')
+    logging.info('Skip BOM')
     rawdcmlfmttestdata = rawdcmlfmttestdata[3:]
   #dcml_fmt_test, dcml_fmt_verify = processDcmlFmtTestDataObjects(rawdcmlfmttestdata)
   #dcml_fmt_test_file = open('dcml_fmt_test_file.json', 'w')
@@ -479,7 +489,7 @@ def processNumberFmtTestData():
   json.dump(json_verify, num_fmt_verify_file, indent=1)
   num_fmt_verify_file.close()
 
-  print('NumberFormat Test: %s tests created' % count)
+  logging.warning('NumberFormat Test: %s tests created', count)
   return
 
 
@@ -505,15 +515,14 @@ def processLangNameTestData():
 
 
 def main():
-  print('Generating .json files for data driven testing')
+  logging.info('Generating .json files for data driven testing')
 
+  processNumberFmtTestData()
   processLangNameTestData()
 
   processCollationTestData()
 
-  processNumberFmtTestData()
-
-  print('================================================================================')
+  logging.info('================================================================================')
 
 
 if __name__ == '__main__':

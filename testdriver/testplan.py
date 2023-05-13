@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import os
 import subprocess
+import re
 import sys
 import time
 
@@ -67,6 +68,15 @@ class TestPlan():
       # !!!
       x = 1
 
+    # Check for option to set version of executor
+    # TODO
+
+    if self.test_lang == 'node' and 'node_version' in self.options:
+      # Set up for the version of node selected
+      nvm_command = 'nvm use %s' % self.options.node_version
+      result = subprocess.run(['bash', '-c', nvm_command])
+
+
     self.inputFilePath = os.path.join(self.options.file_base,
                                       self.options.input_path,
                                       self.testData.testDataFilename)
@@ -75,6 +85,7 @@ class TestPlan():
     output_dir = self.test_lang
     self.outputFilePath = os.path.join(self.options.file_base,
                                        self.options.output_path,
+                                       self.platformVersion,
                                        output_dir,
                                       self.testData.testDataFilename)
     self.verifyFilePath = os.path.join(self.options.file_base,
@@ -119,6 +130,14 @@ class TestPlan():
       try:
         self.jsonOutput["platform"] = json.loads(result)
         self.platformVersion =  self.jsonOutput["platform"]["platformVersion"]
+        self.icuVersion =  self.jsonOutput["platform"]["icuVersion"]
+
+        # Reset the output path based on the version.
+        self.outputFilePath = os.path.join(self.options.file_base,
+                                           self.options.output_path,
+                                           self.test_lang,
+                                           self.platformVersion,
+                                           self.testData.testDataFilename)
       except:
         return None
     return True
@@ -178,28 +197,6 @@ class TestPlan():
             (self.exec_command, self.inputFilePath))
 
     # Set up calls for version data --> results
-    # Use for directory of the output results
-    self.requestExecutorInfo()
-
-    # Check if report directory exists
-    try:
-      result_dir = os.path.dirname(self.outputFilePath)
-      if not os.path.isdir(result_dir):
-        os.makedirs(result_dir)
-    except BaseException as err:
-      sys.stderr.write('!!! Cannot create directory %sfor report file %s' %
-                       (result_dir_dir, self.outputFilePath))
-      return None
-
-    # Create results file
-    try:
-      if self.debug:
-        print('++++++ Results file path = %s' % self.outputFilePath)
-      self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
-    except BaseException as err:
-      print('*** Cannot open results file at %s. Err = %s' %
-            (self.outputFilePath, err))
-      # What do do in case of error?
 
     # Clear the JSON result for the new testing.
     self.jsonOutput ={}
@@ -224,6 +221,28 @@ class TestPlan():
     is_executor_ok = self.requestExecutorInfo()
     if not is_executor_ok:
       return None
+
+    # Use for directory of the output results
+    # Check if report directory exists
+    try:
+      result_dir = os.path.dirname(self.outputFilePath)
+      if not os.path.isdir(result_dir):
+        os.makedirs(result_dir)
+    except BaseException as err:
+      sys.stderr.write('!!! Cannot create directory %sfor report file %s' %
+                       (result_dir, self.outputFilePath))
+      return None
+
+    # Create results file
+
+    try:
+      if self.debug:
+        print('++++++ Results file path = %s' % self.outputFilePath)
+      self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
+    except BaseException as err:
+      print('*** Cannot open results file at %s. Err = %s' %
+            (self.outputFilePath, err))
+      self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
 
     # Store information the test run
     test_environment = self.generateHeader();
@@ -351,13 +370,29 @@ class TestPlan():
 
     index = 0
     batchOut = []
+    should_retry = True
     for item in result.split('\n'):
       if self.debug > 1:
         print(' RESULT %d = (%d)  >%s<' % (index, len(item), item))
       if item and len(item) > 0:
-        # Check for debug data
+        # Check for special results returned from the executor,
+        # indicated by '#' in the first column of the line returned.
+        # An error is indicated by "#!!" in the first 3 columns.
+        # TODO: Document these, perhaps in the project's JSON schema.        #
         if item[0] == "#":
           print('#### DEBUG OUTPUT = %s' % item)
+
+          # Process some types of errors
+          if item[1:3] == "!!":
+            print(" !!!!!!!!!!!!!!!!! ERROR: %s" % item)
+            # Extract the message and check if we continue or not.
+            json_start = item.index('{')
+            json_text = item[json_start:]
+            print('JSON TEXT = %s' % json_text)
+            json_out = json.loads(json_text)
+            if 'error_retry' in json_out and json_out['error_retry']:
+              should_retry = json_out['error_retury']
+              print('!!! SHOULD RETRY = %s' % should_retry)
         elif item != None and item != "":
             try:
               json_out = json.loads(item)

@@ -172,14 +172,16 @@ class ICU4XVersion(Enum):
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    "19.7.0": "72.1",
-    "18.14.2": "72.1",
-    "17.9.1": "70.1",
-    "16.19.1": "71.1",
-    "16.1.0": "69.1",
-    "15.14.0": "68.1",
-    "13.14.0": "66.1",
+    "18": "72.1",
+    "16": "71.1",
+    "14": "70.1",
     }
+
+# Versions of ICU in each ICU4X release
+ICU4XVersionMap = {
+    # TODO: fill this in
+    "1.0": '71.1'
+}
 
 # Executor programs organized by langs and version
 class ExecutorInfo():
