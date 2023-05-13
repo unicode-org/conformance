@@ -9,6 +9,15 @@ import sys
 
 reblankline = re.compile('^\s*$')
 
+# Global constants
+# Values to be formatted in number format tests
+# NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
+
+# Which locales are selected for this testing.
+# This selects es-MX, zh-TW, bn-BD
+NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
+
+
 # Utility functions
 def computeMaxDigitsForCount(count):
     return math.ceil(math.log10(count + 1))
@@ -186,17 +195,12 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
       "sign-accounting-except-zero": "sign-display",
       "decimal-always": "decimal-separator-display"
       }
-  NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
   test_list = parseNumberFmtTestData(rawtestdata)
   ecma402_options_start = ['"options": {\n']
 
   all_tests_list = []
   verify_list = []
-  
-  # Which locales are selected for this testing.
-  # This selects es-MX, zh-TW, bn-BD
-  NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
-  
+
   expected_count = len(test_list) * len(NUMBERFORMAT_LOCALE_INDICES) * len(NUMBERS_TO_TEST) + count
   max_digits = computeMaxDigitsForCount(expected_count)
   logging.info('  Expected count  of number fmt tests: %s', expected_count)
