@@ -391,7 +391,7 @@ def processCollationTestData():
 
 def insert_decml_fmt_descr(tests_obj, verify_obj):
   icu_tag = 'maint-71'
-  source_url = "http://raw.githubusercontent.com/unicode-org/icu/maint/%s/icu4c/source/test/testdata/dcfmtest.txt" % (icu-tag)
+  source_url = "http://raw.githubusercontent.com/unicode-org/icu/maint/%s/icu4c/source/test/testdata/dcfmtest.txt" % (icu_tag)
   descr =   ('{\n'
              '  "description": "Decimal formatter test cases for parsing and formatting.\\n'
              '  Formatting test case elements:\\n'
