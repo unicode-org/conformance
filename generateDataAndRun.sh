@@ -17,9 +17,24 @@ mkdir -p $TEMP_DIR/testData
 
 # Compile Rust executor code for ICU4X 1.0
 pushd executors/rust/
-cargo clean
-rustup install 1.61
-rustup run 1.61 cargo build --release
+# cargo clean
+# rustup install 1.61
+# rustup run 1.61 cargo build --release
+popd
+
+pushd executors/dart_native/
+dart pub get
+dart compile exe bin/executor.dart
+popd
+
+pushd executors/dart_web/
+dart pub get
+dart compile exe bin/executor.dart
+popd
+
+pushd executors/dart_web/dart_web_client
+dart pub get
+webdev build
 popd
 
 #
@@ -41,9 +56,9 @@ mkdir -p $TEMP_DIR/testResults
 
 # Invoke all tests on all platforms
 cd testdriver
-python3 testdriver.py --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
-echo $?
-python3 testdriver.py --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+# python3 testdriver.py --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+# echo $?
+python3 testdriver.py --exec dartweb --test_type coll_shift_short --file_base ../$TEMP_DIR --per_execution 10 --run_limit 10
 echo $?
 #python3 testdriver.py --exec cpp --test_type coll_shift_short --file_base ../$TEMP_DIR --per_execution 10000
 #echo $?
@@ -56,7 +71,7 @@ echo $?
 cd ..
 mkdir -p $TEMP_DIR/testReports
 cd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
+python3 verifier.py --file_base ../$TEMP_DIR --exec dartweb --test_type coll_shift_short
 
 #python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type coll_shift_short number_fmt lang_names 
 
