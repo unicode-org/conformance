@@ -13,6 +13,8 @@ enum TestTypes {
   number_fmt;
 }
 
+var isDebug = false;
+
 Queue<String> inputs = Queue();
 
 Future<void> main() async {
@@ -23,7 +25,9 @@ Future<void> main() async {
 
   channel.stream.listen((messageEndcoded) {
     inputs.add(messageEndcoded);
-    channel.sink.add('#DEBUG: Received $messageEndcoded');
+    if (isDebug) {
+      channel.sink.add('#DEBUG: Received $messageEndcoded');
+    }
   });
 
   while (true) {
