@@ -13,7 +13,7 @@ enum TestTypes {
   number_fmt;
 }
 
-var isDebug = false;
+bool isDebug = false;
 
 Queue<String> inputs = Queue();
 
