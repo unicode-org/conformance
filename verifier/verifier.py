@@ -36,7 +36,7 @@ class Verifier():
       self.result_timestamp = datetime.fromtimestamp(
           os.path.getmtime(self.result_path)).strftime('%Y-%m-%d %H:%M')
     except BaseException as err:
-      print('    *** Cannot open results file:\n        %s' % (err))
+      print('    *** Cannot open results file %s:\n        %s' % (self.result_path, err))
       return None
 
     try:
@@ -131,12 +131,6 @@ class Verifier():
 
         verify_file_name = ddtData.testDatasets[test_type].verifyFilename
 
-        # Set the name of the verification file. These files are
-        # usually in the same directory as the test data files.
-        verify_file_path = os.path.join(self.file_base,
-                                        self.options.input_path,
-                                        verify_file_name)
-
         # All the version directories of the executor results
         results_root = os.path.join(self.file_base,
                                    self.options.output_path,
@@ -149,6 +143,20 @@ class Verifier():
         # Create a report plan for each version found for this executor.
         for result_version_path in version_result_directories:
           result_version = os.path.basename(result_version_path)
+
+          # Get the ICU version and compute the location of the verify data
+          # Set the name of the verification file. These files are
+          # usually in the same directory as the test data files.
+          test_version = os.path.basename(result_version)
+          verify_file_path = os.path.join(self.file_base,
+                                          self.options.input_path,
+                                          test_version,
+                                          verify_file_name)
+
+          testdata_path = os.path.join(self.file_base,
+                                       self.options.input_path,
+                                       test_version,
+                                       self.testData.testDataFilename)
 
           # Where the results are, under the exec path.
           result_path = os.path.join(result_version_path,
@@ -194,9 +202,10 @@ class Verifier():
 
       self.test_type = vplan.test_type
 
+      print('VERIFY %s: %s %s' % (vplan.exec, self.test_type, vplan.result_path))
       if not self.openVerifyFiles():
         continue
-      self.compareTestToExpected()
+      self.compareTestToExpected(vplan)
 
       # Save the results
       if not self.report.save_report():
@@ -271,7 +280,8 @@ class Verifier():
       print('No verify done!!!')
       return None
 
-  def compareTestToExpected(self):
+  def compareTestToExpected(self, vplan):
+    # TODO: Use vpplan to get information rather than from the
     self.getResultsAndVerifyData()
 
     self.report.test_environment = self.resultData['test_environment']
@@ -369,6 +379,7 @@ class Verifier():
     except BaseException as err:
       print('----- findTestdataWithLabel %s' % err)
       print('  No item with test_label = %s' % test_label)
+      print('  SUGGESTION: Check if test results are synched with test data!')
 
     return True
 

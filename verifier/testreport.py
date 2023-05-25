@@ -687,13 +687,15 @@ class SummaryReport():
       test_environment = test_json['test_environment']
       platform = test_json['platform']
       executor = ''
+
+      icu_version = os.path.basename(os.path.dirname(dir_path))
       try:
         executor = test_environment['test_language']
         test_type = test_environment['test_type']
         # TODO !!!: get the executor + version in here
         test_results = {
             'exec': executor,
-            'exec_version': '%s_%s' % (executor, platform['platformVersion']),
+            'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
             'test_type': test_type,
             'date_time': test_environment['datetime'],
             'test_count': int(test_environment['test_count']),
@@ -704,7 +706,8 @@ class SummaryReport():
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
             'html_file_name': relative_html_path,  # Relative to the report base
-            'version': test_json['platform']
+            'version': test_json['platform'],
+            'icu_version': icu_version
         }
 
       except BaseException as err:
@@ -751,6 +754,7 @@ class SummaryReport():
     # Create the template
     html_map = {
         'all_platforms': ', '.join(list(self.exec_summary.keys())),
+        'all_icu_versions': None,  # TEMP!!!
         'all_tests': ', '.join(list(self.type_summary.keys())),
         'datetime':  datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
     }
@@ -790,12 +794,17 @@ class SummaryReport():
       for exec in exec_list:
         # Generate a TD element with the test data
         for entry in self.type_summary[test]:
-          if entry['test_type'] == test and entry['exec_version'] == exec:
+          exec_version = entry['exec_version'].split('\n')[0]
+          icu_version = entry['exec_version'].split('\n')[1]
+          if entry['test_type'] == test and exec_version == exec:
             try:
               test_results = self.getStats(entry)
-              # Add data
+
+              # TODO: Add ICU version and detail link
+              link_info = '<a href="%s" target="_blank">Details</a>' % entry['html_file_name']
+              icu_version_and_link = '%s\n%s' % (entry['icu_version'], link_info)
               row_items[index] = self.entry_template.safe_substitute(
-                  {'report_detail': test_results})
+                  {'report_detail': icu_version_and_link})
             except BaseException as err:
               print('!!!!! Error = %s' % err)
               print('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s' %

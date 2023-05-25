@@ -12,6 +12,20 @@ class reportTemplate():
     <meta charset="UTF-8">
     <!-- https://blueprintcss.dev/docs -->
     <link href="https://unpkg.com/blueprint-css@3.1.3/dist/blueprint.min.css" rel="stylesheet" />
+
+
+    <!--Load the AJAX API for visualizing stacked bars-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+
+    <!-- Pagination via CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.js">
+    </script>
   <title>$test_type with $exec</title>
   <style>
     body {   font-family: Sans-Serif; }
@@ -148,7 +162,38 @@ class reportTemplate():
 
     }
 
-    // Get up the JSON data from the tests.
+    // UL Template for pagination
+    function simpleTemplating(data) {
+        var html = '<ul>';
+        $.each(data, function(index, item){
+            html += '<li>'+ item +'</li>';
+        });
+        html += '</ul>';
+        return html;
+    }
+
+    function onloadFn() {
+     // Set up the pagination of each set of results
+     // Start with the failures
+      $('#failing-pagination-container').pagination({
+          dataSource: fail_json,
+          pageSize: 7,
+          showGoInput: true,
+          showGoButton: true,
+          showNavigator: true,
+          formatGoInput: 'go to page <%= input %> st/rd/th',
+          formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
+          position: 'top',
+          showSizeChanger: true,
+          callback: function(data, pagination) {
+              // template method of yourself
+              var html = simpleTemplating(data);
+              $('#failing-data-container').html(html);
+              }
+        })
+    }
+
+    // Get the JSON data from the tests.
     let pass_json;
     let fail_json;
     let error_json;
@@ -168,7 +213,7 @@ class reportTemplate():
       .then((data) => {unsupported_json = data});
 </script>
   </head>
-  <body>
+  <body onload=onloadFn()>
     <h1>Verification report: $test_type on $exec</h1>
     <h2>Test details</h2>
     <details>
@@ -185,9 +230,17 @@ class reportTemplate():
     <h2 id='passingTests'>Passing tests</h2>
     <button onclick="loadJson('./pass/pass.json')">Load passing tests</button>
 
-    <h2 id='testErrors'>Test Errors ($error_count)</h2>
+    <h2>Passing data</h2>
+    <!-- Using pagination.js -->
+    <div id="passing-data-container"></div>
+    <div id="passing-pagination-container"></div>
+
+<h2 id='testErrors'>Test Errors ($error_count)</h2>
     <h3>Summary of test errors</h3>
     $error_summary
+    <div id="errors-data-container"></div>
+    <div id="errors-pagination-container"></div>
+
     <details>
     <summary>Open for all test errors</summary>
     <h3>All errors</h3>
@@ -217,6 +270,9 @@ class reportTemplate():
 </table>
 
 <h2 id='testFailures'>Failing tests detail ($failing_tests)</h2>
+    <div id="failing-data-container"></div>
+    <div id="failing-pagination-container"></div>
+
     <details>
        <summary>Open for all failing tests.</summary>
 <div bp="grid">
@@ -233,7 +289,11 @@ $failure_table_lines
     <p>Filtered count = <span id='selectedCount'>0</span>
     <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
     </p>$failures_characterized
-  </div>
+
+<h2>Unsupported tests</h2>
+    <div id="unsupported-data-container"></div>
+    <div id="unsupported-pagination-container"></div>
+</div>
 </div>
     </details>
 </body>
@@ -295,9 +355,20 @@ $failure_table_lines
          }
        }
 
-       // Create header ??
+       // TODO: Create header for each executor
+       let th = table.insertRow();
+       let td = th.insertCell();
+       td.innerHTML = "Test Type";
+
+       for (const exec of execs) {
+         td = th.insertCell();
+         td.innerHTML = exec;
+         td = th.insertCell();
+         td.innerHTML = "Details";
+       }
+
        let tr;
-       let td;
+       td;
        for (const test_type of test_types) {
          tr = table.insertRow();
          td = tr.insertCell();
@@ -305,11 +376,10 @@ $failure_table_lines
 
          const tests = exec_summary_json[test_type];
          for (const exec of execs) {
-           td = tr.insertCell();
-
            // Get all the report info for this test and this exec
            let reports = [];
            let data = [data_groups];
+           let details = [];
            for (const report of tests) {
              if (report['exec'] == exec) {
                reports.push(report);
@@ -323,30 +393,39 @@ $failure_table_lines
                  ''
                ];
                data.push(report_data);
+               let link = '<a href="' +
+                 report['html_file_name'] + '"' +
+                 ' target="_blank">' +
+                 report['version']['icuVersion'] +
+                 '</a>' + '<br />';
+               details.push(link);
              }
            }
-           // Create the data for the reports
-           // Make a new area for displaying ig.
-           let options = {
-             legend: {position: 'bottom', maxLines: 3},
-             isStacked: true,
-             width: 500, height:300, bar: {groupWidth: '75%' }
-           };
+           if (reports.length > 0) {
+              // Create the data for the reports
+              // Make a new area for displaying ig.
+              let options = {
+                legend: {position: 'bottom', maxLines: 3},
+                isStacked: true,
+                width: 500, height:300, bar: {groupWidth: '75%' }
+              };
+              td = tr.insertCell();
+              //   Set up options and links
+              const chart = new google.visualization.BarChart(td);
+              const chart_data = google.visualization.arrayToDataTable(data);
+              if (reports && reports.length > 0 && chart) {  // TODO: debug
+                chart.draw(chart_data, options);
+             } else {
+               td.innerHTML = "%s not tested in %s" % (test_type, exec);
+               td.style.textAlign = "center";
+             }
+           }
            td = tr.insertCell();
-           //   Set up options and links
-           const chart = new google.visualization.BarChart(td);
-           const chart_data = google.visualization.arrayToDataTable(data);
-           if (reports && reports.length > 0 && chart) {  // TODO: debug
-             chart.draw(chart_data, options);
-          } else {
-            td.innerHTML = "%s not tested in %s" % (test_type, exec);
-            td.style.textAlign = "center";
-          }
+           td.innerHTML = details;
          }
        }
      }
   </script>
-
   <script>
     function toggleElement(id) {
       const element = document.getElementById(id);
@@ -357,6 +436,38 @@ $failure_table_lines
       }
     }
   </script>
+
+  <style>
+h1, h2, h3, p {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#exec_summary_table, #exec_test_table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#exec_summary_table td,
+#exec_summary_table th,
+#exec_test_table td, #exec_test_table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#exec_test_table tr:nth-child(even){background-color: #f2f2f2;}
+
+#exec_test_table tr:hover {background-color: #ddd;}
+
+#exec_test_table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+</style>
+
   </head>
   <body>
     <h1>Data Driven Test Summary</h1>
@@ -369,6 +480,7 @@ $failure_table_lines
     <table id='exec_summary_table'>
     </table>
 
+    <h2>Get Test Details</h2>
     <table id='exec_test_table'>
     $exec_header_line
     $detail_lines

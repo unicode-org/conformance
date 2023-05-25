@@ -155,7 +155,7 @@ class ParallelMode(Enum):
 
 class NodeVersion(Enum):
   Node19 = "19.7.0"
-  Node18 = "18.7"
+  Node18_7 = "18.7.0"
   Node16 = "17.9.1"
 
 class RustVersion(Enum):
@@ -168,13 +168,31 @@ class CppVersion(Enum):
 class ICU4XVersion(Enum):
   ICU4XV1 = "1.0"
 
+# Versions for known executors
+# TODO: combine the version info
+IcuVersionToExecutorMap = {
+    'node': {
+        '73': ["20.1.0"],
+        '72': ['18.14.2'],
+        '71': ['18.7.0', '16.19.1'],
+        '70': ['14.21.3']
+    },
+    'icu4x': {
+        '71': ['1.0'],
+    },
+    'dart': {},
+    'icu4c': {},
+    'icu4j': {},
 
+}
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    "18": "72.1",
-    "16": "71.1",
-    "14": "70.1",
+    "20.1.0": "73.1",
+    "18.14.2": "72.1",
+    "18.7.0": "71.1",
+    "16.19.1": "71.1",
+    "14.21.3": "70.1",
     }
 
 # Versions of ICU in each ICU4X release
@@ -239,7 +257,7 @@ allExecutors.addSystem(system, NodeVersion.Node19,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
-allExecutors.addSystem(system, NodeVersion.Node18,
+allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
