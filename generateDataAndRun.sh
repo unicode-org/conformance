@@ -16,10 +16,6 @@ source $NVM_DIR/nvm.sh;
 export TEMP_DIR=TEMP_DATA
 rm -rf $TEMP_DIR
 
-# Node version: TODO update versions
-nvm use 18
-echo 'USING NODE version:' `nvm version`
-
 # Clear out old data, then create new directory and copy test / verify data there
 mkdir -p $TEMP_DIR/testData
 
