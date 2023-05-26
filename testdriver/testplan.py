@@ -1,4 +1,5 @@
 from datetime import datetime
+import glob
 import json
 import logging
 import os
@@ -41,7 +42,7 @@ class TestPlan():
 
     self.jsonOutput = {}  # Area for adding elements for the results file
     self.platformVersion = ''  # Records the executor version
-    self.icu_version = None
+    self.icu_version = None  # Requested by the test driver.
     self.run_limit = None  # Set to positive integer to activate
     self.debug = 1
 
@@ -77,11 +78,24 @@ class TestPlan():
     # Check for option to set version of executor
     # TODO
 
+    # If icu_version is "latest" or not set, get the highest numbered
+    # version of the test data
+    input_root = os.path.join(self.options.file_base,
+                              self.options.input_path)
+    icu_test_dirs = glob.glob('icu*', root_dir=input_root)
+    if not icu_test_dirs:
+      raise Exception('No ICU test data found in directory %s' % input_root)
+
+    if self.icu_version not in icu_test_dirs:
+      newest_version = sorted(icu_test_dirs, reverse=True)[0]
+      logging.info('** Replacing proposed icu version of %s with version %s',
+                   self.icu_version, newest_version)
+      self.icu_version = newest_version
+
     if self.test_lang == 'node' and 'node_version' in self.options:
       # Set up for the version of node selected
       nvm_command = 'nvm use %s' % self.options.node_version
       result = subprocess.run(['bash', '-c', nvm_command])
-
 
     self.inputFilePath = os.path.join(self.options.file_base,
                                       self.options.input_path,
@@ -444,9 +458,6 @@ class TestPlan():
     return # TODO: status
 
   def openJsonTestData(self):
-    if self.debug:
-      print('TESTPLAN 355 input file path = %s' %
-            self.inputFilePath)
     try:
       inputFile = open(self.inputFilePath,
                        encoding='utf-8', mode='r')
