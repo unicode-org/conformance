@@ -19,15 +19,3 @@ testdriver/.local-chrome/
 testgen/*.json
 
 TEMP_DATA/*
-
-executors/dart_web/.dart_tool
-executors/dart_web/dart_web_client/.dart_tool
-executors/dart_native/.dart_tool
-
-executors/dart_web/build/
-executors/dart_web/dart_web_client/build/
-executors/dart_native/build/
-
-executors/dart_web/pubspec.lock
-executors/dart_web/dart_web_client/pubspec.lock
-executors/dart_native/pubspec.lock
