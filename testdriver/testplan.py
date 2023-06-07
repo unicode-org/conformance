@@ -87,6 +87,8 @@ class TestPlan():
       raise Exception('No ICU test data found in directory %s' % input_root)
 
     if self.icu_version not in icu_test_dirs:
+      # Test data versions are given as "icu" + primary number, e.g., "73"
+      # TODO: Consider sorting with possible dotted versions, e.g., 73.1.3
       newest_version = sorted(icu_test_dirs, reverse=True)[0]
       logging.info('** Replacing proposed icu version of %s with version %s',
                    self.icu_version, newest_version)

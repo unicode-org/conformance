@@ -261,7 +261,7 @@ class TestReport():
                 'total_tests': self.number_tests,
                 'passing_tests': self.tests_pass,
                 'failing_tests': self.tests_fail,
-                'error_count': self.test_errors,
+                'error_count': len(self.test_errors),
                 'unsupported_count': len(self.unsupported_cases)
                 # ...
                 }
@@ -816,7 +816,6 @@ class SummaryReport():
 
     html_map['detail_lines'] = '\n'.join(data_rows)
 
-    # output_name = 'summary_report.html'
     output_name = 'index.html'
     # Write HTML output
     self.summary_html_path = os.path.join(self.file_base,

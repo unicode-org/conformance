@@ -11,126 +11,112 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <script type="text/javascript">
 
-    // The summary data for all the tests.
-    let exec_summary_json;
-    fetch('exec_summary.json')
-      .then((response) => response.json())
-      .then((data) => {exec_summary_json = data});
+      // The summary data for all the tests.
+      let exec_summary_json;
+      fetch('exec_summary.json')
+        .then((response) => response.json())
+        .then((data) => {exec_summary_json = data});
 
-    function loadJson(json_data) {
-      // For testing
-    }
-
-    // Load the Visualization API and the corechart package.
+      // Load the Visualization API and the corechart package.
       google.charts.load('current', {'packages':['corechart']});
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.charts.setOnLoadCallback(drawChart);
 
-     // Callback that creates and populates a data table
-     // Instantiates it with data, and draws it.
-     // TODO: Update with all the data loaded
-     function drawChart() {
-       // For each test type:
-       let table = document.getElementById('exec_summary_table')
+      // Callback that creates and populates a data table
+      // Instantiates it with data, and draws it.
+      // TODO: Update with all the data loaded
+      function drawChart() {
+          // For each test type:
+          let table = document.getElementById('exec_summary_table')
 
-       let data_groups = ['Result', 'Pass', 'Fail', 'Error', 'Unsupported',
-           {role: 'annotation'}];
+          let data_groups = ['Result', 'Pass', 'Fail', 'Error', 'Unsupported',
+                             {role: 'annotation'}];
 
-       // Get all the types of tests available
-       const test_types = Object.keys(exec_summary_json);
-       /* Get all the execs */
-       let tests_by_type_and_exec = {};
+          // Get all the types of tests available
+          const test_types = Object.keys(exec_summary_json);
+          /* Get all the execs */
+          let tests_by_type_and_exec = {};
 
-       // Find all the kinds of executors
-       let execs = new Set();
-       for (const test_type of test_types) {
-         const tests = exec_summary_json[test_type];
-         for (node_version of tests) {
-           execs.add(node_version['exec']);
-         }
-       }
+          // Find all the kinds of executors
+          let execs = new Set();
+          for (const test_type of test_types) {
+              const tests = exec_summary_json[test_type];
+              for (node_version of tests) {
+                  execs.add(node_version['exec']);
+              }
+          }
 
-       // TODO: Create header for each executor
-       let th = table.insertRow();
-       let td = th.insertCell();
-       td.innerHTML = "Test Type";
+          // TODO: Create header for each executor
+          let th = table.insertRow();
+          let td = th.insertCell();
+          td.innerHTML = "Test Type";
 
-       for (const exec of execs) {
-         td = th.insertCell();
-         td.innerHTML = exec;
-         td = th.insertCell();
-         td.innerHTML = "Details";
-       }
+          for (const exec of execs) {
+              td = th.insertCell();
+              td.innerHTML = exec;
+              td = th.insertCell();
+              td.innerHTML = "Details";
+          }
 
-       let tr;
-       td;
-       for (const test_type of test_types) {
-         tr = table.insertRow();
-         td = tr.insertCell();
-         td.innerHTML = test_type
-
-         const tests = exec_summary_json[test_type];
-         for (const exec of execs) {
-           // Get all the report info for this test and this exec
-           let reports = [];
-           let data = [data_groups];
-           let details = [];
-           for (const report of tests) {
-             if (report['exec'] == exec) {
-               reports.push(report);
-               // Add data for this report.
-               const report_data = [
-                 report['exec_version'],
-                 report['pass_count'],
-                 report['fail_count'],
-                 report['error_count'],
-                 report['unsupported_count'],
-                 ''
-               ];
-               data.push(report_data);
-               let link = '<a href="' +
-                 report['html_file_name'] + '"' +
-                 ' target="_blank">' +
-                 report['version']['icuVersion'] +
-                 '</a>';
-               details.push(link);
-             }
-           }
-           if (reports.length > 0) {
-              // Create the data for the reports
-              // Make a new area for displaying ig.
-              let options = {
-                legend: {position: 'bottom', maxLines: 3},
-                isStacked: true,
-                width: 500, height:300, bar: {groupWidth: '75%' }
-              };
+          let tr;
+          td;
+          for (const test_type of test_types) {
+              tr = table.insertRow();
               td = tr.insertCell();
-              //   Set up options and links
-              const chart = new google.visualization.BarChart(td);
-              const chart_data = google.visualization.arrayToDataTable(data);
-              if (reports && reports.length > 0 && chart) {  // TODO: debug
-                chart.draw(chart_data, options);
-             } else {
-               td.innerHTML = "%s not tested in %s" % (test_type, exec);
-               td.style.textAlign = "center";
-             }
-           }
-           td = tr.insertCell();
-           td.innerHTML = details.join('<br />);
-         }
-       }
-     }
-  </script>
-  <script>
-    function toggleElement(id) {
-      const element = document.getElementById(id);
-      if (element.style.display === "none") {
-        element.style.display = "block";
-      } else {
-        element.style.display = "none";
+              td.innerHTML = test_type
+
+              const tests = exec_summary_json[test_type];
+              for (const exec of execs) {
+                  // Get all the report info for this test and this exec
+                  let reports = [];
+                  let data = [data_groups];
+                  let details = [];
+                  for (const report of tests) {
+                      if (report['exec'] == exec) {
+                          reports.push(report);
+                          // Add data for this report.
+                          const report_data = [
+                              report['exec_version'],
+                              report['pass_count'],
+                              report['fail_count'],
+                              report['error_count'],
+                              report['unsupported_count'],
+                              ''
+                          ];
+                          data.push(report_data);
+                          let link = '<a href="' +
+                              report['html_file_name'] + '"' +
+                              ' target="_blank">' +
+                              report['version']['icuVersion'] +
+                              '</a><br />';
+                          details.push(link);
+                      }
+                  }
+                  if (reports.length > 0) {
+                      // Create the data for the reports
+                      // Make a new area for displaying ig.
+                      let options = {
+                          legend: {position: 'bottom', maxLines: 3},
+                          isStacked: true,
+                          width: 500, height:300, bar: {groupWidth: '90%' }
+                      };
+                      td = tr.insertCell();
+                      //   Set up options and links
+                      const chart = new google.visualization.BarChart(td);
+                      const chart_data = google.visualization.arrayToDataTable(data);
+                      if (reports && reports.length > 0 && chart) {  // TODO: debug
+                          chart.draw(chart_data, options);
+                      } else {
+                          td.innerHTML = "%s not tested in %s" % (test_type, exec);
+                          td.style.textAlign = "center";
+                      }
+                  }
+                  td = tr.insertCell();
+                  td.innerHTML = details.join('');
+              }
+          }
       }
-    }
   </script>
 
   <style>
@@ -155,7 +141,14 @@ h1, h2, h3, p {
 
 #exec_test_table tr:hover {background-color: #ddd;}
 
+th {
+    font-weight: bold;
+    text-align: center;
+}
+
 #exec_test_table th {
+  padding-left: 20px;
+  padding-right: 20px;
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
@@ -166,12 +159,12 @@ h1, h2, h3, p {
 
   </head>
   <body>
-    <h1>Data Driven Test Summary</h1>
-    <h3>Report generated: $datetime</h3>
+    <h1>ICU Data Driven Test Summary</h1>
     <h2>Tests and platforms</h2>
+    <h3>Report generated: $datetime</h3>
     <p>Executors verified: $all_platforms</p>
     <p>Tests verified: $all_tests</p>
-    <h2>All Tests Summary</h2>
+    <h2>Summary of all tests</h2>
 
     <table id='exec_summary_table'>
     </table>

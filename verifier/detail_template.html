@@ -14,35 +14,46 @@
     <!-- Pagination via CDN -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.js">
+      href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.6.0/pagination.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.6.0/pagination.js">
     </script>
-  <title>$test_type with $exec</title>
+
+        <!--Load the AJAX API for visualizing stacked bars-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<title>$test_type with $exec</title>
   <style>
     body {   font-family: Sans-Serif; }
 
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;
-    text-align: center;
-    }
+h1, h2, h3, p {
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-    body {   font-family: Sans-Serif; }
+td table th {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
 
-    table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 15px;o
+table tr:nth-child(even){background-color: #f2f2f2;}
+
+table tr:hover {background-color: #ddd;}
+
+th {
+    font-weight: bold;
     text-align: center;
-    }
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+table {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
   </style>
 
-    <!--Load the AJAX API for visualizing stacked bars-->
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-    <!-- JQuery -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <script type="text/javascript">
 
       // Load the Visualization API and the corechart package.
@@ -65,9 +76,6 @@
          chart.draw(data, options);
        }
      }
-</script>
-
-    <script>
     function toggleElement(id) {
       const element = document.getElementById(id);
       if (element.style.display === "none") {
@@ -153,37 +161,6 @@
 
     }
 
-    // UL Template for pagination
-    function simpleTemplating(data) {
-        var html = '<ul>';
-        $.each(data, function(index, item){
-            html += '<li>'+ item +'</li>';
-        });
-        html += '</ul>';
-        return html;
-    }
-
-    function onloadFn() {
-     // Set up the pagination of each set of results
-     // Start with the failures
-      $('#failing-pagination-container').pagination({
-          dataSource: fail_json,
-          pageSize: 7,
-          showGoInput: true,
-          showGoButton: true,
-          showNavigator: true,
-          formatGoInput: 'go to page <%= input %> st/rd/th',
-          formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
-          position: 'top',
-          showSizeChanger: true,
-          callback: function(data, pagination) {
-              // template method of yourself
-              var html = simpleTemplating(data);
-              $('#failing-data-container').html(html);
-              }
-        })
-    }
-
     // Get the JSON data from the tests.
     let pass_json;
     let fail_json;
@@ -202,90 +179,127 @@
     fetch('./unsupported/unsupported.json')
       .then((response) => unsupportd_json = response.json())
       .then((data) => {unsupported_json = data});
+
+    // UL Template for pagination
+    function simpleTemplating(data) {
+        let possible_fields = ['label', 'expected', 'result',
+                               'options', 'input_data'];
+        let html = ['<table>'];
+        for (let key of possible_fields) {
+            if (key in data[0]) {
+                html.push('<th>' + key +'</th>');
+            }
+        }
+
+        html.push('</tr>');
+        $.each(data, function(index, item){
+            html.push("<tr>");
+            for (let key of possible_fields) {
+                if (key in data[0]) {
+                    let output;
+                    if (typeof item[key] == 'object') {
+                        output = JSON.stringify(item[key]);
+                    } else {
+                        output = item[key];
+                    }
+                    html.push('<td>' + output +'</td>');
+                }
+            }
+            html.push("</tr>");
+        });
+
+        html.push('</table>');
+        return html.join('\n');
+    }
+
+    function onloadFn() {
+        // Set up the pagination of each set of results
+        // Do this for each class of results.
+        const container_types = [
+            {'type': 'failing', 'data': fail_json},
+            {'type': 'passing', 'data': pass_json},
+            {'type':'unsupported', 'data': unsupported_json},
+            {'type': 'error', 'data': error_json}
+        ];
+
+        for (c_type of container_types) {
+            let container_type = c_type['type'];
+            let data_json = c_type['data'];
+            if (data_json == 'undefined') {
+                // This may be an error
+                continue;
+            }
+            let pagination_container_name = '#' + container_type +
+                '-pagination-container';
+            let pagination_container = $(pagination_container_name);
+            let data_container_name = '#' + container_type +
+                '-data-container';
+            let data_container = $(data_container_name);
+            pagination_container.pagination({
+                dataSource: data_json,
+                pageSize: 20,
+                showSizeChanger: true,
+                showGoInput: true,
+                showGoButton: true,
+                showNavigator: true,
+                formatGoInput: 'Go to page <%= input %>',
+                formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
+                position: 'top',
+                callback: function(data, pagination) {
+                    // template method of yourself
+                    var html = simpleTemplating(data);
+                    data_container.html(html);
+                }
+            })
+        }
+    }
+
 </script>
   </head>
   <body onload=onloadFn()>
     <h1>Verification report: $test_type on $exec</h1>
     <h2>Test details</h2>
+    <h2>Platform information</h2>
     <details>
       <summary>
-    <p>$platform_info</p>
-<p>Open for details</p>
-</summary>
-    <p>$test_environment</p>
-</details>
-    <p>Result file created: $timestamp
-    <h2>Test summary</h2>
-    <p>Total: $total_tests.
-    <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
-    <h2 id='passingTests'>Passing tests</h2>
-    <button onclick="loadJson('./pass/pass.json')">Load passing tests</button>
-
-    <h2>Passing data</h2>
-    <!-- Using pagination.js -->
-    <div id="passing-data-container"></div>
-    <div id="passing-pagination-container"></div>
-
-<h2 id='testErrors'>Test Errors ($error_count)</h2>
-    <h3>Summary of test errors</h3>
-    $error_summary
-    <div id="errors-data-container"></div>
-    <div id="errors-pagination-container"></div>
-
-    <details>
-    <summary>Open for all test errors</summary>
-    <h3>All errors</h3>
-   <div bp="grid">
-     <div bp="16">
-   $error_section
-     </div>
-     <div bp="6">
-       Summary details
-     </div>
-   </div>
+        <h2>Test summary</h2>
+        <p>$platform_info</p>
+        <p>Result file created: $timestamp
+        <p>Total: $total_tests.
+        <p>Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
+      </summary>
+      <p>$test_environment</p>
     </details>
 
-    <h2 id='testUnsupported'>Unsupported Tests  ($unsupported_count)</h2>
-<h3>Summary of unsupported</h3>
-    $unsupported_summary
-<details>
-<summary>Open for all unsupported tests</summary>
-    <h3>All unsupported results</h3>
-    $unsupported_section
-</details>
-
-<table id='passing_tests_table' >
-    <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
-      <!-- For each passing test, create the output line with label
-           -->
-</table>
-
-<h2 id='testFailures'>Failing tests detail ($failing_tests)</h2>
-    <div id="failing-data-container"></div>
-    <div id="failing-pagination-container"></div>
-
     <details>
-       <summary>Open for all failing tests.</summary>
-<div bp="grid">
-  <div bp="20">
-<table id='failing_tests_table' >
-    <tr><th style="width:10%">Label</th><th style="width:20%">Expected result</th><th style="width:20%">Actual result</th><th>Test input</th></tr>
-      <!-- For each failing test, output row with columns
-           label, expected, actual, difference -->
-$failure_table_lines
-</table>
-  </div>
-  <div bp="4">
-    <h3>Failures characterized</h3>
-    <p>Filtered count = <span id='selectedCount'>0</span>
-    <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
-    </p>$failures_characterized
-
-<h2>Unsupported tests</h2>
-    <div id="unsupported-data-container"></div>
-    <div id="unsupported-pagination-container"></div>
-</div>
-</div>
+      <summary>
+        <h2>Passing tests ($passing_tests)</h2>
+      </summary>
+      <!-- Using pagination.js -->
+      <div id="passing-pagination-container"></div>
+      <div id="passing-data-container"></div>
     </details>
-</body>
+
+    <div id='test_result_details'>
+      <h2 id='testFailures'>Failing tests ($failing_tests)</h2>
+      <div id="failing-pagination-container"></div>
+      <div id="failing-data-container"></div>
+
+      <h2 id='testErrors'>Test Errors ($error_count)</h2>
+      <div id="error-pagination-container"></div>
+      <div id="error-data-container"></div>
+
+      <h2 id='testUnsupported'>Unsupported Tests  ($unsupported_count)</h2>
+      <div id="unsupported-pagination-container"></div>
+      <div id="unsupported-data-container"></div>
+
+      <div id='testFailures'>
+        <h3>Failures characterized</h3>
+        <p>Filtered count = <span id='selectedCount'>0</span>
+          <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
+        </p>$failures_characterized
+      </div>
+    </div>
+
+  </body>
 </html>
