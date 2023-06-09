@@ -396,8 +396,10 @@ class Verifier():
     baseDir = self.file_base
     if self.debug > 1:
       print('&&& FILE BASE = %s' % baseDir)
+      # Check on the path defined here
+      test_output_dir = 'testOutput'
       self.resultPath = os.path.join(
-          baseDir, 'testResults', executor, testfile)
+          baseDir, test_output_dir, executor, testfile)
       self.verifyPath = os.path.join(
           baseDir, 'testData', verifyfile)
       self.reportPath = os.path.join(
@@ -458,7 +460,8 @@ class Tester():
 
   def setupPathsAndRun(self, executor, testfile, verifyfile):
     baseDir = '.'
-    self.resultPath = os.path.join(baseDir, 'testResults', executor, testfile)
+    results_dir = 'testOutput'
+    self.resultPath = os.path.join(baseDir, results_dir, executor, testfile)
     self.verifyPath = os.path.join(baseDir, 'testData', verifyfile)
     self.reportPath = os.path.join(baseDir, 'testReports', executor, testfile)
 

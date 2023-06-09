@@ -84,15 +84,9 @@ class TestReport():
     self.report_html_path = report_html_path
     self.number_tests = 0
 
-    self.failing_tests = []  # Include label, result, and expected
-    self.tests_fail = 0
-
+    self.failing_tests = []
     self.passing_tests = []
-    self.tests_pass = 0
-
     self.test_errors = []
-    self.error_count = 0
-
     self.unsupported_cases = []
 
     self.test_type = None
@@ -125,15 +119,12 @@ class TestReport():
 
   def record_fail(self, test):
     self.failing_tests.append(test)
-    self.tests_fail += 1
 
   def record_pass(self, test):
     self.passing_tests.append(test)
-    self.tests_pass += 1
 
   def record_test_error(self, test):
     self.test_errors.append(test)
-    self.error_count +=1
 
   def record_unsupported(self, test):
     self.unsupported_cases.append(test)
@@ -142,7 +133,7 @@ class TestReport():
     self.missing_verify_data.append(test)
 
   def summary_status(self):
-    return self.tests_fail == 0 and not self.missing_verify_data
+    return len(self.failing_tests) == 0 and not self.missing_verify_data
 
   def compute_test_error_summary(self, test_errors, group_tag, detail_tag):
     # For the items, count messages and arguments for each
@@ -264,8 +255,8 @@ class TestReport():
                 'test_environment': dict_to_html(self.test_environment),
                 'timestamp': self.timestamp,
                 'total_tests': self.number_tests,
-                'passing_tests': self.tests_pass,
-                'failing_tests': self.tests_fail,
+                'passing_tests': len(self.passing_tests),
+                'failing_tests': len(self.failing_tests),
                 'error_count': len(self.test_errors),
                 'unsupported_count': len(self.unsupported_cases)
                 # ...

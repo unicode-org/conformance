@@ -25,7 +25,7 @@ import sys
 class DdtOptions():
   def __init__(self):
     self.test_data_path = 'testData'
-    self.test_output_path = 'testResults'
+    self.test_output_path = 'testOutput'
     self.test_report_path = 'testReports'
 
     self.parallel_mode = None  # For each exec or using N CPUs?
@@ -114,7 +114,7 @@ def setCommonArgs(parser):
       '--file_base', default="",
       help='Base directory for input, output, and report paths')
   parser.add_argument('--input_path', default='testData')
-  parser.add_argument('--output_path', default='testResults')
+  parser.add_argument('--output_path', default='testOutput')
   parser.add_argument('--report_path', default='testReports')
 
   parser.add_argument('--exec_mode', default='one_test')

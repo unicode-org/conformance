@@ -42,7 +42,7 @@ rustup run 1.61 cargo build --release
 popd
 
 # Executes all tests on that new data in the new directory
-mkdir -p $TEMP_DIR/testResults
+mkdir -p $TEMP_DIR/testOutput
 
 # Invoke all tests on all platforms
 pushd testdriver

@@ -213,8 +213,8 @@ class TestPlan():
 
       self.jsonOutput['errorInfo'] = errorInfo
 
-      # Create JSON output
-      self.resultsFile.write(json.dumps(self.jsonOutput, indent=2))
+      # Create JSON output. Add indent= for pretty printing.
+      self.resultsFile.write(json.dumps(self.jsonOutput))
 
       self.resultsFile.flush()
       self.resultsFile.close()
