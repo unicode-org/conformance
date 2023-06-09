@@ -29,6 +29,9 @@ class Verifier():
     # All the items that will be verified
     self.verify_plans = []
 
+    # Filename used for the json version of verifier output
+    self.report_filename = 'verifier_test_report.json'
+
   def openVerifyFiles(self):
     # Get test data, verify data, and results for a case.
     try:
@@ -104,6 +107,7 @@ class Verifier():
       # Generates exec and test lists from the existing files in
       # testResults directories
       summaryReport = SummaryReport(self.file_base)
+      summaryReport.verifier_obj = self
       summaryReport.getJsonFiles()
       summaryReport.summarizeReports()
       executor_list = summaryReport.exec_summary.keys()
@@ -168,22 +172,21 @@ class Verifier():
             self.options.report_path,
             exec, result_version, test_type)
 
-          report_path = os.path.join(report_directory, self.testData.testDataFilename)
+          report_path = os.path.join(report_directory, self.report_filename)  # self.testData.testDataFilename)
 
-          # Make file.html, removing the .json part
-          report_html_name = self.testData.testDataFilename.rpartition('.')[0] + '.html'
+          # Make name for html detail file with standard name
           report_html_path = os.path.join(
-              report_directory, report_html_name)
+              report_directory, self.report_filename.replace('.json', '.html'))
 
           # The test report to use for verification summary.
           new_report = TestReport(report_path, report_html_path)
-          # new_report.setExec
-          # new_report.setTestType
+          new_report.verifier_obj = self
 
           # The verify plan for this
           new_verify_plan = VerifyPlan(
               testdata_path, result_path, verify_file_path, report_path, result_version,
           )
+          new_verify_plan.verifier_obj = self
           new_verify_plan.setTestType(test_type)
           new_verify_plan.setExec(exec)
           new_verify_plan.setReport(new_report)
@@ -195,6 +198,7 @@ class Verifier():
     for vplan in self.verify_plans:
       self.result_path = vplan.result_path
       self.verify_path = vplan.verify_path
+
       self.report_path = vplan.report_path
       self.testdata_path = vplan.testdata_path
       self.report = vplan.report_json
@@ -430,6 +434,8 @@ class VerifyPlan():
     self.report_version = report_version
     self.exec = None
     self.test_type = None
+
+    self.verifier_obj = None  # TODO: Can I get this from the caller?
 
     # The generated data
     self.report_json = None

@@ -74,7 +74,7 @@ class reportTemplate():
     )
 
         self.checkbox_option_template = Template(
-        '<input type=checkbox id="$id" name="$name" value="$value" onclick="checkboxChanged(this);"</input><label for="$id">$count $id</label><br>'
+        '<input type=checkbox id="$id" name="$name" value="$value" onclick="checkboxChanged(this);"</input><label for="$id">$count $id</label>'
     )
 
     def reportOutline(self):

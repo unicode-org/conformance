@@ -67,6 +67,8 @@ class TestReport():
   def __init__(self, report_path, report_html_path):
     self.debug = 1
 
+    self.verifier_obj = None
+
     self.timestamp = None
     self.results = None
     self.verify = None
@@ -219,8 +221,8 @@ class TestReport():
           self.report_file_path, err))
       return None
 
-    self.createReport()
-    file.write(json.dumps(self.report))
+    report_json = self.createReport()
+    file.write(report_json)
     file.close()
 
     # TODO: Create subdirectory for json results of each type
@@ -236,7 +238,8 @@ class TestReport():
                   'unsupported': self.unsupported_cases}
     for category, case_list in categories.items():
       dir_name = self.report_directory
-      category_dir_name = os.path.join(dir_name, category)
+      # Put .json files in the same directory as the .html for the detail report
+      category_dir_name = os.path.join(dir_name)
 
       os.makedirs(category_dir_name, exist_ok=True)  # Creates the full directory path.
 
@@ -253,9 +256,12 @@ class TestReport():
 
   def create_html_report(self):
     # Human readable summary of test results
+    platform_info = '%s %s - ICU %s' % (
+        self.platform_info['platform'], self.platform_info['platformVersion'],
+        self.platform_info['icuVersion'])
     html_map = {'test_type': self.test_type,
                 'exec': self.exec,
-                'platform_info': dict_to_html(self.platform_info),
+                'platform_info': platform_info,
                 'test_environment': dict_to_html(self.test_environment),
                 'timestamp': self.timestamp,
                 'total_tests': self.number_tests,
@@ -307,7 +313,7 @@ class TestReport():
       line = self.templates.checkbox_option_template.safe_substitute(values)
       checkboxes.append(line)
       failure_labels.append(key)
-    html_map['failures_characterized'] = '<br />'.join(checkboxes)
+    html_map['failures_characterized'] = ', '.join(checkboxes)
 
     # A dictionary of failure info.
    # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
@@ -442,10 +448,8 @@ class TestReport():
           failure_combo = key + ':' + str(value)
           results[failure_combo].append(label)
 
-
       # Sort these by number of items in each set.
-
-      # Find the largest intersections of these sets and sort by size
+      # TODO: Find the largest intersections of these sets and sort by size
       combo_list = [(combo, len(results[combo])) for combo in results]
       combo_list.sort(key=takeSecond, reverse=True)
 
@@ -486,7 +490,7 @@ class TestReport():
                 elif x[2].isdigit():
                   results['insert_digit'].append(label)
                 elif x[2] in ['+', '0', '+0']:
-                  results['exponent_diff'] = append(label)
+                  results['exponent_diff'] .append(label)
                 else:
                   results['insert'].append(label)
               if x[0] == '-':
@@ -630,9 +634,12 @@ class SummaryReport():
     self.raw_reports = None
     self.debug = 0
 
+    self.verifier_obj = None
+
     self.exec_summary = {}
     self.summary_by_test_type = {}
     self.type_summary = {}
+    self.report_filename = 'verifier_test_report.json'
 
     self.templates = reportTemplate()
 
@@ -658,9 +665,11 @@ class SummaryReport():
     version_join = os.path.join(report_dir_base, '*', '*')
     self.version_directories = glob.glob(version_join)
 
-    json_raw_join = os.path.join(version_join, '*', '*.json')
+    json_raw_join = os.path.join(version_join, '*', self.report_filename)
+    # TODO!!!! Filter out the passing, failing, unsupported, and error files
     raw_reports = glob.glob(json_raw_join)
     self.raw_reports = raw_reports
+    self.raw_reports.sort()
     if self.debug > 1:
       print('SUMMARY JSON RAW FILES = %s' % (self.raw_reports))
     return self.raw_reports
@@ -684,8 +693,14 @@ class SummaryReport():
       relative_html_path = os.path.relpath(html_path, reports_base_dir)
       test_json = json.loads(file.read())
 
-      test_environment = test_json['test_environment']
-      platform = test_json['platform']
+      try:
+        test_environment = test_json['test_environment']
+        platform = test_json['platform']
+      except BaseException as err:
+        continue
+        test_environment = {}
+        platform = test_json['platform']
+
       executor = ''
 
       icu_version = os.path.basename(os.path.dirname(dir_path))
@@ -843,7 +858,7 @@ class SummaryReport():
                                           'exec_summary.json')
     try:
       exec_json_file = open(exec_summary_json_path, mode='w', encoding='utf-8')
-      summary_by_test_type = json.dumps(self.summary_by_test_type, indent=2)
+      summary_by_test_type = json.dumps(self.summary_by_test_type)
       exec_json_file.write(summary_by_test_type)
       exec_json_file.close()
     except BaseException as err:
