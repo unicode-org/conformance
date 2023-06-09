@@ -137,7 +137,6 @@ class TestReport():
 
   def record_unsupported(self, test):
     self.unsupported_cases.append(test)
-    self.error_count +=1
 
   def record_missing_verify_data(self, test):
     self.missing_verify_data.append(test)
@@ -200,12 +199,12 @@ class TestReport():
     report['platform'] = self.platform_info
     report['test_environment'] = self.test_environment
     report['timestamp'] = self.timestamp
-    report['failCount'] =  self.tests_fail
-    report['passCount'] =  self.tests_pass
-    report['failingTests'] =  self.failing_tests
+    report['failCount'] =  len(self.failing_tests)
+    report['passCount'] =  len(self.passing_tests)
+    report['failingTests'] = self.failing_tests
     report['unsupportedTests'] = len(self.unsupported_cases)
     report['missing_verify_data'] = self.missing_verify_data
-    report['test_error_count'] = self.error_count
+    report['test_error_count'] = len(self.test_errors)
 
     report['test_errors'] = self.test_errors
     report['unsupported'] = self.unsupported_cases
