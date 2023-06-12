@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8">
@@ -99,7 +100,14 @@
                       let options = {
                           legend: {position: 'bottom', maxLines: 3},
                           isStacked: true,
-                          width: 500, height:300, bar: {groupWidth: '90%' }
+                          width: 500, height:300, bar: {groupWidth: '90%' },
+                          series: {
+                              /* The color for each datat type */
+                              0: {color:'#00dd77'},  // Passing
+                              1: {color:'#dd0000'},  // Failing
+                              2: {color:'#ffdd00'},  // Error
+                              3: {color: '#777777'}  // 
+                          },
                       };
                       td = tr.insertCell();
                       //   Set up options and links

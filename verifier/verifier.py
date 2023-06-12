@@ -15,6 +15,9 @@ from testreport import TestReport
 
 from testreport import SummaryReport
 
+# Global constants
+VERIFIER_REPORT_NAME = 'verifier_test_report.json'
+
 class Verifier():
   def __init__(self):
     self.debug = 0  # Different levels
@@ -30,7 +33,7 @@ class Verifier():
     self.verify_plans = []
 
     # Filename used for the json version of verifier output
-    self.report_filename = 'verifier_test_report.json'
+    self.report_filename = VERIFIER_REPORT_NAME
 
   def openVerifyFiles(self):
     # Get test data, verify data, and results for a case.

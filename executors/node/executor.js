@@ -39,6 +39,7 @@ let langnames = require('./langnames.js')
  */
 
 let doLogInput = 0;
+let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
@@ -98,7 +99,7 @@ function parseJsonForTestId(parsed) {
   if (testId == "language_display_name") {
     return testTypes.TestLangNames;
   }
-  console.log("#*********** Unknown test type = " + testId);
+  console.log("#*********** NODE Unknown test type = " + testId);
   return null;
 
   // No test found.
@@ -151,6 +152,9 @@ rl.on('line', function(line) {
 
       // Send result to stdout for verification
       jsonOut = JSON.stringify(outputLine);
+      if (doLogOutput > 0) {
+        console.log("## ERROR " + lineId + ' ' + outputLine + ' !!!!!');
+      }
       process.stdout.write(jsonOut);
     }
 
@@ -185,8 +189,11 @@ rl.on('line', function(line) {
     // Send result to stdout for verification
     jsonOut = JSON.stringify(outputLine);
     process.stdout.write(jsonOut + '\n');
+    if (doLogOutput > 0) {
+      console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');
+    }
 
-    lineId += 1;
   }
+  lineId += 1;
 }
      )

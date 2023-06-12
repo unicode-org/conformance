@@ -1,6 +1,7 @@
 # Create JSON and HTLM reports for verification output
 
 from datasets import testType
+from datasets import ICUVersionMap
 
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
@@ -187,6 +188,17 @@ class TestReport():
 
     # Fill in the important fields.
     report['title'] = self.title
+    # Fix up the version if we can.
+    if self.platform_info['icuVersion'] == 'unknown':
+      try:
+        platform = self.platform_info['platform']
+        platform_version = self.platform_info['platformVersion']
+        map = ICUVersionMap
+        map_platform = map[platform]
+        self.platform_info['icuVersion'] = map_platform[platform_version]
+      except:
+        self.platform_info['icuVersion'] = 'Unknown'
+
     report['platform'] = self.platform_info
     report['test_environment'] = self.test_environment
     report['timestamp'] = self.timestamp
@@ -246,6 +258,16 @@ class TestReport():
 
   def create_html_report(self):
     # Human readable summary of test results
+    if self.platform_info['icuVersion'] == 'unknown':
+      try:
+        platform = self.platform_info['platform']
+        platform_version = self.platform_info['platformVersion']
+        map = ICUVersionMap
+        map_platform = map[platform]
+        self.platform_info['icuVersion'] = map_platform[platform_version]
+      except:
+        self.platform_info['icuVersion'] = 'Unknown'
+
     platform_info = '%s %s - ICU %s' % (
         self.platform_info['platform'], self.platform_info['platformVersion'],
         self.platform_info['icuVersion'])

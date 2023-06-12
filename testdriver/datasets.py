@@ -38,7 +38,6 @@ class ICUVersion(Enum):
   ICU67 = "67.1"
   ICU70 = "70.1"
   ICU71 = "71.1"
-  ICU72rc = "72rc"
   ICU72 = "72.1"
   ICU73 = "73"
 
@@ -178,7 +177,7 @@ IcuVersionToExecutorMap = {
         '70': ['14.21.3']
     },
     'icu4x': {
-        '71': ['1.0'],
+        '71': ['1.61.0'],
     },
     'dart': {},
     'icu4c': {},
@@ -198,8 +197,15 @@ NodeICUVersionMap = {
 # Versions of ICU in each ICU4X release
 ICU4XVersionMap = {
     # TODO: fill this in
-    "1.0": '71.1'
+    "1.0": '71.1',
+    "1.61.0": '71.1'
 }
+
+ICUVersionMap = {
+    'node': NodeICUVersionMap,
+    'icu4x': ICU4XVersionMap,
+    'rust': ICU4XVersionMap,
+    }
 
 # Executor programs organized by langs and version
 class ExecutorInfo():
@@ -268,7 +274,7 @@ allExecutors.addSystem(system, RustVersion.Rust01,
 
 allExecutors.addSystem(system, RustVersion.Rust1,
                        '../executors/rust/target/release/executor',
-                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU72)
+                       CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.CPP.value
 allExecutors.addSystem(

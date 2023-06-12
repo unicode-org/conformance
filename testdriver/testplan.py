@@ -97,7 +97,8 @@ class TestPlan():
     if self.test_lang == 'node' and 'node_version' in self.options:
       # Set up for the version of node selected
       nvm_command = 'nvm use %s' % self.options.node_version
-      result = subprocess.run(['bash', '-c', nvm_command])
+      # TODO: Figure out how to use nvm in a command
+      # result = subprocess.run(['bash', '-c', nvm_command])
 
     self.inputFilePath = os.path.join(self.options.file_base,
                                       self.options.input_path,
