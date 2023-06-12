@@ -1,5 +1,7 @@
 from datetime import datetime
+import glob
 import json
+import logging
 import os
 import subprocess
 import re
@@ -39,7 +41,8 @@ class TestPlan():
     self.resultsFile = None
 
     self.jsonOutput = {}  # Area for adding elements for the results file
-    self.platformVersion = ''  # Used for creating the output subdirectory
+    self.platformVersion = ''  # Records the executor version
+    self.icu_version = None  # Requested by the test driver.
     self.run_limit = None  # Set to positive integer to activate
     self.debug = 1
 
@@ -50,6 +53,10 @@ class TestPlan():
 
   def setOptions(self, options):
     self.options = options
+    try:
+      self.icu_version = options.icu_version
+    except:
+      logging.warn('NO ICU VERSION SET')
 
   def setTestData(self, test_data):
     self.testData = test_data  # ???['tests']
@@ -71,21 +78,39 @@ class TestPlan():
     # Check for option to set version of executor
     # TODO
 
+    # If icu_version is "latest" or not set, get the highest numbered
+    # version of the test data
+    input_root = os.path.join(self.options.file_base,
+                              self.options.input_path)
+    icu_test_dirs = glob.glob('icu*', root_dir=input_root)
+    if not icu_test_dirs:
+      raise Exception('No ICU test data found in directory %s' % input_root)
+
+    if self.icu_version not in icu_test_dirs:
+      # Test data versions are given as "icu" + primary number, e.g., "73"
+      # TODO: Consider sorting with possible dotted versions, e.g., 73.1.3
+      newest_version = sorted(icu_test_dirs, reverse=True)[0]
+      logging.info('** Replacing proposed icu version of %s with version %s',
+                   self.icu_version, newest_version)
+      self.icu_version = newest_version
+
     if self.test_lang == 'node' and 'node_version' in self.options:
       # Set up for the version of node selected
       nvm_command = 'nvm use %s' % self.options.node_version
-      result = subprocess.run(['bash', '-c', nvm_command])
-
+      # TODO: Figure out how to use nvm in a command
+      # result = subprocess.run(['bash', '-c', nvm_command])
 
     self.inputFilePath = os.path.join(self.options.file_base,
                                       self.options.input_path,
+                                      self.icu_version,
                                       self.testData.testDataFilename)
 
     # !!! TODO: create better lang-specific output
     output_dir = self.test_lang
     self.outputFilePath = os.path.join(self.options.file_base,
                                        self.options.output_path,
-                                       self.platformVersion,
+                                       self.options.icu_version,
+                                       # self.platformVersion,
                                        output_dir,
                                       self.testData.testDataFilename)
     self.verifyFilePath = os.path.join(self.options.file_base,
@@ -132,11 +157,15 @@ class TestPlan():
         self.platformVersion =  self.jsonOutput["platform"]["platformVersion"]
         self.icuVersion =  self.jsonOutput["platform"]["icuVersion"]
 
+        # TODO: Clean this up!
+        # Get the test data area from the icu_version
+
         # Reset the output path based on the version.
         self.outputFilePath = os.path.join(self.options.file_base,
                                            self.options.output_path,
                                            self.test_lang,
-                                           self.platformVersion,
+                                           self.options.icu_version,
+                                           # self.platformVersion,
                                            self.testData.testDataFilename)
       except:
         return None
@@ -185,8 +214,8 @@ class TestPlan():
 
       self.jsonOutput['errorInfo'] = errorInfo
 
-      # Create JSON output
-      self.resultsFile.write(json.dumps(self.jsonOutput, indent=2))
+      # Create JSON output. Add indent= for pretty printing.
+      self.resultsFile.write(json.dumps(self.jsonOutput))
 
       self.resultsFile.flush()
       self.resultsFile.close()
@@ -203,6 +232,10 @@ class TestPlan():
 
     # Open the input file and get tests
     tests = self.openJsonTestData()
+
+    if not tests:
+      # The test data was not found. Skip this test.
+      return None
 
     if self.debug:
       print('@@@ %d tests found' % (len(tests)))
@@ -428,9 +461,6 @@ class TestPlan():
     return # TODO: status
 
   def openJsonTestData(self):
-    if self.debug:
-      print('TESTPLAN 355 input file path = %s' %
-            self.inputFilePath)
     try:
       inputFile = open(self.inputFilePath,
                        encoding='utf-8', mode='r')

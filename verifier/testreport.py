@@ -1,6 +1,7 @@
 # Create JSON and HTLM reports for verification output
 
 from datasets import testType
+from datasets import ICUVersionMap
 
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
@@ -67,6 +68,8 @@ class TestReport():
   def __init__(self, report_path, report_html_path):
     self.debug = 1
 
+    self.verifier_obj = None
+
     self.timestamp = None
     self.results = None
     self.verify = None
@@ -82,15 +85,9 @@ class TestReport():
     self.report_html_path = report_html_path
     self.number_tests = 0
 
-    self.failing_tests = []  # Include label, result, and expected
-    self.tests_fail = 0
-
+    self.failing_tests = []
     self.passing_tests = []
-    self.tests_pass = 0
-
     self.test_errors = []
-    self.error_count = 0
-
     self.unsupported_cases = []
 
     self.test_type = None
@@ -123,25 +120,21 @@ class TestReport():
 
   def record_fail(self, test):
     self.failing_tests.append(test)
-    self.tests_fail += 1
 
   def record_pass(self, test):
     self.passing_tests.append(test)
-    self.tests_pass += 1
 
   def record_test_error(self, test):
     self.test_errors.append(test)
-    self.error_count +=1
 
   def record_unsupported(self, test):
     self.unsupported_cases.append(test)
-    self.error_count +=1
 
   def record_missing_verify_data(self, test):
     self.missing_verify_data.append(test)
 
   def summary_status(self):
-    return self.tests_fail == 0 and not self.missing_verify_data
+    return len(self.failing_tests) == 0 and not self.missing_verify_data
 
   def compute_test_error_summary(self, test_errors, group_tag, detail_tag):
     # For the items, count messages and arguments for each
@@ -195,14 +188,26 @@ class TestReport():
 
     # Fill in the important fields.
     report['title'] = self.title
+    # Fix up the version if we can.
+    if self.platform_info['icuVersion'] == 'unknown':
+      try:
+        platform = self.platform_info['platform']
+        platform_version = self.platform_info['platformVersion']
+        map = ICUVersionMap
+        map_platform = map[platform]
+        self.platform_info['icuVersion'] = map_platform[platform_version]
+      except:
+        self.platform_info['icuVersion'] = 'Unknown'
+
     report['platform'] = self.platform_info
     report['test_environment'] = self.test_environment
     report['timestamp'] = self.timestamp
-    report['failCount'] =  "{:,}".format(self.tests_fail)
-    report['passCount'] =  "{:,}".format(self.tests_pass)
-    report['failingTests'] =  self.failing_tests
+    report['failCount'] =  len(self.failing_tests)
+    report['passCount'] =  len(self.passing_tests)
+    report['failingTests'] = self.failing_tests
+    report['unsupportedTests'] = len(self.unsupported_cases)
     report['missing_verify_data'] = self.missing_verify_data
-    report['test_error_count'] =  "{:,}".format(self.error_count)
+    report['test_error_count'] = len(self.test_errors)
 
     report['test_errors'] = self.test_errors
     report['unsupported'] = self.unsupported_cases
@@ -218,8 +223,8 @@ class TestReport():
           self.report_file_path, err))
       return None
 
-    self.createReport()
-    file.write(json.dumps(self.report))
+    report_json = self.createReport()
+    file.write(report_json)
     file.close()
 
     # TODO: Create subdirectory for json results of each type
@@ -235,7 +240,8 @@ class TestReport():
                   'unsupported': self.unsupported_cases}
     for category, case_list in categories.items():
       dir_name = self.report_directory
-      category_dir_name = os.path.join(dir_name, category)
+      # Put .json files in the same directory as the .html for the detail report
+      category_dir_name = os.path.join(dir_name)
 
       os.makedirs(category_dir_name, exist_ok=True)  # Creates the full directory path.
 
@@ -252,16 +258,29 @@ class TestReport():
 
   def create_html_report(self):
     # Human readable summary of test results
+    if self.platform_info['icuVersion'] == 'unknown':
+      try:
+        platform = self.platform_info['platform']
+        platform_version = self.platform_info['platformVersion']
+        map = ICUVersionMap
+        map_platform = map[platform]
+        self.platform_info['icuVersion'] = map_platform[platform_version]
+      except:
+        self.platform_info['icuVersion'] = 'Unknown'
+
+    platform_info = '%s %s - ICU %s' % (
+        self.platform_info['platform'], self.platform_info['platformVersion'],
+        self.platform_info['icuVersion'])
     html_map = {'test_type': self.test_type,
                 'exec': self.exec,
-                'platform_info': dict_to_html(self.platform_info),
+                'platform_info': platform_info,
                 'test_environment': dict_to_html(self.test_environment),
                 'timestamp': self.timestamp,
-                'total_tests': "{:,}".format(self.number_tests),
-                'passing_tests': "{:,}".format(self.tests_pass),
-                'failing_tests': "{:,}".format(self.tests_fail),
-                'error_count': "{:,}".format(len(self.test_errors)),
-                'unsupported_count': "{:,}".format(len(self.unsupported_cases))
+                'total_tests': self.number_tests,
+                'passing_tests': len(self.passing_tests),
+                'failing_tests': len(self.failing_tests),
+                'error_count': len(self.test_errors),
+                'unsupported_count': len(self.unsupported_cases)
                 # ...
                 }
 
@@ -306,7 +325,7 @@ class TestReport():
       line = self.templates.checkbox_option_template.safe_substitute(values)
       checkboxes.append(line)
       failure_labels.append(key)
-    html_map['failures_characterized'] = '<br />'.join(checkboxes)
+    html_map['failures_characterized'] = ', '.join(checkboxes)
 
     # A dictionary of failure info.
    # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
@@ -441,10 +460,8 @@ class TestReport():
           failure_combo = key + ':' + str(value)
           results[failure_combo].append(label)
 
-
       # Sort these by number of items in each set.
-
-      # Find the largest intersections of these sets and sort by size
+      # TODO: Find the largest intersections of these sets and sort by size
       combo_list = [(combo, len(results[combo])) for combo in results]
       combo_list.sort(key=takeSecond, reverse=True)
 
@@ -485,14 +502,14 @@ class TestReport():
                 elif x[2].isdigit():
                   results['insert_digit'].append(label)
                 elif x[2] in ['+', '0', '+0']:
-                  results['exponent_diff'] = append(label)
+                  results['exponent_diff'] .append(label)
                 else:
                   results['insert'].append(label)
               if x[0] == '-':
                 if x[2].isdigit():
                   results['delete_digit'].append(fail['label'])
                 elif x[2] in ['+', '0', '+0']:
-                  results['exponent_diff'] = append(label)
+                  results['exponent_diff'].append(label)
                 else:
                   results['delete'].append(fail['label'])
       except BaseException as err:
@@ -629,8 +646,12 @@ class SummaryReport():
     self.raw_reports = None
     self.debug = 0
 
+    self.verifier_obj = None
+
     self.exec_summary = {}
+    self.summary_by_test_type = {}
     self.type_summary = {}
+    self.report_filename = 'verifier_test_report.json'
 
     self.templates = reportTemplate()
 
@@ -656,9 +677,11 @@ class SummaryReport():
     version_join = os.path.join(report_dir_base, '*', '*')
     self.version_directories = glob.glob(version_join)
 
-    json_raw_join = os.path.join(version_join, '*', '*.json')
+    json_raw_join = os.path.join(version_join, '*', self.report_filename)
+    # TODO!!!! Filter out the passing, failing, unsupported, and error files
     raw_reports = glob.glob(json_raw_join)
     self.raw_reports = raw_reports
+    self.raw_reports.sort()
     if self.debug > 1:
       print('SUMMARY JSON RAW FILES = %s' % (self.raw_reports))
     return self.raw_reports
@@ -668,6 +691,7 @@ class SummaryReport():
     self.summarizeReports()  # Initializes exec_summary and test_summary
 
   def summarizeReports(self):
+
     # Get summary data by executor for each test and by test for each executor
     for filename in self.raw_reports:
       file = open(filename, encoding='utf-8', mode='r')
@@ -681,30 +705,45 @@ class SummaryReport():
       relative_html_path = os.path.relpath(html_path, reports_base_dir)
       test_json = json.loads(file.read())
 
-      test_environment = test_json['test_environment']
-      platform = test_json['platform']
+      try:
+        test_environment = test_json['test_environment']
+        platform = test_json['platform']
+      except BaseException as err:
+        continue
+        test_environment = {}
+        platform = test_json['platform']
+
       executor = ''
+
+      icu_version = os.path.basename(os.path.dirname(dir_path))
       try:
         executor = test_environment['test_language']
         test_type = test_environment['test_type']
         # TODO !!!: get the executor + version in here
         test_results = {
             'exec': executor,
-            'exec_version': '%s_%s' % (executor, platform['platformVersion']),
+            'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
             'test_type': test_type,
             'date_time': test_environment['datetime'],
-            'test_count': test_environment['test_count'],
-            'fail_count': test_json['failCount'],
-            'pass_count': test_json['passCount'],
-            'error_count': test_json['test_error_count'],
+            'test_count': int(test_environment['test_count']),
+            'fail_count': int(test_json['failCount']),
+            'pass_count': int(test_json['passCount']),
+            'error_count': int(test_json['test_error_count']),
+            'unsupported_count': len(test_json['unsupported']),
             'missing_verify_count': len(test_json['missing_verify_data']),
             'json_file_name': filename,
             'html_file_name': relative_html_path,  # Relative to the report base
-            'version': test_json['platform']
+            'version': test_json['platform'],
+            'icu_version': icu_version
         }
 
       except BaseException as err:
         print('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
+
+      if test_type not in self.summary_by_test_type:
+        self.summary_by_test_type[test_type] = [test_results]
+      else:
+        self.summary_by_test_type[test_type].append(test_results)
 
       try:
         # Categorize by executor and test_type
@@ -725,15 +764,14 @@ class SummaryReport():
       except BaseException as err:
         print('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s' % (
             executor, test_type, err))
-
   def getStats(self, entry):
     # Process items in a map to give HTML table value
     outList = []
-    outList.append('Test count: %s' % entry['test_count'])
-    outList.append('Succeeded: %s' % entry['pass_count'])
-    outList.append('Failed: %s' % entry['fail_count'])
-    outList.append('Unsupported: %s' % entry['error_count'])
-    outList.append('Missing verify: %s' % entry['missing_verify_count'])
+    outList.append('Test count: %s' % '{:,}'.format(entry['test_count']))
+    outList.append('Succeeded: %s' % '{:,}'.format(entry['pass_count']))
+    outList.append('Failed: %s' % '{:,}'.format(entry['fail_count']))
+    outList.append('Unsupported: %s' % '{:,}'.format(entry['error_count']))
+    outList.append('Missing verify: %s' % '{:,}'.format(entry['missing_verify_count']))
     outList.append('<a href="%s"  target="_blank">Details</a>' %
                    entry['html_file_name'])
     return '    \n<br>'.join(outList) + '</a>'
@@ -743,6 +781,7 @@ class SummaryReport():
     # Create the template
     html_map = {
         'all_platforms': ', '.join(list(self.exec_summary.keys())),
+        'all_icu_versions': None,  # TEMP!!!
         'all_tests': ', '.join(list(self.type_summary.keys())),
         'datetime':  datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
     }
@@ -782,12 +821,17 @@ class SummaryReport():
       for exec in exec_list:
         # Generate a TD element with the test data
         for entry in self.type_summary[test]:
-          if entry['test_type'] == test and entry['exec_version'] == exec:
+          exec_version = entry['exec_version'].split('\n')[0]
+          icu_version = entry['exec_version'].split('\n')[1]
+          if entry['test_type'] == test and exec_version == exec:
             try:
               test_results = self.getStats(entry)
-              # Add data
+
+              # TODO: Add ICU version and detail link
+              link_info = '<a href="%s" target="_blank">Details</a>' % entry['html_file_name']
+              icu_version_and_link = '%s\n%s' % (entry['icu_version'], link_info)
               row_items[index] = self.entry_template.safe_substitute(
-                  {'report_detail': test_results})
+                  {'report_detail': icu_version_and_link})
             except BaseException as err:
               print('!!!!! Error = %s' % err)
               print('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s' %
@@ -799,7 +843,6 @@ class SummaryReport():
 
     html_map['detail_lines'] = '\n'.join(data_rows)
 
-    # output_name = 'summary_report.html'
     output_name = 'index.html'
     # Write HTML output
     self.summary_html_path = os.path.join(self.file_base,
@@ -820,6 +863,19 @@ class SummaryReport():
       print('HTML OUTPUT FILEPATH =%s' % (self.summary_html_path))
     file.write(html_output)
     file.close()
+
+    # Save the exec_summary.json
+    exec_summary_json_path = os.path.join(self.file_base,
+                                          self.report_dir_name,
+                                          'exec_summary.json')
+    try:
+      exec_json_file = open(exec_summary_json_path, mode='w', encoding='utf-8')
+      summary_by_test_type = json.dumps(self.summary_by_test_type)
+      exec_json_file.write(summary_by_test_type)
+      exec_json_file.close()
+    except BaseException as err:
+      sys.stderr.write('!!! Cannot write exec_summary.json')
+
     return html_output
 
   def publish_results(self):

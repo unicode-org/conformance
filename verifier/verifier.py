@@ -15,6 +15,9 @@ from testreport import TestReport
 
 from testreport import SummaryReport
 
+# Global constants
+VERIFIER_REPORT_NAME = 'verifier_test_report.json'
+
 class Verifier():
   def __init__(self):
     self.debug = 0  # Different levels
@@ -29,6 +32,9 @@ class Verifier():
     # All the items that will be verified
     self.verify_plans = []
 
+    # Filename used for the json version of verifier output
+    self.report_filename = VERIFIER_REPORT_NAME
+
   def openVerifyFiles(self):
     # Get test data, verify data, and results for a case.
     try:
@@ -36,7 +42,7 @@ class Verifier():
       self.result_timestamp = datetime.fromtimestamp(
           os.path.getmtime(self.result_path)).strftime('%Y-%m-%d %H:%M')
     except BaseException as err:
-      print('    *** Cannot open results file:\n        %s' % (err))
+      print('    *** Cannot open results file %s:\n        %s' % (self.result_path, err))
       return None
 
     try:
@@ -104,6 +110,7 @@ class Verifier():
       # Generates exec and test lists from the existing files in
       # testResults directories
       summaryReport = SummaryReport(self.file_base)
+      summaryReport.verifier_obj = self
       summaryReport.getJsonFiles()
       summaryReport.summarizeReports()
       executor_list = summaryReport.exec_summary.keys()
@@ -131,12 +138,6 @@ class Verifier():
 
         verify_file_name = ddtData.testDatasets[test_type].verifyFilename
 
-        # Set the name of the verification file. These files are
-        # usually in the same directory as the test data files.
-        verify_file_path = os.path.join(self.file_base,
-                                        self.options.input_path,
-                                        verify_file_name)
-
         # All the version directories of the executor results
         results_root = os.path.join(self.file_base,
                                    self.options.output_path,
@@ -150,6 +151,20 @@ class Verifier():
         for result_version_path in version_result_directories:
           result_version = os.path.basename(result_version_path)
 
+          # Get the ICU version and compute the location of the verify data
+          # Set the name of the verification file. These files are
+          # usually in the same directory as the test data files.
+          test_version = os.path.basename(result_version)
+          verify_file_path = os.path.join(self.file_base,
+                                          self.options.input_path,
+                                          test_version,
+                                          verify_file_name)
+
+          testdata_path = os.path.join(self.file_base,
+                                       self.options.input_path,
+                                       test_version,
+                                       self.testData.testDataFilename)
+
           # Where the results are, under the exec path.
           result_path = os.path.join(result_version_path,
                                      self.testData.testDataFilename)
@@ -160,22 +175,21 @@ class Verifier():
             self.options.report_path,
             exec, result_version, test_type)
 
-          report_path = os.path.join(report_directory, self.testData.testDataFilename)
+          report_path = os.path.join(report_directory, self.report_filename)  # self.testData.testDataFilename)
 
-          # Make file.html, removing the .json part
-          report_html_name = self.testData.testDataFilename.rpartition('.')[0] + '.html'
+          # Make name for html detail file with standard name
           report_html_path = os.path.join(
-              report_directory, report_html_name)
+              report_directory, self.report_filename.replace('.json', '.html'))
 
           # The test report to use for verification summary.
           new_report = TestReport(report_path, report_html_path)
-          # new_report.setExec
-          # new_report.setTestType
+          new_report.verifier_obj = self
 
           # The verify plan for this
           new_verify_plan = VerifyPlan(
               testdata_path, result_path, verify_file_path, report_path, result_version,
           )
+          new_verify_plan.verifier_obj = self
           new_verify_plan.setTestType(test_type)
           new_verify_plan.setExec(exec)
           new_verify_plan.setReport(new_report)
@@ -187,6 +201,7 @@ class Verifier():
     for vplan in self.verify_plans:
       self.result_path = vplan.result_path
       self.verify_path = vplan.verify_path
+
       self.report_path = vplan.report_path
       self.testdata_path = vplan.testdata_path
       self.report = vplan.report_json
@@ -194,9 +209,10 @@ class Verifier():
 
       self.test_type = vplan.test_type
 
+      print('VERIFY %s: %s %s' % (vplan.exec, self.test_type, vplan.result_path))
       if not self.openVerifyFiles():
         continue
-      self.compareTestToExpected()
+      self.compareTestToExpected(vplan)
 
       # Save the results
       if not self.report.save_report():
@@ -271,7 +287,8 @@ class Verifier():
       print('No verify done!!!')
       return None
 
-  def compareTestToExpected(self):
+  def compareTestToExpected(self, vplan):
+    # TODO: Use vpplan to get information rather than from the
     self.getResultsAndVerifyData()
 
     self.report.test_environment = self.resultData['test_environment']
@@ -369,6 +386,7 @@ class Verifier():
     except BaseException as err:
       print('----- findTestdataWithLabel %s' % err)
       print('  No item with test_label = %s' % test_label)
+      print('  SUGGESTION: Check if test results are synched with test data!')
 
     return True
 
@@ -381,8 +399,10 @@ class Verifier():
     baseDir = self.file_base
     if self.debug > 1:
       print('&&& FILE BASE = %s' % baseDir)
+      # Check on the path defined here
+      test_output_dir = 'testOutput'
       self.resultPath = os.path.join(
-          baseDir, 'testResults', executor, testfile)
+          baseDir, test_output_dir, executor, testfile)
       self.verifyPath = os.path.join(
           baseDir, 'testData', verifyfile)
       self.reportPath = os.path.join(
@@ -420,6 +440,8 @@ class VerifyPlan():
     self.exec = None
     self.test_type = None
 
+    self.verifier_obj = None  # TODO: Can I get this from the caller?
+
     # The generated data
     self.report_json = None
 
@@ -441,7 +463,8 @@ class Tester():
 
   def setupPathsAndRun(self, executor, testfile, verifyfile):
     baseDir = '.'
-    self.resultPath = os.path.join(baseDir, 'testResults', executor, testfile)
+    results_dir = 'testOutput'
+    self.resultPath = os.path.join(baseDir, results_dir, executor, testfile)
     self.verifyPath = os.path.join(baseDir, 'testData', verifyfile)
     self.reportPath = os.path.join(baseDir, 'testReports', executor, testfile)
 

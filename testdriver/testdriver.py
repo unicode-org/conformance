@@ -25,7 +25,7 @@ class TestDriver():
 
   def setArgs(self, argOptions):
     # Options come from parse of command line
-    self.icuVersion = argOptions.icu
+    self.icuVersion = argOptions.icu_version
     self.cldrVersion = argOptions.cldr
 
     # Create "test plans" for each option
