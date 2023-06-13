@@ -38,6 +38,7 @@ class ICUVersion(Enum):
   ICU67 = "67.1"
   ICU70 = "70.1"
   ICU71 = "71.1"
+  ICU72rc = "72rc"
   ICU72 = "72.1"
   ICU73 = "73"
 
@@ -45,7 +46,7 @@ class ICUVersion(Enum):
 # a complete release.
 
 def latestIcuVersion():
-  return ICUVersion.ICU72
+  return ICUVersion.ICU73
 
 # TODO: consider how to handle trunk version vs "LATEST"
 # e.g., use wget on file uvernum.h, looking up #define U_ICU_VERSION
@@ -63,7 +64,7 @@ class CLDRVersion(Enum):
   CLDR43 = "43"
 
 def latestCldrVersion():
-  return CLDRVersion.CLDR42
+  return CLDRVersion.CLDR41  # TODO: Fix this
 
 def resolveCldr(text):
   if not text or text == 'LATEST':
@@ -75,7 +76,9 @@ def resolveCldr(text):
 # TODO: finish this map for recent CLDR
 cldr_icu_map = {
     CLDRVersion.CLDR40: [ICUVersion.ICU70, ICUVersion.ICU71],
-    CLDRVersion.CLDR41: [ICUVersion.ICU72],
+    CLDRVersion.CLDR41: [ICUVersion.ICU71],
+    CLDRVersion.CLDR42: [ICUVersion.ICU72],
+    CLDRVersion.CLDR43: [ICUVersion.ICU73],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -272,6 +275,7 @@ allExecutors.addSystem(system, RustVersion.Rust01,
                        '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
+system = ExecutorLang.RUST.value
 allExecutors.addSystem(system, RustVersion.Rust1,
                        '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
@@ -280,7 +284,7 @@ system = ExecutorLang.CPP.value
 allExecutors.addSystem(
     system, CppVersion.Cpp,
     '../executors/cpp/executor',
-    CLDRVersion.CLDR42, versionICU=ICUVersion.ICU73,
+    CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73,
     env={'LD_LIBRARY_PATH': '/tmp/icu73/lib', 'PATH': '/tmp/icu73/bin'})
 
 system = "newLanguage"
