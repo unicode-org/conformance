@@ -46,7 +46,7 @@ class ICUVersion(Enum):
 # a complete release.
 
 def latestIcuVersion():
-  return ICUVersion.ICU72
+  return ICUVersion.ICU73
 
 # TODO: consider how to handle trunk version vs "LATEST"
 # e.g., use wget on file uvernum.h, looking up #define U_ICU_VERSION
@@ -64,7 +64,7 @@ class CLDRVersion(Enum):
   CLDR43 = "43"
 
 def latestCldrVersion():
-  return CLDRVersion.CLDR42
+  return CLDRVersion.CLDR41  # TODO: Fix this
 
 def resolveCldr(text):
   if not text or text == 'LATEST':
@@ -76,7 +76,9 @@ def resolveCldr(text):
 # TODO: finish this map for recent CLDR
 cldr_icu_map = {
     CLDRVersion.CLDR40: [ICUVersion.ICU70, ICUVersion.ICU71],
-    CLDRVersion.CLDR41: [ICUVersion.ICU72],
+    CLDRVersion.CLDR41: [ICUVersion.ICU71],
+    CLDRVersion.CLDR42: [ICUVersion.ICU72],
+    CLDRVersion.CLDR43: [ICUVersion.ICU73],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -158,7 +160,7 @@ class ParallelMode(Enum):
 
 class NodeVersion(Enum):
   Node19 = "19.7.0"
-  Node18 = "18.7"
+  Node18_7 = "18.7.0"
   Node16 = "17.9.1"
 
 class DartVersion(Enum):
@@ -174,20 +176,45 @@ class CppVersion(Enum):
 class ICU4XVersion(Enum):
   ICU4XV1 = "1.0"
 
+# Versions for known executors
+# TODO: combine the version info
+IcuVersionToExecutorMap = {
+    'node': {
+        '73': ["20.1.0"],
+        '72': ['18.14.2'],
+        '71': ['18.7.0', '16.19.1'],
+        '70': ['14.21.3']
+    },
+    'icu4x': {
+        '71': ['1.61.0'],
+    },
+    'dart': {},
+    'icu4c': {},
+    'icu4j': {},
 
+}
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    "18": "72.1",
-    "16": "71.1",
-    "14": "70.1",
+    "20.1.0": "73.1",
+    "18.14.2": "72.1",
+    "18.7.0": "71.1",
+    "16.19.1": "71.1",
+    "14.21.3": "70.1",
     }
 
 # Versions of ICU in each ICU4X release
 ICU4XVersionMap = {
     # TODO: fill this in
-    "1.0": '71.1'
+    "1.0": '71.1',
+    "1.61.0": '71.1'
 }
+
+ICUVersionMap = {
+    'node': NodeICUVersionMap,
+    'icu4x': ICU4XVersionMap,
+    'rust': ICU4XVersionMap,
+    }
 
 # Executor programs organized by langs and version
 class ExecutorInfo():
@@ -245,7 +272,7 @@ allExecutors.addSystem(system, NodeVersion.Node19,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
-allExecutors.addSystem(system, NodeVersion.Node18,
+allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
@@ -254,15 +281,16 @@ allExecutors.addSystem(system, RustVersion.Rust01,
                        '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
+system = ExecutorLang.RUST.value
 allExecutors.addSystem(system, RustVersion.Rust1,
                        '../executors/rust/target/release/executor',
-                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU72)
+                       CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.CPP.value
 allExecutors.addSystem(
     system, CppVersion.Cpp,
     '../executors/cpp/executor',
-    CLDRVersion.CLDR42, versionICU=ICUVersion.ICU73,
+    CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73,
     env={'LD_LIBRARY_PATH': '/tmp/icu73/lib', 'PATH': '/tmp/icu73/bin'})
 
 system = "newLanguage"

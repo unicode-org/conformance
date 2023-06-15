@@ -22,6 +22,30 @@ libraries. Many additional tests are implmeneted in the
 
 # Components of Data Driven Test
 
+## ICU versions for data and testing
+
+Each ICU test program is built with a specific version of ICU & CLDR data. These
+versions are updated periodically. For each ICU version, there is a specific
+CLDR version, e.g., ICU73 uses data from CLDR 43, although multiple ICU releases
+may depend on the same CLDR data.
+
+For this reason, specifying a particular ICU version for test data or test
+executor or both
+
+Each part of Data Driven Testing is designed to handle a specific ICU version.
+
+* Data generation uses specifications starting with ICU versions 70, 71, etc. For each ICU release, these data should be updated.
+
+* Test execution allows setting the data version explictly with a command line
+  argument --icuversion that points to the indicated test data. The ICU version
+  of the test executor platform is requested from each platform at the start of
+  the test driver. Output directories are created under the platform for the
+  test results running a particular ICU version, e.g., testOutput/node/icu73.
+
+* Test verification uses ICU version information in the test output files for
+  matching with the corresponding expected results. Verification output appears
+  in the testResults subdirectory for each node, e.g. testOutput/rust/icu71.
+  
 ## Architectural Overview
 
 Conceptually, there are three main functional units of the DDT implementation:
@@ -124,7 +148,7 @@ set up as follows:
   * Verify files for each test type. Each contains a list of test labels and
   expected results from the corresponding tests.
 
-## Directory testResults
+## Directory testOutput
 
 This contains a subdirectory for each executor. The output file from each test
 is stored in thes appropriate subdirectory. Each test result contains the label
@@ -133,7 +157,7 @@ string.
 
 The results file contains information identifying the test environment as well
 as the result from each test. As an example, collation test results from the
-testResults/node file are shown here:
+testOutput/node file are shown here:
 
 ```
 {
@@ -148,8 +172,8 @@ testResults/node file are shown here:
     "test_type": "coll_shift_short",
     "datetime": "10/07/2022, 16:19:00",
     "timestamp": "1665184740.2130146",
-    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/coll_test_shift.json",
-    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testResults/nodejs/coll_test_shift.json",
+    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/coll_test_shift.json",
+    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testOutputs/node/icu73/coll_test_shift.json",
     "icu_version": "ICUVersion.ICU71",
     "cldr_version": "CLDRVersion.CLDR41",
     "test_count": "192707"
@@ -169,9 +193,26 @@ testResults/node file are shown here:
 ```
 
 ## Directory testReports
-This directory stores summary results from testing by each executor. The data
-files are short JSON structures with summary information on the test results. At
-a minimum, each report will contain:
+This directory stores summary results from verifying the tests performed by each executor. Included in the testReports directory are:
+
+* index.html: shows all tests run and verified for all executors and versions. Requires a webserver to display this properly.
+
+* exec_summary.json: contains summarized results for each pair (executor, icu version) in a graphical form. Contains links to details for each test pair.
+
+* subdirectory for each executor, each containing verification of the tested icu versions, e.g., node/, rust/, etc.
+
+Under each executor, one or more ICU version files are created, each containing:
+
+* verfier_test_report.html for showing results to a user via a web server
+
+* verfier_test_report.json containing verifier output for programmatic use
+
+* failing_tests.json: a list of all failing tests with input values
+* pass.json: list of test cases that match their expected results
+* test_errors.json: list of test cases where the executor reported an error
+* unsupported.json" list of test cases that are not expected to be supported in this version
+
+The verifier_test_report.json file contains information on tests run and comparison with the expected results. At a minimum, each report contains:
 
 * The executor and test type
 * Date and time of the test
