@@ -5,7 +5,6 @@ var tools = require('./collatorDart');
 // to the strength.
 module.exports = {
     testCollationShort: function (json) {
-        let res = tools.testCollationShort(JSON.stringify(json));
-        return JSON.parse(res);
+        return JSON.parse(tools.testCollationShort(JSON.stringify(json)));
     }
 };

@@ -2,19 +2,20 @@ import 'dart:io';
 
 Future<void> main(List<String> args) async {
   var name = 'collatorDart';
-  await Process.run('dart', [
+  var compile = await Process.run('dart', [
     'compile',
     'js',
     'dart_web/bin/all_executors.dart',
     '-o',
     'dart_web/out/$name.js',
   ]);
+  print(compile.stderr);
 
-  prepareOutFile(name);
+  prepareOutFile(name, ['testCollationShort']);
 }
 
 /// Prepare the file to export `testCollationShort`
-void prepareOutFile(String name) {
+void prepareOutFile(String name, List<String> functions) {
   var outFile = File('dart_web/out/$name.js');
   var s = outFile.readAsStringSync();
   s = s.replaceAll('self.', '');
@@ -24,15 +25,18 @@ void prepareOutFile(String name) {
   s = s.replaceFirst('(function dartProgram() {',
       'module.exports = (function dartProgram() {');
 
+  var exportFunctions = functions
+      .map(
+        (e) => '''$e: function(arg) {
+      return A.$e(arg);
+    }''',
+      )
+      .join(',\n');
   s = s.replaceFirst(
-    '''})();
-  
-  //# sourceMappingURL=$name.js.map''',
+    '})();\n\n//# sourceMappingURL=$name.js.map',
     '''
   return {
-    testCollationShort: function(date) {
-      return A.testCollationShort(date);
-    }
+    $exportFunctions
   };
   })();
   //# sourceMappingURL=$name.js.map
