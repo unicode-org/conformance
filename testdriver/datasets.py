@@ -148,7 +148,7 @@ ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
     "rust" : "executors/rust/target/release/executor",
     "cpp":   "executors/cpp/executor",
-    "dartweb" : "executors/dart_web/bin/executor.exe",
+    "dartweb" : "executors/dart_web/executor.js",
     "dartnative" : "executors/dart_native/bin/executor.exe",
     "java" : None
     };
@@ -303,7 +303,7 @@ system = ExecutorLang.JAVA
 
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system, DartVersion.Dart3,
-                       '../executors/dart_web/bin/executor.exe',
+                       '../executors/dart_web/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
                        
 system = ExecutorLang.DARTNATIVE.value
