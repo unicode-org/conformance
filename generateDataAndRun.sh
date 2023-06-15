@@ -48,7 +48,7 @@ popd
 
 pushd executors/dart_web/
 dart pub get
-dart compile exe bin/executor.dart
+dart run dart_web/bin/run.dart
 popd
 
 pushd executors/dart_web/dart_web_client

@@ -1,4 +1,4 @@
-name: dartserver
+name: dart_web
 description: A sample command-line application.
 version: 1.0.0
 publish_to: none
@@ -6,14 +6,13 @@ publish_to: none
 environment:
   sdk: ^3.1.0-39.0.dev
 
+# Add regular dependencies here.
 dependencies:
-  shelf: ^1.4.1
-  shelf_static: ^1.1.2
-  shelf_web_socket: ^1.0.4
-  stream_channel: ^2.1.1
-  web_socket_channel: ^2.4.0
-  http: ^0.13.6
-  puppeteer: ^3.0.0
+  intl4x:
+    git:
+      url: https://github.com/dart-lang/i18n.git
+      path: pkgs/intl4x/
+      ref: addIntl4x
 
 dev_dependencies:
   lints: ^2.0.0
