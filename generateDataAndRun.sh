@@ -48,7 +48,7 @@ popd
 
 pushd executors/dart_web/
 dart pub get
-dart run bin/run.dart
+dart run bin/make_runnable_by_node.dart
 popd
 
 # Executes all tests on that new data in the new directory
