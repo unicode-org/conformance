@@ -5,9 +5,9 @@ Future<void> main(List<String> args) async {
   var compile = await Process.run('dart', [
     'compile',
     'js',
-    'dart_web/bin/all_executors.dart',
+    'bin/all_executors.dart',
     '-o',
-    'dart_web/out/$name.js',
+    'out/$name.js',
   ]);
   print(compile.stderr);
 
@@ -16,7 +16,7 @@ Future<void> main(List<String> args) async {
 
 /// Prepare the file to export `testCollationShort`
 void prepareOutFile(String name, List<String> functions) {
-  var outFile = File('dart_web/out/$name.js');
+  var outFile = File('out/$name.js');
   var s = outFile.readAsStringSync();
   s = s.replaceAll('self.', '');
   s = s.replaceFirst('(function dartProgram() {',

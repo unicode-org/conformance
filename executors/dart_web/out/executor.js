@@ -16,7 +16,7 @@
 */
 
 
-let collator = require('./out/collator.js')
+let collator = require('./collator.js')
 
 /**
  * TODOs:

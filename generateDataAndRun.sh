@@ -48,7 +48,7 @@ popd
 
 pushd executors/dart_web/
 dart pub get
-dart run dart_web/bin/run.dart
+dart run bin/run.dart
 popd
 
 # Executes all tests on that new data in the new directory
@@ -60,7 +60,7 @@ pushd testdriver
 #Dart ICU73
 nvm install 20.1.0
 nvm use 20.1.0
-python3 testdriver.py --icu_version icu73 --exec dart_web --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu73 --exec dart_web --test_type coll_shift_short --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 #ICU73
@@ -103,7 +103,7 @@ mkdir -p $TEMP_DIR/testReports
 pushd verifier
 python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
 
-#python3 verifier.py --file_base ../$TEMP_DIR --exec dartweb --test_type coll_shift_short
+python3 verifier.py --file_base ../$TEMP_DIR --exec dart_web --test_type coll_shift_short
 #python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type coll_shift_short number_fmt lang_names 
 popd
 

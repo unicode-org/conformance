@@ -139,7 +139,7 @@ class TestPlan():
     return
 
   def requestExecutorInfo(self):
-    versionInfo = "#VERSION\n#EXIT"
+    versionInfo = "#VERSION"
     result = self.sendOneLine(versionInfo)
     if result and result[0] == "#":
       # There's debug data. Take the 2nd line of this result
