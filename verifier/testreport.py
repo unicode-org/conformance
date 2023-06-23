@@ -500,8 +500,10 @@ class TestReport:
         results['exponent_diff'] = []
         for fail in self.failing_tests:
             label = fail['label']
-            actual = fail['result']
-            expected = fail['expected']
+            actual = fail.get('result')
+            expected = fail.get('expected')
+            if not actual or not expected:
+                continue
             # Special case for differing by a single character.
             # Look for white space difference
             try:
