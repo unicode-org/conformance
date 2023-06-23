@@ -114,6 +114,11 @@ table th {
     .then((response) => unsupportd_json = response.json())
     .then((data) => {unsupported_json = data});
 
+      // TODO: Use this data for checkboxes
+      fetch('./failure_parameters.json')
+    .then((response) => unsupportd_json = response.json())
+    .then((data) => {unsupported_json = data});
+
       // TODO: handle promises to refresh screen when data is loaded.
 
       // Load the Visualization API and the corechart package.
@@ -319,7 +324,7 @@ table th {
                 <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
               </p>$failures_characterized
             </div>  <!-- end of checkbox div -->
-            <div bp="9">TABLE AREA
+            <div bp="9">
               <div id="characterized-pagination-container"></div>
               <div id="characterized-data-container"></div>
             </div>
