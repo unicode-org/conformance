@@ -169,7 +169,7 @@ rl.on('line', function(line) {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
-      outputLine = numberformatter.testDecimalFormat(parsedJson);
+      outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput);
     } else
     if (test_type == "display_names") {
       outputLine = displaynames.testDisplayNames(parsedJson);
