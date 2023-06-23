@@ -22,14 +22,11 @@
               $(document).ready(resolve);
           })
       ]).then(([fetch_promise, _ready]) => {
+          // Load the Visualization API and the corechart package.
+          google.charts.load('current', {'packages':['corechart']});
+          // Set a callback to run when the Google Visualization API is loaded.
           google.charts.setOnLoadCallback(drawChart);
       });
-
-      // Load the Visualization API and the corechart package.
-      google.charts.load('current', {'packages':['corechart']});
-
-      // Set a callback to run when the Google Visualization API is loaded.
-      // google.charts.setOnLoadCallback(drawChart);
 
       // Callback that creates and populates a data table
       // Instantiates it with data, and draws it.

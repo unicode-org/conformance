@@ -120,15 +120,12 @@ table th {
               $(document).ready(resolve);
           })
       ]).then(([p1, p2, p3, p4, _ready]) => {
-          google.charts.setOnLoadCallback(drawChart);
-          onloadFn();  // To call the pagination setup.
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart']});
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+        onloadFn();  // To call the pagination setup.
       });
-
-      // Load the Visualization API and the corechart package.
-      google.charts.load('current', {'packages':['corechart']});
-
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
 
       // Callback that creates and populates a data table
       // Instantiates it with data, and draws it.
@@ -294,7 +291,7 @@ table th {
       }
 </script>
   </head>
-  <body onload=onloadFn()>
+  <body>
     <h1>Verification report: $test_type on $exec</h1>
     <h2>$platform_info</h2>
     <p>Report created: $timestamp
