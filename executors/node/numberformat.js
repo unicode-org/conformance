@@ -93,6 +93,7 @@ module.exports = {
         options = none;
       }
     } else {
+      options["maximumFractionDigits"] = 6;  // Default - can be overridden
       // Check each option for implementation.
 
       // Handle percent - input value is the basis of the actual percent
