@@ -316,9 +316,10 @@ class TestReport:
         failures_json = {}
         for key, value in fail_characterized.items():
             failures_json[key] = value
-        for key, value in fail_simple_diffs.items():
-            if len(value):
-                failures_json[key] = value
+        if fail_simple_diffs:
+            for key, value in fail_simple_diffs.items():
+                if value and len(value):
+                    failures_json[key] = value
 
         self.characterized_fail_json = failures_json
 
@@ -335,9 +336,8 @@ class TestReport:
         # A dictionary of failure info.
         # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
         failures_json = fail_characterized
-        failures_json.update(fail_simple_diffs)
-        # for key, val in fail_simple_diffs.items():
-        #     failures_json[key] = val
+        if fail_simple_diffs:
+            failures_json.update(fail_simple_diffs)
         html_map['characterized_failure_labels'] = failure_labels
 
         if self.test_errors:
@@ -502,12 +502,18 @@ class TestReport:
             label = fail['label']
             actual = fail.get('result')
             expected = fail.get('expected')
-            if not actual or not expected:
+            if (actual is None) or (expected is None):
                 continue
             # Special case for differing by a single character.
             # Look for white space difference
+
+            if isinstance(actual, bool) and isinstance(expected, bool):
+                # TODO: record boolean difference
+                return
+
+            # The following checks work on strings
             try:
-                if actual and abs(len(actual) - len(expected)) <= 1:
+                if isinstance(actual, str) and abs(len(actual) - len(expected)) <= 1:
                     comp_diff = self.differ.compare(expected, actual)
                     changes = list(comp_diff)
                     # Look for number of additions and deletions
