@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Executes all tests on small data set
 # Save the results

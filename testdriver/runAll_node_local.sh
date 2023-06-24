@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Runs collation test on only on node
 # Test data and output directories are under ~/DDT_DATA
