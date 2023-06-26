@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 18.7.0
       - uses: ljharb/actions/node/install@main
-        name: 'nvm install 18.7.0 && npm install'
+        name: 'nvm install 18.7.0'
       - name: "Run Node.js collator sample"
         run: |
           cd testdriver
