@@ -23,6 +23,6 @@ jobs:
         shell: bash -l -eo pipefail {0}
         run: |
           cd testdriver
-          sh runAll_node_local.sh
+          bash runAll_node_local.sh
           cd ../verifier
-          sh verifyNode_local.sh
+          bash verifyNode_local.sh
