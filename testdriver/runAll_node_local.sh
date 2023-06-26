@@ -6,6 +6,8 @@ set -e
 rm -rf ../DDT_DATA/testOutput
 rm -rf ../DDT_DATA/testResults
 
+source "$HOME/.nvm/nvm.sh"
+
 nvm install 16.19.1
 nvm use 16.19.1
 
