@@ -20,6 +20,7 @@ jobs:
         shell: bash -l -eo pipefail {0}
         run: nvm ls
       - name: "Run Node.js collator sample"
+        shell: bash -l -eo pipefail {0}
         run: |
           cd testdriver
           sh runAll_node_local.sh
