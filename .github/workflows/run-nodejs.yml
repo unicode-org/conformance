@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.7.0
+      - uses: dcodeIO/setup-node-nvm@V5
       - name: "Run Node.js collator sample"
         run: |
           cd testdriver
