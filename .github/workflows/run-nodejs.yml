@@ -16,8 +16,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.7.0
-      - uses: ljharb/actions/node/install@main
-        name: 'nvm install 18.7.0'
+      - name: "Test if NVM is installed on GH runner"
+        run: nvm ls
       - name: "Run Node.js collator sample"
         run: |
           cd testdriver
