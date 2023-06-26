@@ -25,17 +25,7 @@ jobs:
       - name: "Run Node.js collator sample"
         shell: bash -l -eo pipefail {0}
         run: |
-          nvm ls
-          echo "------"
           source "$HOME/.nvm/nvm.sh"
-          nvm ls
-          echo "------"
-          nvm install 18.7.0
-          nvm ls
-          echo "------"
-          nvm use 18.7.0
-          nvm ls
-          echo "------"
           cd testdriver
           bash runAll_node_local.sh
           cd ../verifier
