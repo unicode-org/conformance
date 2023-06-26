@@ -16,6 +16,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.7.0
+      - name: test sourcing nvm.sh
+        run: source "$HOME/.nvm/nvm.sh"
+        shell: bash
       - name: test nvm command
         shell: bash -l -eo pipefail {0}
         run: nvm ls
