@@ -47,6 +47,9 @@ mkdir -p $TEMP_DIR/testOutput
 # Invoke all tests on all platforms
 pushd testdriver
 
+# Set to use NVM
+source "$HOME/.nvm/nvm.sh"
+
 #ICU73
 nvm install 20.1.0
 nvm use 20.1.0

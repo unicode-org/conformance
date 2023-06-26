@@ -8,18 +8,19 @@ from enum import Enum
 
 import sys
 
-# Describes dataset and its versions.
-class DataSet():
-  def __init__(self, test_type, testDataFilename, verifyFilename,
-               versionCLDR, versionICU):
-    self.test_type = test_type
-    self.testDataFilename = testDataFilename
-    self.verifyFilename = verifyFilename
-    self.cldr_version = versionCLDR
-    self.icu_version = versionICU
 
-    self.status = None
-    self.debug = False
+# Describes dataset and its versions.
+class DataSet:
+    def __init__(self, test_type, testDataFilename, verifyFilename,
+               versionCLDR, versionICU):
+        self.test_type = test_type
+        self.testDataFilename = testDataFilename
+        self.verifyFilename = verifyFilename
+        self.cldr_version = versionCLDR
+        self.icu_version = versionICU
+
+        self.status = None
+        self.debug = False
 
 
 def dataSetsForCldr(dataSets, cldr_version):
@@ -148,7 +149,7 @@ ExecutorCommands = {
     "rust" : "executors/rust/target/release/executor",
     "cpp":   "executors/cpp/executor",
     "java" : None
-    };
+    }
 
 class ParallelMode(Enum):
   Serial = 0

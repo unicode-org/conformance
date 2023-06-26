@@ -2,91 +2,91 @@
   "verifications": [
     {
       "label": "0000000",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000001",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000002",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000003",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000004",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000005",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000006",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000007",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000008",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000009",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000010",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000011",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000012",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000013",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000014",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000015",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000016",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000017",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000018",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000019",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000020",
-      "verify": "True"
+      "verify": true
     },
     {
       "label": "0000021",
-      "verify": "True"
+      "verify": true
     }
   ]
 }
