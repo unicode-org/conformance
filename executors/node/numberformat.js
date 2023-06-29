@@ -31,7 +31,7 @@ const all_supported_options = [
   "useGrouping",
   "roundingMode",
   "roundingPriority",
-  "roudingIncrement",
+  "roundingIncrement",
   "trailingZeroDisplay",
   "minimumIntegerDigits",
   "minimumFractionDigits",
@@ -62,9 +62,6 @@ module.exports = {
     if (rounding) {
       options['roundingMode'] = rounding;
     }
-
-    // Default unless overridden
-    options["maximumFractionDigits"] = 6;  // Default
     return options;
   },
 
@@ -93,9 +90,20 @@ module.exports = {
         options = none;
       }
     } else {
-      options["maximumFractionDigits"] = 6;  // Default - can be overridden
-      // Check each option for implementation.
+      // Set default maximumFractionDigits with these exceptions
+      if (options['notation'] && options['notation'] == 'compact' ||
+          options['style'] && options['style'] == 'currency' ||
+          options['maximumFractionDigits']) {
+        // Don't set maximumFractionDigits
+      } else {
+        options['maximumFractionDigits'] = 6;  // Default
+      }
+      // ?????
+      if (options['roundingMode'] == undefined) {
+        options['roundingMode'] = 'halfTrunc';
+      }
 
+      // Check each option for implementation.
       // Handle percent - input value is the basis of the actual percent
       // expected, e.g., input='0.25' should be interpreted '0.25%'
       if (options['style'] && options['style'] === 'percent') {
@@ -121,9 +129,9 @@ module.exports = {
       }
 
       // Check for "code":. Change to "currency":
-      if (options["code"]) {
-        options["currency"] = options["code"];
-        delete options["code"];
+      if (options['code']) {
+        options['currency'] = options['code'];
+        delete options['code'];
       }
 
       // Check for option items that are not supported
@@ -168,7 +176,7 @@ module.exports = {
       if (testLocale) {
         nf = new Intl.NumberFormat(testLocale, options);
       } else {
-        nf = new Intl.NumberFormat(options);
+        nf = new Intl.NumberFormat('und', options);
       }
 
       let result = 'NOT IMPLEMENTED';
@@ -180,14 +188,23 @@ module.exports = {
 
       outputLine = {"label": json['label'],
                     "result": resultString,
+                    "actual_options": options
                    };
     } catch (error) {
+      if (error.message.includes('furlong')) {
+        // This is a special kind of unsupported.
+        return {'label': label,
+                "unsupported": "unsupported_options",
+                "error_detail": {'unsupported_options': error.message}
+               };
+      }
       // Handle type of the error
       outputLine = {"label": json['label'],
                     "error": "formatting error",
                    };
       if (error instanceof RangeError) {
-        outputLine["error_detail"] =  error.message;
+        outputLine['error_detail'] =  error.message;
+        outputLine['actual_options'] = options
       }
     }
     return outputLine;

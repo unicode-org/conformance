@@ -164,7 +164,10 @@ class TestReport:
             if group:
                 if not groups.get(group):
                     groups[group] = {detail: []}  # insert empty list
-                groups[group][detail].append(label)
+                if not groups[group].get(detail):
+                    groups[group][detail] = [label]
+                else:
+                    groups[group][detail].append(label)
 
         return dict(groups)
 
@@ -306,9 +309,16 @@ class TestReport:
 
         html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
-        fail_characterized = self.characterize_failures_by_options()
+        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
 
         fail_simple_diffs = self.check_simple_text_diffs()
+
+        error_characterized = self.characterize_failures_by_options(self.test_errors)
+        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
+
+        self.save_characterized_file(fail_characterized, "fail")
+        self.save_characterized_file(error_characterized, "error")
+        self.save_characterized_file(unsupported_characterized, "unsupported")
 
         # ?? Compute top 3-5 overlaps for each set ??
 
@@ -326,8 +336,10 @@ class TestReport:
         failure_labels = []
         for key in sorted(failures_json, key=lambda k: len(failures_json[k]), reverse=True):
             value = failures_json[key]
-            count = '%5d' % len(value)
-            values = {'id': key, 'name': key, 'value': value, 'count': count}
+            count = len(value)
+            #    count += len(value[subkey])
+            count_str = '%5d' % count  # TODO: Add the counts of all the sublists
+            values = {'id': key, 'name': key, 'value': value, 'count': count_str}
             line = self.templates.checkbox_option_template.safe_substitute(values)
             checkboxes.append(line)
             failure_labels.append(key)
@@ -431,11 +443,11 @@ class TestReport:
 
         return html_output
 
-    def characterize_failures_by_options(self):
+    def characterize_failures_by_options(self, failing_tests):
         # User self.failing_tests, looking at options
         results = {}
         results['locale'] = {}  # Dictionary of labels for each locale
-        for test in self.failing_tests:
+        for test in failing_tests:
             # Get input_data, if available
             label = test['label']
             input_data = test.get('input_data')
@@ -548,6 +560,15 @@ class TestReport:
                 continue
 
         return dict(results)
+
+    def save_characterized_file(self, characterized_data, characterized_type):
+        json_data = json.dumps(characterized_data)
+        file_name = characterized_type + "_characterized.json"
+        character_file_path = os.path.join(self.report_directory, file_name)
+        file = open(character_file_path, mode='w', encoding='utf-8')
+        file.write(json_data)
+        file.close()
+        return
 
     def create_html_diff_report(self):
         # Use difflib to create file of differences

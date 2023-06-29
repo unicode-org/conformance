@@ -174,7 +174,7 @@ class TestPlan:
         if terminate_args:
             terminate_msg += ' ' + terminate_args
             result = self.send_one_line(terminate_msg)
-            
+
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
         else:
@@ -190,12 +190,11 @@ class TestPlan:
             "test_language": self.test_lang,
             "executor": self.exec_command,
             "test_type": self.test_type,
-            
             "datetime": "%s" % run_date_time.strftime('%m/%d/%Y, %H:%M:%S'),
             "timestamp": "%s" % timestamp,
-            
             "input_file": self.inputFilePath,
 
+            # These should come from the Executor
             "icu_version": '%s' % self.testData.icu_version,
             "cldr_version": '%s' % self.testData.cldr_version,
             "test_count": "%d" % len(self.tests)

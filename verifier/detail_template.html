@@ -46,7 +46,9 @@ table, table {
 }
 
 table td, table th {
-  border: 1px solid #ddd;
+    border: 1px solid #ddd;
+    word-wrap: break-word;
+    word-break: break-all;
   padding: 8px;
 }
 
@@ -97,6 +99,10 @@ table th {
       let error_json;
       let unsupported_json;
 
+      let fail_char;
+      let error_char;
+      let unsupported_char;
+
       // Data dynamically created from fail_json on selection of some
       // criteria.
       let fail_characterized_json;
@@ -105,6 +111,10 @@ table th {
       let p2 = fetch('./failing_tests.json');
       let p3 = fetch('./test_errors.json');
       let p4 = fetch('./unsupported.json');
+
+      let p_fail_char = fetch('./fail_characterized.json');
+      let p_error_char = fetch('./error_characterized.json')
+      let p_unsupported_char = fetch('./unsupported_characterized.json')
 
       // Synchronize all the data loading and charts / pagination
       Promise.all([
@@ -116,6 +126,14 @@ table th {
               .then((data) => {error_json = data}),
           p4.then((response) => response.json())
               .then((data) => {unsupported_json = data}),
+
+          p_fail_char.then((response) => response.json())
+              .then((data) => {fail_char = data}),
+          p_error_char.then((response) => response.json())
+              .then((data) => {error_char = data}),
+          p_unsupported_char.then((response) => response.json())
+              .then((data) => {unsupported_char = data}),
+
           new Promise((resolve, reject) => {
               $(document).ready(resolve);
           })
@@ -204,8 +222,8 @@ table th {
 
     // UL Template for pagination.js
       function simpleTemplating(data, c_type) {
-      let possible_fields = ['label', 'expected', 'result',
-      'options', 'input_data'];
+          let possible_fields = ['label', 'expected', 'result', 'error', 'error_detail',
+                             'options', 'input_data', 'actual_options'];
       let table_opening =
       '<table id="table_' + c_type +
                   '" class="class_' + c_type + '">';
@@ -262,9 +280,14 @@ table th {
             let data_container_name = '#' + container_type +
                 '-data-container';
 
-      fill_pagination(pagination_container_name, data_container_name, data_json, container_type);
-}
-}
+            fill_pagination(pagination_container_name, data_container_name, data_json, container_type);
+        }
+
+        /* set up areas for error and unsupported detail */
+        create_checkbox_area(error_char, 'errors_characterized');
+        create_checkbox_area(unsupported_char, 'unsupported_characterized');
+
+    }
 
       function fill_pagination(pagination_container_name,
                                data_container_name,
@@ -289,6 +312,38 @@ table th {
               }
           });
       }
+
+      function create_checkbox_area(data_set, div_name) {
+          /* Given a set of labels and named characteristics, create a set of checkboxes with
+             labels for selecting a subset of items. Put this in the indicated div.
+          */
+          let container = document.getElementById(div_name);
+          for (let item in data_set) {
+              let id = div_name + "_" + item;
+              let name = id;
+              const dict_values = data_set[item];
+              let count = 0;
+              for (let key of Object.keys(dict_values)) {
+                  count += dict_values[key].length;
+              }
+              let box = document.createElement("INPUT");
+              box.setAttribute("type", "checkbox");
+              box.setAttribute("id", id);
+              box.setAttribute("name", name);
+              box.setAttribute("value", dict_values);
+              box.setAttribute("onclick", "checkboxChanged(this);");
+              let label = document.createElement("label");
+              label.htmlFor = id;
+              const text = count + ":" + item;
+              label.appendChild(document.createTextNode(text));
+
+              let br = document.createElement('br');
+              container.appendChild(box);
+              container.appendChild(label);
+              container.appendChild(br);
+          }
+      }
+
 </script>
   </head>
   <body>
@@ -321,7 +376,7 @@ table th {
           <div bp="grid">
             <div bp="3">
               <p>Filtered count = <span id='selectedCount'>0</span>
-                <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
+                <button id="showSelected" onclick="showSelectedItems('fail');">"Update display"</button>
               </p>$failures_characterized
             </div>  <!-- end of checkbox div -->
             <div bp="9">
@@ -338,12 +393,48 @@ table th {
       <h2 id='testErrors'>Test Errors ($error_count)</h2>
       <div id="error-pagination-container"></div>
       <div id="error-data-container"></div>
+      <div id='testErrorsCharacterized'>
+        <details>
+          <summary class="class_selected_errors">Errors characterized</summary>
+          <div bp="grid">
+            <div bp="3">
+              <p>Filtered count = <span id='selectedCount'>0</span>
+                <button id="showSelected" onclick="showSelectedItems('errors');">"Update display"</button>
+              </p>
+              <div id='errors_characterized'>
+                </div>
+            </div>  <!-- end of checkbox div -->
+            <div bp="9">
+              <div id="error_characterized-pagination-container"></div>
+              <div id="error_characterized-data-container"></div>
+            </div>
+          </div> <!-- grid end -->
+        </details>
+      </div>
     </details>
 
     <details>
       <summary>Unsupported Tests errors ($unsupported_count)</summary>
       <div id="unsupported-pagination-container"></div>
       <div id="unsupported-data-container"></div>
+      <div id='testUnsupportedCharacterized'>
+        <details>
+          <summary class="class_selected_fails">Unsupported characterized</summary>
+          <div bp="grid">
+            <div bp="3">
+              <p>Filtered count = <span id='selectedCount'>0</span>
+                <button id="showSelected" onclick="showSelectedItems('unsupported');">"Update display"</button>
+              </p>
+              <dir id='unsupported_characterized'>
+                </div>
+            </div>  <!-- end of checkbox div -->
+            <div bp="9">
+              <div id="unsupported_characterized-pagination-container"></div>
+              <div id="unsupported_characterized-data-container"></div>
+            </div>
+          </div> <!-- grid end -->
+        </details>
+      </div>
     </details>
     </div>
 
