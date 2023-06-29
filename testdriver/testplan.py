@@ -141,7 +141,7 @@ class TestPlan:
             # There's debug data. Take the 2nd line of this result
             result_lines = result.split('\n')
             result = result_lines[1]
-            
+
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
@@ -152,10 +152,11 @@ class TestPlan:
                 self.jsonOutput["platform"] = json.loads(result)
                 self.platformVersion = self.jsonOutput["platform"]["platformVersion"]
                 self.icuVersion = self.jsonOutput["platform"]["icuVersion"]
-                
+                self.cldrVersion = self.jsonOutput["platform"]["cldrVersion"]
+
                 # TODO: Clean this up!
                 # Get the test data area from the icu_version
-      
+
                 # Reset the output path based on the version.
                 self.outputFilePath = os.path.join(self.options.file_base,
                                                    self.options.output_path,
@@ -195,8 +196,8 @@ class TestPlan:
             "input_file": self.inputFilePath,
 
             # These should come from the Executor
-            "icu_version": '%s' % self.testData.icu_version,
-            "cldr_version": '%s' % self.testData.cldr_version,
+            "icu_version": '%s' % self.icuVersion,
+            "cldr_version": '%s' % self.cldrVersion,
             "test_count": "%d" % len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment

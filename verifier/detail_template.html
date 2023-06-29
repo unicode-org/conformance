@@ -47,8 +47,8 @@ table, table {
 
 table td, table th {
     border: 1px solid #ddd;
-    word-wrap: break-word;
-    word-break: break-all;
+    overflow-wrap: break-word;
+    word-break: break-wordl;
   padding: 8px;
 }
 
@@ -349,14 +349,18 @@ table th {
   <body>
     <h1>Verification report: $test_type on $exec</h1>
     <h2>$platform_info</h2>
-    <p>Report created: $timestamp
-    <p>$total_tests attempted. Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
-    <div id='chart_div'>
+    <div bp="grid">
+      <div bp="4">
+        <p>Report created: $timestamp
+        <p>$total_tests attempted. Pass: $passing_tests, Fail: $failing_tests, Errors: $error_count, Unsupported: $unsupported_count</p>
+        <div id='chart_div'>
+        </div>
+      </div>
+      <div bp="8">
+        <h2>Test details</h2>
+        <p>$test_environment</p>
+      </div>
     </div>
-    <details>
-      <summary>See more detail</summary>
-      <p>$test_environment</p>
-    </details>
     <br>
     <div id='test_result_details' class='test_results'>
     <details>
@@ -374,12 +378,12 @@ table th {
         <details>
           <summary class="class_selected_fails">Failures characterized</summary>
           <div bp="grid">
-            <div bp="3">
+            <div bp="2">
               <p>Filtered count = <span id='selectedCount'>0</span>
                 <button id="showSelected" onclick="showSelectedItems('fail');">"Update display"</button>
               </p>$failures_characterized
             </div>  <!-- end of checkbox div -->
-            <div bp="9">
+            <div bp="10">
               <div id="characterized-pagination-container"></div>
               <div id="characterized-data-container"></div>
             </div>

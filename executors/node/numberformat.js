@@ -40,6 +40,56 @@ const all_supported_options = [
   "maximumSignificantDigits"
 ];
 
+// Use this
+const supported_options_by_version = {
+  "20.1.0": [
+  "compactDisplay",
+  "currency",
+  "currencyDisplay",
+  "currencySign",
+  "localeMatcher",
+  "notation",
+  "numberingSystem",
+  "signDisplay",
+  "style",
+  "unit",
+  "unitDisplay",
+  "useGrouping",
+  "roundingMode",
+  "roundingPriority",
+  "roundingIncrement",
+  "trailingZeroDisplay",
+  "minimumIntegerDigits",
+  "minimumFractionDigits",
+  "maximumFractionDigits",
+  "minimumSignificantDigits",
+  "maximumSignificantDigits"
+  ],
+  "18.14.2": [
+  "compactDisplay",
+  "currency",
+  "currencyDisplay",
+  "currencySign",
+  "localeMatcher",
+  "notation",
+  "numberingSystem",
+  "signDisplay",
+  "style",
+  "unit",
+  "unitDisplay",
+  "useGrouping",
+  "roundingMode",
+  "roundingIncrement",
+  "trailingZeroDisplay",
+  "minimumIntegerDigits",
+  "minimumFractionDigits",
+  "maximumFractionDigits",
+  "minimumSignificantDigits",
+  "maximumSignificantDigits"
+  ]
+  // TODO: Add older version support.
+};
+
 const unsupported_skeleton_terms = [
   "scientific/+ee/sign-always",
   "decimal-always",
@@ -49,7 +99,11 @@ const unsupported_combinations = [
   {"unit": "furlong"}
 ];
 
-// TODO: supported options should be indexed by Node version
+
+const unsupported_rounding_modes = [
+  "unnecessary"
+];
+
 // TODO: supported options and allowed values should be indexed by Node version
 
 module.exports = {
@@ -66,6 +120,7 @@ module.exports = {
   },
 
   testDecimalFormat: function(json, doLogInput) {
+    const node_version = process.version;
     const label = json['label'];
     const skeleton = json['skeleton'];
 
@@ -102,6 +157,7 @@ module.exports = {
       if (options['roundingMode'] == undefined) {
         options['roundingMode'] = 'halfTrunc';
       }
+      let roundingMode = options['roundingMode'];
 
       // Check each option for implementation.
       // Handle percent - input value is the basis of the actual percent
@@ -155,6 +211,9 @@ module.exports = {
         }
       }
 
+      if (unsupported_rounding_modes.includes(roundingMode)) {
+        unsupported_options.push(roundingMode);
+      }
       if (unsupported_options.length > 0) {
         return {'label': label,
                 "unsupported": "unsupported_options",

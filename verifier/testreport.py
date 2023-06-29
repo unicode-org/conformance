@@ -24,7 +24,6 @@ from datasets import ICUVersionMap
 
 # Consider Jinja2: https://jinja.palletsprojects.com/en/3.1.x/intro/
 
-
 def dict_to_html(dict_data):
     # Expands a dictionary to HTML data
     result = ['<ul>']
@@ -333,17 +332,28 @@ class TestReport:
 
         self.characterized_fail_json = failures_json
 
-        failure_labels = []
-        for key in sorted(failures_json, key=lambda k: len(failures_json[k]), reverse=True):
+        # Flatten the dictionary
+
+        flat_failures_json = {}
+        for key in failures_json:
             value = failures_json[key]
+            if type(value) == list:
+                flat_failures_json[key] = value
+            else:
+                for key2 in value:
+                    key_new = str(key) + '.' + str(key2)
+                    flat_failures_json[key_new] = value[key2]
+
+        failure_labels = []
+        for key in sorted(flat_failures_json, key=lambda k: len(flat_failures_json[k]), reverse=True):
+            value = flat_failures_json[key]
             count = len(value)
-            #    count += len(value[subkey])
             count_str = '%5d' % count  # TODO: Add the counts of all the sublists
             values = {'id': key, 'name': key, 'value': value, 'count': count_str}
             line = self.templates.checkbox_option_template.safe_substitute(values)
             checkboxes.append(line)
             failure_labels.append(key)
-        html_map['failures_characterized'] = ', '.join(checkboxes)
+        html_map['failures_characterized'] = '<br />'.join(checkboxes)
 
         # A dictionary of failure info.
         # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
@@ -772,10 +782,13 @@ class SummaryReport:
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
+                platform = test_json['platform']
                 # TODO !!!: get the executor + version in here
                 test_results = {
                     'exec': executor,
                     'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
+                    'exec_icu_version': platform['icuVersion'],
+                    'exec_cldr_version': platform['cldrVersion'],
                     'test_type': test_type,
                     'date_time': test_environment['datetime'],
                     'test_count': int(test_environment['test_count']),
@@ -786,10 +799,9 @@ class SummaryReport:
                     'missing_verify_count': len(test_json['missing_verify_data']),
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
-                    'version': test_json['platform'],
+                    'version': platform,
                     'icu_version': icu_version
                 }
-
             except BaseException as err:
                 print('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
 

@@ -157,9 +157,11 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
+  Node20 = "20.1.0"
   Node19 = "19.7.0"
   Node18_7 = "18.7.0"
   Node16 = "17.9.1"
+  Node14 = "14.21.3"
 
 class RustVersion(Enum):
   Rust01 = "0.1"
@@ -263,13 +265,17 @@ class ExecutorInfo():
 allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODE.value
+allExecutors.addSystem(system, NodeVersion.Node20,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
+
 allExecutors.addSystem(system, NodeVersion.Node19,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/node/executor.js',
-                       CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
+                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU72)
 
 system = ExecutorLang.RUST.value
 allExecutors.addSystem(system, RustVersion.Rust01,

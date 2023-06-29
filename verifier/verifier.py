@@ -321,6 +321,8 @@ class Verifier:
         except KeyError:
             self.report.platform_info = self.report.test_environment['test_language']
 
+        self.report.test_environment['platform'] = self.report.platform_info
+
         self.report.exec = self.report.test_environment['test_language']
         self.report.test_type = self.test_type
         if not self.verifyExpected:

@@ -287,7 +287,7 @@ def mapRoundingToECMA402(rounding):
       "halffloor": 'halfFloor',
       "floor": 'floor',
       "ceiling": 'ceil',
-      "unnecessary": None
+      "unnecessary": "unnecessary"
       }
   return ecma402_rounding_map[rounding]
 
