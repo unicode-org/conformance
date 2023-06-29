@@ -78,34 +78,54 @@ table th {
 .class_unsupported th {background-color: #777777;}
 .class_unsupported tr:hover {background-color: #dddddd;}
 
+
+.class_selected_fails th {background-color: #0000ee;}
+.class_selected_fails tr:hover {background-color: #8888ff;}
+
+.class_selected_fails table {
+    width:75%;
+}
+.class_selected_fails details > summary {
+  font-size:16px;
+}
   </style>
 
     <script type="text/javascript">
-
       // Get the JSON data from the tests.
       let pass_json;
       let fail_json;
       let error_json;
       let unsupported_json;
 
-      fetch('./pass.json')
-    .then((response) => response.json())
-    .then((data) => {pass_json = data});
-      fetch('./failing_tests.json')
-    .then((response) => response.json())
-    .then((data) => {fail_json = data});
-      fetch('./test_errors.json')
-    .then((response) => error_json = response.json())
-    .then((data) => {error_json = data});
-      fetch('./unsupported.json')
-    .then((response) => unsupportd_json = response.json())
-    .then((data) => {unsupported_json = data});
+      // Data dynamically created from fail_json on selection of some
+      // criteria.
+      let fail_characterized_json;
 
-      // Load the Visualization API and the corechart package.
-      google.charts.load('current', {'packages':['corechart']});
+      let p1 = fetch('./pass.json');
+      let p2 = fetch('./failing_tests.json');
+      let p3 = fetch('./test_errors.json');
+      let p4 = fetch('./unsupported.json');
 
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
+      // Synchronize all the data loading and charts / pagination
+      Promise.all([
+          p1.then((response) => response.json())
+              .then((data) => {pass_json = data}),
+          p2.then((response) => response.json())
+              .then((data) => {fail_json = data}),
+          p3.then((response) => response.json())
+              .then((data) => {error_json = data}),
+          p4.then((response) => response.json())
+              .then((data) => {unsupported_json = data}),
+          new Promise((resolve, reject) => {
+              $(document).ready(resolve);
+          })
+      ]).then(([p1, p2, p3, p4, _ready]) => {
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart']});
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+        onloadFn();  // To call the pagination setup.
+      });
 
       // Callback that creates and populates a data table
       // Instantiates it with data, and draws it.
@@ -167,76 +187,53 @@ table th {
     }
 
     function showSelectedItems() {
-      // Take the selected set and turn on row with that label in the tables.
-      // Turn off the others.
-
-      // If no items are selected, however, show all rows.
-      let all_tr_elements = document.body.getElementsByTagName("tr");
-      if (selectedSet == null || selectedSet.length == 0) {
-        // Turn everything on!
-        for (let index in all_tr_elements) {
-          let element = all_tr_elements[index];
-          if (element.style) {
-            element.style.visibility = "visible";
-            element.style.display = "table-row";
-          }
-        }
-        return;
-      }
-      for (let index in all_tr_elements) {
-        // Display only those selected.
-        let element = all_tr_elements[index];
-        const id = element.id;
-        if (id) {
-          if (selectedSet.has(id)) {
-            // Show it
-              if (element.style) {
-                element.style.visibility = "visible";
-                element.style.display = "table-row";
-              }
-            } else {
-            // Turn it off
-            if (element.style) {
-              element.style.visibility = "collapse";
-              //element.style.display = "none";
+        // Get the selected failures as a JSON list
+        let selected_json_data = [];
+        // let sorted_labels = [...selectedSet].sort();
+        for (const failure of fail_json) {
+            let label = failure['label'];
+            if (selectedSet.has(label)) {
+                selected_json_data.push(failure);
             }
-          }
         }
-      }
+        fill_pagination("#characterized-pagination-container",
+                        "#characterized-data-container",
+                        selected_json_data,
+                        "selected_fails");
     }
 
     // UL Template for pagination.js
-    function simpleTemplating(data, c_type) {
-        let possible_fields = ['label', 'expected', 'result',
-                               'options', 'input_data'];
-        let table_opening =
-            '<table id="table_' + c_type +
-            '" class="class_' + c_type + '">';
-        let html = [table_opening];  // Sets up
+      function simpleTemplating(data, c_type) {
+      let possible_fields = ['label', 'expected', 'result',
+      'options', 'input_data'];
+      let table_opening =
+      '<table id="table_' + c_type +
+                  '" class="class_' + c_type + '">';
+        let html = [table_opening];  // Sets up table
         if (data.length > 0) {
-            html.push('<tr>');
-            for (let key of possible_fields) {
-                if ((data.length > 0) && (key in data[0])) {
-                    html.push('<th>' + key +'</th>');
-                }
-            }
+        html.push('<tr>');
+          for (let key of possible_fields) {
+          if (key in data[0]) {
+          html.push('<th>' + key +'</th>');
+          }
+          }
 
-            html.push('</tr>');
-            $.each(data, function(index, item){
-                html.push("<tr>");
-                for (let key of possible_fields) {
-                    if (key in data[0]) {
-                        let output;
-                        if (typeof item[key] == 'object') {
-                            output = JSON.stringify(item[key]);
-                        } else {
-                            output = item[key];
-                        }
-                        html.push('<td>' + output +'</td>');
-                    }
-                }
-                html.push("</tr>");
-            });
+          html.push('</tr>');
+        $.each(data, function(index, item){
+        html.push("<tr>");
+          for (let key of possible_fields) {
+          if (key in data[0]) {
+          let output;
+          if (typeof item[key] == 'object') {
+          output = JSON.stringify(item[key]);
+          } else {
+          output = item[key];
+          }
+          html.push('<td>' + output +'</td>');
+          }
+          }
+          html.push("</tr>");
+        });
         }
 
         html.push('</table>');
@@ -262,33 +259,39 @@ table th {
             }
             let pagination_container_name = '#' + container_type +
                 '-pagination-container';
-            let pagination_container = $(pagination_container_name);
             let data_container_name = '#' + container_type +
                 '-data-container';
-            let data_container = $(data_container_name);
-            pagination_container.pagination({
-                dataSource: data_json,
-                pageSize: 10,
-                showSizeChanger: true,
-                showGoInput: true,
-                showGoButton: true,
-                showNavigator: true,
-                formatGoInput: 'Go to page <%= input %>',
-                formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
-                position: 'top',
-                callback: function(data, pagination) {
-                    // template method of yourself
-                    // Create the HTML for the
-                    var html = simpleTemplating(data, container_type);
-                    data_container.html(html);
-                }
-            })
-        }
-    }
 
+      fill_pagination(pagination_container_name, data_container_name, data_json, container_type);
+}
+}
+
+      function fill_pagination(pagination_container_name,
+                               data_container_name,
+                               data_json, container_type) {
+          let pagination_container = $(pagination_container_name);
+          let data_container = $(data_container_name);
+          pagination_container.pagination({
+              dataSource: data_json,
+              pageSize: 10,
+              showSizeChanger: true,
+              showGoInput: true,
+              showGoButton: true,
+              showNavigator: true,
+              formatGoInput: 'Go to page <%= input %>',
+              formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
+              position: 'top',
+              callback: function(data, pagination) {
+                  // template method of yourself
+                  // Create the HTML for the
+                  var html = simpleTemplating(data, container_type);
+                  data_container.html(html);
+              }
+          });
+      }
 </script>
   </head>
-  <body onload=onloadFn()>
+  <body>
     <h1>Verification report: $test_type on $exec</h1>
     <h2>$platform_info</h2>
     <p>Report created: $timestamp
@@ -314,13 +317,21 @@ table th {
       <div id="failing-data-container"></div>
       <div id='testFailuresCharacterized'>
         <details>
-          <summary>Failures characterized</summary>
-          <p>Filtered count = <span id='selectedCount'>0</span>
-            <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
-          </p>$failures_characterized
+          <summary class="class_selected_fails">Failures characterized</summary>
+          <div bp="grid">
+            <div bp="3">
+              <p>Filtered count = <span id='selectedCount'>0</span>
+                <button id="showSelected" onclick="showSelectedItems();">"Update display"</button>
+              </p>$failures_characterized
+            </div>  <!-- end of checkbox div -->
+            <div bp="9">
+              <div id="characterized-pagination-container"></div>
+              <div id="characterized-data-container"></div>
+            </div>
+          </div> <!-- grid end -->
         </details>
-        </div>
-    </details>
+      </div>
+    </details>  <!-- failing tests -->
 
     <details>
       <summary>Test errors ($error_count)</summary>

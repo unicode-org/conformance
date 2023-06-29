@@ -14,15 +14,19 @@
 
       // The summary data for all the tests.
       let exec_summary_json;
-      fetch('exec_summary.json')
-        .then((response) => response.json())
-        .then((data) => {exec_summary_json = data});
-
-      // Load the Visualization API and the corechart package.
-      google.charts.load('current', {'packages':['corechart']});
-
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
+      Promise.all([
+          fetch_promise = fetch('exec_summary.json')
+              .then((response) => response.json())
+              .then((data) => {exec_summary_json = data}),
+          new Promise((resolve, reject) => {
+              $(document).ready(resolve);
+          })
+      ]).then(([fetch_promise, _ready]) => {
+          // Load the Visualization API and the corechart package.
+          google.charts.load('current', {'packages':['corechart']});
+          // Set a callback to run when the Google Visualization API is loaded.
+          google.charts.setOnLoadCallback(drawChart);
+      });
 
       // Callback that creates and populates a data table
       // Instantiates it with data, and draws it.
