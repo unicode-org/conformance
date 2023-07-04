@@ -1,6 +1,6 @@
 {
   "description": "Number formatter test cases - short version. The first three entries after the\n  label are orthogonal skeleton parts.",
-  "test scenario": "number_fmt",
+  "Test scenario": "number_fmt",
   "source":
     {
       "repository": "icu",
