@@ -12,7 +12,7 @@ dependencies:
     git:
       url: https://github.com/dart-lang/i18n.git
       path: pkgs/intl4x/
-      ref: addIntl4x
+      ref: addIntl4xCollator
 
 dev_dependencies:
   lints: ^2.0.0

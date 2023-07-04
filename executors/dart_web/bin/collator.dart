@@ -4,6 +4,7 @@
 // to the strength.
 import 'dart:convert';
 
+import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
 String testCollationShort(String jsonEncoded) {
@@ -17,14 +18,15 @@ String testCollationShort(String jsonEncoded) {
   try {
     Intl coll;
     if (testLocale.isNotEmpty) {
-      coll = Intl(defaultLocale: [testLocale]);
+      coll = Intl(defaultLocale: testLocale);
     } else {
       coll = Intl();
     }
     var d1 = json['string1'];
     var d2 = json['string2'];
 
-    var compared = coll.collation.compare(d1, d2, ignorePunctuation: true);
+    var collationOptions = CollationOptions(ignorePunctuation: true);
+    var compared = coll.collation(collationOptions).compare(d1, d2);
     var result = compared <= 0 ? true : false;
     outputLine = {'label': json['label'], "result": result};
 
