@@ -9,7 +9,7 @@ use icu::collator::*;
 use icu::locid::locale;
 
 // Function runs comparison using collator
-pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
+pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
     let str1: &str = json_obj["string1"].as_str().unwrap();
