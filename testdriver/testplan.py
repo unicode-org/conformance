@@ -494,6 +494,7 @@ class TestPlan:
                 print('    ----> STDOUT= >%s<' % result.stdout)
                 self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' % (
                     result.returncode, result.stderr)
+                print(' !!!!!! %s' % self.run_error_message)
             return None
         except BaseException as err:
             print('!!! send_one_line fails: input => %s<. Err = %s' % (input_line, err))

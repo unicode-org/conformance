@@ -37,6 +37,8 @@ def dataSetsForCldr(dataSets, cldr_version):
 # ICU version will use same CLDR version.
 class ICUVersion(Enum):
   ICU67 = "67.1"
+  ICU68 = "68.1"
+  ICU69 = "69.1"
   ICU70 = "70.1"
   ICU71 = "71.1"
   ICU72rc = "72rc"
@@ -58,6 +60,7 @@ def resolveIcu(text):
     return text
 
 class CLDRVersion(Enum):
+  CLDR38 = "38"
   CLDR39 = "39"
   CLDR40 = "40"
   CLDR41 = "41"
@@ -65,7 +68,7 @@ class CLDRVersion(Enum):
   CLDR43 = "43"
 
 def latestCldrVersion():
-  return CLDRVersion.CLDR41  # TODO: Fix this
+  return CLDRVersion.CLDR43  # TODO: Fix this
 
 def resolveCldr(text):
   if not text or text == 'LATEST':
@@ -108,7 +111,7 @@ testName = 'coll_shift_67'
 testDatasets[testName] = DataSet(testType.coll_shift.value,
                                  'coll_test0816_U67.json',
                                  None,
-                                 CLDRVersion.CLDR39, ICUVersion.ICU67)
+                                 CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'decimal_fmt'
 testDatasets[testName] = DataSet(testType.decimal_fmt.value,
@@ -146,8 +149,8 @@ class ExecutorLang(Enum):
 # Actual commmands to run the executors.
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
-    "rust" : "executors/rust/target/release/executor",
-    "cpp":   "executors/cpp/executor",
+    "rust" : "../executors/rust/target/release/executor",
+    "cpp":   "../executors/cpp/executor",
     "java" : None
     }
 
@@ -161,11 +164,17 @@ class NodeVersion(Enum):
   Node19 = "19.7.0"
   Node18_7 = "18.7.0"
   Node16 = "17.9.1"
-  Node14 = "14.21.3"
+  Node14_21 = "14.21.3"
+  Node14_18 = "14.18.3"
+  Node14_17 = "14.17.0"
+  Node14_16 = "14.16.0"
+  Node14_0 = "14.0.0"
 
 class RustVersion(Enum):
   Rust01 = "0.1"
   Rust1 = "1.0"
+  Rust1_61_0 = "1.61.0"
+  Rust1_2_0 = "1.2.0"
 
 class CppVersion(Enum):
   Cpp = "1.0"
@@ -180,7 +189,11 @@ IcuVersionToExecutorMap = {
         '73': ["20.1.0"],
         '72': ['18.14.2'],
         '71': ['18.7.0', '16.19.1'],
-        '70': ['14.21.3']
+        '70': ['14.21.3'],
+        '69': ['14.18.3'],
+        '68': ['14.17.0'],
+        '67': ['14.16.0'],
+        '66': ['14.0.0'],
     },
     'icu4x': {
         '71': ['1.61.0'],
@@ -193,18 +206,22 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    "20.1.0": "73.1",
-    "18.14.2": "72.1",
-    "18.7.0": "71.1",
-    "16.19.1": "71.1",
-    "14.21.3": "70.1",
-    }
+    '20.1.0': '73.1',
+    '18.14.2': '72.1',
+    '18.7.0': '71.1',
+    '16.19.1': '71.1',
+    '14.21.3': '70.1',
+    '14.18.3': '69.1',
+    '14.17.0': '68.2',
+    '14.16.0': '67.1',
+    '14.0.0': '66.1',
+}
 
 # Versions of ICU in each ICU4X release
 ICU4XVersionMap = {
     # TODO: fill this in
-    "1.0": '71.1',
-    "1.61.0": '71.1'
+    '1.0': '71.1',
+    '1.61.0': '71.1'
 }
 
 ICUVersionMap = {
@@ -248,7 +265,7 @@ class ExecutorInfo():
       for version in system:
         if system[version]['cldr'] == cldr_needed:
           return system[version]
-      return {'path': lang}  # Nothing found
+      return {'path': ExecutorCommands[lang]}  # Nothing found
     except KeyError as err:
       print('versionForCldr error = %s' % err)
       return {'path': lang}  # Nothing found
@@ -271,11 +288,23 @@ allExecutors.addSystem(system, NodeVersion.Node20,
 
 allExecutors.addSystem(system, NodeVersion.Node19,
                        'node ../executors/node/executor.js',
-                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
+                       CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU72)
+
+allExecutors.addSystem(system, NodeVersion.Node16,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR40, versionICU=ICUVersion.ICU70)
+
+allExecutors.addSystem(system, NodeVersion.Node14_18,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR39, versionICU=ICUVersion.ICU69)
+
+allExecutors.addSystem(system, NodeVersion.Node14_17,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR38, versionICU=ICUVersion.ICU68)
 
 system = ExecutorLang.RUST.value
 allExecutors.addSystem(system, RustVersion.Rust01,
@@ -287,6 +316,14 @@ allExecutors.addSystem(system, RustVersion.Rust1,
                        '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
+allExecutors.addSystem(system, RustVersion.Rust1_2_0,
+                       '../executors/rust/target/release/executor',
+                       CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
+
+allExecutors.addSystem(system, RustVersion.Rust1_61_0,
+                       '../executors/rust/target/release/executor',
+                       CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
+
 system = ExecutorLang.CPP.value
 allExecutors.addSystem(
     system, CppVersion.Cpp,
@@ -294,7 +331,7 @@ allExecutors.addSystem(
     CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73,
     env={'LD_LIBRARY_PATH': '/tmp/icu73/lib', 'PATH': '/tmp/icu73/bin'})
 
-system = "newLanguage"
+system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',
                        '/bin/newExecutor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71,
@@ -356,5 +393,5 @@ def main(args):
     else:
       print('    ** No defined path')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv)

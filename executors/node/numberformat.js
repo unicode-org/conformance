@@ -16,7 +16,7 @@ let debug = 1;
 // "unsupported" rather than an error.
 // Use array.includes(optionX) to check.
 // TODO: Should this also include the values for each option?
-const all_supported_options = [
+const all_supported_options_pre_v3 = [
   "compactDisplay",
   "currency",
   "currencyDisplay",
@@ -40,9 +40,12 @@ const all_supported_options = [
   "maximumSignificantDigits"
 ];
 
+// The nodejs version that first supported advance rounding options
+const first_v3_version = 'v20.1.0';
+
 // Use this
 const supported_options_by_version = {
-  "20.1.0": [
+  "v3": [
   "compactDisplay",
   "currency",
   "currencyDisplay",
@@ -65,7 +68,7 @@ const supported_options_by_version = {
   "minimumSignificantDigits",
   "maximumSignificantDigits"
   ],
-  "18.14.2": [
+  "pre_v3": [
   "compactDisplay",
   "currency",
   "currencyDisplay",
@@ -79,8 +82,6 @@ const supported_options_by_version = {
   "unitDisplay",
   "useGrouping",
   "roundingMode",
-  "roundingIncrement",
-  "trailingZeroDisplay",
   "minimumIntegerDigits",
   "minimumFractionDigits",
   "maximumFractionDigits",
@@ -89,6 +90,9 @@ const supported_options_by_version = {
   ]
   // TODO: Add older version support.
 };
+
+// TODO: usegrouping only supports boolean before V3.
+// After V3, "min2", "auto", "always", and undefined are accepted
 
 const unsupported_skeleton_terms = [
   "scientific/+ee/sign-always",
@@ -190,9 +194,30 @@ module.exports = {
         delete options['code'];
       }
 
+      // Supported options depends on the nodejs version
+      if (doLogInput > 0) {
+        console.log("#NNNN " + node_version);
+      }
+      let version_supported_options;
+      if (node_version >= first_v3_version) {
+        if (doLogInput > 0) {
+          console.log("#V3 !!!! " + node_version);
+        }
+        version_supported_options =
+            supported_options_by_version['v3'];
+      } else {
+        if (doLogInput > 0) {
+          console.log("#pre_v3 !!!! " + node_version);
+        }
+        version_supported_options =
+        supported_options_by_version['pre_v3'];
+      }
+      if (doLogInput > 0) {
+        console.log("#NNNN " + version_supported_options);
+      }
       // Check for option items that are not supported
       for (let key in options) {
-        if (!all_supported_options.includes(key)) {
+        if (!version_supported_options.includes(key)) {
           unsupported_options.push((key + ":" +  options[key]));
         }
       }
