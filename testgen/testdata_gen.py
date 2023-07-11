@@ -389,19 +389,25 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
 
 def resolveOptions(raw_options, skeleton_list):
-  # Resolve conflicts with options before putting them into the test's options.
-  # TODO: fix
-  resolved = raw_options
-  if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
-    resolved.pop('minimumSignificantDigits')
+    # Resolve conflicts with options before putting them into the test's options.
+    # TODO: fix all the potential conflicts
+    resolved = raw_options
+    if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
+        resolved.pop('minimumSignificantDigits')
 
-  if skeleton_list and 'percent' in skeleton_list:
-    resolved['style'] = 'unit'
-    resolved['unit'] = 'percent'
-    if 'unit-width-full-name' in skeleton_list:
+    # Set up default maximumFractionDigits if if not compact or currency
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' not in resolved or resolved['notation'] != 'compact') and
+        ('style' not in resolved or resolved['style'] != 'currency')):
+        resolved['maximumFractionDigits'] = 6
+
+    if skeleton_list and 'percent' in skeleton_list:
+        resolved['style'] = 'unit'
+        resolved['unit'] = 'percent'
+    if skeleton_list and 'unit-width-full-name' in skeleton_list:
         resolved['currencyDisplay'] = 'name'
         resolved['unitDisplay'] = 'long'
-  return resolved
+    return resolved
 
 
 # Count is the starting point for the values
@@ -437,6 +443,10 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
 
       if rounding_mode:
           entry['options']['roundingMode'] = rounding_mode
+      else:
+          # Default if not specified
+          entry['options']['roundingMode'] = ecma402_rounding_map['halfdown']
+
       entry['options'] |= resolved_options_dict  # ??? json_part
 
       all_tests_list.append(entry)

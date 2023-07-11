@@ -149,18 +149,7 @@ module.exports = {
         options = none;
       }
     } else {
-      // Set default maximumFractionDigits with these exceptions
-      if (options['notation'] && options['notation'] == 'compact' ||
-          options['style'] && options['style'] == 'currency' ||
-          options['maximumFractionDigits']) {
-        // Don't set maximumFractionDigits
-      } else {
-        options['maximumFractionDigits'] = 6;  // Default
-      }
-      // ?????
-      if (options['roundingMode'] == undefined) {
-        options['roundingMode'] = 'halfTrunc';
-      }
+      // Default maximumFractionDigits and rounding modes are set in test generation
       let roundingMode = options['roundingMode'];
 
       // Check each option for implementation.
