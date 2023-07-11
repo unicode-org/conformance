@@ -3,7 +3,6 @@
  */
 
 use serde_json::{json, Value};
-use writeable::Writeable;
 
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
@@ -15,9 +14,10 @@ use icu_compactdecimal::CompactDecimalFormatter;
 use icu::locid::{locale, Locale};
 use icu_provider::DataLocale;
 
-
 use std::panic;
 use std::str::FromStr;
+
+use writeable::Writeable;
 
 // Support options - update when ICU4X adds support
 static SUPPORTED_OPTIONS: [&str; 5] = [
@@ -57,6 +57,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     for (option, setting) in options.as_object().unwrap() {
         let option_string = option.as_str();
         let setting_string = setting.as_str().unwrap();
+
         if option_string == "notation" && setting_string == "compact" {
             is_compact = true;
         } else if option_string == "compactDisplay" {
@@ -86,37 +87,38 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
     // Returns error if parsing the number string fails.
-    let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
-
-    let mut result_string = if is_compact {
-        let input_num = input.parse::<i64>().map_err(|e| e.to_string())?;
+    let result_string = if is_compact {
         // We saw compact!
         let cdf = if compact_type == "short" {
             CompactDecimalFormatter::try_new_short_unstable(
                 &provider,
                 &data_locale,
                 Default::default(),
-            ).unwrap()  // ??  options);
+            ).unwrap()
         } else {
+            println!("#{:?}", "   LONG");
             CompactDecimalFormatter::try_new_long_unstable(
                 &provider,
                 &data_locale,
                 Default::default(),
-            ).unwrap()  // ??  options);
-        }
-        cdf.format_i64(input_num)
+            ).unwrap()
+        };
+        let input_num = input.parse::<i64>().map_err(|e| e.to_string())?;
+        let formatted_cdf = cdf.format_i64(input_num);
+        formatted_cdf.write_to_string().into_owned()
     }
     else {
-        let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
         // Can this fail with invalid options?
         let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
             .expect("Data should load successfully");
-        fdf.format(&input_num)
+        let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
+        fdf.format(&input_num).write_to_string().into_owned()
     };
 
     // Result to stdout.
     let json_result = json!({
         "label": label,
-        "result": result_string.write_to_string()});
+        "result": result_string
+    });
     Ok(json_result)
 }

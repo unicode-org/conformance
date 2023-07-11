@@ -345,7 +345,10 @@ class Verifier:
                 print('  progress = %d / %s' % (index, total_results), end='\r')
 
             # The input to the test
-            test_label = test['label']
+            try:
+                test_label = test['label']
+            except:
+                logging.warning(test)
             test_data = self.find_testdata_with_label(test_label)
 
             # Get the result

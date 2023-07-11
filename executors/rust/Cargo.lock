@@ -35,6 +35,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "databake"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "142b0851e71c009e7f5582a8fa13de2cb133643026a57c7e4ae1b8c4369948e9"
+dependencies = [
+ "databake-derive",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "databake-derive"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdbf8a83d97ace23f6e0f07dcb4f777ac575cab5d6f56c413129b047abac5d5d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "synstructure",
+]
+
+[[package]]
 name = "deduplicating_array"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -77,12 +101,16 @@ dependencies = [
 name = "executor"
 version = "0.1.0"
 dependencies = [
+ "databake",
  "env_logger",
  "fixed_decimal",
  "icu",
  "icu_compactdecimal",
+ "icu_decimal",
  "icu_displaynames",
  "icu_locid",
+ "icu_locid_transform",
+ "icu_plurals",
  "icu_provider",
  "icu_testdata",
  "json",
@@ -92,6 +120,7 @@ dependencies = [
  "serde_json",
  "substring",
  "writeable",
+ "zerovec",
 ]
 
 [[package]]
@@ -443,8 +472,10 @@ dependencies = [
  "icu_calendar",
  "icu_collator",
  "icu_collections",
+ "icu_compactdecimal",
  "icu_datetime",
  "icu_decimal",
+ "icu_displaynames",
  "icu_list",
  "icu_locid",
  "icu_locid_transform",
