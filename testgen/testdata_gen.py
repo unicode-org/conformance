@@ -224,39 +224,40 @@ def mapFmtSkeletonToECMA402(options):
       "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
       "measure-unit/length-meter": {"style": "unit",  "unit": "meter"},
       "measure-unit/length-furlong": {"style": "unit", "unit": "furlong"},
-      "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "symbol"},
+      "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "narrowSymbol"},
       "unit-width-full-name": {"unitDisplay": "long", "currencyDisplay": "name"},
       #"unit-width-full-name": {"unitDisplay": "long"},
-      "precision-integer": {"maximumFractionDigits": "0", "minimumFractionDigits": "0", "roundingType": "fractionDigits"},
-      ".000": {"maximumFractionDigits": "3", "minimumFractionDigits": "3"},
+      "precision-integer": {"maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"},
+      ".000": {"maximumFractionDigits": 3, "minimumFractionDigits": 3},
 
       # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
-      ".##/@@@+": {"maximumFractionDigits": "2", "maximumSignificantDigits": "3","roundingPriority": "morePrecision"},
-      "@@": {"maximumSignificantDigits": "2", "minimumSignificantDigits": "2"},
+      ".##/@@@+": {"maximumFractionDigits": 2, "maximumSignificantDigits": 3,"roundingPriority": "morePrecision"},
+      "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
-      "integer-width/##00": {"maximumIntegerDigits": "4", "minimumIntegerDigits":"2"},
+      "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits":2},
       "group-on-aligned": {"useGrouping": "true"},
       "latin": {"numberingSystem": "latn"},
-      "sign-accounting-except-zero": {"signDisplay": "exceptZero"},
-      "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": "1", "minimumFractionDigits": "4", "maximumFractionDigits": "4"},
-      "00": {"minimumIntegerDigits":"2"},
-      "#.#": {"maximumFractionDigits": "1"},
-      "@@@": {"minimumSignificantDigits": "3", "maximumSignificantDigits": "3"},
-      "@@###": {"minimumSignificantDigits": "2", "maximumSignificantDigits": "5"},
-      "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": "4", "maximumSignificantDigits": "4"},
-      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
-      "00.##E0": {"notation": "scientific", "minimumIntegerDigits":"2", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
-      "0005": {"minimumIntegerDigits":"2"},
-      "0.00": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"},
-      "0.000E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "3", "maximumFractionDigits": "3"},
-      "0.0##": {"minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
-      "#": {"minimumIntegerDigits":"1", "maximumFractionDigits": "0"},
-      "0.#E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "1"},
-      "0.##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "2"},
-      ".0E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "1"},
-      ".0#E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "2"},
-      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": "25", "maximumSignificantDigits": "25"},
-      "0.0": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"}
+      "sign-accounting-except-zero": {"signDisplay": "exceptZero", "currencySign": "accounting"},
+      # These are all patterns...
+      "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 4, "maximumFractionDigits": 4},
+      "00": {"minimumIntegerDigits":2, "maximumFractionDigits":0},
+      "#.#": {"maximumFractionDigits": 1},
+      "@@@": {"minimumSignificantDigits": 3, "maximumSignificantDigits": 3},
+      "@@###": {"minimumSignificantDigits": 2, "maximumSignificantDigits": 5},
+      "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": 4, "maximumSignificantDigits": 4},
+      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "00.##E0": {"notation": "scientific", "minimumIntegerDigits":2, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "0005": {"minimumIntegerDigits":2},
+      "0.00": {"minimumIntegerDigits":1, "minimumFractionDigits": 2, "maximumFractionDigits": 2},
+      "0.000E0": {"notation": "scientific", "minimumIntegerDigits":1, "minimumFractionDigits": 3, "maximumFractionDigits": 3},
+      "0.0##": {"minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "#": {"minimumIntegerDigits":1, "maximumFractionDigits": 0},
+      "0.#E0": {"notation": "scientific", "minimumIntegerDigits":1, "maximumFractionDigits": 1},
+      "0.##E0": {"notation": "scientific", "minimumIntegerDigits":1, "maximumFractionDigits": 2},
+      ".0E0": {"notation": "scientific", "minimumFractionDigits": 1, "maximumFractionDigits": 1},
+      ".0#E0": {"notation": "scientific", "minimumFractionDigits": 1, "maximumFractionDigits": 2},
+      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": "21", "maximumSignificantDigits": "21"},
+      "0.0": {"minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 1}
       }
 
   ecma402_options = []
@@ -285,8 +286,8 @@ def mapRoundingToECMA402(rounding):
       "halfceiling": 'halfCeil',
       "halffloor": 'halfFloor',
       "floor": 'floor',
-      "ceiling": 'ceiling',
-      "unnecessary": 'none'
+      "ceiling": 'ceil',
+      "unnecessary": "unnecessary"
       }
   return ecma402_rounding_map[rounding]
 
@@ -388,22 +389,30 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
 
 def resolveOptions(raw_options, skeleton_list):
-  # Resolve conflicts with options before putting them into the test's options.
-  # TODO: fix
-  resolved = raw_options
-  if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
-    resolved.pop('minimumSignificantDigits')
+    # Resolve conflicts with options before putting them into the test's options.
+    # TODO: fix all the potential conflicts
+    resolved = raw_options
+    if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
+        resolved.pop('minimumSignificantDigits')
 
-  if skeleton_list and 'percent' in skeleton_list:
-    resolved['style'] = 'unit'
-    resolved['unit'] = 'percent'
-    if 'unit-width-full-name' in skeleton_list:
+    # Set up default maximumFractionDigits if if not compact or currency
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' not in resolved or resolved['notation'] != 'compact') and
+        ('style' not in resolved or resolved['style'] != 'currency')):
+        resolved['maximumFractionDigits'] = 6
+
+    if skeleton_list and 'percent' in skeleton_list:
+        resolved['style'] = 'unit'
+        resolved['unit'] = 'percent'
+    if skeleton_list and 'unit-width-full-name' in skeleton_list:
         resolved['currencyDisplay'] = 'name'
         resolved['unitDisplay'] = 'long'
-  return resolved
+    return resolved
 
 
 # Count is the starting point for the values
+# Use older Decimal Format specifications
+# Source data: https://github.com/unicode-org/icu/blob/main/icu4c/source/test/testdata/dcfmtest.txt
 def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   original_count = count
   recommentline = re.compile('^\s*#')
@@ -429,12 +438,16 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       json_part = mapFmtSkeletonToECMA402([pattern])
 
       resolved_options_dict = resolveOptions(json_part, None)
+      # None of these old patterns use groupings
+      resolved_options_dict['useGrouping'] = False
 
-      if not json_part:
-          x = 1
       if rounding_mode:
           entry['options']['roundingMode'] = rounding_mode
-      entry['options'] |= json_part
+      else:
+          # Default if not specified
+          entry['options']['roundingMode'] = ecma402_rounding_map['halfdown']
+
+      entry['options'] |= resolved_options_dict  # ??? json_part
 
       all_tests_list.append(entry)
       verify_list.append({'label': label,

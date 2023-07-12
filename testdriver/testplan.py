@@ -141,7 +141,7 @@ class TestPlan:
             # There's debug data. Take the 2nd line of this result
             result_lines = result.split('\n')
             result = result_lines[1]
-            
+
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
@@ -152,10 +152,11 @@ class TestPlan:
                 self.jsonOutput["platform"] = json.loads(result)
                 self.platformVersion = self.jsonOutput["platform"]["platformVersion"]
                 self.icuVersion = self.jsonOutput["platform"]["icuVersion"]
-                
+                self.cldrVersion = self.jsonOutput["platform"]["cldrVersion"]
+
                 # TODO: Clean this up!
                 # Get the test data area from the icu_version
-      
+
                 # Reset the output path based on the version.
                 self.outputFilePath = os.path.join(self.options.file_base,
                                                    self.options.output_path,
@@ -174,7 +175,7 @@ class TestPlan:
         if terminate_args:
             terminate_msg += ' ' + terminate_args
             result = self.send_one_line(terminate_msg)
-            
+
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
         else:
@@ -190,14 +191,13 @@ class TestPlan:
             "test_language": self.test_lang,
             "executor": self.exec_command,
             "test_type": self.test_type,
-            
             "datetime": "%s" % run_date_time.strftime('%m/%d/%Y, %H:%M:%S'),
             "timestamp": "%s" % timestamp,
-            
             "input_file": self.inputFilePath,
 
-            "icu_version": '%s' % self.testData.icu_version,
-            "cldr_version": '%s' % self.testData.cldr_version,
+            # These should come from the Executor
+            "icu_version": '%s' % self.icuVersion,
+            "cldr_version": '%s' % self.cldrVersion,
             "test_count": "%d" % len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment
@@ -494,6 +494,7 @@ class TestPlan:
                 print('    ----> STDOUT= >%s<' % result.stdout)
                 self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' % (
                     result.returncode, result.stderr)
+                print(' !!!!!! %s' % self.run_error_message)
             return None
         except BaseException as err:
             print('!!! send_one_line fails: input => %s<. Err = %s' % (input_line, err))
