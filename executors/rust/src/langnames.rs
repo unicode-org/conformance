@@ -23,13 +23,12 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
 
     let language_label = json_obj["language_label"].as_str().unwrap();
     println!("# {:?} LANGUAGE_LABEL", language_label);
-    let input_lang = if json_obj.get("language_label") != None {
-        let language_to_use = language_label; // language!("ru");  //
-        Language::from_str(language_label)
+    let input_lang : Language = if json_obj.get("language_label") != None {
+        Language::from_str(language_label).map_err(|_e| format!("bad language label: {}", language_label))?
     } else {
         // Need to handle language name plus region, e.g., "es-MX"
         println!("#{:?}", "DEFAULTING TO fr");
-        Language::from_str("fr")
+        Language::from_str("fr").map_err(|_e| format!("bad language default value"))?
     };
     println!("#{:?}", input_lang);
     

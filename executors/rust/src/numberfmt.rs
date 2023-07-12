@@ -28,6 +28,16 @@ static SUPPORTED_OPTIONS: [&str; 5] = [
     "RoundingMode",
 ];
 
+struct NumberFormatOptions {
+    minimumIntegerDigits:u8,
+    maximumIntegerDigits: u8,
+    minimumFractionDigits: u8,
+    maximumSignificanDigits: u8,
+    minimumSignificantDigits: u8,
+    maximumFractionDigits: u8,
+    RoundingMode: String    
+}
+
 // Runs decimal and number formatting given patterns or skeletons.
 pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let provider = icu_testdata::unstable();
@@ -51,7 +61,10 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let options = &json_obj["options"]; // This will be an array.
 
     let mut unsupported_options: Vec<&str> = Vec::new();
+
     // If any option is not yet supported,
+    let option_struct : NumberFormatOptions = serde_json::from_str(json_obj);
+    
     let mut is_compact = false;
     let mut compact_type = "";
     for (option, setting) in options.as_object().unwrap() {

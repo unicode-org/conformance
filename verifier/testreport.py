@@ -616,6 +616,8 @@ class TestReport:
         # This depends on test_type
         if self.test_type == testType.coll_shift.value:
             return
+        if not test.has('result') or not test.has('expected'):
+            return
 
         if len(test['result']) == len(test['expected']):
             # Look for single replacement
