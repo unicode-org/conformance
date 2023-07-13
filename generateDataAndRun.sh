@@ -25,7 +25,7 @@ mkdir -p $TEMP_DIR/testData
 
 # Generates all new test data
 pushd testgen
-python3 testdata_gen.py  --icu_versions icu73 icu72 icu71 icu70
+python3 testdata_gen.py  --icu_versions icu73 icu72 icu71 icu70 icu69
 # cp *.json ../$TEMP_DIR/testData  # Now uses versions
 # And get subdirectories, too.
 cp -r icu* ../$TEMP_DIR/testData
@@ -63,8 +63,7 @@ python3 testdriver.py  --icu_version icu72 --exec node --test_type coll_shift_sh
 echo $?
 
 #ICU71
-nvm install 16.19.1
-nvm use 16.19.1
+nvm install 18.7.0
 python3 testdriver.py --icu_version icu71 --exec node --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
@@ -74,8 +73,16 @@ nvm use 14.21.3
 python3 testdriver.py --icu_version icu70 --exec node --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
+# ICU69
+nvm install 14.18.3
+nvm use 14.18.3
+python3 testdriver.py --icu_version icu69 --exec node --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+echo $?
+
 # ICU4X testing
-python3 testdriver.py --icu_version icu71 --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu71 --exec rust --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+
+python3 testdriver.py --icu_version icu73 --exec rust --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # Done with test execution

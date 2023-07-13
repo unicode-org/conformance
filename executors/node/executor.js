@@ -123,9 +123,10 @@ rl.on('line', function(line) {
   // Check for commands starting with "#".
   if (line == "#VERSION") {
     // JSON output of the test enviroment.
-    let versionJson = {'platform': 'NodeJS',
+    const versionJson = {'platform': 'NodeJS',
                        'platformVersion': process.version,
                        'icuVersion': process.versions.icu,
+                       'cldrVersion': process.versions.cldr
                       };
 
     // TODO: Make this more specific JSON info.
@@ -169,7 +170,7 @@ rl.on('line', function(line) {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
-      outputLine = numberformatter.testDecimalFormat(parsedJson);
+      outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput);
     } else
     if (test_type == "display_names") {
       outputLine = displaynames.testDisplayNames(parsedJson);

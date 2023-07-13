@@ -64,8 +64,8 @@ class Verifier:
         # Get test data, verify data, and results for a case.
         try:
             self.result_file = open(self.result_path, encoding='utf-8', mode='r')
-            self.result_timestamp = datetime.date.fromtimestamp(
-                os.path.getmtime(self.result_path)).strftime('%Y-%m-%d %H:%M')
+            file_time = os.path.getmtime(self.result_path)
+            self.result_timestamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
         except BaseException as err:
             print('    *** Cannot open results file %s:\n        %s' % (self.result_path, err))
             return None
@@ -321,6 +321,8 @@ class Verifier:
         except KeyError:
             self.report.platform_info = self.report.test_environment['test_language']
 
+        self.report.test_environment['platform'] = self.report.platform_info
+
         self.report.exec = self.report.test_environment['test_language']
         self.report.test_type = self.test_type
         if not self.verifyExpected:
@@ -371,7 +373,10 @@ class Verifier:
                 # Bail on this test
                 continue
 
-            expected_result = verification_data['verify']
+            try:
+                expected_result = verification_data['verify']
+            except:
+                exepected_result = 'UNKNOWN'
             if self.debug > 1:
                 print('VVVVV: %s actual %s, expected %s' % (
                     (actual_result == expected_result),
