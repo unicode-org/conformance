@@ -7,6 +7,7 @@ from collections import defaultdict
 
 from difflib import HtmlDiff
 from difflib import Differ
+from difflib import SequenceMatcher
 
 from datetime import datetime
 import glob
@@ -23,7 +24,6 @@ from datasets import ICUVersionMap
 # https://docs.python.org/3.6/library/string.html#template-strings
 
 # Consider Jinja2: https://jinja.palletsprojects.com/en/3.1.x/intro/
-
 
 def dict_to_html(dict_data):
     # Expands a dictionary to HTML data
@@ -97,8 +97,6 @@ class TestReport:
         self.test_errors = []
         self.unsupported_cases = []
 
-        # JSON Description of failing test cases with parameters, etc.
-        self.characterized_fail_json = {}
         self.test_type = None
         self.exec = None
 
@@ -164,7 +162,10 @@ class TestReport:
             if group:
                 if not groups.get(group):
                     groups[group] = {detail: []}  # insert empty list
-                groups[group][detail].append(label)
+                if not groups[group].get(detail):
+                    groups[group][detail] = [label]
+                else:
+                    groups[group][detail].append(label)
 
         return dict(groups)
 
@@ -264,6 +265,32 @@ class TestReport:
                     output_name, err))
         return
 
+    def combine_same_sets_of_labels(self, label_sets):
+        # TODO: Combine sets that have the same group of labels.
+        # Group by length of label list
+        if not label_sets:
+            return label_sets
+        keys = label_sets.keys()
+        # A list of combined names and sets of labels
+        combined_sets = []
+        for key in keys:
+            set = label_sets[key]
+            merged = False
+            for combined in combined_sets:
+                if set == combined[1]:
+                    combined[0].append(key)
+                    merged = True
+                    continue
+            if not merged:
+                combined_sets.append([[key], set])
+        # TODO: Create new dictionary with combined keys
+        combined_dictionary = {}
+        for set in combined_sets:
+            key = (', ').join(set[0])
+            combined_dictionary[key] = set[1]
+
+        return combined_dictionary
+
     def create_html_report(self):
         # Human-readable summary of test results
         if self.platform_info['icuVersion'] == 'unknown':
@@ -304,40 +331,40 @@ class TestReport:
             line = self.fail_line_template.safe_substitute(fail)
             fail_lines.append(line)
 
-        html_map['failure_table_lines'] = '\n'.join(fail_lines)
+        #html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
-        fail_characterized = self.characterize_failures_by_options()
+        # Get and save failures, errors, unsupported
+        error_characterized = self.characterize_failures_by_options(self.test_errors)
+        flat_combined_errors = self.flatten_and_combine(error_characterized, None)
+        self.save_characterized_file(flat_combined_errors, "error")
 
+        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
+        flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
+        self.save_characterized_file(flat_combined_unsupported, "unsupported")
+
+        # TODO: SHhould we compute top 3-5 overlaps for each set?
+        # Flatten and combine the dictionary values
+        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
         fail_simple_diffs = self.check_simple_text_diffs()
-
-        # ?? Compute top 3-5 overlaps for each set ??
-
-        checkboxes = []
-        failures_json = {}
-        for key, value in fail_characterized.items():
-            failures_json[key] = value
-        if fail_simple_diffs:
-            for key, value in fail_simple_diffs.items():
-                if value and len(value):
-                    failures_json[key] = value
-
-        self.characterized_fail_json = failures_json
+        flat_combined_dict = self.flatten_and_combine(fail_characterized,
+                                                      fail_simple_diffs)
+        self.save_characterized_file(flat_combined_dict, "fail")
 
         failure_labels = []
-        for key in sorted(failures_json, key=lambda k: len(failures_json[k]), reverse=True):
-            value = failures_json[key]
-            count = '%5d' % len(value)
-            values = {'id': key, 'name': key, 'value': value, 'count': count}
+        checkboxes = []
+        for key in sorted(flat_combined_dict, key=lambda k: len(flat_combined_dict[k]), reverse=True):
+            value = flat_combined_dict[key]
+            count = len(value)
+            count_str = '%5d' % count  # TODO: Add the counts of all the sublists
+            values = {'id': key, 'name': key, 'value': value, 'count': count_str}
             line = self.templates.checkbox_option_template.safe_substitute(values)
             checkboxes.append(line)
             failure_labels.append(key)
-        html_map['failures_characterized'] = ', '.join(checkboxes)
+        html_map['failures_characterized'] = '<br />'.join(checkboxes)
 
         # A dictionary of failure info.
         # html_map['failures_characterized'] = ('\n').join(list(fail_characterized))
-        failures_json = fail_characterized
-        if fail_simple_diffs:
-            failures_json.update(fail_simple_diffs)
+
         html_map['characterized_failure_labels'] = failure_labels
 
         if self.test_errors:
@@ -420,22 +447,40 @@ class TestReport:
         file.write(html_output)
         file.close()
 
-        # TODO: write failures_json to output file
+        # TODO: write fail_characterized to output file
         failure_json_path = os.path.join(self.report_directory, "failure_parameters.json")
         try:
             file = open(failure_json_path, mode='w', encoding='utf-8')
-            file.write(json.dumps(failures_json))
+            file.write(json.dumps(fail_characterized))
             file.close()
         except Exception as err:
-            logging.warning('!! %s: Cannot write failures_json data', err)
+            logging.warning('!! %s: Cannot write fail_characterized data', err)
 
         return html_output
 
-    def characterize_failures_by_options(self):
+    def flatten_and_combine(self, input_dict, input_simple):
+        if input_simple:
+            all_items = input_dict | input_simple
+        else:
+            all_items = input_dict
+        # Flatten the dictionary.
+        flat_items = {}
+        for key, value in all_items.items():
+            if type(value) == list:
+                flat_items[key] = value
+            else:
+                for key2, value2 in value.items():
+                    key_new = str(key) + '.' + str(key2)
+                    flat_items[key_new] = value2
+
+        flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
+        return flat_combined_dict
+
+    def characterize_failures_by_options(self, failing_tests):
         # User self.failing_tests, looking at options
         results = {}
         results['locale'] = {}  # Dictionary of labels for each locale
-        for test in self.failing_tests:
+        for test in failing_tests:
             # Get input_data, if available
             label = test['label']
             input_data = test.get('input_data')
@@ -498,6 +543,8 @@ class TestReport:
         results['delete_digit'] = []
         results['replace_digit'] = []
         results['exponent_diff'] = []
+        results['replace'] = []
+
         for fail in self.failing_tests:
             label = fail['label']
             actual = fail.get('result')
@@ -513,6 +560,34 @@ class TestReport:
 
             # The following checks work on strings
             try:
+                # Try
+                sm = SequenceMatcher(None, expected, actual)
+                sm_opcodes = sm.get_opcodes()
+
+                for diff in sm_opcodes:
+                    # Look for insert, delete, replace
+                    kind = diff[0]
+                    old_val = expected[diff[1]:diff[2]]
+                    new_val = actual[diff[1]:diff[2]]
+                    if kind == 'replace':
+                        if old_val.isdigit() and new_val.isdigit():
+                            results['replace_digit'].append(label)
+                        else:
+                            results['replace'].append(label)
+                    elif kind == "delete":
+                        if old_val.isdigit():
+                            results['delete_digit'].append(label)
+                        else:
+                            results['delete'].append(label)
+
+                    elif kind == "insert":
+                        if new_val.isdigit():
+                            results['insert_digit'].append(label)
+                        else:
+                            results['insert'].append(label)
+                    else:
+                        pass
+
                 if isinstance(actual, str) and abs(len(actual) - len(expected)) <= 1:
                     comp_diff = self.differ.compare(expected, actual)
                     changes = list(comp_diff)
@@ -527,27 +602,30 @@ class TestReport:
                         # Look at the results for simple insert or delete
                         for x in changes:
                             if x[0] == '+':
-                                if x[2] in [' ', '\u00a0']:
+                                if x[2] in [' ', '\u00a0', '\u202f', '\u3000']:
                                     results['insert_space'].append(label)
-                                elif x[2].isdigit():
-                                    results['insert_digit'].append(label)
+
                                 elif x[2] in ['+', '0', '+0']:
                                     results['exponent_diff'].append(label)
                                 else:
                                     results['insert'].append(label)
                             if x[0] == '-':
-                                if x[2].isdigit():
-                                    results['delete_digit'].append(fail['label'])
-                                elif x[2] in ['+', '0', '+0']:
+                                if x[2] in ['+', '0', '+0']:
                                     results['exponent_diff'].append(label)
-                                else:
-                                    results['delete'].append(fail['label'])
-                            # TODO: Check if the only difference is one replaced digit, e.g., "123" vs. "124"
             except KeyError:
                 # a non-string result
                 continue
 
         return dict(results)
+
+    def save_characterized_file(self, characterized_data, characterized_type):
+        json_data = json.dumps(characterized_data)
+        file_name = characterized_type + "_characterized.json"
+        character_file_path = os.path.join(self.report_directory, file_name)
+        file = open(character_file_path, mode='w', encoding='utf-8')
+        file.write(json_data)
+        file.close()
+        return
 
     def create_html_diff_report(self):
         # Use difflib to create file of differences
@@ -751,10 +829,13 @@ class SummaryReport:
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
+                platform = test_json['platform']
                 # TODO !!!: get the executor + version in here
                 test_results = {
                     'exec': executor,
                     'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
+                    'exec_icu_version': platform['icuVersion'],
+                    'exec_cldr_version': platform['cldrVersion'],
                     'test_type': test_type,
                     'date_time': test_environment['datetime'],
                     'test_count': int(test_environment['test_count']),
@@ -765,10 +846,9 @@ class SummaryReport:
                     'missing_verify_count': len(test_json['missing_verify_data']),
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
-                    'version': test_json['platform'],
+                    'version': platform,
                     'icu_version': icu_version
                 }
-
             except BaseException as err:
                 print('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
 
