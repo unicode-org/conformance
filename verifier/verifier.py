@@ -381,13 +381,14 @@ class Verifier:
                 print('VVVVV: %s actual %s, expected %s' % (
                     (actual_result == expected_result),
                     actual_result, expected_result))
+            # Remember details about the test
+            test['input_data'] = test_data
+            test['expected'] = expected_result
             if actual_result == expected_result:
                 self.report.record_pass(test)
             else:
-                # Add expected value to the report
-                test['expected'] = expected_result
                 self.report.record_fail(test)
-                test['input_data'] = test_data
+
             index += 1
 
         print('')
