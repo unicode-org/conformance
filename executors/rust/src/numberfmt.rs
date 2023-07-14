@@ -144,6 +144,9 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         if let Some(x) = option_struct.maximum_fraction_digits {
             input_num.half_even(-1 * x as i16);
         }
+        if let Some(x) = option_struct.minimum_integer_digits {
+            input_num.pad_start(x as i16);
+        }
 
         fdf.format(&input_num).write_to_string().into_owned()
     };
