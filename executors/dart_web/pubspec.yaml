@@ -8,11 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  intl4x:
-    git:
-      url: https://github.com/dart-lang/i18n.git
-      path: pkgs/intl4x/
-      ref: addIntl4xCollator
+  intl4x: ^0.1.0
 
 dev_dependencies:
   lints: ^2.0.0

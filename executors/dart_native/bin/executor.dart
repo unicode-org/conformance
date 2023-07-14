@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
 Map<String, List<String>> supportedTests = {
@@ -69,10 +70,11 @@ void main() {
 }
 
 bool testCollator(Map<String, dynamic> decoded) {
-  var compared = Intl().collation.compare(
-        decoded['string1'],
-        decoded['string2'],
-      );
+  var compared =
+      Intl().collation(CollationOptions(ignorePunctuation: true)).compare(
+            decoded['string1'],
+            decoded['string2'],
+          );
   var result = compared <= 0 ? true : false;
   return result;
 }
