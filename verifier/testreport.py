@@ -99,6 +99,7 @@ class TestReport:
 
         self.test_type = None
         self.exec = None
+        self.library_name = None
 
         self.platform = None
 
@@ -307,6 +308,8 @@ class TestReport:
             self.platform_info['icuVersion'])
         html_map = {'test_type': self.test_type,
                     'exec': self.exec,
+                    # TODO: Change to 'icu4x' instead of rust
+                    'library_name': self.library_name,
                     'platform_info': platform_info,
                     'test_environment': dict_to_html(self.test_environment),
                     'timestamp': self.timestamp,
@@ -796,7 +799,6 @@ class SummaryReport:
         self.version_directories = glob.glob(version_join)
 
         json_raw_join = os.path.join(version_join, '*', self.report_filename)
-        # TODO!!!! Filter out the passing, failing, unsupported, and error files
         raw_reports = glob.glob(json_raw_join)
         self.raw_reports = raw_reports
         self.raw_reports.sort()

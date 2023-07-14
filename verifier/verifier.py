@@ -226,6 +226,11 @@ class Verifier:
             self.testdata_path = vplan.testdata_path
             self.report = vplan.report_json
             self.exec = vplan.exec
+            # GET FROM DATA
+            if vplan.exec == 'rust':
+                self.library_name = 'ICU4X'
+            else:
+                self.library_name = self.exec
 
             self.test_type = vplan.test_type
 
@@ -324,6 +329,8 @@ class Verifier:
         self.report.test_environment['platform'] = self.report.platform_info
 
         self.report.exec = self.report.test_environment['test_language']
+        self.report.library_name = self.library_name
+
         self.report.test_type = self.test_type
         if not self.verifyExpected:
             sys.stderr.write('No expected data in %s' % self.verify_path)
