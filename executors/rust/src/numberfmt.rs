@@ -2,18 +2,19 @@
  * Executor provides tests for NumberFormat and DecimalFormat.
  */
 
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use fixed_decimal::CompactDecimal;
+use fixed_decimal::FixedDecimal;
 
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
-
-use fixed_decimal::FixedDecimal;
 
 use icu_compactdecimal::CompactDecimalFormatter;
 
 use icu::locid::{locale, Locale};
 use icu_provider::DataLocale;
+
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
 use std::panic;
 use std::str::FromStr;
@@ -106,8 +107,6 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
     // TODO: Use options to call operations including pad and trunc with rounding.
 
-    // Iterator over options, applying the
-
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
@@ -128,15 +127,24 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                 Default::default(),
             ).unwrap()
         };
-        let input_num = input.parse::<i64>().map_err(|e| e.to_string())?;
-        let formatted_cdf = cdf.format_i64(input_num);
-        formatted_cdf.write_to_string().into_owned()
+        // input.parse().map_err(|e| e.to_string())?;
+        let input_num = CompactDecimal::from_str(input).map_err(|e| e.to_string())?;  
+        let formatted_cdf = cdf.format_compact_decimal(&input_num);
+        formatted_cdf.map_err(|e| e.to_string())?.write_to_string().into_owned()
     }
     else {
         // Can this fail with invalid options?
         let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
             .expect("Data should load successfully");
-        let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
+        let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
+        // Apply relevant options for digits.
+        if let Some(x) = option_struct.minimum_fraction_digits {
+            input_num.pad_end(-1 * x as i16);
+        }
+        if let Some(x) = option_struct.maximum_fraction_digits {
+            input_num.half_even(-1 * x as i16);
+        }
+
         fdf.format(&input_num).write_to_string().into_owned()
     };
 
