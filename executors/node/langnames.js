@@ -11,7 +11,7 @@ module.exports = {
     }
 
     // options = json['options'];
-    options = {'type': 'language'};
+    options = {type: 'language', languageDisplay: 'standard'};
     let label = json['label'];
     let input = json['language_label'].replace(/_/g, '-');
 
