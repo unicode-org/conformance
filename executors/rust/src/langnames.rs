@@ -38,7 +38,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     let display_name_formatter = LanguageDisplayNames::try_new_unstable(
          &provider,
          &data_locale.into(),
-         options,
+         options
     );
 
     let json_result =

@@ -129,10 +129,11 @@ fn main() -> io::Result<()> {
             // Sends the result to stdout.
             match json_result {
                 Ok(value) => println!("{}", value),
-                Err(s) => println!(
+                Err(error_string) => println!(
                     "{}",
-                    json!({"error": s, "label": label,
-                           "type": "unknown test type",
+                    json!({"error": error_string,
+                           "label": label,
+                           "error_type": "unknown test type",
                            "error_detail": json_info})
                 ),
             }

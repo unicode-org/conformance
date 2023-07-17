@@ -4,6 +4,7 @@
 
 use fixed_decimal::CompactDecimal;
 use fixed_decimal::FixedDecimal;
+// TODO: use fixed_decimal::ScientificDecimal;
 
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
@@ -77,39 +78,49 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let mut unsupported_options: Vec<&str> = Vec::new();
 
     // If any option is not yet supported, should we report as UNSUPPORTED?
-    let option_struct : NumberFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
-    // println!("#OPTIONS = {:?}", options.to_string());
+    let option_struct : NumberFormatOptions =
+        serde_json::from_str(&options.to_string()).unwrap();
     let mut is_compact = false;
     let mut compact_type = String::from("");
-    
-    // for (option, setting) in options.as_object().unwrap() {
-    //     let option_string = option.as_str();
-    //     let setting_string = setting.as_str().unwrap();
-
-    //     if option_string == "notation" && setting_string == "compact" {
-    //         is_compact = true;
-    //     } else if option_string == "compactDisplay" {
-    //         compact_type = setting_string;
-    //     }
-    //     if !SUPPORTED_OPTIONS.contains(&option_string) {
-    //         unsupported_options.push(&option);
-    //     }
-    // }
-
+    let mut is_scientific = false;
+    let mut rounding_mode = String::from("");
+    let mut style = String::from("");
+    let mut unit = String::from("");
     if option_struct.notation == Some(String::from("compact")) {
         is_compact = true;
     }
     if option_struct.compact_display.is_some() {
         compact_type = option_struct.compact_display.unwrap();
     }
-
-
+    if option_struct.notation == Some(String::from("scientific")) {
+        is_scientific = true;
+    }
+    if option_struct.style.is_some() {
+        style = option_struct.style.unwrap();
+    }
+    if option_struct.unit.is_some() {
+        unit = option_struct.unit.unwrap();
+    }
+    if option_struct.rounding_mode.is_some() {
+        rounding_mode = option_struct.rounding_mode.unwrap();
+    }
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
     // TODO: Use options to call operations including pad and trunc with rounding.
 
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
+    // UNSUPPORTED THINGS.
+    // This will change with new additions to ICU4X.
+    if style == "unit" || style == "currency" || unit == "percent" {
+        // Ok(style) => {
+        //     json!({
+        //         "label": label,
+        //         "unsupported": "unit or style not implemented"
+        //     })
+        // }
+    }
+    
     // Returns error if parsing the number string fails.
     let result_string = if is_compact {
         // We saw compact!
@@ -131,11 +142,17 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         let input_num = CompactDecimal::from_str(input).map_err(|e| e.to_string())?;  
         let formatted_cdf = cdf.format_compact_decimal(&input_num);
         formatted_cdf.map_err(|e| e.to_string())?.write_to_string().into_owned()
-    }
-    else {
+    // }
+    // else if is_scientific {
+    //     let mut sci_decimal = input.parse::<ScientificDecimal>().map_err(|e| e.to_string());
+    //     // TEMPORARY
+
+    } else {
+         // FixedDecimal
         // Can this fail with invalid options?
         let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
             .expect("Data should load successfully");
+
         let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
         // Apply relevant options for digits.
         if let Some(x) = option_struct.minimum_fraction_digits {
@@ -148,6 +165,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
             input_num.pad_start(x as i16);
         }
 
+        // Apply the options and get formatted string.
         fdf.format(&input_num).write_to_string().into_owned()
     };
 
