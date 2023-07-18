@@ -336,6 +336,11 @@ class TestReport:
 
         #html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
+        # Characterize successes, too.
+        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
+        flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
+        self.save_characterized_file(flat_combined_passing, "pass")
+
         # Get and save failures, errors, unsupported
         error_characterized = self.characterize_failures_by_options(self.test_errors)
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
@@ -547,6 +552,7 @@ class TestReport:
         results['replace_digit'] = []
         results['exponent_diff'] = []
         results['replace'] = []
+        results['parens'] = []  # Substitions of brackets for parens, etc.
 
         for fail in self.failing_tests:
             label = fail['label']
@@ -615,6 +621,16 @@ class TestReport:
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
                                     results['exponent_diff'].append(label)
+
+                # Check for substitued types of parentheses, brackets, brackes
+                if '[' in expected and '(' in actual:
+                    actual_parens = actual.replace('(', '[').replace(')', ']')
+                    if actual_parens == expected:
+                        results['parens'].append(label)
+                elif '(' in expected and '[' in actual:
+                    actual_parens = actual.replace('[', '(').replace(')', ']')
+                    if actual_parens == expected:
+                        results['parens'].append(label)
             except KeyError:
                 # a non-string result
                 continue
