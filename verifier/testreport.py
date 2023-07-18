@@ -364,7 +364,8 @@ class TestReport:
             value = flat_combined_dict[key]
             count = len(value)
             count_str = '%5d' % count  # TODO: Add the counts of all the sublists
-            values = {'id': key, 'name': key, 'value': value, 'count': count_str}
+            values = {'id': key, 'name': key, 'value': value, 'count': count_str,
+                      'id_div': key + '_div'}
             line = self.templates.checkbox_option_template.safe_substitute(values)
             checkboxes.append(line)
             failure_labels.append(key)
