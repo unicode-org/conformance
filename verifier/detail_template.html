@@ -263,6 +263,7 @@ table th {
                 check_div.style.display = 'block';
                 const check_box = document.getElementById(tag);
                 check_box.checked = false;
+                check_div.attributeStyleMap.clear();
             }
         } else {
             // TODO: Look at all the sets that intersect with selected.
@@ -278,6 +279,7 @@ table th {
                 const div_for_checkbox = document.getElementById(tag + "_div");
                 if (intersectSet.size > 0) {
                     intersection_checkboxes.push(check_item);
+                    div_for_checkbox.style.setProperty("text-decoration", "");
                     div_for_checkbox.attributeStyleMap.clear();
                 } else {
                     div_for_checkbox.style.setProperty("text-decoration", "line-through");

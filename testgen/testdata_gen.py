@@ -126,6 +126,7 @@ class generateData():
         if not rawlangnametestdata:
             return None
 
+        # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(rawlangnametestdata, json_test, json_verify)
         output_path = os.path.join(self.icu_version, 'lang_name_test_file.json')
         lang_name_test_file = open(output_path, 'w')
