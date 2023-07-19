@@ -21,20 +21,56 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     let options: DisplayNamesOptions = Default::default();
 
     let language_label = json_obj["language_label"].as_str().unwrap().replace("_", "-");
-    let input_lang = Language::from_str(&language_label)
-        .map_err(|_e| format!("bad language label: {}", language_label))?;
-    
-    // The language whose name is returned as written in data_locale.
-    let langid = if json_obj.get("locale_label") != None {
-        let locale_name = &json_obj["locale_label"].as_str().unwrap();
-        // println!("LOCAL_NAME: {:?}", locale_name);
-        Locale::from_str(locale_name).unwrap()
-    } else {
-        // println!("No locale_label: Defaulting to und # {:?}", "DEFAULTING TO UND");
-        Locale::from_str("es").unwrap()  //("und")
+    let input_lang_result = Language::from_str(&language_label);
+    let input_lang = match input_lang_result {
+        Ok(l) => l,
+        Err(e) => {
+            return Ok(json!({
+                "error": format!("bad language label: {}", language_label),
+                "label": label,
+                "language_label": language_label,
+                "test_type": "display_names",
+                "unsupported": "language_label",
+                "error_type": "unsupported",
+            }))
+        }
     };
-    let data_locale = DataLocale::from(&langid);
-    
+
+
+    let locale_name_result = &json_obj["locale_label"].as_str(); 
+    let locale_name = match locale_name_result {
+        Some(s) => s,
+        None => {
+            return Ok(json!({
+                "error": String::from("Missing locale_label"),
+                "label": label,
+                "language_label": language_label,
+                "test_type": "display_names",
+                "unsupported": "locale name",
+                "error_type": "unsupported",
+            }))
+        },
+    };
+
+    let langid_result = Locale::from_str(locale_name);
+
+    let langid = match langid_result {
+        Ok(lid) => lid,
+        Err(e) => { 
+            return Ok(json!({
+                "error": e.to_string(),
+                "label": label,
+                "locale_label": locale_name,
+                "language_label": language_label,
+                "test_type": "display_names",
+                "error_detail": {"unsupported_locale": locale_name},
+            }))
+        },
+    };
+
+    // The locale data may not yet be supported.
+    let data_locale = DataLocale::from(&langid);   
+
     let display_name_formatter = LanguageDisplayNames::try_new_unstable(
          &provider,
          &data_locale.into(),
@@ -52,9 +88,9 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
             Err(e) => {
                 json!({
                     "label": label,
-                    "unsupported": "unsupported_options",
+                    "locale_label": locale_name,
                     "error": e.to_string(),
-                    "error_detail": {"unsupported_locale": langid.to_string()}
+                    "error_detail": {"unsupported_locale": locale_name}
                 })
             },
         };

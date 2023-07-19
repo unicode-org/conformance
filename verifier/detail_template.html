@@ -221,8 +221,11 @@ table th {
         // TODO - the class of the box, e.g., 'pass', 'fail', etc.
         // Update the group selected with the intersection of values
         const box_class = box.className;
-        selectedSet = null;
-        let first = true;
+        const test_data = test_results[box_class];
+        test_data.selected_set = null;
+
+        // TODO: Finish this
+        //let char_items = test_data.characterized;\
         for (let index in characterized_failure_labels) {
             const tag = characterized_failure_labels[index];
             const check_item = document.getElementById(tag);
@@ -232,11 +235,14 @@ table th {
                 const labels = label_string.substring(2, str_len - 2). split("', '");
                 const newSet = new Set(labels);
 
-                if (first) {
-                    selectedSet = newSet;
-                    first = false;
+                if (! test_data.selected_set) {
+                    // Start the set of selected items.
+                    test_data.selected_set = newSet;
                 } else {
-                    selectedSet = new Set([...selectedSet].filter((x) => newSet.has(x)));
+                    // Update by intersection with this set.
+                    test_data.selected_set =
+                        new Set(
+                            [...test_data.selected_set].filter((x) => newSet.has(x)));
                 }
             }
         }
@@ -247,7 +253,7 @@ table th {
         const selected_count_items = document.getElementsByName(element_name);
         // Spread this out into an array for filtering.
         const output = [...selected_count_items].filter(elem => elem.className == class_name);
-        const newSize = selectedSet == null ? 0 : selectedSet.size;
+        const newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
         // TODO: Get the characterized data from the right set of items
         if (newSize == 0) {
             // Turn on all the check boxes
@@ -268,13 +274,13 @@ table th {
                 const str_len = label_string.length;
                 const labels = label_string.substring(2, str_len - 2). split("', '");
                 const newSet = new Set(labels);
-                let intersectSet = new Set([...newSet].filter(i =>selectedSet.has(i)));
+                let intersectSet = new Set([...newSet].filter(i => test_data.selected_set.has(i)));
                 const div_for_checkbox = document.getElementById(tag + "_div");
                 if (intersectSet.size > 0) {
                     intersection_checkboxes.push(check_item);
-                    div_for_checkbox.style.display = 'block';
+                    div_for_checkbox.attributeStyleMap.clear();
                 } else {
-                    div_for_checkbox.style.display = 'none';
+                    div_for_checkbox.style.setProperty("text-decoration", "line-through");
                 }
             }
         }
@@ -288,10 +294,9 @@ table th {
     function showSelectedItems(id, item_type) {
         // Get the selected failures as a JSON list
         let selected_json_data = [];
-        // let sorted_labels = [...selectedSet].sort();
         for (const failure of test_results[item_type].json) {
             let label = failure['label'];
-            if (selectedSet.has(label)) {
+            if (test_results[item_type].selected_set.has(label)) {
                 selected_json_data.push(failure);
             }
         }
@@ -490,7 +495,7 @@ table th {
           <div bp="grid">
             <div bp="3">
               <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>0</span>
-                <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">"Update display"</button>
+                <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">Update display</button>
               </p>
               <div id='pass_characterized'>
                 </div>
@@ -515,7 +520,7 @@ table th {
           <div bp="grid">
             <div bp="2">
               <p>Filtered count = <span id='selectedCount_fail' name='selectedCount' class='fail'>0</span>
-                <button id="showSelected" onclick="showSelectedItems(this, 'fail');">"Update display"</button>
+                <button id="showSelected" onclick="showSelectedItems(this, 'fail');">Update display</button>
               </p>$failures_characterized
             </div>  <!-- end of checkbox div -->
             <div bp="10">
@@ -538,7 +543,7 @@ table th {
           <div bp="grid">
             <div bp="3">
               <p>Filtered count = <span id='selectedCount_error' name='selectedCount' class='error'>0</span>
-                <button id="showSelected_errors" onclick="showSelectedItems(this, 'error');">"Update display"</button>
+                <button id="showSelected_errors" onclick="showSelectedItems(this, 'error');">Update display</button>
               </p>
               <div id='errors_characterized'>
                 </div>
@@ -562,7 +567,7 @@ table th {
           <div bp="grid">
             <div bp="3">
               <p>Filtered count = <span id='selectedCount_unsupported' name='selectedCount' class='unsupported'>0</span>
-                <button id="showSelected_unsupported" onclick="showSelectedItems(this, 'unsupported');">"Update display"</button>
+                <button id="showSelected_unsupported" onclick="showSelectedItems(this, 'unsupported');">Update display</button>
               </p>
               <dir id='unsupported_characterized'>
                 </div>

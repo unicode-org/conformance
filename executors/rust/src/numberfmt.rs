@@ -57,7 +57,6 @@ struct NumberFormatOptions {
 pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let provider = icu_testdata::unstable();
 
-    // TODO: Handle errors of missing JSON fields
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
@@ -71,7 +70,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let input = &json_obj["input"].as_str().unwrap();
 
-    // TODO: Get the options from JSON. If there are unsupported values, return
+    // If there are unsupported values, return
     // "unsupported" rather than an error.
     let options = &json_obj["options"]; // This will be an array.
 
@@ -110,16 +109,21 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2;
 
+    // --------------------------------------------------------------------------------
+
     // UNSUPPORTED THINGS.
     // This will change with new additions to ICU4X.
     if style == "unit" || style == "currency" || unit == "percent" {
-        // Ok(style) => {
-        //     json!({
-        //         "label": label,
-        //         "unsupported": "unit or style not implemented"
-        //     })
-        // }
+        return Ok(
+            json!({
+                "label": label,
+                "error_defail": {"style": style, "unit": unit},
+                "unsupported": "unit or style not implemented",
+                "error_type": "unsupported",
+            })
+        );
     }
+    // --------------------------------------------------------------------------------
     
     // Returns error if parsing the number string fails.
     let result_string = if is_compact {
