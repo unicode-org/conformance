@@ -18,7 +18,7 @@ String testCollationShort(String jsonEncoded) {
   try {
     Intl coll;
     if (testLocale.isNotEmpty) {
-      coll = Intl(defaultLocale: testLocale);
+      coll = Intl(locale: Locale.parse(testLocale));
     } else {
       coll = Intl();
     }
