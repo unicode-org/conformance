@@ -33,7 +33,7 @@ static SUPPORTED_OPTIONS: [&str; 6] = [
 ];
 
 #[derive(Deserialize, Serialize)]
-#[serde(rename_all="camelCase")]
+#[serde(rename_all = "camelCase")]
 struct NumberFormatOptions {
     compact_display: Option<String>,
     currency_display: Option<String>,
@@ -50,7 +50,7 @@ struct NumberFormatOptions {
     style: Option<String>,
     unit: Option<String>,
     unit_display: Option<String>,
-    use_grouping: Option<bool>
+    use_grouping: Option<bool>,
 }
 
 // Runs decimal and number formatting given patterns or skeletons.
@@ -77,8 +77,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let mut unsupported_options: Vec<&str> = Vec::new();
 
     // If any option is not yet supported, should we report as UNSUPPORTED?
-    let option_struct : NumberFormatOptions =
-        serde_json::from_str(&options.to_string()).unwrap();
+    let option_struct: NumberFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
     let mut is_compact = false;
     let mut compact_type = String::from("");
     let mut is_scientific = false;
@@ -114,17 +113,15 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // UNSUPPORTED THINGS.
     // This will change with new additions to ICU4X.
     if style == "unit" || style == "currency" || unit == "percent" {
-        return Ok(
-            json!({
-                "label": label,
-                "error_defail": {"style": style, "unit": unit},
-                "unsupported": "unit or style not implemented",
-                "error_type": "unsupported",
-            })
-        );
+        return Ok(json!({
+            "label": label,
+            "error_defail": {"style": style, "unit": unit},
+            "unsupported": "unit or style not implemented",
+            "error_type": "unsupported",
+        }));
     }
     // --------------------------------------------------------------------------------
-    
+
     // Returns error if parsing the number string fails.
     let result_string = if is_compact {
         // We saw compact!
@@ -133,26 +130,30 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                 &provider,
                 &data_locale,
                 Default::default(),
-            ).unwrap()
+            )
+            .unwrap()
         } else {
             println!("#{:?}", "   LONG");
             CompactDecimalFormatter::try_new_long_unstable(
                 &provider,
                 &data_locale,
                 Default::default(),
-            ).unwrap()
+            )
+            .unwrap()
         };
         // input.parse().map_err(|e| e.to_string())?;
-        let input_num = CompactDecimal::from_str(input).map_err(|e| e.to_string())?;  
+        let input_num = CompactDecimal::from_str(input).map_err(|e| e.to_string())?;
         let formatted_cdf = cdf.format_compact_decimal(&input_num);
-        formatted_cdf.map_err(|e| e.to_string())?.write_to_string().into_owned()
+        formatted_cdf
+            .map_err(|e| e.to_string())?
+            .write_to_string()
+            .into_owned()
     // }
     // else if is_scientific {
     //     let mut sci_decimal = input.parse::<ScientificDecimal>().map_err(|e| e.to_string());
     //     // TEMPORARY
-
     } else {
-         // FixedDecimal
+        // FixedDecimal
         // Can this fail with invalid options?
         let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
             .expect("Data should load successfully");

@@ -6,8 +6,8 @@ use serde_json::{json, Value};
 
 use icu_displaynames::{DisplayNamesOptions, LanguageDisplayNames};
 
-use icu::locid::{Locale};
 use icu::locid::subtags::Language;
+use icu::locid::Locale;
 
 use icu_provider::DataLocale;
 
@@ -20,7 +20,10 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
     let options: DisplayNamesOptions = Default::default();
 
-    let language_label = json_obj["language_label"].as_str().unwrap().replace("_", "-");
+    let language_label = json_obj["language_label"]
+        .as_str()
+        .unwrap()
+        .replace("_", "-");
     let input_lang_result = Language::from_str(&language_label);
     let input_lang = match input_lang_result {
         Ok(l) => l,
@@ -36,8 +39,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-
-    let locale_name_result = &json_obj["locale_label"].as_str(); 
+    let locale_name_result = &json_obj["locale_label"].as_str();
     let locale_name = match locale_name_result {
         Some(s) => s,
         None => {
@@ -49,14 +51,14 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "unsupported": "locale name",
                 "error_type": "unsupported",
             }))
-        },
+        }
     };
 
     let langid_result = Locale::from_str(locale_name);
 
     let langid = match langid_result {
         Ok(lid) => lid,
-        Err(e) => { 
+        Err(e) => {
             return Ok(json!({
                 "error": e.to_string(),
                 "label": label,
@@ -65,35 +67,31 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "test_type": "display_names",
                 "error_detail": {"unsupported_locale": locale_name},
             }))
-        },
+        }
     };
 
     // The locale data may not yet be supported.
-    let data_locale = DataLocale::from(&langid);   
+    let data_locale = DataLocale::from(&langid);
 
-    let display_name_formatter = LanguageDisplayNames::try_new_unstable(
-         &provider,
-         &data_locale.into(),
-         options
-    );
+    let display_name_formatter =
+        LanguageDisplayNames::try_new_unstable(&provider, &data_locale.into(), options);
 
-    let json_result =
-        match display_name_formatter {
-            Ok(formatter) => {
-                json!({
-                    "label": label,
-                    "result":  formatter.of(input_lang)
-                })
-            },
-            Err(e) => {
-                json!({
-                    "label": label,
-                    "locale_label": locale_name,
-                    "error": e.to_string(),
-                    "error_detail": {"unsupported_locale": locale_name}
-                })
-            },
-        };
+    let json_result = match display_name_formatter {
+        Ok(formatter) => {
+            json!({
+                "label": label,
+                "result":  formatter.of(input_lang)
+            })
+        }
+        Err(e) => {
+            json!({
+                "label": label,
+                "locale_label": locale_name,
+                "error": e.to_string(),
+                "error_detail": {"unsupported_locale": locale_name}
+            })
+        }
+    };
 
     Ok(json_result)
 }
