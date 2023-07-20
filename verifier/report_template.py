@@ -73,9 +73,10 @@ class reportTemplate():
         '<tr id="$label"><td>$label</td><td>$unsupported</$unsupported><td>$error_detail</td><td>$input_data</td></tr>'
     )
 
+        # Template for test failures - will be replaced by html generated in detail_template.html
         self.checkbox_option_template = Template(
-        '<input type=checkbox id="$id" name="$name" value="$value" onclick="checkboxChanged(this);"</input><label for="$id">$count $id</label>'
-    )
+            '<div id="$id_div"><input type=checkbox class="fail" id="$id" name="$name" value="$value" onclick="checkboxChanged(this);"</input><label for="$id">$count $id</label></div>'
+        )
 
     def reportOutline(self):
         return self.html_template

@@ -226,6 +226,11 @@ class Verifier:
             self.testdata_path = vplan.testdata_path
             self.report = vplan.report_json
             self.exec = vplan.exec
+            # GET FROM DATA
+            if vplan.exec == 'rust':
+                self.library_name = 'ICU4X'
+            else:
+                self.library_name = self.exec
 
             self.test_type = vplan.test_type
 
@@ -324,6 +329,8 @@ class Verifier:
         self.report.test_environment['platform'] = self.report.platform_info
 
         self.report.exec = self.report.test_environment['test_language']
+        self.report.library_name = self.library_name
+
         self.report.test_type = self.test_type
         if not self.verifyExpected:
             sys.stderr.write('No expected data in %s' % self.verify_path)
@@ -347,7 +354,10 @@ class Verifier:
                 print('  progress = %d / %s' % (index, total_results), end='\r')
 
             # The input to the test
-            test_label = test['label']
+            try:
+                test_label = test['label']
+            except:
+                logging.warning(test)
             test_data = self.find_testdata_with_label(test_label)
 
             # Get the result
@@ -378,13 +388,14 @@ class Verifier:
                 print('VVVVV: %s actual %s, expected %s' % (
                     (actual_result == expected_result),
                     actual_result, expected_result))
+            # Remember details about the test
+            test['input_data'] = test_data
+            test['expected'] = expected_result
             if actual_result == expected_result:
                 self.report.record_pass(test)
             else:
-                # Add expected value to the report
-                test['expected'] = expected_result
                 self.report.record_fail(test)
-                test['input_data'] = test_data
+
             index += 1
 
         print('')

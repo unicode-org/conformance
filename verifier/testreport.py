@@ -99,6 +99,7 @@ class TestReport:
 
         self.test_type = None
         self.exec = None
+        self.library_name = None
 
         self.platform = None
 
@@ -307,6 +308,8 @@ class TestReport:
             self.platform_info['icuVersion'])
         html_map = {'test_type': self.test_type,
                     'exec': self.exec,
+                    # TODO: Change to 'icu4x' instead of rust
+                    'library_name': self.library_name,
                     'platform_info': platform_info,
                     'test_environment': dict_to_html(self.test_environment),
                     'timestamp': self.timestamp,
@@ -333,6 +336,11 @@ class TestReport:
 
         #html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
+        # Characterize successes, too.
+        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
+        flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
+        self.save_characterized_file(flat_combined_passing, "pass")
+
         # Get and save failures, errors, unsupported
         error_characterized = self.characterize_failures_by_options(self.test_errors)
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
@@ -356,7 +364,8 @@ class TestReport:
             value = flat_combined_dict[key]
             count = len(value)
             count_str = '%5d' % count  # TODO: Add the counts of all the sublists
-            values = {'id': key, 'name': key, 'value': value, 'count': count_str}
+            values = {'id': key, 'name': key, 'value': value, 'count': count_str,
+                      'id_div': key + '_div'}
             line = self.templates.checkbox_option_template.safe_substitute(values)
             checkboxes.append(line)
             failure_labels.append(key)
@@ -544,6 +553,7 @@ class TestReport:
         results['replace_digit'] = []
         results['exponent_diff'] = []
         results['replace'] = []
+        results['parens'] = []  # Substitions of brackets for parens, etc.
 
         for fail in self.failing_tests:
             label = fail['label']
@@ -612,6 +622,16 @@ class TestReport:
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
                                     results['exponent_diff'].append(label)
+
+                # Check for substitued types of parentheses, brackets, brackes
+                if '[' in expected and '(' in actual:
+                    actual_parens = actual.replace('(', '[').replace(')', ']')
+                    if actual_parens == expected:
+                        results['parens'].append(label)
+                elif '(' in expected and '[' in actual:
+                    actual_parens = actual.replace('[', '(').replace(')', ']')
+                    if actual_parens == expected:
+                        results['parens'].append(label)
             except KeyError:
                 # a non-string result
                 continue
@@ -694,14 +714,23 @@ class TestReport:
         # This depends on test_type
         if self.test_type == testType.coll_shift.value:
             return
+        if 'result' not in test or 'expected' not in test:
+            return
 
-        if len(test['result']) == len(test['expected']):
-            # Look for single replacement
-            num_diffs, diff_list, last_diff = self.find_replacements_diff(
-                test['result'], test['expected'])
-            if num_diffs == 1:
-                self.diff_summary.add_diff(
-                    num_diffs, diff_list, last_diff)
+        if not test['result'] or not test['expected']:
+            # TODO: Record a NULL result?
+            return
+
+        try:
+            if len(test['result']) == len(test['expected']):
+                # Look for single replacement
+                num_diffs, diff_list, last_diff = self.find_replacements_diff(
+                    test['result'], test['expected'])
+                if num_diffs == 1:
+                    self.diff_summary.add_diff(
+                        num_diffs, diff_list, last_diff)
+        except TypeError:
+            return
 
         # ?? Look for diffs in whitespace only
         # differ = self.differ.compare(test['result'], test['expected'])
@@ -787,7 +816,6 @@ class SummaryReport:
         self.version_directories = glob.glob(version_join)
 
         json_raw_join = os.path.join(version_join, '*', self.report_filename)
-        # TODO!!!! Filter out the passing, failing, unsupported, and error files
         raw_reports = glob.glob(json_raw_join)
         self.raw_reports = raw_reports
         self.raw_reports.sort()

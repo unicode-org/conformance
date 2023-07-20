@@ -126,6 +126,7 @@ class generateData():
         if not rawlangnametestdata:
             return None
 
+        # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(rawlangnametestdata, json_test, json_verify)
         output_path = os.path.join(self.icu_version, 'lang_name_test_file.json')
         lang_name_test_file = open(output_path, 'w')
@@ -235,7 +236,7 @@ def mapFmtSkeletonToECMA402(options):
       "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
       "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits":2},
-      "group-on-aligned": {"useGrouping": "true"},
+      "group-on-aligned": {"useGrouping": True},
       "latin": {"numberingSystem": "latn"},
       "sign-accounting-except-zero": {"signDisplay": "exceptZero", "currencySign": "accounting"},
       # These are all patterns...
@@ -256,7 +257,7 @@ def mapFmtSkeletonToECMA402(options):
       "0.##E0": {"notation": "scientific", "minimumIntegerDigits":1, "maximumFractionDigits": 2},
       ".0E0": {"notation": "scientific", "minimumFractionDigits": 1, "maximumFractionDigits": 1},
       ".0#E0": {"notation": "scientific", "minimumFractionDigits": 1, "maximumFractionDigits": 2},
-      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": "21", "maximumSignificantDigits": "21"},
+      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": 21, "maximumSignificantDigits": 21},
       "0.0": {"minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 1}
       }
 

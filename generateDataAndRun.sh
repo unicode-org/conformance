@@ -80,9 +80,9 @@ python3 testdriver.py --icu_version icu69 --exec node --test_type coll_shift_sho
 echo $?
 
 # ICU4X testing
-python3 testdriver.py --icu_version icu71 --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu71 --exec rust --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
 
-python3 testdriver.py --icu_version icu73 --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu73 --exec rust --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # Done with test execution
