@@ -32,7 +32,7 @@ static SUPPORTED_OPTIONS: [&str; 6] = [
     "roundingMode",
 ];
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct NumberFormatOptions {
     compact_display: Option<String>,
@@ -79,34 +79,34 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // If any option is not yet supported, should we report as UNSUPPORTED?
     let option_struct: NumberFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
     let mut is_compact = false;
-    let mut compact_type = String::from("");
+    let mut compact_type = "";
     let mut is_scientific = false;
-    let mut rounding_mode = String::from("");
-    let mut style = String::from("");
-    let mut unit = String::from("");
+    let mut rounding_mode = "";
+    let mut style = "";
+    let mut unit = "";
     if option_struct.notation == Some(String::from("compact")) {
         is_compact = true;
     }
     if option_struct.compact_display.is_some() {
-        compact_type = option_struct.compact_display.unwrap();
+        compact_type = &option_struct.compact_display.as_ref().unwrap();
     }
     if option_struct.notation == Some(String::from("scientific")) {
         is_scientific = true;
     }
     if option_struct.style.is_some() {
-        style = option_struct.style.unwrap();
+        style = &option_struct.style.as_ref().unwrap();
     }
     if option_struct.unit.is_some() {
-        unit = option_struct.unit.unwrap();
+        unit = &option_struct.unit.as_ref().unwrap();
     }
     if option_struct.rounding_mode.is_some() {
-        rounding_mode = option_struct.rounding_mode.unwrap();
+        rounding_mode = &option_struct.rounding_mode.as_ref().unwrap();
     }
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
     // TODO: Use options to call operations including pad and trunc with rounding.
 
     // !! A test. More options to consider!
-    options.grouping_strategy = options::GroupingStrategy::Min2;
+    options.grouping_strategy = options::GroupingStrategy::Auto;
 
     // --------------------------------------------------------------------------------
 
@@ -155,7 +155,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     } else {
         // FixedDecimal
         // Can this fail with invalid options?
-        let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
+        let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options.clone())
             .expect("Data should load successfully");
 
         let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
@@ -165,6 +165,10 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         }
         if let Some(x) = option_struct.maximum_fraction_digits {
             input_num.half_even(-1 * x as i16);
+        }
+        if let Some(x) = option_struct.maximum_integer_digits {
+            input_num.set_max_position(x as i16);
+            input_num.trim_start();
         }
         if let Some(x) = option_struct.minimum_integer_digits {
             input_num.pad_start(x as i16);
@@ -177,7 +181,8 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // Result to stdout.
     let json_result = json!({
         "label": label,
-        "result": result_string
+        "result": result_string,
+        "actual_options": format!("{option_struct:?}, {options:?}"),
     });
     Ok(json_result)
 }
