@@ -24,3 +24,8 @@ testgen/icu*/*.json
 
 # C / CPP compiled
 *.o
+
+testdriver/.local-chrome/
+testgen/*.json
+
+TEMP_DATA/*

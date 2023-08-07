@@ -19,6 +19,10 @@ jobs:
     name: End-to-end (Gen data, run tests, gen GH Pages)
     runs-on: ubuntu-latest
     steps:
+      - uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
+        with:
+          sdk: stable
+
       - uses: actions/checkout@v2
       - run: bash generateDataAndRun.sh
       - name: Setup Pages

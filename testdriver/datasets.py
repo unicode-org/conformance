@@ -144,11 +144,14 @@ class ExecutorLang(Enum):
   RUST = "rust"
   CPP = "cpp"
   JAVA = "java"
-  DART = "dart"
+  DARTWEB = "dart_web"
+  DARTNATIVE = "dart_native"
 
 # Actual commmands to run the executors.
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
+    "dart_web" : "node ../executors/dart_web/out/executor.js",
+    "dart_native" : "executors/dart_native/bin/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "../executors/cpp/executor",
     "java" : None
@@ -169,6 +172,9 @@ class NodeVersion(Enum):
   Node14_17 = "14.17.0"
   Node14_16 = "14.16.0"
   Node14_0 = "14.0.0"
+
+class DartVersion(Enum):
+  Dart3 = "3.1.0-39.0.dev"
 
 class RustVersion(Enum):
   Rust01 = "0.1"
@@ -228,6 +234,7 @@ ICUVersionMap = {
     'node': NodeICUVersionMap,
     'icu4x': ICU4XVersionMap,
     'rust': ICU4XVersionMap,
+    'dart_web': NodeICUVersionMap,
     }
 
 # Executor programs organized by langs and version
@@ -338,6 +345,20 @@ allExecutors.addSystem(system, '0.1.0',
                        argList=['argA', 'argB', 'argZ'])
 
 system = ExecutorLang.JAVA
+
+system = ExecutorLang.DARTWEB.value
+allExecutors.addSystem(system,  NodeVersion.Node19,
+                       'node ../executors/dart_web/out/executor.js',
+                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
+
+allExecutors.addSystem(system, NodeVersion.Node18_7,
+                       'node ../executors/dart_web/out/executor.js',
+                       CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
+                       
+system = ExecutorLang.DARTNATIVE.value
+allExecutors.addSystem(system, DartVersion.Dart3,
+                       '../executors/dart_native/bin/executor.exe',
+                       CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 # TESTING
 def printExecutors(executors):
