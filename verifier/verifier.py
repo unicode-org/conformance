@@ -204,6 +204,7 @@ class Verifier:
                     # The test report to use for verification summary.
                     new_report = TestReport(report_path, report_html_path)
                     new_report.verifier_obj = self
+                    new_report.set_title(executor, result_version, test_type)
 
                     # The verify plan for this
                     new_verify_plan = VerifyPlan(
@@ -214,7 +215,10 @@ class Verifier:
                     new_verify_plan.set_exec(executor)
                     new_verify_plan.set_report(new_report)
 
-                    self.verify_plans.append(new_verify_plan)
+                    if os.path.isfile(new_verify_plan.result_path):
+                        self.verify_plans.append(new_verify_plan)
+                    else:
+                        logging.warning('** No results for %s, %s, %s', executor, test_type, result_version)
 
     def verify_data_results(self):
         # For each pair of files in the test plan, compare with expected

@@ -126,6 +126,9 @@ class TestReport:
 
         self.test_unsupported_template = templates.test_unsupported_template
 
+    def set_title(self, executor, result_version, test_type):
+        self.title = 'Test %s executed on %s with data %s' % (test_type, executor, result_version)
+
     def record_fail(self, test):
         self.failing_tests.append(test)
 
@@ -829,6 +832,8 @@ class SummaryReport:
 
     def summarize_reports(self):
 
+        reports_base_dir = os.path.join(self.file_base, self.report_dir_name)
+
         # Get summary data by executor for each test and by test for each executor
         for filename in self.raw_reports:
             file = open(filename, encoding='utf-8', mode='r')
@@ -838,7 +843,6 @@ class SummaryReport:
             html_name = os.path.basename(filename_base) + '.html'
             # Get the relative path for the link
             html_path = os.path.join(dir_path, html_name)
-            reports_base_dir = os.path.join(self.file_base, self.report_dir_name)
             relative_html_path = os.path.relpath(html_path, reports_base_dir)
             test_json = json.loads(file.read())
 
@@ -857,13 +861,16 @@ class SummaryReport:
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
-                platform = test_json['platform']
-                # TODO !!!: get the executor + version in here
+                if 'cldr_version' in platform:
+                    cldrVersion = platform['cldrVersion']
+                else:
+                    cldrVersion = 'unspecified'
+
                 test_results = {
                     'exec': executor,
                     'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
                     'exec_icu_version': platform['icuVersion'],
-                    'exec_cldr_version': platform['cldrVersion'],
+                    'exec_cldr_version': cldrVersion,
                     'test_type': test_type,
                     'date_time': test_environment['datetime'],
                     'test_count': int(test_environment['test_count']),
@@ -878,7 +885,7 @@ class SummaryReport:
                     'icu_version': icu_version
                 }
             except BaseException as err:
-                print('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
+                logging.error('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
 
             if test_type not in self.summary_by_test_type:
                 self.summary_by_test_type[test_type] = [test_results]
