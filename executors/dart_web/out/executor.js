@@ -120,9 +120,10 @@ rl.on('line', function (line) {
   if (line == "#VERSION") {
     // JSON output of the test enviroment.
     let versionJson = {
-      'platform': 'NodeJS',
+      'platform': 'Dart Web',
       'platformVersion': process.version,
       'icuVersion': process.versions.icu,
+      'intlVersion': dartVersion,
     };
 
     // TODO: Make this more specific JSON info.

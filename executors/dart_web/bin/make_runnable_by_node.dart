@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
+
 Future<void> main(List<String> args) async {
   var name = 'collatorDart';
   var compile = await Process.run('dart', [
@@ -12,6 +14,20 @@ Future<void> main(List<String> args) async {
   print(compile.stderr);
 
   prepareOutFile(name, ['testCollationShort']);
+
+  setVersionFile();
+}
+
+void setVersionFile() {
+  var lockStr = File('pubspec.lock').readAsStringSync();
+
+  final lockfile = PubspecLock.parse(lockStr);
+
+  var version = lockfile.packages['intl4x']?.version;
+  if (version != null) {
+    File('out/version.js').writeAsStringSync(
+        '''const dartVersion = "${version.canonicalizedVersion}";''');
+  }
 }
 
 /// Prepare the file to export `testCollationShort`
