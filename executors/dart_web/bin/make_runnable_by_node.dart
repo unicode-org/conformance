@@ -25,8 +25,10 @@ void setVersionFile() {
 
   var version = lockfile.packages['intl4x']?.version;
   if (version != null) {
-    File('out/version.js').writeAsStringSync(
-        '''const dartVersion = "${version.canonicalizedVersion}";''');
+    File('out/version.js').writeAsStringSync('''
+const dartVersion = "${version.canonicalizedVersion}";
+module.exports = { dartVersion };
+''');
   }
 }
 

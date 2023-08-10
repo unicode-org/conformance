@@ -17,6 +17,7 @@
 
 
 let collator = require('./collator.js')
+const { dartVersion } = require('./version.js')
 
 /**
  * TODOs:
