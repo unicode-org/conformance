@@ -11,7 +11,7 @@ String testCollationShort(String jsonEncoded) {
   var json =
       jsonDecode(jsonEncoded); // For the moment, use strings for easier interop
   // Global default locale
-  var testLocale = '';
+  var testLocale = 'en';
   Map<String, dynamic> outputLine;
 
   // Set up collator object with optional locale and testOptions.
