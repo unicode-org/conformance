@@ -28,11 +28,11 @@ class TestPlan:
             self.exec_command = exec_data['path']
         if 'env' in exec_data:
             self.exec_env = exec_data['env']
-            self.test_type = test_type
-            self.runStyle = 'one_test'
-            self.parallelMode = None
-            self.options = None
-            self.testData = None
+        self.test_type = test_type
+        self.runStyle = 'one_test'
+        self.parallelMode = None
+        self.options = None
+        self.testData = None
 
         # Additional args to subprocess.run
         self.args = args
@@ -152,7 +152,10 @@ class TestPlan:
                 self.jsonOutput["platform"] = json.loads(result)
                 self.platformVersion = self.jsonOutput["platform"]["platformVersion"]
                 self.icuVersion = self.jsonOutput["platform"]["icuVersion"]
-                self.cldrVersion = self.jsonOutput["platform"]["cldrVersion"]
+                try:
+                    self.cldrVersion = self.jsonOutput["platform"]["cldrVersion"]
+                except KeyError:
+                    self.cldrVersion = 'CLDR version not specified'
 
                 # TODO: Clean this up!
                 # Get the test data area from the icu_version
@@ -247,6 +250,7 @@ class TestPlan:
         # Start the JSON output
         # Set up calls for version data --> results
         if not self.request_executor_info():
+            # TODO: Report problem with executor (somehow).
             return None
 
         # Use for directory of the output results

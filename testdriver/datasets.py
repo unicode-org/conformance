@@ -151,7 +151,7 @@ class ExecutorLang(Enum):
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
     "dart_web" : "node ../executors/dart_web/out/executor.js",
-    "dart_native" : "executors/dart_native/bin/executor.exe",
+    "dart_native" : "../executors/dart_native/bin/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "../executors/cpp/executor",
     "java" : None
