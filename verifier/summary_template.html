@@ -65,6 +65,7 @@
           }
 
           let tr;
+          td;
           for (const test_type of test_types) {
               tr = table.insertRow();
               td = tr.insertCell();
@@ -97,7 +98,6 @@
                           details.push(link);
                       }
                   }
-                  const td_graph = tr.insertCell();
                   if (reports.length > 0) {
                       // Create the data for the reports
                       // Make a new area for displaying ig.
@@ -113,14 +113,15 @@
                               3: {color: '#777777'}  // 
                           },
                       };
+                      td = tr.insertCell();
                       //   Set up options and links
-                      const chart = new google.visualization.BarChart(td_graph);
+                      const chart = new google.visualization.BarChart(td);
                       const chart_data = google.visualization.arrayToDataTable(data);
-                      if (reports && chart) {  // TODO: debug
+                      if (reports && reports.length > 0 && chart) {  // TODO: debug
                           chart.draw(chart_data, options);
                       } else {
-                          td_graph.innerHTML = "%s not tested in %s" % (test_type, exec);
-                          td_graph.style.textAlign = "center";
+                          td.innerHTML = "%s not tested in %s" % (test_type, exec);
+                          td.style.textAlign = "center";
                       }
                   }
                   td = tr.insertCell();
@@ -171,6 +172,7 @@ th {
   </head>
   <body>
     <h1>ICU Data Driven Test Summary</h1>
+    <p>Read more about the<a href="https://github.com/unicode-org/conformance"> Unicode Conformance project</a>.
     <h2>Tests and platforms</h2>
     <h3>Report generated: $datetime</h3>
     <p>Executors verified: $all_platforms</p>
