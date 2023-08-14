@@ -41,10 +41,10 @@ rustup install 1.61
 rustup run 1.61 cargo build --release
 popd
 
-pushd executors/dart_native/
-dart pub get
-dart compile exe bin/executor.dart
-popd
+#pushd executors/dart_native/
+#dart pub get
+#dart compile exe bin/executor.dart
+#popd
 
 pushd executors/dart_web/
 dart pub get
@@ -111,9 +111,9 @@ popd
 # Verify everything
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node dart_web --test_type coll_shift_short number_fmt lang_names 
 
-python3 verifier.py --file_base ../$TEMP_DIR --exec dart_web --test_type coll_shift_short
+#python3 verifier.py --file_base ../$TEMP_DIR --exec dart_web --test_type coll_shift_short
 #python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type coll_shift_short number_fmt lang_names 
 popd
 
