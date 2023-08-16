@@ -33,6 +33,7 @@ Future<void> prepare(String name, ExportFunction function) async {
     'compile',
     'js',
     'bin/${name}Executor.dart',
+    '-O0',
     '-o',
     'out/$outFile.js',
   ]);
@@ -83,6 +84,6 @@ void prepareOutFile(String name, List<ExportFunction> functions) {
   //# sourceMappingURL=$name.js.map
   ''',
   );
-  s = 'function dartMainRunner(main, args){}' + s;
+  s = 'function dartMainRunner(main, args){}$s';
   outFile.writeAsStringSync(s);
 }
