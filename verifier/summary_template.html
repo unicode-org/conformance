@@ -98,6 +98,7 @@
                           details.push(link);
                       }
                   }
+                  td = tr.insertCell();
                   if (reports.length > 0) {
                       // Create the data for the reports
                       // Make a new area for displaying ig.
@@ -113,7 +114,6 @@
                               3: {color: '#777777'}  // 
                           },
                       };
-                      td = tr.insertCell();
                       //   Set up options and links
                       const chart = new google.visualization.BarChart(td);
                       const chart_data = google.visualization.arrayToDataTable(data);
