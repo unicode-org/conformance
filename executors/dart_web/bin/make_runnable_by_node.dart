@@ -2,20 +2,43 @@ import 'dart:io';
 
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 
+class ExportFunction {
+  final String name;
+  final List<String> argNames;
+
+  ExportFunction({required this.name, required this.argNames});
+}
+
 Future<void> main(List<String> args) async {
-  var name = 'collatorDart';
+  var names = {
+    'collator': ExportFunction(
+      name: 'testCollationShort',
+      argNames: ['encoded'],
+    ),
+    'numberformat': ExportFunction(
+      name: 'testDecimalFormat',
+      argNames: ['encoded', 'log', 'version'],
+    ),
+  };
+  for (var name in names.entries) {
+    await prepare(name.key, name.value);
+  }
+
+  setVersionFile();
+}
+
+Future<void> prepare(String name, ExportFunction function) async {
+  var outFile = '${name}Dart';
   var compile = await Process.run('dart', [
     'compile',
     'js',
-    'bin/all_executors.dart',
+    'bin/${name}Executor.dart',
     '-o',
-    'out/$name.js',
+    'out/$outFile.js',
   ]);
   print(compile.stderr);
 
-  prepareOutFile(name, ['testCollationShort']);
-
-  setVersionFile();
+  prepareOutFile(outFile, [function]);
 }
 
 void setVersionFile() {
@@ -33,7 +56,7 @@ module.exports = { dartVersion };
 }
 
 /// Prepare the file to export `testCollationShort`
-void prepareOutFile(String name, List<String> functions) {
+void prepareOutFile(String name, List<ExportFunction> functions) {
   var outFile = File('out/$name.js');
   var s = outFile.readAsStringSync();
   s = s.replaceAll('self.', '');
@@ -45,8 +68,8 @@ void prepareOutFile(String name, List<String> functions) {
 
   var exportFunctions = functions
       .map(
-        (e) => '''$e: function(arg) {
-      return A.$e(arg);
+        (e) => '''${e.name}: function(${e.argNames.join(',')}) {
+      return A.${e.name}(${e.argNames.join(',')});
     }''',
       )
       .join(',\n');

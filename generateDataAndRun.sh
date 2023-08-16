@@ -63,7 +63,7 @@ source "$HOME/.nvm/nvm.sh"
 #Dart ICU73
 nvm install 20.1.0
 nvm use 20.1.0
-python3 testdriver.py --icu_version icu73 --exec dart_web --test_type coll_shift_short --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu73 --exec dart_web --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 #ICU73
