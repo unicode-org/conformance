@@ -10,16 +10,17 @@ void main() {
     'Check number format output',
     () {
       final inputLine = {
-        'label': '2314',
-        'locale': 'es-MX',
-        'skeleton': 'percent unit-width-full-name scale/0.5',
+        'label': '2137',
+        'locale': 'zh-TW',
+        'skeleton': 'measure-unit/length-furlong unit-width-narrow .000',
         'input': '91827.3645',
         'options': {
           'style': 'unit',
-          'unit': 'percent',
-          'unitDisplay': 'long',
-          'currencyDisplay': 'name',
-          'maximumFractionDigits': 6
+          'unit': 'furlong',
+          'unitDisplay': 'narrow',
+          'currencyDisplay': 'narrowSymbol',
+          'maximumFractionDigits': 3,
+          'minimumFractionDigits': 3
         }
       };
       final outputLine = testDecimalFormat(jsonEncode(inputLine));

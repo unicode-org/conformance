@@ -245,9 +245,15 @@ NumberFormatOptions _decimalPatternToOptions(
 }
 
 NumberFormatOptions _fromJson(Map<String, dynamic> options) {
-  final unit = Unit.values
-      .where((element) => element.jsName == options['unit'])
-      .firstOrNull;
+  Unit? unit;
+  if (options['unit'] != null) {
+    unit = Unit.values
+        .where((element) => element.jsName == options['unit'])
+        .firstOrNull;
+    if (unit == null) {
+      throw ArgumentError('Unknown unit ${options['unit']}');
+    }
+  }
   final unitDisplay = UnitDisplay.values
       .where((element) => element.name == options['unitDisplay'])
       .firstOrNull;
