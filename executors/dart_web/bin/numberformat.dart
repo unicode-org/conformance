@@ -4,7 +4,7 @@ import 'package:intl4x/ecma_policy.dart';
 import 'package:intl4x/intl4x.dart';
 import 'package:intl4x/number_format.dart';
 
-final patternsToOptions = <String, NumberFormatOptions>{
+final _patternsToOptions = <String, NumberFormatOptions>{
   '0.0':
       NumberFormatOptions.custom(digits: Digits.withFractionDigits(minimum: 1)),
   '00': NumberFormatOptions.custom(
@@ -19,20 +19,20 @@ final patternsToOptions = <String, NumberFormatOptions>{
 };
 
 // The nodejs version that first supported advance rounding options
-const firstV3Version = 'v20.1.0';
+const _firstV3Version = 'v20.1.0';
 
 enum NodeVersion {
   v3,
   preV3,
 }
 
-const unsupportedSkeletonTerms = [
+const _unsupportedSkeletonTerms = [
   'scientific/+ee/sign-always',
   'decimal-always',
 ];
 
 // Use this
-const supportedOptionsByVersion = {
+const _supportedOptionsByVersion = {
   NodeVersion.v3: [
     'compactDisplay',
     'currency',
@@ -92,8 +92,6 @@ String testDecimalFormat(
   var input =
       double.parse(json['input'] as String); // May be changed with some options
 
-  final unsupportedOptions = <String>[];
-
   // If options are in the JSON, use them...
   NumberFormatOptions options;
   final jsonOptions = (json['options'] ?? {}) as Map<String, dynamic>;
@@ -128,9 +126,8 @@ String testDecimalFormat(
   }
 
   // Handle scale in the skeleton
-  List<String> skeletonTerms;
+  final skeletonTerms = skeleton?.split(' ') ?? [];
   if (skeleton != null) {
-    skeletonTerms = skeleton.split(' '); // all the components
     if (doLogInput) {
       print('# SKEL: $skeletonTerms');
     }
@@ -141,48 +138,19 @@ String testDecimalFormat(
       final scaleValue = double.parse(matchScale.group(1)!);
       input = input * scaleValue;
     }
-  } else {
-    skeletonTerms = [];
   }
 
   // Supported options depends on the nodejs version
   if (doLogInput) {
     print('#NNNN $nodeVersion');
   }
-  List<String> versionSupportedOptions;
-  if (nodeVersion.compareTo(firstV3Version) >= 0) {
-    if (doLogInput) {
-      print('#V3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = supportedOptionsByVersion[NodeVersion.v3]!;
-  } else {
-    if (doLogInput) {
-      print('#pre_v3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = supportedOptionsByVersion[NodeVersion.preV3]!;
-  }
-  if (doLogInput) {
-    print('#NNNN $versionSupportedOptions');
-  }
-  // Check for option items that are not supported
-  for (var key in jsonOptions.keys) {
-    if (!versionSupportedOptions.contains(key)) {
-      unsupportedOptions.add('$key:${jsonOptions[key]}');
-    }
-  }
 
-  // Check for skelection terms that are not supported
-  for (var skelTerm in skeletonTerms) {
-    if (doLogInput) {
-      print('# SKEL_TERM: $skelTerm');
-    }
-    if (unsupportedSkeletonTerms.contains(skelTerm)) {
-      unsupportedOptions.add(skelTerm);
-      if (doLogInput) {
-        print('# UNSUPPORTED SKEL_TERM: $skelTerm');
-      }
-    }
-  }
+  final unsupportedOptions = _getUnsupportedOptions(
+    jsonOptions,
+    skeletonTerms,
+    nodeVersion,
+    doLogInput,
+  );
 
   if (unsupportedOptions.isNotEmpty) {
     return jsonEncode({
@@ -231,10 +199,55 @@ String testDecimalFormat(
   return jsonEncode(outputLine);
 }
 
+List<String> _getUnsupportedOptions(
+  Map<String, dynamic> jsonOptions,
+  List<String> skeletonTerms,
+  String nodeVersion,
+  bool doLogInput,
+) {
+  List<String> versionSupportedOptions;
+  if (nodeVersion.compareTo(_firstV3Version) >= 0) {
+    if (doLogInput) {
+      print('#V3 !!!! $nodeVersion');
+    }
+    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.v3]!;
+  } else {
+    if (doLogInput) {
+      print('#pre_v3 !!!! $nodeVersion');
+    }
+    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.preV3]!;
+  }
+  if (doLogInput) {
+    print('#NNNN $versionSupportedOptions');
+  }
+
+  final unsupportedOptions = <String>[];
+  // Check for option items that are not supported
+  for (var key in jsonOptions.keys) {
+    if (!versionSupportedOptions.contains(key)) {
+      unsupportedOptions.add('$key:${jsonOptions[key]}');
+    }
+  }
+
+  // Check for skelection terms that are not supported
+  for (var skelTerm in skeletonTerms) {
+    if (doLogInput) {
+      print('# SKEL_TERM: $skelTerm');
+    }
+    if (_unsupportedSkeletonTerms.contains(skelTerm)) {
+      unsupportedOptions.add(skelTerm);
+      if (doLogInput) {
+        print('# UNSUPPORTED SKEL_TERM: $skelTerm');
+      }
+    }
+  }
+  return unsupportedOptions;
+}
+
 NumberFormatOptions _decimalPatternToOptions(
     String? pattern, String? rounding) {
   final numberFormatOptions =
-      patternsToOptions[pattern] ?? NumberFormatOptions.custom();
+      _patternsToOptions[pattern] ?? NumberFormatOptions.custom();
   if (rounding != null) {
     final roundingMode =
         RoundingMode.values.firstWhere((mode) => mode.name == rounding);
