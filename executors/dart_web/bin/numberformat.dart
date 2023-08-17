@@ -126,7 +126,7 @@ String testDecimalFormat(
     if (doLogInput) {
       print('# SKEL: $skeletonTerms');
     }
-    final scaleRegex = RegExp(r'/scale\/(\d+\.\d*)/');
+    final scaleRegex = RegExp(r'scale/(\d+\.\d*)');
     final matchScale = scaleRegex.firstMatch(skeleton);
     if (matchScale != null) {
       // Get the value and use it

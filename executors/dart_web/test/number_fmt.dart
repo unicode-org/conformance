@@ -1,5 +1,3 @@
-@TestOn('browser')
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -8,24 +6,27 @@ import 'package:test/test.dart';
 import '../bin/numberformat.dart';
 
 void main() {
-  testWithFormatting('Check number format output', () {
-    final inputLine = {
-      'label': '0009',
-      'locale': 'es-MX',
-      'skeleton': 'compact-short percent unit-width-full-name',
-      'input': '0',
-      'options': {
-        'notation': 'compact',
-        'compactDisplay': 'short',
-        'style': 'unit',
-        'unit': 'percent',
-        'unitDisplay': 'long',
-        'currencyDisplay': 'name'
-      }
-    };
-    final outputLine = testDecimalFormat(jsonEncode(inputLine));
-    print(outputLine);
-  });
+  testWithFormatting(
+    'Check number format output',
+    () {
+      final inputLine = {
+        'label': '2314',
+        'locale': 'es-MX',
+        'skeleton': 'percent unit-width-full-name scale/0.5',
+        'input': '91827.3645',
+        'options': {
+          'style': 'unit',
+          'unit': 'percent',
+          'unitDisplay': 'long',
+          'currencyDisplay': 'name',
+          'maximumFractionDigits': 6
+        }
+      };
+      final outputLine = testDecimalFormat(jsonEncode(inputLine));
+      print(outputLine);
+    },
+    testOn: 'browser',
+  );
 }
 
 void testWithFormatting<T>(
