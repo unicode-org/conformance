@@ -10,17 +10,17 @@ import '../bin/numberformat.dart';
 void main() {
   testWithFormatting('Check number format output', () {
     final inputLine = {
-      'label': '0001',
+      'label': '0009',
       'locale': 'es-MX',
-      'skeleton': 'compact-short percent unit-width-narrow',
-      'input': '91827.3645',
+      'skeleton': 'compact-short percent unit-width-full-name',
+      'input': '0',
       'options': {
         'notation': 'compact',
         'compactDisplay': 'short',
         'style': 'unit',
         'unit': 'percent',
-        'unitDisplay': 'narrow',
-        'currencyDisplay': 'narrowSymbol'
+        'unitDisplay': 'long',
+        'currencyDisplay': 'name'
       }
     };
     final outputLine = testDecimalFormat(jsonEncode(inputLine));

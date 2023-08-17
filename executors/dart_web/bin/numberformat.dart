@@ -248,6 +248,9 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   final unit = Unit.values
       .where((element) => element.jsName == options['unit'])
       .firstOrNull;
+  final unitDisplay = UnitDisplay.values
+      .where((element) => element.name == options['unitDisplay'])
+      .firstOrNull;
   final currency = options['currency'];
   final currencyDisplay = CurrencyDisplay.values
       .where((element) => element.name == options['currencyDisplay'])
@@ -259,7 +262,11 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
         currency: currency,
         display: currencyDisplay ?? CurrencyDisplay.symbol,
       ),
-    if (unit != null) UnitStyle(unit: unit),
+    if (unit != null)
+      UnitStyle(
+        unit: unit,
+        unitDisplay: unitDisplay ?? UnitDisplay.short,
+      ),
   ].where((element) => element.name == options['style']).firstOrNull;
 
   final compactDisplay = CompactDisplay.values
@@ -271,9 +278,6 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
     ScientificNotation(),
     EngineeringNotation(),
   ].where((element) => element.name == options['notation']).firstOrNull;
-  final unitDisplay = UnitDisplay.values
-      .where((element) => element.name == options['unitDisplay'])
-      .firstOrNull;
   final signDisplay = SignDisplay.values
       .where((element) => element.name == options['signDisplay'])
       .firstOrNull;
@@ -326,9 +330,6 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   return NumberFormatOptions.custom().copyWith(
     style: style,
     currency: currency,
-    currencyDisplay: currencyDisplay,
-    unit: unit,
-    unitDisplay: unitDisplay,
     localeMatcher: localeMatcher,
     signDisplay: signDisplay,
     notation: notation,
@@ -346,9 +347,6 @@ extension on NumberFormatOptions {
     return {
       'style': style.name,
       'currency': currency,
-      'currencyDisplay': currencyDisplay?.toString(),
-      'unit': unit?.jsName,
-      'unitDisplay': unitDisplay?.toString(),
       'localeMatcher': localeMatcher.jsName,
       'signDisplay': signDisplay.name,
       'notation': notation.name,
