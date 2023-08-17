@@ -98,7 +98,15 @@ String testDecimalFormat(
   NumberFormatOptions options;
   final jsonOptions = (json['options'] ?? {}) as Map<String, dynamic>;
   if (jsonOptions.isNotEmpty) {
-    options = _fromJson(jsonOptions);
+    try {
+      options = _fromJson(jsonOptions);
+    } catch (e) {
+      // This is a special kind of unsupported.
+      return jsonEncode({
+        'label': label,
+        'error': 'Option parsing error: $e',
+      });
+    }
   } else {
     try {
       options = _decimalPatternToOptions(pattern, rounding);
@@ -210,14 +218,6 @@ String testDecimalFormat(
       'actual_options': options.toMapString(),
     };
   } catch (error) {
-    if (error.toString().contains('furlong')) {
-      // This is a special kind of unsupported.
-      return jsonEncode({
-        'label': label,
-        'unsupported': 'unsupported_options',
-        'error_detail': {'unsupported_options': error.toString()}
-      });
-    }
     // Handle type of the error
     outputLine = {
       'label': json['label'],
@@ -291,7 +291,7 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
       .where((element) => element.jsName == options['localeMatcher'])
       .firstOrNull;
   final useGrouping = Grouping.values
-      .where((element) => element.jsName == options['useGrouping'].toString())
+      .where((element) => element.jsName == options['useGrouping'])
       .firstOrNull;
   final roundingMode = RoundingMode.values
       .where((element) => element.name == options['roundingMode'])

@@ -10,21 +10,21 @@ void main() {
     'Check number format output',
     () {
       final inputLine = {
-        'label': '2137',
-        'locale': 'zh-TW',
-        'skeleton': 'measure-unit/length-furlong unit-width-narrow .000',
+        'label': '4195',
+        'locale': 'es-MX',
+        'skeleton': 'unit-width-narrow .000 latin',
         'input': '91827.3645',
         'options': {
-          'style': 'unit',
-          'unit': 'furlong',
           'unitDisplay': 'narrow',
           'currencyDisplay': 'narrowSymbol',
           'maximumFractionDigits': 3,
-          'minimumFractionDigits': 3
+          'minimumFractionDigits': 3,
+          'numberingSystem': 'latn'
         }
       };
       final outputLine = testDecimalFormat(jsonEncode(inputLine));
-      print(outputLine);
+      final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
+      expect(decoded['result'], '91,827.364');
     },
     testOn: 'browser',
   );
