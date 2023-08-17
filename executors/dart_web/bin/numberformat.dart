@@ -96,16 +96,16 @@ String testDecimalFormat(
 
   // If options are in the JSON, use them...
   NumberFormatOptions options;
-  var jsonOptions = (json['options'] ?? {}) as Map<String, dynamic>;
+  final jsonOptions = (json['options'] ?? {}) as Map<String, dynamic>;
   if (jsonOptions.isNotEmpty) {
-    options = fromJson(jsonOptions);
+    options = _fromJson(jsonOptions);
   } else {
     try {
-      options = decimalPatternToOptions(pattern, rounding);
+      options = _decimalPatternToOptions(pattern, rounding);
     } catch (error) {
       // Some error - to return this message
       return jsonEncode({
-        'error': "Can't convert pattern",
+        'error': 'Can\'t convert pattern',
         'label': label,
       });
     }
@@ -184,30 +184,30 @@ String testDecimalFormat(
     });
   }
 
-  var testLocale = json['locale'] as String?;
+  final testLocale = json['locale'] as String?;
 
   Intl intl;
   Map<String, dynamic> outputLine;
   try {
     if (testLocale != null) {
       intl = Intl(
-        locale: Locale(language: testLocale.split('-').first),
+        locale: Locale.parse(testLocale),
         ecmaPolicy: AlwaysEcma(),
       );
     } else {
       intl = Intl(
-        locale: Locale(language: 'und'),
+        locale: const Locale(language: 'und'),
         ecmaPolicy: AlwaysEcma(),
       );
     }
-    NumberFormat nf = intl.numberFormat(options);
+    final NumberFormat nf = intl.numberFormat(options);
 
     // TODO: Catch unsupported units, e.g., furlongs.
 
     outputLine = {
       'label': json['label'],
-      'result': jsonEncode(nf.format(input)),
-      'actual_options': jsonEncode(jsonOptions)
+      'result': nf.format(input),
+      'actual_options': options.toMapString(),
     };
   } catch (error) {
     if (error.toString().contains('furlong')) {
@@ -222,23 +222,21 @@ String testDecimalFormat(
     outputLine = {
       'label': json['label'],
       'error': 'formatting error: $error',
+      'actual_options': options.toMapString(),
     };
-    if (error is RangeError) {
-      outputLine['error_detail'] = error.message;
-      outputLine['actual_options'] = jsonEncode(jsonOptions);
-    }
 
     /// Uncomment the line below for easier debugging
-    rethrow;
+    // rethrow;
   }
   return jsonEncode(outputLine);
 }
 
-NumberFormatOptions decimalPatternToOptions(String? pattern, String? rounding) {
+NumberFormatOptions _decimalPatternToOptions(
+    String? pattern, String? rounding) {
   final numberFormatOptions =
       patternsToOptions[pattern] ?? NumberFormatOptions.custom();
   if (rounding != null) {
-    var roundingMode =
+    final roundingMode =
         RoundingMode.values.firstWhere((mode) => mode.name == rounding);
     return numberFormatOptions.copyWith(roundingMode: roundingMode);
   } else {
@@ -246,16 +244,15 @@ NumberFormatOptions decimalPatternToOptions(String? pattern, String? rounding) {
   }
 }
 
-NumberFormatOptions fromJson(Map<String, dynamic> options) {
-  print(options);
-  var unit = Unit.values
+NumberFormatOptions _fromJson(Map<String, dynamic> options) {
+  final unit = Unit.values
       .where((element) => element.jsName == options['unit'])
       .firstOrNull;
-  var currency = options['currency'];
-  var currencyDisplay = CurrencyDisplay.values
-      .where((element) => element.name == 'currencyDisplay')
+  final currency = options['currency'];
+  final currencyDisplay = CurrencyDisplay.values
+      .where((element) => element.name == options['currencyDisplay'])
       .firstOrNull;
-  var style = [
+  final style = [
     DecimalStyle(),
     if (currency != null)
       CurrencyStyle(
@@ -265,33 +262,67 @@ NumberFormatOptions fromJson(Map<String, dynamic> options) {
     if (unit != null) UnitStyle(unit: unit),
   ].where((element) => element.name == options['style']).firstOrNull;
 
-  var compactDisplay = CompactDisplay.values
-      .where((element) => element.name == 'compactDisplay')
+  final compactDisplay = CompactDisplay.values
+      .where((element) => element.name == options['compactDisplay'])
       .firstOrNull;
-  var notation = [
+  final notation = [
     CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
     StandardNotation(),
     ScientificNotation(),
     EngineeringNotation(),
   ].where((element) => element.name == options['notation']).firstOrNull;
-  var unitDisplay = UnitDisplay.values
+  final unitDisplay = UnitDisplay.values
       .where((element) => element.name == options['unitDisplay'])
       .firstOrNull;
-  var signDisplay = SignDisplay.values
+  final signDisplay = SignDisplay.values
       .where((element) => element.name == options['signDisplay'])
       .firstOrNull;
-  var localeMatcher = LocaleMatcher.values
+  final localeMatcher = LocaleMatcher.values
       .where((element) => element.jsName == options['localeMatcher'])
       .firstOrNull;
-  var useGrouping = Grouping.values
-      .where((element) => element.jsName == options['useGrouping'])
+  final useGrouping = Grouping.values
+      .where((element) => element.jsName == options['useGrouping'].toString())
       .firstOrNull;
-  var roundingMode = RoundingMode.values
+  final roundingMode = RoundingMode.values
       .where((element) => element.name == options['roundingMode'])
       .firstOrNull;
-  var trailingZeroDisplay = TrailingZeroDisplay.values
+  final trailingZeroDisplay = TrailingZeroDisplay.values
       .where((element) => element.name == options['trailingZeroDisplay'])
       .firstOrNull;
+  final minimumSignificantDigits = options['minimumSignificantDigits'] as int?;
+  final maximumSignificantDigits = options['maximumSignificantDigits'] as int?;
+  final roundingIncrement = options['roundingIncrement'] as int?;
+  final roundingPriority = RoundingPriority.values
+          .where((element) => element.name == options['roundingPriority'])
+          .firstOrNull ??
+      RoundingPriority.auto;
+  final minimumFractionDigits = options['minimumFractionDigits'] as int?;
+  final maximumFractionDigits = options['maximumFractionDigits'] as int?;
+
+  Digits? digits;
+  if ((minimumFractionDigits != null || maximumFractionDigits != null) &&
+      (minimumSignificantDigits != null || maximumSignificantDigits != null)) {
+    digits = Digits.withSignificantAndFractionDigits(
+      maximumFractionDigits: maximumFractionDigits,
+      maximumSignificantDigits: maximumSignificantDigits,
+      minimumFractionDigits: minimumFractionDigits,
+      minimumSignificantDigits: minimumSignificantDigits,
+      roundingPriority: roundingPriority,
+    );
+  } else if (minimumFractionDigits != null || maximumFractionDigits != null) {
+    digits = Digits.withFractionDigits(
+      minimum: minimumFractionDigits,
+      maximum: maximumFractionDigits,
+      roundingIncrement: roundingIncrement,
+    );
+  } else if (minimumSignificantDigits != null ||
+      maximumSignificantDigits != null) {
+    digits = Digits.withSignificantDigits(
+      minimum: minimumSignificantDigits,
+      maximum: maximumSignificantDigits,
+    );
+  }
+
   return NumberFormatOptions.custom().copyWith(
     style: style,
     currency: currency,
@@ -305,7 +336,33 @@ NumberFormatOptions fromJson(Map<String, dynamic> options) {
     numberingSystem: options['numberingSystem'],
     roundingMode: roundingMode,
     trailingZeroDisplay: trailingZeroDisplay,
-    minimumIntegerDigits: options['minimumIntegerDigits'] ?? 1,
-    digits: options['digits'], //TODO: map digit options
+    minimumIntegerDigits: options['minimumIntegerDigits'],
+    digits: digits,
   );
+}
+
+extension on NumberFormatOptions {
+  Map<String, dynamic> toMapString() {
+    return {
+      'style': style.name,
+      'currency': currency,
+      'currencyDisplay': currencyDisplay?.toString(),
+      'unit': unit?.jsName,
+      'unitDisplay': unitDisplay?.toString(),
+      'localeMatcher': localeMatcher.jsName,
+      'signDisplay': signDisplay.name,
+      'notation': notation.name,
+      'useGrouping': useGrouping.jsName,
+      'numberingSystem': numberingSystem?.toString(),
+      'roundingMode': roundingMode.name,
+      'trailingZeroDisplay': trailingZeroDisplay.name,
+      'minimumIntegerDigits': minimumIntegerDigits,
+      'digits': {
+        'fractionDigits': digits?.fractionDigits.toString(),
+        'significantDigits': digits?.significantDigits.toString(),
+        'roundingPriority': digits?.roundingPriority?.toString(),
+        'roundingIncrement': digits?.roundingIncrement?.toString(),
+      },
+    };
+  }
 }

@@ -10,7 +10,7 @@ class ExportFunction {
 }
 
 Future<void> main(List<String> args) async {
-  var names = {
+  final names = {
     'collator': ExportFunction(
       name: 'testCollationShort',
       argNames: ['encoded'],
@@ -28,8 +28,8 @@ Future<void> main(List<String> args) async {
 }
 
 Future<void> prepare(String name, ExportFunction function) async {
-  var outFile = '${name}Dart';
-  var compile = await Process.run('dart', [
+  final outFile = '${name}Dart';
+  final compile = await Process.run('dart', [
     'compile',
     'js',
     'bin/${name}Executor.dart',
@@ -43,11 +43,11 @@ Future<void> prepare(String name, ExportFunction function) async {
 }
 
 void setVersionFile() {
-  var lockStr = File('pubspec.lock').readAsStringSync();
+  final lockStr = File('pubspec.lock').readAsStringSync();
 
   final lockfile = PubspecLock.parse(lockStr);
 
-  var version = lockfile.packages['intl4x']?.version;
+  final version = lockfile.packages['intl4x']?.version;
   if (version != null) {
     File('out/version.js').writeAsStringSync('''
 const dartVersion = "${version.canonicalizedVersion}";
@@ -58,7 +58,7 @@ module.exports = { dartVersion };
 
 /// Prepare the file to export `testCollationShort`
 void prepareOutFile(String name, List<ExportFunction> functions) {
-  var outFile = File('out/$name.js');
+  final outFile = File('out/$name.js');
   var s = outFile.readAsStringSync();
   s = s.replaceAll('self.', '');
   s = s.replaceFirst('(function dartProgram() {',
@@ -67,7 +67,7 @@ void prepareOutFile(String name, List<ExportFunction> functions) {
   s = s.replaceFirst('(function dartProgram() {',
       'module.exports = (function dartProgram() {');
 
-  var exportFunctions = functions
+  final exportFunctions = functions
       .map(
         (e) => '''${e.name}: function(${e.argNames.join(',')}) {
       return A.${e.name}(${e.argNames.join(',')});

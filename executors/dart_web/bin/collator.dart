@@ -8,10 +8,10 @@ import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
 String testCollationShort(String jsonEncoded) {
-  var json = jsonDecode(jsonEncoded)
+  final json = jsonDecode(jsonEncoded)
       as Map<String, dynamic>; // For the moment, use strings for easier interop
   // Global default locale
-  var testLocale = 'en';
+  final testLocale = 'en';
   Map<String, dynamic> outputLine;
 
   // Set up collator object with optional locale and testOptions.
@@ -22,12 +22,12 @@ String testCollationShort(String jsonEncoded) {
     } else {
       coll = Intl();
     }
-    var d1 = json['string1'];
-    var d2 = json['string2'];
+    final d1 = json['string1'];
+    final d2 = json['string2'];
 
-    var collationOptions = CollationOptions(ignorePunctuation: true);
-    var compared = coll.collation(collationOptions).compare(d1, d2);
-    var result = compared <= 0 ? true : false;
+    final collationOptions = CollationOptions(ignorePunctuation: true);
+    final compared = coll.collation(collationOptions).compare(d1, d2);
+    final result = compared <= 0 ? true : false;
     outputLine = {'label': json['label'], 'result': result};
 
     if (result != true) {

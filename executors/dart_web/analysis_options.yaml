@@ -16,3 +16,5 @@ linter:
     - avoid_dynamic_calls
     - type_annotate_public_apis
     - non_constant_identifier_names
+    - prefer_final_locals
+    - unnecessary_this
