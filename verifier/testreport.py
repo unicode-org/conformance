@@ -507,14 +507,15 @@ class TestReport:
                         results['locale'][locale] = [label]
 
                     options = input_data.get('options')
-                    # Get each combo of key/value
-                    for key, value in options.items():
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].append(label)
-                        else:
-                            results[key][value] = [label]
+                    if options:
+                        # Get each combo of key/value
+                        for key, value in options.items():
+                            if key not in results:
+                                results[key] = {}
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
 
                 # Try fields in language_names
                 for key in ['language_label', 'locale_label']:

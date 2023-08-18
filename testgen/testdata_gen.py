@@ -172,6 +172,83 @@ class generateData():
       logging.info('LangNames Test (%s): %d lines processed', self.icu_version, count)
       return
 
+    def processLikelySubtagsData(self):
+
+        filename = 'likelySubtags.txt'
+        file_version = '2023-08-17, https://github.com/unicode-org/cldr/pull/3176'
+        raw_likely_subtags_data = readFile(filename, self.icu_version)
+        if not raw_likely_subtags_data:
+            return None
+
+        json_test = {'test_type': 'likely_subtags',
+                     'source_file': filename,
+                     'source_version': file_version,
+                     'tests': []}
+        json_verify = {'test_type': 'likely_subtags',
+                     'source_file': filename,
+                     'source_version': file_version,
+                       }
+        json_verify['Test Scenario'] = json_test['Test scenario'] = 'likely_subtags'
+        # Generate the test and verify json
+        testlines = raw_likely_subtags_data.splitlines()
+        count = 0
+        max_digits = computeMaxDigitsForCount(len(testlines))
+        test_list = []
+        verify_list = []
+        for line in testlines:
+            # Ignore blank and # comment lineslines()
+            if len(line) == 0 or line[0] == "#":
+                continue
+            # split at ";" and ignore whitespace
+            tags = list(map(str.strip, line.split(';')))
+            # This should give 3 items
+            if len(tags) < 3:
+                logging.warning('Likely subtags: count of tages != 3: %s',
+                                line)
+                continue
+
+            # Create 3 minimize tests
+            expected = tags[2]
+            for index in range(0, 3):
+                label = str(count).rjust(max_digits, '0')
+                locale = tags[index]
+                test_min = {'label': label,
+                         'locale': locale,
+                         'option': 'minimize'
+                         }
+                verify = {'label': label,
+                         'verify': expected
+                          }
+                test_list.append(test_min)
+                verify_list.append(verify)
+                count += 1
+
+            # And 3 maximize tests
+            expected = tags[1]
+            for index in range(0, 3):
+                label = str(count).rjust(max_digits, '0')
+                locale = tags[index]
+                test_max = {'label': label,
+                         'locale': locale,
+                         'option': 'maximize'
+                         }
+                verify = {'label': label,
+                         'verify': expected
+                          }
+                test_list.append(test_max)
+                verify_list.append(verify)
+                count += 1
+
+        # Add to the test and verify json data
+        json_test['tests'] = test_list
+        json_verify['verifications'] = verify_list
+
+        # Output the files including the json dump
+        self.saveJsonFile('likely_subtags_test.json', json_test)
+        self.saveJsonFile('likely_subtags_verify.json', json_verify)
+        logging.info('Likely Subtags Test (%s): %d lines processed', self.icu_version, count)
+        return
+
 
 # Utility functions
 def computeMaxDigitsForCount(count):
@@ -569,10 +646,16 @@ def main(args):
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 
-        data_generator.processCollationTestData()
+        data_generator.processLikelySubtagsData()
 
         data_generator.processNumberFmtTestData()
+
+        # This is slow
+        data_generator.processCollationTestData()
+
+        # This is slow
         data_generator.processLangNameTestData()
+
 
         logger.info('++++ Data generation for %s is complete.', icu_version)
 
