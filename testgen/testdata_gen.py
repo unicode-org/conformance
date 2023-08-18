@@ -30,7 +30,7 @@ class generateData():
     def saveJsonFile(self, filename, data, indent=None):
       output_path = os.path.join(self.icu_version, filename)
       output_file = open(output_path, 'w')
-      json.dump(data, output_file, indent=1)
+      json.dump(data, output_file, indent=indent)
       output_file.close()
 
 
@@ -82,6 +82,34 @@ class generateData():
       # And write the files
       self.saveJsonFile('coll_test_shift.json', json_test)
       self.saveJsonFile('coll_verify_shift.json', json_verify)
+
+      return True
+
+    def processNonIgnorableCollationTestData(self):
+      # Alternate set of data to COLL_SHIFT_SHORT.
+      filename = 'CollationTest_NON_IGNORABLE_SHORT.txt'
+
+      # Read raw data
+
+      rawcolltestdata = readFile(filename, self.icu_version)
+
+      if not rawcolltestdata:
+          return None
+
+      test_list = rawcolltestdata.splitlines()
+      # test_list = rawcolltestdata.splitlines()  #OLD
+
+      # Get lists of tests and verify info
+      testdata_object_list, verify_list = generateCollTestDataObjects(test_list)
+      json_test = {}
+      json_verify = {}
+      insert_nonignorable_coll_descr(json_test, json_verify)
+      json_verify['verifications'] = verify_list
+      json_test['tests'] = testdata_object_list
+
+      # And write the files
+      self.saveJsonFile('coll_nonignorable_short_test.json', json_test)
+      self.saveJsonFile('coll_nonignorable_short_verify.json', json_verify)
 
       return True
 
@@ -514,6 +542,10 @@ def insert_coll_descr(tests_obj, verify_obj):
   tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
   return
 
+def insert_nonignorable_coll_descr(tests_obj, verify_obj):
+  verify_obj['Test Scenario'] = tests_obj['Test scenario'] = "coll_nonignorable_short"
+  tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
+  return
 
 def languageNameDescr(tests_json, verify_json):
   # Adds information to LanguageName tests and verify JSON
@@ -570,6 +602,8 @@ def main(args):
                      icu_version)
 
         data_generator.processCollationTestData()
+
+        data_generator.processNonIgnorableCollationTestData()
 
         data_generator.processNumberFmtTestData()
         data_generator.processLangNameTestData()

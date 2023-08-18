@@ -31,7 +31,7 @@ class DdtOptions():
     self.parallel_mode = None  # For each exec or using N CPUs?
     self.exec_mode = 'one_test'  # Default. 'multi_test
 
-type_options = ['coll_shift_short', 'decimal_fmt', 'display_names',
+type_options = ['coll_shift_short', 'coll_nonignorable_short', 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'ALL']
 
 class DdtArgs():

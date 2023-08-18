@@ -88,6 +88,7 @@ cldr_icu_map = {
 # TODO: Can this be added to a configuration file?
 class testType(Enum):
   coll_shift = 'coll_shift_short'
+  coll_nonignorable_short = 'coll_nonignorable_short'
   decimal_fmt = 'decimal_fmt'
   datetime_fmt = 'datetime_fmt'
   display_names = 'display_names'
@@ -107,6 +108,11 @@ testDatasets[testName] = DataSet(testType.coll_shift.value,
                                  'coll_verify_shift.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
+testName = 'coll_nonignorable_short'
+testDatasets[testName] = DataSet(testType.coll_shift.value,
+                                 'coll_nonignorable_short_test.json',
+                                 'coll_nonignorable_short_verify.json',
+                                 CLDRVersion.CLDR43, ICUVersion.ICU73)
 testName = 'coll_shift_67'
 testDatasets[testName] = DataSet(testType.coll_shift.value,
                                  'coll_test0816_U67.json',

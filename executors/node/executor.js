@@ -18,6 +18,8 @@
 
 let collator = require('./collator.js')
 
+let collator_nonignorable = require('./collator_nonignorable.js')
+
 let numberformatter = require('./numberformat.js')
 
 let displaynames = require('./displaynames.js')
@@ -44,6 +46,7 @@ let doLogOutput = 0;
 // Test type support. Add new items as they are implemented
 const testTypes = {
   TestCollShiftShort : Symbol("coll_shift_short"),
+  TestCollNonignorableShort : Symbol("coll_nonignorable_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
   TestNumberFormat : Symbol("number_fmt"),
   TestDateTimeFormat : Symbol("datetime_fmtl"),
@@ -55,6 +58,7 @@ const testTypes = {
 
 const supported_test_types = [
   Symbol("coll_shift_short"),
+  Symbol("coll_nonignorable_short"),
   Symbol("decimal_fmt"),
   Symbol("number_fmt"),
   Symbol("display_names"),
@@ -63,6 +67,7 @@ const supported_test_types = [
 const supported_tests_json = {"supported_tests":
                               [
                                 "coll_shift_short",
+                                "coll_nonignorable_short",
                                 "decimal_fmt",
                                 "number_fmt",
                                 "display_names",
@@ -90,6 +95,11 @@ function parseJsonForTestId(parsed) {
   if (testId == "coll_shift_short") {
     return testTypes.TestCollShiftShort;
   }
+
+  if (testId == "coll_nonignorable_short"){
+    return testTypes.TestCollNonignorableShort;
+  }
+
   if (testId == "decimal_fmt" || testId == "number_fmt") {
     return testTypes.TestDecimalFormat;
   }
@@ -168,6 +178,9 @@ rl.on('line', function(line) {
     const test_type = parsedJson["test_type"];
     if (test_type == "coll_shift_short") {
       outputLine = collator.testCollationShort(parsedJson);
+    } else
+    if (test_type == "coll_nonignorable_short") {
+      outputLine = collator_nonignorable.testCollationNonignorableShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
       outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput);
