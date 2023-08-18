@@ -8,7 +8,7 @@ module.exports = {
 
     // Global default locale
     let testLocale = '';
-    let testCollOptions = {ignorePunctuation:'true'};
+    let testCollOptions = {ignorePunctuation:true};
 
     // Set up collator object with optional locale and testOptions.
     let coll;
