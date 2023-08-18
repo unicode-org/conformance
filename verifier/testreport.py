@@ -528,6 +528,17 @@ class TestReport:
                         else:
                             results[key][value] = [label]
 
+                # Try fields in likely_subtags
+                for key in ['option', 'locale']:
+                    if input_data.get(key):
+                        value = input_data[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].append(label)
+                        else:
+                            results[key][value] = [label]
+
                 key = 'compare'
                 if test.get('compare'):  # For collation results
                     value = test[key]
