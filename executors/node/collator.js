@@ -4,11 +4,14 @@
 // to the strength.
 module.exports = {
 
-  testCollationShort: function(json) {
+  testCollationShort: function(json, shifted) {
 
     // Global default locale
     let testLocale = '';
-    let testCollOptions = {ignorePunctuation:true};
+    let testCollOptions = {};
+    if (shifted) {
+       testCollOptions = {ignorePunctuation:true};
+    }
 
     // Set up collator object with optional locale and testOptions.
     let coll;

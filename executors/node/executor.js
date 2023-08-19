@@ -177,10 +177,11 @@ rl.on('line', function(line) {
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
     if (test_type == "coll_shift_short") {
-      outputLine = collator.testCollationShort(parsedJson);
+      outputLine = collator.testCollationShort(parsedJson, true);
     } else
     if (test_type == "coll_nonignorable_short") {
-      outputLine = collator_nonignorable.testCollationNonignorableShort(parsedJson);
+      // Call without test options;
+      outputLine = collator.testCollationShort(parsedJson, false);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
       outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput);
