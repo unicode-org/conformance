@@ -12,13 +12,13 @@ module.exports = {
       test_option = json['option'];
     }
 
-    let return_json = {"label": label};
+    let return_json = {'label': label};
     let intl_locale;
     try {
       intl_locale = new Intl.Locale(locale);
     } catch (error) {
       /* Something is wrong with the constructor */
-      return_json["error"] = 'CONSTRUCTOR: ' + error.message;
+      return_json['error'] = 'CONSTRUCTOR: ' + error.message;
       return return_json;
     }
 
@@ -34,9 +34,9 @@ module.exports = {
       } else {
         return_json['error'] = 'Unknown test option = ' + test_option;
       }
-      return_json["result"] = result_locale;
+      return_json['result'] = result_locale;
     } catch (error) {
-      return_json["error"] = 'LIKELY_SUBTAGS UNKNOWN ERROR: ' + error.message;
+      return_json['unsupported'] = 'LIKELY_SUBTAGS UNKNOWN ERROR: ' + error.message;
     }
     return return_json;
   }
