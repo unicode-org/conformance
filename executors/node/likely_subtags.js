@@ -5,15 +5,13 @@
 
 module.exports = {
   testLikelySubtags: function (json) {
+    const label = json['label'];
+    const locale = json['locale'];
     let test_option;
     if (json['option']) {
       test_option = json['option'];
     }
 
-    const locale = json['locale'];
-
-    // TESTING
-    const label = json['label'];
     let return_json = {"label": label};
     let intl_locale;
     try {
@@ -28,8 +26,11 @@ module.exports = {
       let result_locale;
       if (test_option === 'maximize') {
         result_locale = intl_locale.maximize().baseName;
-      } else if (test_option === 'minimize') {
+      } else if (test_option === 'minimizeFavorScript' ||
+                 test_option === 'minimize') {
         result_locale = intl_locale.minimize().baseName;
+      } else if (test_option === 'minimizeFavorRegion') {
+        result_locale = intl_locale.minimizeFavorRegion().baseName;
       } else {
         return_json['error'] = 'Unknown test option = ' + test_option;
       }

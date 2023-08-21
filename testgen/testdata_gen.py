@@ -202,42 +202,62 @@ class generateData():
             # split at ";" and ignore whitespace
             tags = list(map(str.strip, line.split(';')))
             # This should give 3 items
-            if len(tags) < 3:
-                logging.warning('Likely subtags: count of tages != 3: %s',
-                                line)
-                continue
+            if line.find('FAIL') >= 0:
+                # What do do with this?
+                pass
 
-            # Create 3 minimize tests
-            expected = tags[2]
-            for index in range(0, 3):
-                label = str(count).rjust(max_digits, '0')
-                locale = tags[index]
-                test_min = {'label': label,
-                         'locale': locale,
-                         'option': 'minimize'
-                         }
-                verify = {'label': label,
-                         'verify': expected
-                          }
-                test_list.append(test_min)
-                verify_list.append(verify)
-                count += 1
+            # Create minimize tests - default is RemoveFavorScript
+            if tags[2]:
+                remove_favor_script = tags[2]
+                for tag in tags:
+                    if tag == '':
+                        continue
+                    label = str(count).rjust(max_digits, '0')
+                    test_min = {'label': label,
+                             'locale': tag,
+                             'option': 'minimize'
+                             }
+                    verify = {'label': label,
+                             'verify': remove_favor_script
+                              }
+                    test_list.append(test_min)
+                    verify_list.append(verify)
+                    count += 1
 
-            # And 3 maximize tests
-            expected = tags[1]
-            for index in range(0, 3):
+            # And maximize from each tag
+            add_likely = tags[1]
+            for tag in tags:
+                if tag == '':
+                    continue
                 label = str(count).rjust(max_digits, '0')
-                locale = tags[index]
                 test_max = {'label': label,
-                         'locale': locale,
+                         'locale': tag,
                          'option': 'maximize'
                          }
                 verify = {'label': label,
-                         'verify': expected
+                         'verify': add_likely
                           }
                 test_list.append(test_max)
                 verify_list.append(verify)
                 count += 1
+
+            # And check for minimizing with favored script is supported
+            if tags[3]:
+                remove_favor_region = tags[3]
+                for tag in tags:
+                    if tag == '':
+                        continue
+                    label = str(count).rjust(max_digits, '0')
+                    test_max = {'label': label,
+                                'locale': tag,
+                                'option': 'minimizeFavorRegion'
+                                }
+                    verify = {'label': label,
+                              'verify': remove_favor_region
+                              }
+                    test_list.append(test_max)
+                    verify_list.append(verify)
+                    count += 1
 
         # Add to the test and verify json data
         json_test['tests'] = test_list
