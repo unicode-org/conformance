@@ -116,7 +116,9 @@ fn main() -> io::Result<()> {
 
             // TODO!!! : supported_test_map to call the functions.
             let json_result = if test_type == "coll_shift_short" {
-                run_collation_test(&json_info)
+                run_collation_test(&json_info, true)
+            }  else if test_type == "coll_nonignorable_short" {
+                run_collation_test(&json_info, false)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 run_numberformat_test(&json_info)
             } else if (test_type == "display_names") || (test_type == "language_display_name") {

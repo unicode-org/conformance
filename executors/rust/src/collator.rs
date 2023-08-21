@@ -9,7 +9,7 @@ use icu::collator::*;
 use icu::locid::locale;
 
 // Function runs comparison using collator
-pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
+pub fn run_collation_test(json_obj: &Value, use_shift: bool ) -> Result<Value, String> {
     // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
     let str1: &str = json_obj["string1"].as_str().unwrap();
@@ -20,8 +20,10 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     let mut options = CollatorOptions::new();
     options.strength = Some(Strength::Tertiary);
 
-    // Does this ignore punctuation?
-    //coll_options.set_alternate_handling(Some(AlternateHandling::Shifted));
+    // Ignore punctuation only if using shifted test.
+    if use_shift {
+        options.alternate_handling = Some(AlternateHandling::Shifted);
+    }
 
     let collator: Collator =
         Collator::try_new_unstable(&data_provider, &locale!("en").into(), options).unwrap();
