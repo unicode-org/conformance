@@ -77,7 +77,7 @@ class generateData():
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
-            start_count=len(json_test))
+            start_count=len(test_ignorable))
 
         json_verify['verifications'].extend(verify_nonignorable)
         json_test['tests'].extend(test_nonignorable)
@@ -495,6 +495,7 @@ def generateCollTestDataObjects(filename,
     data_errors = []  # Items with malformed Unicode
 
     prev = None
+    index = 0
     for item in raw_testdata_list[1:]:
         if recommentline.match(item) or reblankline.match(item):
             continue
@@ -509,7 +510,7 @@ def generateCollTestDataObjects(filename,
 
         if not next:
             # This is a problem with the data input. D80[0-F] is the high surrogate
-            data_errors.append(item)
+            data_errors.append([index, item])
             continue
 
         label = str(count).rjust(max_digits, '0')
@@ -522,10 +523,11 @@ def generateCollTestDataObjects(filename,
 
         prev = next  # set up for next pair
         count += 1
+        index += 1
 
     logging.info('Coll Test: %d lines processed', len(test_list))
     if data_errors:
-        logging.info('!! %s DATA ERRORS: %s', len(data_errors), data_errors)
+        logging.warn('!! %s File %s has DATA ERRORS: %s', filename, len(data_errors), data_errors)
 
     return test_list, verify_list
 
@@ -595,7 +597,6 @@ def main(args):
         # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
-
 
         data_generator.processCollationTestData()
 

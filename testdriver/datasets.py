@@ -104,7 +104,7 @@ testDatasets = defaultdict(def_value)
 testName = 'collation_short'
 testDatasets[testName] = DataSet(testType.collation_short.value,
                                  'collation_test.json',
-                                 'collation_verify_json',
+                                 'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'decimal_fmt'

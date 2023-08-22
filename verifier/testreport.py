@@ -527,16 +527,24 @@ class TestReport:
                         else:
                             results[key][value] = [label]
 
-                key = 'compare'
-                if test.get('compare'):  # For collation results
-                    value = test[key]
-                    if key not in results:
-                        results[key] = {}
-                    if value in results[key]:
-                        results[key][value].append(label)
-                    else:
-                        results[key][value] = [label]
-
+                for key in ['language_label', 'ignorePunctuation']:
+                    if test.get(key):  # For collation results
+                        value = test[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].append(label)
+                        else:
+                            results[key][value] = [label]
+                for key in ['ignorePunctuation']:
+                    if (test.get('input_data') and test['input_data'].get(key)):  # For collation results
+                        value = test['input_data'][key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].append(label)
+                        else:
+                            results[key][value] = [label]
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
             # Sort these by number of items in each set.
@@ -715,7 +723,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.coll_shift.value:
+        if self.test_type == testType.collation_short.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

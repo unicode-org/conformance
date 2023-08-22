@@ -22,10 +22,20 @@ String testCollationShort(String jsonEncoded) {
     } else {
       coll = Intl();
     }
-    var d1 = json['string1'];
-    var d2 = json['string2'];
+    var d1 = json['s1'];
+    var d2 = json['s2'];
 
-    var collationOptions = CollationOptions(ignorePunctuation: true);
+    var should_ignore_punctuation = false;
+    try {
+      // Check the setting of this options
+      var ignorePunc = json['ignorePunctuation'];
+      should_ignore_punctuation = ignorePunc;
+    } catch (error) {
+      continue;
+    }
+      
+    var collationOptions = CollationOptions(ignorePunctuation: should_ignore_punctuation);
+
     var compared = coll.collation(collationOptions).compare(d1, d2);
     var result = compared <= 0 ? true : false;
     outputLine = {'label': json['label'], "result": result};
@@ -38,7 +48,8 @@ String testCollationShort(String jsonEncoded) {
     outputLine = {
       'label': json['label'],
       'error_message': error.toString(),
-      'error': 'Collator compare failed'
+      'error': 'Collator compare failed',
+      's1': d1, 's2': d2
     };
   }
   return jsonEncode(outputLine);
