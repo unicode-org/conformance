@@ -201,63 +201,59 @@ class generateData():
                 continue
             # split at ";" and ignore whitespace
             tags = list(map(str.strip, line.split(';')))
-            # This should give 3 items
-            if line.find('FAIL') >= 0:
-                # What do do with this?
-                pass
+
+            # Normalize to 4 tags: Source; AddLikely; RemoveFavorScript; RemoveFavorRegin
+            while len(tags) < 4:
+                tags.append('')
+            if not tags[2]:
+                tags[2] = tags[1]
+            if not tags[3]:
+                tags[3] = tags[2]
 
             # Create minimize tests - default is RemoveFavorScript
-            if tags[2]:
-                remove_favor_script = tags[2]
-                for tag in tags:
-                    if tag == '':
-                        continue
-                    label = str(count).rjust(max_digits, '0')
-                    test_min = {'label': label,
-                             'locale': tag,
-                             'option': 'minimize'
-                             }
-                    verify = {'label': label,
-                             'verify': remove_favor_script
-                              }
-                    test_list.append(test_min)
-                    verify_list.append(verify)
-                    count += 1
+            source = tags[0]
+            add_likely = tags[1]
+            remove_favor_script = tags[2]
+            remove_favor_region = tags[3]
 
             # And maximize from each tag
-            add_likely = tags[1]
-            for tag in tags:
-                if tag == '':
-                    continue
-                label = str(count).rjust(max_digits, '0')
-                test_max = {'label': label,
-                         'locale': tag,
-                         'option': 'maximize'
-                         }
-                verify = {'label': label,
-                         'verify': add_likely
-                          }
-                test_list.append(test_max)
-                verify_list.append(verify)
-                count += 1
+            label = str(count).rjust(max_digits, '0')
+            test_max = {'label': label,
+                        'locale': source,
+                        'option': 'maximize'
+                        }
+            verify = {'label': label,
+                      'verify': add_likely
+                      }
+            test_list.append(test_max)
+            verify_list.append(verify)
+            count += 1
 
-            # And check for minimizing with favored script is supported
-            if tags[3]:
-                remove_favor_region = tags[3]
-                for tag in tags:
-                    if tag == '':
-                        continue
-                    label = str(count).rjust(max_digits, '0')
-                    test_max = {'label': label,
-                                'locale': tag,
-                                'option': 'minimizeFavorRegion'
-                                }
-                    verify = {'label': label,
-                              'verify': remove_favor_region
-                              }
-                    test_list.append(test_max)
-                    verify_list.append(verify)
-                    count += 1
+            # Expected minimized form favoring the script
+            label = str(count).rjust(max_digits, '0')
+            test_min = {'label': label,
+                        'locale': source,
+                        'option': 'minimize'
+                        }
+            verify = {'label': label,
+                      'verify': remove_favor_script
+                      }
+            test_list.append(test_min)
+            verify_list.append(verify)
+            count += 1
+
+            # And check for minimizing with favored region is supported
+            label = str(count).rjust(max_digits, '0')
+            test_favor_region = {'label': label,
+                                 'locale': source,
+                                 'option': 'minimizeFavorRegion'
+                                 }
+            verify = {'label': label,
+                      'verify': remove_favor_region
+                      }
+            test_list.append(test_favor_region)
+            verify_list.append(verify)
+            count += 1
 
         # Add to the test and verify json data
         json_test['tests'] = test_list
