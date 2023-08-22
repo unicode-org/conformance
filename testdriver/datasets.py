@@ -87,8 +87,7 @@ cldr_icu_map = {
 
 # TODO: Can this be added to a configuration file?
 class testType(Enum):
-  coll_shift = 'coll_shift_short'
-  coll_nonignorable_short = 'coll_nonignorable_short'
+  collation_short = 'collation_short'
   decimal_fmt = 'decimal_fmt'
   datetime_fmt = 'datetime_fmt'
   display_names = 'display_names'
@@ -102,21 +101,10 @@ def def_value():
 # Initialize dictionary of data organized by test type
 testDatasets = defaultdict(def_value)
 
-testName = 'coll_shift_short'
-testDatasets[testName] = DataSet(testType.coll_shift.value,
-                                 'coll_test_shift.json',
-                                 'coll_verify_shift.json',
-                                 CLDRVersion.CLDR41, ICUVersion.ICU71)
-
-testName = 'coll_nonignorable_short'
-testDatasets[testName] = DataSet(testType.coll_shift.value,
-                                 'coll_nonignorable_short_test.json',
-                                 'coll_nonignorable_short_verify.json',
-                                 CLDRVersion.CLDR43, ICUVersion.ICU73)
-testName = 'coll_shift_67'
-testDatasets[testName] = DataSet(testType.coll_shift.value,
-                                 'coll_test0816_U67.json',
-                                 None,
+testName = 'collation_short'
+testDatasets[testName] = DataSet(testType.collation_short.value,
+                                 'collation_test.json',
+                                 'collation_verify_json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'decimal_fmt'

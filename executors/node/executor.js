@@ -18,8 +18,6 @@
 
 let collator = require('./collator.js')
 
-let collator_nonignorable = require('./collator_nonignorable.js')
-
 let numberformatter = require('./numberformat.js')
 
 let displaynames = require('./displaynames.js')
@@ -45,6 +43,7 @@ let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
+  TestCollationShort : Symbol("collation_short"),
   TestCollShiftShort : Symbol("coll_shift_short"),
   TestCollNonignorableShort : Symbol("coll_nonignorable_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
@@ -57,6 +56,7 @@ const testTypes = {
 }
 
 const supported_test_types = [
+  Symbol("collation_short"),
   Symbol("coll_shift_short"),
   Symbol("coll_nonignorable_short"),
   Symbol("decimal_fmt"),
@@ -92,6 +92,12 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
+  if (testId == "coll_shift_short") {
+    return testTypes.TestCollShiftShort;
+  }
+  if (testId == "collation_short") {
+    return testTypes.TestCollationShort;
+  }
   if (testId == "coll_shift_short") {
     return testTypes.TestCollShiftShort;
   }
@@ -176,12 +182,8 @@ rl.on('line', function(line) {
     // testId = parseJsonForTestId(parsedJson);
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
-    if (test_type == "coll_shift_short") {
-      outputLine = collator.testCollationShort(parsedJson, true);
-    } else
-    if (test_type == "coll_nonignorable_short") {
-      // Call without test options;
-      outputLine = collator.testCollationShort(parsedJson, false);
+    if (test_type == "collation_short") {
+      outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
       outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput);

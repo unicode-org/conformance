@@ -9,11 +9,12 @@ use icu::collator::*;
 use icu::locid::locale;
 
 // Function runs comparison using collator
-pub fn run_collation_test(json_obj: &Value, use_shift: bool ) -> Result<Value, String> {
+pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
-    let str1: &str = json_obj["string1"].as_str().unwrap();
-    let str2: &str = json_obj["string2"].as_str().unwrap();
+    let ignore_punctuation : &Option<bool> = &json_obj["ignorePunctuation"].as_bool();
+    let str1: &str = json_obj["s1"].as_str().unwrap();
+    let str2: &str = json_obj["s2"].as_str().unwrap();
 
     let data_provider = icu_testdata::unstable();
 
@@ -21,8 +22,10 @@ pub fn run_collation_test(json_obj: &Value, use_shift: bool ) -> Result<Value, S
     options.strength = Some(Strength::Tertiary);
 
     // Ignore punctuation only if using shifted test.
-    if use_shift {
-        options.alternate_handling = Some(AlternateHandling::Shifted);
+    if let Some(ip) = ignore_punctuation {
+        if *ip {
+            options.alternate_handling = Some(AlternateHandling::Shifted);
+        }
     }
 
     let collator: Collator =
