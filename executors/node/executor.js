@@ -5,7 +5,7 @@
 
    The type of test determines the corresponding test function that then
    receives the test case. This includes the type of operation, e.g.,
-   collation, number format, locale matching, etc.
+   collation, number format, locale matching, likely subtags, etc.
 
    The data includes parameters needed to specify the function called as well
    as the test data passed to the function.
@@ -24,6 +24,8 @@ let displaynames = require('./displaynames.js')
 
 let langnames = require('./langnames.js')
 
+let likely_subtags = require('./likely_subtags.js')
+
 /**
  * TODOs:
  * 1. Handle other types of test cases.
@@ -38,7 +40,7 @@ let langnames = require('./langnames.js')
   * Started 28-July-2022, ccornelius@google.com
  */
 
-let doLogInput = 0;
+let doLogInput = 0;  // TODO: How to turn this on from command line?
 let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
@@ -58,7 +60,8 @@ const supported_test_types = [
   Symbol("decimal_fmt"),
   Symbol("number_fmt"),
   Symbol("display_names"),
-  Symbol("language_display_name")
+  Symbol("language_display_name"),
+  Symbol("local_info")
 ];
 const supported_tests_json = {"supported_tests":
                               [
@@ -124,12 +127,12 @@ rl.on('line', function(line) {
   if (line == "#VERSION") {
     // JSON output of the test enviroment.
     const versionJson = {'platform': 'NodeJS',
-                       'platformVersion': process.version,
-                       'icuVersion': process.versions.icu,
-                       'cldrVersion': process.versions.cldr
-                      };
+                         'platformVersion': process.version,
+                         'icuVersion': process.versions.icu,
+                         'cldrVersion': process.versions.cldr
+                        };
 
-    // TODO: Make this more specific JSON info.
+    // TODO: Make this more specific for JSON info.
     lineOut = JSON.stringify(versionJson);
     process.stdout.write(lineOut);
   } else
@@ -147,12 +150,13 @@ rl.on('line', function(line) {
     try {
       parsedJson = JSON.parse(line);
     } catch (error) {
-      outputLine = {'Cannot parse input line': error,
+      outputLine = {'error': error,
+                    'message': 'Cannot parse input line',
                     'input_line': line,
                     "testId": testId};
 
       // Send result to stdout for verification
-      jsonOut = JSON.stringify(outputLine);
+      const jsonOut = JSON.stringify(outputLine);
       if (doLogOutput > 0) {
         console.log("## ERROR " + lineId + ' ' + outputLine + ' !!!!!');
       }
@@ -163,7 +167,6 @@ rl.on('line', function(line) {
       console.log("#----- PARSED JSON: " + JSON.stringify(parsedJson));
     }
 
-    // testId = parseJsonForTestId(parsedJson);
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
     if (test_type == "coll_shift_short") {
@@ -177,18 +180,23 @@ rl.on('line', function(line) {
     } else
     if (test_type == "language_display_name") {
       outputLine = langnames.testLangNames(parsedJson);
+    } else
+    if (test_type == "likely_subtags") {
+      outputLine = likely_subtags.testLikelySubtags(parsedJson);
     } else {
-      outputLine = {'error': 'unknown test type', 'testId': testId,
-                    'unsupported_test': testId};
+      outputLine = {'error': 'unknown test type',
+                    'test_type': test_type,
+                    'unsupported_test': test_type};
     }
+
+    const jsonOut = JSON.stringify(outputLine);
 
     if ('error' in outputLine) {
       // To get the attention of the driver
-      console.log("#!! ERROR in NODE call: " + JSON.stringify(outputLine));
+      console.log("#!! ERROR in NODE call: " + jsonOut);
     }
 
     // Send result to stdout for verification
-    jsonOut = JSON.stringify(outputLine);
     process.stdout.write(jsonOut + '\n');
     if (doLogOutput > 0) {
       console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');
