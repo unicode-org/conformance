@@ -111,10 +111,10 @@ popd
 # Verify everything
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
+
 python3 verifier.py --file_base ../$TEMP_DIR --exec rust node dart_web --test_type collation_short number_fmt lang_names 
 
-#python3 verifier.py --file_base ../$TEMP_DIR --exec dart_web --test_type coll_shift_short
-#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type coll_shift_short number_fmt lang_names 
+#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type collation_short number_fmt lang_names 
 popd
 
 #
