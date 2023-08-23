@@ -9,8 +9,7 @@
             "icu_version": "icu73",
             "exec": "dart_web",
             "test_type": [
-                "coll_shift_short",
-                "number_fmt"
+                "coll_shift_short"
             ],
             "per_execution": 10000
         }
