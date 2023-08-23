@@ -61,8 +61,8 @@ pushd testdriver
 source "$HOME/.nvm/nvm.sh"
 
 #Dart ICU73
-nvm install 20.5.1
-nvm use 20.5.1
+nvm install 20.1.0
+nvm use 20.1.1
 python3 testdriver.py --icu_version icu73 --exec dart_web --test_type coll_shift_short --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
