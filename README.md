@@ -45,7 +45,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 * Test verification uses ICU version information in the test output files for
   matching with the corresponding expected results. Verification output appears
   in the testResults subdirectory for each node, e.g. testOutput/rust/icu71.
-  
+
 ## Architectural Overview
 
 Conceptually, there are three main functional units of the DDT implementation:
@@ -232,10 +232,10 @@ The verifier_test_report.json file contains information on tests run and compari
 Data Driven Test was initiated in 2022 at Google. The first release of the
 package was delivered in October, 2022.
 
-# LICENSE
+### Copyright & Licenses
 
-See [LICENSE](./LICENSE)
+Copyright © 2022-2023 Unicode, Inc. Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the United States and other countries.
 
-```
-SPDX-License-Identifier: Unicode-DFS-2016
-```
+The project is released under [LICENSE](./LICENSE).
+
+A CLA is required to contribute to this project - please refer to the [CONTRIBUTING.md](https://github.com/unicode-org/.github/blob/main/.github/CONTRIBUTING.md) file (or start a Pull Request) for more information.
