@@ -114,6 +114,7 @@ pushd verifier
 
 python3 verifier.py --file_base ../$TEMP_DIR --exec rust node dart_web --test_type collation_short number_fmt lang_names 
 
+# For future run with ICU4C
 #python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type collation_short number_fmt lang_names 
 popd
 
