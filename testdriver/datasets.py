@@ -92,6 +92,8 @@ class testType(Enum):
   datetime_fmt = 'datetime_fmt'
   display_names = 'display_names'
   lang_names = 'lang_names'
+  likely_subtags = 'likely_subtags'
+  local_info = 'local_info'
   number_fmt = 'number_fmt'
 
 # Returns default value for a key not defined.
@@ -130,6 +132,12 @@ testDatasets[testName] = DataSet(testType.lang_names.value,
                                  'lang_name_test_file.json',
                                  'lang_name_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
+
+testName = 'likely_subtags'
+testDatasets[testName] = DataSet(testType.likely_subtags.value,
+                                 'likely_subtags_test.json',
+                                 'likely_subtags_verify.json',
+                                 CLDRVersion.CLDR43, ICUVersion.ICU73)
 
 testName = 'number_fmt'
 testDatasets[testName] = DataSet(testType.number_fmt.value,
