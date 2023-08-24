@@ -411,7 +411,7 @@ class TestPlan:
                 logging.info('#### DEBUG OUTPUT = %s', item)
 
             # Process some types of errors
-            if item[1:3] == "!!":
+            if item[1:3] == "!!" and self.debug > 1:
                 logging.warning(" !!!!!!!!!!!!!!!!! ERROR: %s", item)
                 # Extract the message and check if we continue or not.
                 json_start = item.index('{')
@@ -426,8 +426,9 @@ class TestPlan:
                     json_out = json.loads(item)
                     batch_out.append(json_out)
                 except BaseException as error:
-                    logging.warning('   && Item %s. Error in= %s. Received (%d): >%s<',
-                                    index, error, len(item), item)
+                    if self.debug > 1:
+                        logging.warning('   && Item %s. Error in= %s. Received (%d): >%s<',
+                                        index, error, len(item), item)
                     index += 1
 
         return batch_out

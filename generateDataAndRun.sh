@@ -87,6 +87,7 @@ jq -c '.[]' ../$source_file | while read i; do
     python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution
     echo $?
 done
+
 # Done with test execution
 popd
 
@@ -97,6 +98,7 @@ popd
 # Verify everything
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
+
 all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
 python3 verifier.py --file_base ../$TEMP_DIR --exec $all_execs --test_type $all_test_types

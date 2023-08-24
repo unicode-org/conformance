@@ -245,7 +245,7 @@ class Verifier:
 
             # Save the results
             if not self.report.save_report():
-                print('!!! Count not save report for (%s, %s)',
+                print('!!! Could not save report for (%s, %s)',
                       vplan.test_type, self.exec)
             else:
                 self.report.create_html_report()
