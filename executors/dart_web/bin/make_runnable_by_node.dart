@@ -19,6 +19,10 @@ Future<void> main(List<String> args) async {
       name: 'testDecimalFormat',
       argNames: ['encoded', 'log', 'version'],
     ),
+    'likely_subtags': ExportFunction(
+      name: 'testLikelySubtags',
+      argNames: ['encoded'],
+    ),
   };
   for (var name in names.entries) {
     await prepare(name.key, name.value);
