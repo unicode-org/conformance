@@ -26,7 +26,8 @@
             "test_type": [
                 "coll_shift_short",
                 "number_fmt",
-                "lang_names"
+                "lang_names",
+                "likely_subtags"
             ],
             "per_execution": 10000
         }
@@ -43,7 +44,8 @@
             "test_type": [
                 "coll_shift_short",
                 "number_fmt",
-                "lang_names"
+                "lang_names",
+                "likely_subtags"
             ],
             "per_execution": 10000
         }
@@ -103,7 +105,8 @@
             "test_type": [
                 "coll_shift_short",
                 "number_fmt",
-                "lang_names"
+                "lang_names",
+                "likely_subtags"
             ],
             "per_execution": 10000
         }
@@ -115,7 +118,8 @@
             "test_type": [
                 "coll_shift_short",
                 "number_fmt",
-                "lang_names"
+                "lang_names",
+                "likely_subtags"
             ],
             "per_execution": 10000
         }
