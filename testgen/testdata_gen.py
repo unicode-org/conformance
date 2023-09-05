@@ -589,7 +589,10 @@ def generateCollTestDataObjects(filename,
 
     prev = None
     index = 0
+    line_number = 0
     for item in raw_testdata_list[1:]:
+        
+        line_number += 1
         if recommentline.match(item) or reblankline.match(item):
             continue
         # It's a data line.
@@ -607,7 +610,7 @@ def generateCollTestDataObjects(filename,
             continue
 
         label = str(count).rjust(max_digits, '0')
-        new_test = {'label': label, 's1': prev, 's2': next}
+        new_test = {'label': label, 's1': prev, 's2': next, 'line': line_number}
         if ignorePunctuation:
             new_test['ignorePunctuation'] = True
         test_list.append(new_test)
