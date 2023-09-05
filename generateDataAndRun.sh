@@ -69,13 +69,13 @@ echo $?
 #ICU73
 nvm install 20.1.0
 nvm use 20.1.0
-python3 testdriver.py --icu_version icu73 --exec node --test_type collation_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu73 --exec node --test_type collation_short number_fmt lang_names likely_subtags --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 #ICU72
 nvm install 18.14.2
 nvm use 18.14.2
-python3 testdriver.py  --icu_version icu72 --exec node --test_type collation_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py  --icu_version icu72 --exec node --test_type collation_short number_fmt lang_names likely_subtags --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 #ICU71
@@ -96,9 +96,9 @@ python3 testdriver.py --icu_version icu69 --exec node --test_type collation_shor
 echo $?
 
 # ICU4X testing
-python3 testdriver.py --icu_version icu71 --exec rust --test_type collation_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu71 --exec rust --test_type collation_short number_fmt lang_names likely_subtags --file_base ../$TEMP_DIR --per_execution 10000
 
-python3 testdriver.py --icu_version icu73 --exec rust --test_type collation_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu73 --exec rust --test_type collation_short number_fmt lang_names likely_subtags --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # Done with test execution
@@ -112,10 +112,10 @@ popd
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
 
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node dart_web --test_type collation_short number_fmt lang_names 
-
 # For future run with ICU4C
-#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type collation_short number_fmt lang_names 
+#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type collation_short number_fmt lang_names likely_subtags 
+
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node dart_web --test_type collation_short number_fmt lang_names likely_subtags 
 popd
 
 #

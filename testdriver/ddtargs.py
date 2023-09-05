@@ -32,7 +32,7 @@ class DdtOptions():
     self.exec_mode = 'one_test'  # Default. 'multi_test
 
 type_options = ['collation_short', 'decimal_fmt', 'display_names',
-                'number_fmt', 'lang_names', 'ALL']
+                'number_fmt', 'lang_names', 'likely_subtags', 'ALL']
 
 class DdtArgs():
   def __init__(self, args):
@@ -145,7 +145,8 @@ def argsTestData():
       ['--test_type', 'collation_short'],
       ['--test_type', 'collation_short', '-t', 'decimal_fmt'],
       ['--test_type', 'collation_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
-       'lang_names'],
+       'lang_names',
+       'likely_subtags'],
 
       ['--test', 'collation_short', 'ALL', 'decimal_fmt'],
 
