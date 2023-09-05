@@ -23,11 +23,22 @@ String testCollationShort(String jsonEncoded) {
       coll = Intl();
     }
 
-    final d1 = json['s1'];
-    final d2 = json['s2'];
-
+    var d1 = '';
+    var d2 = '';
+    try {
+      d1 = json['s1'];
+      d2 = json['s2'];
+    } catch {
+      outputLine = {
+        'label': json['label'],
+        'error_message': error.toString(),
+        'error': 'Collator failed to get s1 and s2',
+        's1': d1, 's2': d2
+      };
+      return jsonEncode(outputLine);
+    }
     final collationOptions = CollationOptions(
-      ignorePunctuation: json['ignorePunctuation'] ?? false,
+      ignorePunctuation: bool.ltryParse(json['ignorePunctuation']) ?? false,
     );
 
     final compared = coll.collation(collationOptions).compare(d1, d2);
