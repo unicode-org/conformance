@@ -12,50 +12,48 @@ String testCollationShort(String jsonEncoded) {
       as Map<String, dynamic>; // For the moment, use strings for easier interop
   // Global default locale
   final testLocale = 'en';
-  Map<String, dynamic> outputLine;
+  final Map<String, dynamic> outputLine = {'label': json['label']};
 
   // Set up collator object with optional locale and testOptions.
-  try {
-    Intl coll;
-    if (testLocale.isNotEmpty) {
-      coll = Intl(locale: Locale.parse(testLocale));
-    } else {
-      coll = Intl();
-    }
+  final s1 = json['s1'];
+  final s2 = json['s2'];
+  final ignorePunctuation = bool.tryParse(json['ignorePunctuation'].toString());
 
-    var d1 = '';
-    var d2 = '';
+  if (s1 == null || s2 == null) {
+    outputLine.addAll({
+      'error': 'Collator failed to get s1 and s2',
+      's1': s1,
+      's2': s2,
+    });
+  } else {
     try {
-      d1 = json['s1'];
-      d2 = json['s2'];
-    } catch {
-      outputLine = {
-        'label': json['label'],
+      Intl coll;
+      if (testLocale.isNotEmpty) {
+        coll = Intl(locale: Locale.parse(testLocale));
+      } else {
+        coll = Intl();
+      }
+
+      final collationOptions = CollationOptions(
+        ignorePunctuation: ignorePunctuation ?? false,
+      );
+
+      final compared = coll.collation(collationOptions).compare(s1, s2);
+      final result = compared <= 0;
+      outputLine['result'] = result;
+
+      if (result != true) {
+        // Additional info for the comparison
+        outputLine['compare'] = compared;
+      }
+    } catch (error) {
+      outputLine.addAll({
         'error_message': error.toString(),
-        'error': 'Collator failed to get s1 and s2',
-        's1': d1, 's2': d2
-      };
-      return jsonEncode(outputLine);
+        'error': 'Collator compare failed',
+        's1': s1,
+        's2': s2,
+      });
     }
-    final collationOptions = CollationOptions(
-      ignorePunctuation: bool.ltryParse(json['ignorePunctuation']) ?? false,
-    );
-
-    final compared = coll.collation(collationOptions).compare(d1, d2);
-    final result = compared <= 0 ? true : false;
-    outputLine = {'label': json['label'], "result": result};
-
-    if (result != true) {
-      // Additional info for the comparison
-      outputLine['compare'] = compared;
-    }
-  } catch (error) {
-    outputLine = {
-      'label': json['label'],
-      'error_message': error.toString(),
-      'error': 'Collator compare failed',
-      's1': d1, 's2': d2
-    };
   }
   return jsonEncode(outputLine);
 }
