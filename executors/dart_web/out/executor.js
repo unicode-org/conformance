@@ -20,6 +20,8 @@ let collator = require('./collator.js')
 
 let numberformatter = require('./numberformat.js')
 
+let likely_subtags = require('./likely_subtags.js')
+
 const { dartVersion } = require('./version.js')
 
 /**
@@ -171,15 +173,16 @@ rl.on('line', function (line) {
         const test_type = parsedJson["test_type"];
         if (test_type == "coll_shift_short") {
           outputLine = collator.testCollationShort(parsedJson);
-        } else
-          if (test_type == "decimal_fmt" || test_type == "number_fmt") {
-            outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput > 0, process.version);
-          } else {
-            outputLine = {
-              'error': 'unknown test type', 'testId': testId,
-              'unsupported_test': testId
-            };
-          }
+        } else if (test_type == "decimal_fmt" || test_type == "number_fmt") {
+          outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput > 0, process.version);
+        } else if (test_type == "likely_subtags") {
+          outputLine = likely_subtags.testLikelySubtags(parsedJson);
+        } else {
+          outputLine = {
+            'error': 'unknown test type', 'testId': testId,
+            'unsupported_test': testId
+          };
+        }
 
         if ('error' in outputLine) {
           // To get the attention of the driver

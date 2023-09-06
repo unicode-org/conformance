@@ -10,7 +10,8 @@
             "exec": "dart_web",
             "test_type": [
                 "coll_shift_short",
-                "number_fmt"
+                "number_fmt",
+                "likely_subtags"
             ],
             "per_execution": 10000
         }
