@@ -539,7 +539,7 @@ class TestReport:
                         else:
                             results[key][value] = [label]
 
-                for key in ['language_label', 'ignorePunctuation']:
+                for key in ['language_label', 'ignorePunctuation', 'compare']:
                     if test.get(key):  # For collation results
                         value = test[key]
                         if key not in results:

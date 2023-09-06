@@ -14,10 +14,10 @@ mkdir -p $TEMP_DIR/testOutput
 pushd testdriver
 nvm install 16.19.1
 nvm use 16.19.1
-python3 testdriver.py --icu_version icu71 --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu71 --exec node --test_type collation_short number_fmt lang_names --file_base ilikely_subtags ../$TEMP_DIR --per_execution 10000
 echo $?
 
-python3 testdriver.py --icu_version icu71 --exec rust --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 1
+python3 testdriver.py --icu_version icu71 --exec rust --test_type collation_short number_fmt lang_names likely_subtags --file_base ../$TEMP_DIR --per_execution 1
 echo $?
 
 popd
@@ -27,7 +27,7 @@ popd
 rm -rf $TEMP_DIR/testReports
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node python --test_type coll_shift_short number_fmt lang_names 
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node dart_web python --test_type collation_short number_fmt lang_names likely_subtags
 
 popd
 

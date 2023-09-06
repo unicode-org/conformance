@@ -32,7 +32,8 @@ module.exports = {
         result_bool = false;
       }
       outputLine = {'label':json['label'],
-                    "result": result_bool,
+                    'result': result_bool,
+                    'compare': compared,
                    }
 
       if (result != true) {
