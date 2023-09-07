@@ -72,15 +72,26 @@ class generateData():
         json_test['tests'] = test_ignorable
         json_verify['verifications'] = verify_ignorable
 
+        if test_ignorable:
+            start_count = len(test_ignorable)
+        else:
+            start_count = 0
+
         # Collation considering punctuation
         test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
-            start_count=len(test_ignorable))
+            start_count=start_count)
 
-        json_verify['verifications'].extend(verify_nonignorable)
-        json_test['tests'].extend(test_nonignorable)
+        if json_verify['verifications']:
+            json_verify['verifications'].extend(verify_nonignorable)
+        else:
+            json_verify['verifications'] = verify_nonignorable
+        if test_nonignorable:
+            json_test['tests'].extend(test_nonignorable)
+        else:
+            json_test['tests'] = test_nonignorable
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
@@ -623,7 +634,8 @@ def generateCollTestDataObjects(filename,
 
     logging.info('Coll Test: %d lines processed', len(test_list))
     if data_errors:
-        logging.warn('!! %s File %s has DATA ERRORS: %s', filename, len(data_errors), data_errors)
+        logging.warning('!! %s File %s has DATA ERRORS: %s',
+                        filename, len(data_errors), data_errors)
 
     return test_list, verify_list
 
