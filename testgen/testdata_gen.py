@@ -30,7 +30,7 @@ class generateData():
     def saveJsonFile(self, filename, data, indent=None):
       output_path = os.path.join(self.icu_version, filename)
       output_file = open(output_path, 'w')
-      json.dump(data, output_file, indent=1)
+      json.dump(data, output_file, indent=indent)
       output_file.close()
 
 
@@ -57,33 +57,46 @@ class generateData():
             return None
 
     def processCollationTestData(self):
-      # Alternate set of data, not used right now.
-      #rawtestdata = readFile('CollationTest_NON_IGNORABLE_SHORT.txt')
+        # Get each kind of collation tests and create a unified data set
+        json_test = {}
+        json_verify = {}
+        insert_collation_header([json_test, json_verify])
 
-      # Read raw data
-      filename = 'CollationTest_SHIFTED_SHORT.txt'
+        # Collation ignoring punctuation
+        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
+            'CollationTest_SHIFTED_SHORT.txt',
+            self.icu_version,
+            ignorePunctuation=True,
+            start_count=0)
 
-      rawcolltestdata = readFile(filename, self.icu_version)
+        json_test['tests'] = test_ignorable
+        json_verify['verifications'] = verify_ignorable
 
-      if not rawcolltestdata:
-          return None
+        if test_ignorable:
+            start_count = len(test_ignorable)
+        else:
+            start_count = 0
 
-      test_list = rawcolltestdata.splitlines()
-      # test_list = rawcolltestdata.splitlines()  #OLD
+        # Collation considering punctuation
+        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
+            'CollationTest_NON_IGNORABLE_SHORT.txt',
+            self.icu_version,
+            ignorePunctuation=False,
+            start_count=start_count)
 
-      # Get lists of tests and verify info
-      testdata_object_list, verify_list = generateCollTestDataObjects(test_list)
-      json_test = {}
-      json_verify = {}
-      insert_coll_descr(json_test, json_verify)
-      json_verify['verifications'] = verify_list
-      json_test['tests'] = testdata_object_list
+        if json_verify['verifications']:
+            json_verify['verifications'].extend(verify_nonignorable)
+        else:
+            json_verify['verifications'] = verify_nonignorable
+        if test_nonignorable:
+            json_test['tests'].extend(test_nonignorable)
+        else:
+            json_test['tests'] = test_nonignorable
 
-      # And write the files
-      self.saveJsonFile('coll_test_shift.json', json_test)
-      self.saveJsonFile('coll_verify_shift.json', json_verify)
+        # And write the files
+        self.saveJsonFile('collation_test.json', json_test)
+        self.saveJsonFile('collation_verify.json', json_verify)
 
-      return True
 
     def processNumberFmtTestData(self):
         filename = 'dcfmtest.txt'
@@ -562,48 +575,79 @@ def stringifyCode(cp):
     return teststring
 
 
-def generateCollTestDataObjects(testdata_list):
-  recommentline = re.compile('^\s*#')
+def generateCollTestDataObjects(filename,
+                                icu_version,
+                                ignorePunctuation,
+                                start_count=0):
+    # Read raw data
+    rawcolltestdata = readFile(filename, icu_version)
 
-  test_list = []
-  verify_list = []
+    if not rawcolltestdata:
+        return None, None
 
-  max_digits = computeMaxDigitsForCount(len(testdata_list))  # Approximately correct
-  count = 0
-  data_errors = []  # Items with malformed Unicode
+    raw_testdata_list = rawcolltestdata.splitlines()
 
-  prev = None
-  for item in testdata_list[1:]:
-      if recommentline.match(item) or reblankline.match(item):
-          continue
-      # It's a data line.
-      if not prev:
-          # Just getting started.
-          prev = parseCollTestData(item)
-          continue
+    # Handles lines of strings to be compared with collation.
+    # Adds field for ignoring punctuation as needed.
+    recommentline = re.compile('^\s*#')
 
-      # Get the code points for each test
-      next = parseCollTestData(item)
+    test_list = []
+    verify_list = []
 
-      if not next:
-          # This is a problem with the data input. D80[0-F] is the high surrogate
-          data_errors.append(item)
-          continue
-      label = str(count).rjust(max_digits, '0')
-      test_list.append({'label': label, 'string1': prev, 'string2': next})
-      verify_list.append({'label': label, 'verify': True})
+    max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximately correct
+    count = start_count
+    data_errors = []  # Items with malformed Unicode
 
-      prev = next  # set up for next pair
-      count += 1
+    prev = None
+    index = 0
+    line_number = 0
+    for item in raw_testdata_list[1:]:
+        
+        line_number += 1
+        if recommentline.match(item) or reblankline.match(item):
+            continue
+        # It's a data line.
+        if not prev:
+            # Just getting started.
+            prev = parseCollTestData(item)
+            continue
 
-  logging.info('Coll Test: %d lines processed', len(test_list))
-  if data_errors:
-      logging.info('!! %s DATA ERRORS: %s', len(data_errors), data_errors)
-  return test_list, verify_list
+        # Get the code points for each test
+        next = parseCollTestData(item)
+
+        if not next:
+            # This is a problem with the data input. D80[0-F] is the high surrogate
+            data_errors.append([index, item])
+            continue
+
+        label = str(count).rjust(max_digits, '0')
+        new_test = {'label': label, 's1': prev, 's2': next, 'line': line_number}
+        if ignorePunctuation:
+            new_test['ignorePunctuation'] = True
+        test_list.append(new_test)
+
+        verify_list.append({'label': label, 'verify': True})
+
+        prev = next  # set up for next pair
+        count += 1
+        index += 1
+
+    logging.info('Coll Test: %d lines processed', len(test_list))
+    if data_errors:
+        logging.warning('!! %s File %s has DATA ERRORS: %s',
+                        filename, len(data_errors), data_errors)
+
+    return test_list, verify_list
 
 
-def insert_coll_descr(tests_obj, verify_obj):
-  verify_obj['Test Scenario'] = tests_obj['Test scenario'] = "coll_shift_short"
+def insert_collation_header(test_objs):
+    for obj in test_objs:
+        obj['Test scenario'] = 'collation_short'
+        obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
+
+
+def insert_nonignorable_coll_descr(tests_obj, verify_obj):
+  verify_obj['Test Scenario'] = tests_obj['Test scenario'] = "coll_nonignorable_short"
   tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
   return
 
@@ -658,7 +702,7 @@ def main(args):
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
 
-        # TODO: WHy doesn't logging.info produce output?
+        # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 
@@ -671,7 +715,6 @@ def main(args):
 
         # This is slow
         data_generator.processLangNameTestData()
-
 
         logger.info('++++ Data generation for %s is complete.', icu_version)
 

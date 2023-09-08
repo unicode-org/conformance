@@ -8,7 +8,8 @@
 
 executors/rust/target/
 **/__pycache__/
-DDT_DATA/test*/*
+DDT_DATA/testOutput*/*
+DDT_DATA/testReports*/*
 
 TEMP_DATA
 

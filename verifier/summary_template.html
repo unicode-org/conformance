@@ -39,20 +39,22 @@
                              {role: 'annotation'}];
 
           // Get all the types of tests available
+          // Sort output in alpha order by executor and by test_type
           const test_types = Object.keys(exec_summary_json);
+          test_types.sort()
           /* Get all the execs */
           let tests_by_type_and_exec = {};
 
           // Find all the kinds of executors
-          let execs = new Set();
+          let exec_set = new Set();
           for (const test_type of test_types) {
               const tests = exec_summary_json[test_type];
               for (node_version of tests) {
-                  execs.add(node_version['exec']);
+                  exec_set.add(node_version['exec']);
               }
           }
 
-          // TODO: Create header for each executor
+          const execs = Array.from(exec_set).sort();
           let th = table.insertRow();
           let td = th.insertCell();
           td.innerHTML = "Test Type";
@@ -111,7 +113,7 @@
                               0: {color:'#00dd77'},  // Passing
                               1: {color:'#dd0000'},  // Failing
                               2: {color:'#ffdd00'},  // Error
-                              3: {color: '#777777'}  // 
+                              3: {color: '#777777'}  //
                           },
                       };
                       //   Set up options and links

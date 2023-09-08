@@ -44,6 +44,7 @@ let doLogOutput = 0;
 // Test type support. Add new items as they are implemented
 const testTypes = {
   TestCollShiftShort: Symbol("coll_shift_short"),
+  TestCollationShort: Symbol("collation_short"),
   TestDecimalFormat: Symbol("decimal_fmt"),
   TestNumberFormat: Symbol("number_fmt"),
   TestDateTimeFormat: Symbol("datetime_fmtl"),
@@ -55,6 +56,7 @@ const testTypes = {
 
 const supported_test_types = [
   Symbol("coll_shift_short"),
+  Symbol("collation_short"),
   Symbol("decimal_fmt"),
   Symbol("number_fmt"),
   Symbol("display_names"),
@@ -64,6 +66,7 @@ const supported_tests_json = {
   "supported_tests":
     [
       "coll_shift_short",
+      "collation_short",
       "decimal_fmt",
       "number_fmt",
       "display_names",
@@ -91,6 +94,9 @@ function parseJsonForTestId(parsed) {
 
   if (testId == "coll_shift_short") {
     return testTypes.TestCollShiftShort;
+  }
+  if (testId == "coll_shift_short") {
+    return testTypes.TestCollationShort;
   }
   if (testId == "decimal_fmt" || testId == "number_fmt") {
     return testTypes.TestDecimalFormat;
@@ -171,7 +177,7 @@ rl.on('line', function (line) {
         // testId = parseJsonForTestId(parsedJson);
         // Handle the string directly to  call the correct function.
         const test_type = parsedJson["test_type"];
-        if (test_type == "coll_shift_short") {
+        if (test_type == "collation_short") {
           outputLine = collator.testCollationShort(parsedJson);
         } else if (test_type == "decimal_fmt" || test_type == "number_fmt") {
           outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput > 0, process.version);

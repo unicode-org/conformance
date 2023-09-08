@@ -115,7 +115,7 @@ fn main() -> io::Result<()> {
             let label: &str = json_info["label"].as_str().unwrap();
 
             // TODO!!! : supported_test_map to call the functions.
-            let json_result = if test_type == "coll_shift_short" {
+            let json_result = if test_type == "collation_short" {
                 run_collation_test(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 run_numberformat_test(&json_info)
