@@ -523,10 +523,10 @@ class Tester:
 
     def collation_exec(self, executor):
         # Set up paths and run verify
-        self.title = executor.upper() + ' COLL_SHIFT_SHORT'
-        self.test_type = 'coll_shift_short'
+        self.title = executor.upper() + ' COLLATION_SHORT'
+        self.test_type = 'collation_short'
         self.setup_paths_and_run(
-            executor, 'coll_test_shift.json', 'coll_verify_shift.json')
+            executor, 'coll_test_shift.json', 'collation_verify.json')
 
     def decimal_format_exec(self, executor):
         self.title = executor.upper() + ' DECIMAL_FMT'
