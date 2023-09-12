@@ -18,8 +18,8 @@
 
 mod collator;
 mod langnames;
-mod numberfmt;
 mod likelysubtags;
+mod numberfmt;
 
 use serde_json::{json, Value};
 
@@ -34,8 +34,8 @@ use substring::Substring;
 // Test modules for each type
 use collator::run_collation_test;
 use langnames::run_language_name_test;
-use numberfmt::run_numberformat_test;
 use likelysubtags::run_likelysubtags_test;
+use numberfmt::run_numberformat_test;
 
 // Read from stdin, call functions to get json, output the result.
 fn main() -> io::Result<()> {
