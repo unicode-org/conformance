@@ -74,14 +74,14 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // "unsupported" rather than an error.
     let options = &json_obj["options"]; // This will be an array.
 
-    let mut unsupported_options: Vec<&str> = Vec::new();
+    let mut _unsupported_options: Vec<&str> = Vec::new();
 
     // If any option is not yet supported, should we report as UNSUPPORTED?
     let option_struct: NumberFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
     let mut is_compact = false;
     let mut compact_type = "";
-    let mut is_scientific = false;
-    let mut rounding_mode = "";
+    let mut _is_scientific = false;
+    let mut _rounding_mode = "";
     let mut style = "";
     let mut unit = "";
     if option_struct.notation == Some(String::from("compact")) {
@@ -91,7 +91,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         compact_type = &option_struct.compact_display.as_ref().unwrap();
     }
     if option_struct.notation == Some(String::from("scientific")) {
-        is_scientific = true;
+        _is_scientific = true;
     }
     if option_struct.style.is_some() {
         style = &option_struct.style.as_ref().unwrap();
@@ -100,7 +100,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         unit = &option_struct.unit.as_ref().unwrap();
     }
     if option_struct.rounding_mode.is_some() {
-        rounding_mode = &option_struct.rounding_mode.as_ref().unwrap();
+        _rounding_mode = &option_struct.rounding_mode.as_ref().unwrap();
     }
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
     // TODO: Use options to call operations including pad and trunc with rounding.

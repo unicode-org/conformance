@@ -27,7 +27,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     let input_lang_result = Language::from_str(&language_label);
     let input_lang = match input_lang_result {
         Ok(l) => l,
-        Err(e) => {
+        Err(_e) => {
             return Ok(json!({
                 "error": format!("bad language label: {}", language_label),
                 "label": label,
