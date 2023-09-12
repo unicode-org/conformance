@@ -126,7 +126,7 @@ fn main() -> io::Result<()> {
                 run_numberformat_test(&json_info)
             } else if (test_type == "display_names") || (test_type == "language_display_name") {
                 run_language_name_test(&json_info)
-            } else if (test_type == "likely_subtags") {
+            } else if test_type == "likely_subtags" {
                 run_likelysubtags_test(&json_info)
             } else {
                 Err(test_type.to_string())
