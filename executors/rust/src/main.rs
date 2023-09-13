@@ -18,6 +18,7 @@
 
 mod collator;
 mod langnames;
+mod likelysubtags;
 mod numberfmt;
 
 use serde_json::{json, Value};
@@ -33,6 +34,7 @@ use substring::Substring;
 // Test modules for each type
 use collator::run_collation_test;
 use langnames::run_language_name_test;
+use likelysubtags::run_likelysubtags_test;
 use numberfmt::run_numberformat_test;
 
 // Read from stdin, call functions to get json, output the result.
@@ -44,7 +46,7 @@ fn main() -> io::Result<()> {
     // Supported tests names mapping to functions.
     // Use these strings to respond to test requests.
     let _supported_test_map = HashMap::from([
-        ("coll_shift_short".to_string(), run_collation_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
+        ("collation_short".to_string(), run_collation_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
     ]);
 
     // TODO: supported_test_map to call the functions.
@@ -63,8 +65,11 @@ fn main() -> io::Result<()> {
             // Returns JSON list of supported tests.
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
-                { "supported_tests": ["coll_shift_short", "number_fmt", "decimal_fmt"] }
-                // { "supported_tests": test_vec }
+                { "supported_tests": [
+                    "collation_short",
+                    "number_fmt",
+                    "decimal_fmt",
+                    "likelysubtags"] }
             );
             println!("{}", json_result);
         }
@@ -121,6 +126,8 @@ fn main() -> io::Result<()> {
                 run_numberformat_test(&json_info)
             } else if (test_type == "display_names") || (test_type == "language_display_name") {
                 run_language_name_test(&json_info)
+            } else if test_type == "likely_subtags" {
+                run_likelysubtags_test(&json_info)
             } else {
                 Err(test_type.to_string())
             };
