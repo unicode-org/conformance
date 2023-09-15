@@ -30,6 +30,8 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         Err(e) => {
             return Ok(json!({
                 "error": format!("bad language label: {}", language_label),
+                // ?? Get the string associated?
+                // "error_msg": e.as_str(),
                 "label": label,
                 "language_label": language_label,
                 "test_type": "display_names",

@@ -387,7 +387,7 @@ class Verifier:
             try:
                 expected_result = verification_data['verify']
             except:
-                exepected_result = 'UNKNOWN'
+                expected_result = 'UNKNOWN'
             if self.debug > 1:
                 print('VVVVV: %s actual %s, expected %s' % (
                     (actual_result == expected_result),
