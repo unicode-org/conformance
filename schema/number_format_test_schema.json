@@ -1,0 +1,96 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/number_format_test.json",
+ "title": "ICU Conformance test data description",
+ "description": "This documents the format of number format test data for execution",
+ "type": "object",
+ "properties": {
+   "Test scenario": {
+     "type": "string"
+   },
+   "test_type": {
+     "description": "the name number_fmt",
+     "type": "string",
+     "default": "number_fmt"
+   },
+   "description": {
+     "type": "string"
+   },
+   "source": {
+     "type": "object",
+     "properties": {
+       "repository": {
+         "type": "string"
+       },
+       "version": {
+         "type": "string"
+       }
+     }
+   },
+   "url": {
+     "type": "string"
+   },
+   "tests": {
+     "description": "list of N test for collation each of type number_format",
+     "type": "array",
+     "items": {
+       "type": "object",
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "locale": {
+           "description": "language tag for formatting the output",
+           "type": "string"
+         },
+         "skeleton": {
+           "description": "Skeleton style description of parameters",
+           "type": "string"
+         },
+         "input": {
+           "description": "string representation of the number to be formatted",
+           "type": "string"
+         },
+         "options": {
+           "description": "Formatting paramters for the number",
+           "type": "object",
+           "properties": {
+             "notation": {
+               "type": "string",
+               "description": "type of formatting, e.g., compact,scientific, unit, etc"
+             },
+             "compactDisplay": {
+               "type": "string",
+               "description": "more details on how to show compact values"
+             },
+             "style": {
+               "type": "string",
+               "description": "more details on the style of output"
+             },
+             "unit": {
+               "type": "string",
+               "description": "what unit to use in output"
+             },
+             "unitDisplay": {
+               "type": "string",
+               "description": "detail on showing the formatted unit"
+             },
+             "currencyDisplay": {
+               "type": "string",
+               "description": "detail on how to show the requested currency"
+             },
+             "useGrouping": {
+               "type": "boolean",
+               "description": "Should we group the outputs?"
+             }
+           }
+         }
+       },
+       "required": [
+         "label",
+         "input"
+       ]
+     }
+   }
+ }
+}

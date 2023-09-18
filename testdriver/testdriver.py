@@ -4,6 +4,7 @@
 
 from datetime import datetime
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -32,12 +33,13 @@ class TestDriver():
     for test_type in argOptions.test_type:
 
       if test_type not in ddtData.testDatasets:
-        print('**** WARNING: test_type %s not in testDatasets' % test_type)
+        logging.warning('**** WARNING: test_type %s not in testDatasets',
+                        test_type)
       else:
         # Create a test plan based on data and options
         testDataInfo = ddtData.testDatasets[test_type]
         if self.debug:
-          print('$$$$$ test_type = %s testDataInfo = %s' % (
+          logging.debug('$$$$$ test_type = %s testDataInfo = %s' % (
               test_type, testDataInfo.testDataFilename))
 
         testFilename = testDataInfo.testDataFilename

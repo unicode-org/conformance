@@ -1,0 +1,57 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/language_names_test_schema.json'",
+ "title": "ICU Conformance test data description",
+ "description": "This documents the format of language names test data for execution",
+ "type": "object",
+ "properties": {
+   "test_type": {
+     "description": "the name language_display_name",
+     "type": "string",
+     "default": "language_names"
+   },
+   "source": {
+     "description": "origin of conformance data",
+     "type": "object",
+     "properties": {
+       "repository": {
+         "type": "string"
+       }
+     }
+   },
+   "url": {
+     "type": "string"
+   },
+   "source_version": {
+     "description": "version of conformance data",
+     "type": "string"
+   },
+   "tests": {
+     "description": "list of N tests for likely subtags",
+     "type": "array",
+     "items": {
+       "type": "object",
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "language_label": {
+           "description": "locale tag of the source language ",
+           "type": "string"
+         },
+         "locale_label": {
+           "description": "locale tag of the language being described ",
+           "type": "string"
+         }
+       }
+     },
+     "required": [
+       "label",
+       "language_label",
+       "locale_label"
+     ]
+   }
+ },
+ "required": [
+ ]
+}
