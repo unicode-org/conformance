@@ -85,8 +85,19 @@ class ddt_validate():
     def validate_json_structure(self, test_type, data_paths, schema_paths, data_type):
         # Data type: one of 'test_data', verify_data', result_data" indicating which to verify
         # Get the data and the corresponding schema file.
-        schema_file = open(schema_paths[data_type], encoding='utf-8', mode='r')
-        data_file = open(data_paths[data_type], encoding='utf-8', mode='r')
+        try:
+            schema_file = open(schema_paths[data_type], encoding='utf-8', mode='r')
+        except FileNotFoundError as error:
+            logging.error('  Cannot open schema file %s.\n   Err = %s', schema_paths[data_type], err)
+            return False
+
+        try:
+            data_file = open(data_paths[data_type], encoding='utf-8', mode='r')
+        except FileNotFoundError as err:
+            logging.error('  Cannot open data file %s.\n   Err = %s', data_paths[data_type], err)
+            return False
+
+
         # Get the schema file and validate the data against it
 
         try:
