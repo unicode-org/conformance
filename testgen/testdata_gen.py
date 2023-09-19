@@ -69,13 +69,13 @@ class generateData():
           return None
 
       test_list = rawcolltestdata.splitlines()
-      # test_list = rawcolltestdata.splitlines()  #OLD
 
       # Get lists of tests and verify info
-      testdata_object_list, verify_list = generateCollTestDataObjects(test_list)
       json_test = {}
       json_verify = {}
-      insert_coll_descr(json_test, json_verify)
+      insert_collation_descr(json_test, json_verify)
+
+      testdata_object_list, verify_list = generateCollTestDataObjects(test_list)
       json_verify['verifications'] = verify_list
       json_test['tests'] = testdata_object_list
 
@@ -116,9 +116,8 @@ class generateData():
         return
 
     def processLangNameTestData(self):
-
-        json_test = {}
-        json_verify = {}
+        json_test = {'test_type': 'language_names_short'}
+        json_verify = {'test_type': 'language_names_short'}
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -227,36 +226,36 @@ def mapFmtSkeletonToECMA402(options):
       "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "symbol"},
       "unit-width-full-name": {"unitDisplay": "long", "currencyDisplay": "name"},
       #"unit-width-full-name": {"unitDisplay": "long"},
-      "precision-integer": {"maximumFractionDigits": "0", "minimumFractionDigits": "0", "roundingType": "fractionDigits"},
-      ".000": {"maximumFractionDigits": "3", "minimumFractionDigits": "3"},
+      "precision-integer": {"maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"},
+      ".000": {"maximumFractionDigits": 3, "minimumFractionDigits": 3},
 
       # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
-      ".##/@@@+": {"maximumFractionDigits": "2", "maximumSignificantDigits": "3","roundingPriority": "morePrecision"},
-      "@@": {"maximumSignificantDigits": "2", "minimumSignificantDigits": "2"},
+      ".##/@@@+": {"maximumFractionDigits": 2, "maximumSignificantDigits": 3,"roundingPriority": "morePrecision"},
+      "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
-      "integer-width/##00": {"maximumIntegerDigits": "4", "minimumIntegerDigits":"2"},
-      "group-on-aligned": {"useGrouping": "true"},
+      "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits": 2},
+      "group-on-aligned": {"useGrouping": True},
       "latin": {"numberingSystem": "latn"},
       "sign-accounting-except-zero": {"signDisplay": "exceptZero"},
-      "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": "1", "minimumFractionDigits": "4", "maximumFractionDigits": "4"},
-      "00": {"minimumIntegerDigits":"2"},
-      "#.#": {"maximumFractionDigits": "1"},
-      "@@@": {"minimumSignificantDigits": "3", "maximumSignificantDigits": "3"},
-      "@@###": {"minimumSignificantDigits": "2", "maximumSignificantDigits": "5"},
-      "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": "4", "maximumSignificantDigits": "4"},
-      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
-      "00.##E0": {"notation": "scientific", "minimumIntegerDigits":"2", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
-      "0005": {"minimumIntegerDigits":"2"},
-      "0.00": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"},
-      "0.000E0": {"notation": "scientific", "minimumIntegerDigits":"1", "minimumFractionDigits": "3", "maximumFractionDigits": "3"},
-      "0.0##": {"minimumIntegerDigits":"1", "minimumFractionDigits": "1", "maximumFractionDigits": "3"},
-      "#": {"minimumIntegerDigits":"1", "maximumFractionDigits": "0"},
-      "0.#E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "1"},
-      "0.##E0": {"notation": "scientific", "minimumIntegerDigits":"1", "maximumFractionDigits": "2"},
-      ".0E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "1"},
-      ".0#E0": {"notation": "scientific", "minimumIntegerDigits":"0", "minimumFractionDigits": "1", "maximumFractionDigits": "2"},
-      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": "25", "maximumSignificantDigits": "25"},
-      "0.0": {"minimumIntegerDigits":"1", "minimumFractionDigits": "2", "maximumFractionDigits": "2"}
+      "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 4, "maximumFractionDigits": 4},
+      "00": {"minimumIntegerDigits": 2},
+      "#.#": {"maximumFractionDigits": 1},
+      "@@@": {"minimumSignificantDigits": 3, "maximumSignificantDigits": 3},
+      "@@###": {"minimumSignificantDigits": 2, "maximumSignificantDigits": 5},
+      "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": 4, "maximumSignificantDigits": 4},
+      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "00.##E0": {"notation": "scientific", "minimumIntegerDigits": 2, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "0005": {"minimumIntegerDigits": 2},
+      "0.00": {"minimumIntegerDigits": 1, "minimumFractionDigits": 2, "maximumFractionDigits": 2},
+      "0.000E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 3, "maximumFractionDigits": 3},
+      "0.0##": {"minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "#": {"minimumIntegerDigits": 1, "maximumFractionDigits": 0},
+      "0.#E0": {"notation": "scientific", "minimumIntegerDigits": 1, "maximumFractionDigits": 1},
+      "0.##E0": {"notation": "scientific", "minimumIntegerDigits": 1, "maximumFractionDigits": 2},
+      ".0E0": {"notation": "scientific", "minimumIntegerDigits":0, "minimumFractionDigits": 1, "maximumFractionDigits": 1},
+      ".0#E0": {"notation": "scientific", "minimumIntegerDigits":0, "minimumFractionDigits": 1, "maximumFractionDigits": 2},
+      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": 25, "maximumSignificantDigits": 25},
+      "0.0": {"minimumIntegerDigits": 1, "minimumFractionDigits": 2, "maximumFractionDigits": 2}
       }
 
   ecma402_options = []
@@ -285,8 +284,8 @@ def mapRoundingToECMA402(rounding):
       "halfceiling": 'halfCeil',
       "halffloor": 'halfFloor',
       "floor": 'floor',
-      "ceiling": 'ceiling',
-      "unnecessary": 'none'
+      "ceiling": 'ceil',
+      "unnecessary": None
       }
   return ecma402_rounding_map[rounding]
 
@@ -495,32 +494,33 @@ def generateCollTestDataObjects(testdata_list):
   return test_list, verify_list
 
 
-def insert_coll_descr(tests_obj, verify_obj):
-  verify_obj['Test Scenario'] = tests_obj['Test scenario'] = "coll_shift_short"
-  tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
-  return
+def insert_collation_descr(tests_obj, verify_obj, test_type='collation_short'):
+    verify_obj['Test Scenario'] = tests_obj['Test scenario'] = 'coll_shift_short'
+    verify_obj['test_type'] = tests_obj['test_type'] = test_type
+    tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second. If the second string is greater than the first string, the test fails.'
+    return
 
 
 def languageNameDescr(tests_json, verify_json):
-  # Adds information to LanguageName tests and verify JSON
-  descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
-  test_id =  'language_display_name'
-  version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
-  source = 'No URL yet.'
-  tests_json['Test scenario'] = test_id
-  tests_json['description'] = descr
-  tests_json['version'] = version
-  tests_json['url'] = source
-  verify_json['Test scenario'] = test_id
-
-  return
+    # Adds information to LanguageName tests and verify JSON
+    descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
+    test_id =  'language_display_name'
+    version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
+    source = 'No URL yet.'
+    tests_json['Test scenario'] = test_id
+    tests_json['description'] = descr
+    tests_json['version'] = version
+    tests_json['url'] = source
+    verify_json['Test scenario'] = test_id
+    return
 
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
   # returns JSON data for tests and verification
   test_scenario = 'number_fmt'
   test_data = {
-      "Test scenario": test_scenario,
+      'Test scenario': test_scenario,
+      'test_type': 'number_format',
       'description':
           'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
       "source": {"repository": "icu", "version": "trunk"},
@@ -528,7 +528,9 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
       'tests': tests_obj
   }
   verify_data = {
-      "Test scenario": test_scenario, 'verifications': verify_obj
+      'Test scenario': test_scenario,
+      'test_type': 'number_format',
+      'verifications': verify_obj
   }
   return test_data, verify_data
 

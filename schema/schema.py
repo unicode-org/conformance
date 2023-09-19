@@ -99,7 +99,6 @@ class ddt_validate():
 
 
         # Get the schema file and validate the data against it
-
         try:
             schema = json.load(schema_file)
         except json.decoder.JSONDecodeError as err:
@@ -130,7 +129,7 @@ class ddt_validate():
 
         return
 
-    def check_schema(self, test_type):
+    def check_schema_structure(self, test_type):
 
         return
 def main(args):

@@ -6,7 +6,8 @@
  "properties": {
    "test_type": {
      "description": "the name likely_subtags",
-     "type": "string"
+     "type": "string",
+     "enum": ["likely_subtags"]
    },
    "source_file": {
      "description": "origin of conformance data",
@@ -27,30 +28,28 @@
            "type": "string"
          },
          "locale": {
-           "description": "locale tag sourcew ",
+           "description": "locale tag source ",
            "type": "string"
          },
          "option": {
-           "description": "Type of processing",
+           "description": "Type of processing requested",
            "type": "string",
-           "oneOf": [
-             {"enum": [
+           "enum": [
                "maximize",
                "minimize",
                "minimizeFavorScript",
                "minimizeFavorRegion"
              ]
-             }
            ]
          }
        }
-       
      },
      "required": [
        "label",
        "locale",
        "option"
      ]
-   }
- }
+ },
+ "required": ["test_type"]
 }
+

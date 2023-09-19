@@ -7,7 +7,7 @@
    "test_type": {
      "description": "the name language_display_name",
      "type": "string",
-     "default": "language_names"
+     "enum": ["language_names"]
    },
    "source": {
      "description": "origin of conformance data",
@@ -53,5 +53,6 @@
    }
  },
  "required": [
+   "test_type"
  ]
 }
