@@ -1,6 +1,7 @@
 # Schema handling for test data, verification data, results files, etc.
 # For ICU Conformance project, Data Driven Testing
 
+import glob
 import json
 from jsonschema import validate
 from jsonschema import ValidationError
@@ -18,20 +19,19 @@ ch.setLevel(logging.INFO)
 
 # Given a directory, validate JSON files against expected schema
 class ddt_validate():
-    def __init__(self, folder_path=None):
-        self.folder = ''
+    def __init__(self, base_folders=None):
+        self.test_data_folders = []
         self.valid_folder = False
-        if folder_path:
-            self.set_folder(folder_path)
+        if base_folders:
+            self.set_folders(base_folders)
         self.result_path = None
 
         self.schema_folder = '.'
 
-    def set_folder(self, folder_path):
+    def set_folders(self, base_folders):
+        self.test_data_folders =  base_folders
         # Folder typically contains an icu version, e.g., 'icu73'
-        self.folder = folder_path
-
-        self.valid_folder = os.path.isdir(folder_path)
+        self.folder = base_folders
 
     def set_result_path(self, path):
         self.result_path = path
@@ -133,30 +133,44 @@ class ddt_validate():
 
         return
 def main(args):
+    # Args:
+    #   Base directory for icu test data or ALL
+    #   Test types (or ALL)
+    #   Directory for test result files
     # Get name of test and type
     if len(args) < 2:
         print('you gotta give me something...')
         return
 
     base_folder = args[1]
+    base_folders = []  #
+    if os.path.basename(base_folder) == "ALL":
+        # TODO: Get all the subdirectories
+        dir_name = os.path.dirname(base_folder)
+        base_folders = glob.glob(dir_name + '/icu*')
+    else:
+        base_folders = [base_folder]
+
+    test_type = None
     test_types = []
     if len(args) > 2:
+        # Test types
         test_type = args[2]
         if test_type == "ALL":
             test_types = all_test_types
         else:
             test_types = [test_type]
 
-    else:
-        test_type = None
-
     if len(args) > 3:
         result_base = args[3]
+        # TODO: Check for "ALL"
     else:
         result_base = None
 
-    validator = ddt_validate(base_folder)
+    validator = ddt_validate(base_folders)
     validator.set_result_path(result_base)
+
+    # TODO: Run for each test directory in base_folders
 
     for test_type in test_types:
         data_paths = validator.test_data_paths(test_type)

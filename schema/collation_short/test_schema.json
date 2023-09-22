@@ -4,15 +4,21 @@
  "description": "This documents the format of collation test data for execution",
  "type": "object",
  "properties": {
+   "additionalProperties": false,
    "test_type": {
      "description": "the name collation_short",
      "type": "string"
+   },
+   "Test scenario": {
+     "type": "string",
+     "description":" Obsolete tag to be removed and replaced with test Type"
    },
    "tests": {
      "description": "list of N test for collation each of type collation_short",
      "type": "array",
      "items": {
        "type": "object",
+       "additionalProperties": false,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",

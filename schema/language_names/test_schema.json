@@ -9,21 +9,27 @@
      "type": "string",
      "enum": ["language_names"]
    },
+   "Test scenario": {
+     "type": "string",
+     "description":" Obsolete tag to be removed and replaced with test Type"
+   },
    "source": {
      "description": "origin of conformance data",
      "type": "object",
      "properties": {
        "repository": {
+         "description": "Reference to the repository",
          "type": "string"
        }
+       "url": {
+         "description": "Reference to the source of this conformance data",
+         "type": "string"
+       },
+       "source_version": {
+         "description": "version of conformance data",
+         "type": "string"
+       },
      }
-   },
-   "url": {
-     "type": "string"
-   },
-   "source_version": {
-     "description": "version of conformance data",
-     "type": "string"
    },
    "tests": {
      "description": "list of N tests for likely subtags",
@@ -43,14 +49,16 @@
            "description": "locale tag of the language being described ",
            "type": "string"
          }
-       }
+       },
+       "additionalProperties": false
      },
      "required": [
        "label",
        "language_label",
        "locale_label"
      ]
-   }
+   },
+   "additionalProperties": false
  },
  "required": [
    "test_type"

@@ -4,13 +4,15 @@
  "description": "This documents the format of number format test data for execution",
  "type": "object",
  "properties": {
-   "Test scenario": {
-     "type": "string"
-   },
+   "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
      "type": "string",
      "enum": ["number_format"]
+   },
+   "Test scenario": {
+     "type": "string",
+     "description":" Obsolete tag to be removed and replaced with test Type"
    },
    "description": {
      "type": "string"
@@ -34,6 +36,7 @@
      "type": "array",
      "items": {
        "type": "object",
+       "additionalProperties": false,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
@@ -44,7 +47,7 @@
            "type": "string"
          },
          "skeleton": {
-           "description": "Skeleton-style description of parameters, for debugging. ",
+           "description": "Skeleton-style description of parameters. Informational only. ",
            "type": "string"
          },
          "input": {

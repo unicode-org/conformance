@@ -80,8 +80,8 @@ class generateData():
       json_test['tests'] = testdata_object_list
 
       # And write the files
-      self.saveJsonFile('coll_test_shift.json', json_test)
-      self.saveJsonFile('coll_verify_shift.json', json_verify)
+      self.saveJsonFile('collation_test.json', json_test)
+      self.saveJsonFile('collation_verify.json', json_verify)
 
       return True
 
@@ -116,8 +116,8 @@ class generateData():
         return
 
     def processLangNameTestData(self):
-        json_test = {'test_type': 'language_names_short'}
-        json_verify = {'test_type': 'language_names_short'}
+        json_test = {}
+        json_verify = {}
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -423,7 +423,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
+      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
@@ -482,7 +482,7 @@ def generateCollTestDataObjects(testdata_list):
           data_errors.append(item)
           continue
       label = str(count).rjust(max_digits, '0')
-      test_list.append({'label': label, 'string1': prev, 'string2': next})
+      test_list.append({'label': label, 's1': prev, 's2': next})
       verify_list.append({'label': label, 'verify': True})
 
       prev = next  # set up for next pair
@@ -505,13 +505,23 @@ def languageNameDescr(tests_json, verify_json):
     # Adds information to LanguageName tests and verify JSON
     descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
     test_id =  'language_display_name'
-    version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
-    source = 'No URL yet.'
-    tests_json['Test scenario'] = test_id
-    tests_json['description'] = descr
-    tests_json['version'] = version
-    tests_json['url'] = source
-    verify_json['Test scenario'] = test_id
+    source_url = 'No URL yet.'
+    version = 'unspecified'
+    tests_json = {
+        'test_type': test_id,
+        'Test scenario': test_id,
+        'description': descr,
+        'source': {
+            'repository': 'conformance-test',
+            'version': 'trunk',
+            'url': source_url,
+            'source_version': version
+        }
+    }
+
+    verify_json = {'test_type': test_id,
+                   'Test scenario': test_id
+                   }
     return
 
 

@@ -4,10 +4,12 @@
  "description": "This documents format of collation short verify data",
  "type": "object",
  "properties": {
+   "additionalProperties": false,
    "verifications": {
      "type": "array",
      "items": {
        "type": "object",
+       "additionalProperties": false,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
