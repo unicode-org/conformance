@@ -438,7 +438,7 @@ class TestReport():
           options = input_data.get('options')
           # Get each combo of key/value
           for key,value in options.items():
-            failure_combo = key + ':' + value
+            failure_combo = key + ':' + str(value)
             results[failure_combo].append(label)
 
         # Try fields in language_names
@@ -586,7 +586,7 @@ class TestReport():
 
   def analyzeSimple(self, test):
     # This depends on test_type
-    if self.test_type == testType.coll_shift.value:
+    if self.test_type == testType.collation_short.value:
       return
 
     if len(test['result']) == len(test['expected']):

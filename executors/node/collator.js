@@ -18,8 +18,8 @@ module.exports = {
       } else {
         coll = new Intl.Collator(testCollOptions);
       }
-      let d1 = json['string1'];
-      let d2 = json['string2'];
+      let d1 = json['s1'];
+      let d2 = json['s2'];
 
       const compared = coll.compare(d1, d2);
       let result = compared<= 0 ? true : false;

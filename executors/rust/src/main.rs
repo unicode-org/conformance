@@ -42,6 +42,7 @@ fn main() -> io::Result<()> {
     // Supported tests names mapping to functions.
     // Use these strings to respond to test requests.
     let _supported_test_map = HashMap::from([
+        ("collation_short".to_string(), run_coll_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
         ("coll_shift_short".to_string(), run_coll_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
     ]);
 
@@ -61,7 +62,7 @@ fn main() -> io::Result<()> {
             // Returns JSON list of supported tests.
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
-                { "supported_tests": ["coll_shift_short", "number_fmt", "decimal_fmt"] }
+                { "supported_tests": ["collation_short", "coll_shift_short", "number_fmt", "decimal_fmt"] }
                 // { "supported_tests": test_vec }
             );
             println!("{}", json_result);
@@ -113,7 +114,7 @@ fn main() -> io::Result<()> {
             let label: &str = json_info["label"].as_str().unwrap();
 
             // TODO!!! : supported_test_map to call the functions.
-            let json_result = if test_type == "coll_shift_short" {
+            let json_result = if test_type == "collation_short" {
                 // TODO: Get the json result and print here
                 run_coll_test(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {

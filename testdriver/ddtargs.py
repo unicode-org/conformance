@@ -1,7 +1,7 @@
 # Process command line arguments for running DDT
 
 # Args expected with examples
-#  test_type: coll_shift, decimal_fmt, etc.
+#  test_type: collation_short, decimal_fmt, etc.
 #  exec: node, rust, cpp, java, custom
 #  cldr_version: 41
 #  icu_version: 71.1
@@ -31,7 +31,7 @@ class DdtOptions():
     self.parallel_mode = None  # For each exec or using N CPUs?
     self.exec_mode = 'one_test'  # Default. 'multi_test
 
-type_options = ['coll_shift_short', 'decimal_fmt', 'display_names',
+type_options = ['collation_short', 'coll_shift_short', 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'ALL']
 
 class DdtArgs():
@@ -142,6 +142,7 @@ def setCommonArgs(parser):
 
 def argsTestData():
   tests = [
+      ['--test_type', 'collation_short'],
       ['--test_type', 'coll_shift_short'],
       ['--test_type', 'coll_shift_short', '-t', 'decimal_fmt'],
       ['--test_type', 'coll_shift_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
@@ -153,7 +154,7 @@ def argsTestData():
       '--type ALL decimal_fmt --exec a b c d'.split(),
 
       ['--exec', 'node'],
-      ['--exec nodens rust /bin/mytest'],
+      ['--exec node rust /bin/mytest'],
       '--exec node --test_type decimal_fmt --icu 71 --cldr 40'.split(),
       ['--exec', 'python py/exec.py'],
       '--test_random 1234'.split(),

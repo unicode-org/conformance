@@ -476,10 +476,10 @@ class Tester():
 
   def collationExec(self, executor):
     # Set up paths and run verify
-    self.title = executor.upper() + ' COLL_SHIFT_SHORT'
-    self.test_type = 'coll_shift_short'
+    self.title = executor.upper() + ' COLLATION_SHORT'
+    self.test_type = 'collation_short'
     result = self.setupPathsAndRun(
-        executor, 'coll_test_shift.json', 'coll_verify_shift.json')
+        executor, 'collation_test.json', 'collation_verify.json')
 
   def decimalFmtExec(self, executor):
     self.title = executor.upper() + ' DECIMAL_FMT'

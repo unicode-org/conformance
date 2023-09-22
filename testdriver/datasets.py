@@ -80,6 +80,7 @@ cldr_icu_map = {
 
 # TODO: Can this be added to a configuration file?
 class testType(Enum):
+  collation_short = 'collation_short'
   coll_shift = 'coll_shift_short'
   decimal_fmt = 'decimal_fmt'
   datetime_fmt = 'datetime_fmt'
@@ -98,6 +99,12 @@ testName = 'coll_shift_short'
 testDatasets[testName] = DataSet(testType.coll_shift.value,
                                  'coll_test_shift.json',
                                  'coll_verify_shift.json',
+                                 CLDRVersion.CLDR41, ICUVersion.ICU71)
+
+testName = 'collation_short'
+testDatasets[testName] = DataSet(testType.collation_short.value,
+                                 'collation_test.json',
+                                 'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'coll_shift_67'

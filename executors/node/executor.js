@@ -43,6 +43,7 @@ let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
+  TestCollationShort : Symbol("collation_short"),
   TestCollShiftShort : Symbol("coll_shift_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
   TestNumberFormat : Symbol("number_fmt"),
@@ -62,10 +63,12 @@ const supported_test_types = [
 ];
 const supported_tests_json = {"supported_tests":
                               [
+                                "collation_short",
                                 "coll_shift_short",
-                                "decimal_fmt",
+                               "decimal_fmt",
                                 "number_fmt",
                                 "display_names",
+                                "lang_names",
                                 "language_display_name"
                               ]};
 
@@ -87,8 +90,8 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  if (testId == "coll_shift_short") {
-    return testTypes.TestCollShiftShort;
+  if (testId == "coll_shift_short" || testId == "collation_short") {
+    return testTypes.TestCollationShort;
   }
   if (testId == "decimal_fmt" || testId == "number_fmt") {
     return testTypes.TestDecimalFormat;
@@ -96,7 +99,7 @@ function parseJsonForTestId(parsed) {
   if (testId == "display_names") {
     return testTypes.TestDisplayNames;
   }
-  if (testId == "language_display_name") {
+  if (testId == "language_display_name" || testId == "lang_names") {
     return testTypes.TestLangNames;
   }
   console.log("#*********** NODE Unknown test type = " + testId);
@@ -165,7 +168,7 @@ rl.on('line', function(line) {
     // testId = parseJsonForTestId(parsedJson);
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
-    if (test_type == "coll_shift_short") {
+    if (test_type == "coll_shift_short" || test_type == "collation_short") {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
@@ -174,7 +177,7 @@ rl.on('line', function(line) {
     if (test_type == "display_names") {
       outputLine = displaynames.testDisplayNames(parsedJson);
     } else
-    if (test_type == "language_display_name") {
+    if (test_type == "language_display_name" || test_type == "lang_names") {
       outputLine = langnames.testLangNames(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type', 'testId': testId,
@@ -183,7 +186,7 @@ rl.on('line', function(line) {
 
     if ('error' in outputLine) {
       // To get the attention of the driver
-      console.log("#!! ERROR in NODE call: " + JSON.stringify(outputLine));
+      console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
     }
 
     // Send result to stdout for verification

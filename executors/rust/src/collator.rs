@@ -12,8 +12,8 @@ use icu::locid::locale;
 pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
     // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
-    let str1: &str = json_obj["string1"].as_str().unwrap();
-    let str2: &str = json_obj["string2"].as_str().unwrap();
+    let str1: &str = json_obj["s1"].as_str().unwrap();
+    let str2: &str = json_obj["s2"].as_str().unwrap();
 
     let data_provider = icu_testdata::unstable();
 

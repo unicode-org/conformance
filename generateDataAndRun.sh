@@ -50,29 +50,29 @@ pushd testdriver
 #ICU73
 nvm install 20.1.0
 nvm use 20.1.0
-python3 testdriver.py --icu_version icu73 --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu73 --exec node --test_type collation_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 #ICU72
 nvm install 18.14.2
 nvm use 18.14.2
-python3 testdriver.py  --icu_version icu72 --exec node --test_type coll_shift_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py  --icu_version icu72 --exec node --test_type collation_short number_fmt lang_names --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 #ICU71
 nvm install 16.19.1
 nvm use 16.19.1
-python3 testdriver.py --icu_version icu71 --exec node --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu71 --exec node --test_type collation_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # ICU70
 nvm install 14.21.3
 nvm use 14.21.3
-python3 testdriver.py --icu_version icu70 --exec node --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu70 --exec node --test_type collation_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # ICU4X testing
-python3 testdriver.py --icu_version icu71 --exec rust --test_type coll_shift_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
+python3 testdriver.py --icu_version icu71 --exec rust --test_type collation_short number_fmt --file_base ../$TEMP_DIR --per_execution 10000
 echo $?
 
 # Done with test execution
@@ -85,9 +85,9 @@ popd
 # Verify everything
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
-python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type coll_shift_short number_fmt lang_names 
+python3 verifier.py --file_base ../$TEMP_DIR --exec rust node --test_type collation_short number_fmt lang_names 
 
-#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type coll_shift_short number_fmt lang_names 
+#python3 verifier.py --file_base ../$TEMP_DIR --exec cpp--test_type collation_short number_fmt lang_names 
 popd
 
 #

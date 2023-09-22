@@ -335,12 +335,12 @@ class TestPlan():
     # N tests may be given to sendOneLine in a single batch.
     formattedCount = '{:,}'.format(testCount)
     for test in self.tests:
-      test.update({"test_type": self.testScenario})
+      test.update({"test_type": self.test_type})
 
       if self.progress_interval and testNum % self.progress_interval == 0:
         formattedNum = '{:,}'.format(testNum)
         print('Testing %s / %s. %s of %s' % (
-            self.exec_list[0], self.testScenario, formattedNum, formattedCount), end='\r')
+            self.exec_list[0], self.test_type, formattedNum, formattedCount), end='\r')
 
       # Accumulate testsPerExecution items into a single outline
       if linesInBatch < testsPerExecution:
@@ -480,8 +480,9 @@ class TestPlan():
       self.testScenario = self.jsonData['Test scenario']  # e.g., decimal_fmt
     except:
       try:
-        self.testScenario = self.jsonData['test scenario']  # e.g., decimal_fmt
+        self.testScenario = self.jsonData['test_type']  # e.g., decimal_fmt
       except BaseException as err:
+        self.testScenario = ''
         print('*** Cannot get testScenario from  %s. Err = %s' %
             (self.inputFilePath, err))
 
