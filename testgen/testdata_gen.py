@@ -30,7 +30,7 @@ class generateData():
     def saveJsonFile(self, filename, data, indent=None):
       output_path = os.path.join(self.icu_version, filename)
       output_file = open(output_path, 'w')
-      json.dump(data, output_file, indent=1)
+      json.dump(data, output_file, indent=indent)
       output_file.close()
 
 
@@ -57,33 +57,46 @@ class generateData():
             return None
 
     def processCollationTestData(self):
-      # Alternate set of data, not used right now.
-      #rawtestdata = readFile('CollationTest_NON_IGNORABLE_SHORT.txt')
+        # Get each kind of collation tests and create a unified data set
+        json_test = {}
+        json_verify = {}
+        insert_collation_header([json_test, json_verify])
 
-      # Read raw data
-      filename = 'CollationTest_SHIFTED_SHORT.txt'
+        # Collation ignoring punctuation
+        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
+            'CollationTest_SHIFTED_SHORT.txt',
+            self.icu_version,
+            ignorePunctuation=True,
+            start_count=0)
 
-      rawcolltestdata = readFile(filename, self.icu_version)
+        json_test['tests'] = test_ignorable
+        json_verify['verifications'] = verify_ignorable
 
-      if not rawcolltestdata:
-          return None
+        if test_ignorable:
+            start_count = len(test_ignorable)
+        else:
+            start_count = 0
 
-      test_list = rawcolltestdata.splitlines()
+        # Collation considering punctuation
+        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
+            'CollationTest_NON_IGNORABLE_SHORT.txt',
+            self.icu_version,
+            ignorePunctuation=False,
+            start_count=start_count)
 
-      # Get lists of tests and verify info
-      json_test = {}
-      json_verify = {}
-      insert_collation_descr(json_test, json_verify)
+        if json_verify['verifications']:
+            json_verify['verifications'].extend(verify_nonignorable)
+        else:
+            json_verify['verifications'] = verify_nonignorable
+        if test_nonignorable:
+            json_test['tests'].extend(test_nonignorable)
+        else:
+            json_test['tests'] = test_nonignorable
 
-      testdata_object_list, verify_list = generateCollTestDataObjects(test_list)
-      json_verify['verifications'] = verify_list
-      json_test['tests'] = testdata_object_list
+        # And write the files
+        self.saveJsonFile('collation_test.json', json_test)
+        self.saveJsonFile('collation_verify.json', json_verify)
 
-      # And write the files
-      self.saveJsonFile('collation_test.json', json_test)
-      self.saveJsonFile('collation_verify.json', json_verify)
-
-      return True
 
     def processNumberFmtTestData(self):
         filename = 'dcfmtest.txt'
@@ -116,6 +129,7 @@ class generateData():
         return
 
     def processLangNameTestData(self):
+
         json_test = {}
         json_verify = {}
         languageNameDescr(json_test, json_verify)
@@ -125,6 +139,7 @@ class generateData():
         if not rawlangnametestdata:
             return None
 
+        # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(rawlangnametestdata, json_test, json_verify)
         output_path = os.path.join(self.icu_version, 'lang_name_test_file.json')
         lang_name_test_file = open(output_path, 'w')
@@ -169,6 +184,99 @@ class generateData():
 
       logging.info('LangNames Test (%s): %d lines processed', self.icu_version, count)
       return
+
+    def processLikelySubtagsData(self):
+
+        filename = 'likelySubtags.txt'
+        file_version = '2023-08-17, https://github.com/unicode-org/cldr/pull/3176'
+        raw_likely_subtags_data = readFile(filename, self.icu_version)
+        if not raw_likely_subtags_data:
+            return None
+
+        json_test = {'test_type': 'likely_subtags',
+                     'source_file': filename,
+                     'source_version': file_version,
+                     'tests': []}
+        json_verify = {'test_type': 'likely_subtags',
+                     'source_file': filename,
+                     'source_version': file_version,
+                       }
+        json_verify['Test Scenario'] = json_test['Test scenario'] = 'likely_subtags'
+        # Generate the test and verify json
+        testlines = raw_likely_subtags_data.splitlines()
+        count = 0
+        max_digits = computeMaxDigitsForCount(len(testlines))
+        test_list = []
+        verify_list = []
+        for line in testlines:
+            # Ignore blank and # comment lineslines()
+            if len(line) == 0 or line[0] == "#":
+                continue
+            # split at ";" and ignore whitespace
+            tags = list(map(str.strip, line.split(';')))
+
+            # Normalize to 4 tags: Source; AddLikely; RemoveFavorScript; RemoveFavorRegin
+            while len(tags) < 4:
+                tags.append('')
+            if not tags[2]:
+                tags[2] = tags[1]
+            if not tags[3]:
+                tags[3] = tags[2]
+
+            # Create minimize tests - default is RemoveFavorScript
+            source = tags[0]
+            add_likely = tags[1]
+            remove_favor_script = tags[2]
+            remove_favor_region = tags[3]
+
+            # And maximize from each tag
+            label = str(count).rjust(max_digits, '0')
+            test_max = {'label': label,
+                        'locale': source,
+                        'option': 'maximize'
+                        }
+            verify = {'label': label,
+                      'verify': add_likely
+                      }
+            test_list.append(test_max)
+            verify_list.append(verify)
+            count += 1
+
+            # Expected minimized form favoring the script
+            label = str(count).rjust(max_digits, '0')
+            test_min = {'label': label,
+                        'locale': source,
+                        'option': 'minimize'
+                        }
+            verify = {'label': label,
+                      'verify': remove_favor_script
+                      }
+            test_list.append(test_min)
+            verify_list.append(verify)
+            count += 1
+
+            # And check for minimizing with favored region is supported
+            label = str(count).rjust(max_digits, '0')
+            test_favor_region = {'label': label,
+                                 'locale': source,
+                                 'option': 'minimizeFavorRegion'
+                                 }
+            verify = {'label': label,
+                      'verify': remove_favor_region
+                      }
+            test_list.append(test_favor_region)
+            verify_list.append(verify)
+            count += 1
+
+        # Add to the test and verify json data
+        json_test['tests'] = test_list
+        json_verify['verifications'] = verify_list
+
+        # Output the files including the json dump
+        self.saveJsonFile('likely_subtags_test.json', json_test)
+        self.saveJsonFile('likely_subtags_verify.json', json_verify)
+        logging.info('Likely Subtags Test (%s): %d lines processed', self.icu_version, count)
+        return
 
 
 # Utility functions
@@ -223,7 +331,7 @@ def mapFmtSkeletonToECMA402(options):
       "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
       "measure-unit/length-meter": {"style": "unit",  "unit": "meter"},
       "measure-unit/length-furlong": {"style": "unit", "unit": "furlong"},
-      "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "symbol"},
+      "unit-width-narrow": {"unitDisplay": "narrow", "currencyDisplay": "narrowSymbol"},
       "unit-width-full-name": {"unitDisplay": "long", "currencyDisplay": "name"},
       #"unit-width-full-name": {"unitDisplay": "long"},
       "precision-integer": {"maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"},
@@ -233,29 +341,30 @@ def mapFmtSkeletonToECMA402(options):
       ".##/@@@+": {"maximumFractionDigits": 2, "maximumSignificantDigits": 3,"roundingPriority": "morePrecision"},
       "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
-      "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits": 2},
+      "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits":2},
       "group-on-aligned": {"useGrouping": True},
       "latin": {"numberingSystem": "latn"},
-      "sign-accounting-except-zero": {"signDisplay": "exceptZero"},
+      "sign-accounting-except-zero": {"signDisplay": "exceptZero", "currencySign": "accounting"},
+      # These are all patterns...
       "0.0000E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 4, "maximumFractionDigits": 4},
-      "00": {"minimumIntegerDigits": 2},
+      "00": {"minimumIntegerDigits":2, "maximumFractionDigits":0},
       "#.#": {"maximumFractionDigits": 1},
       "@@@": {"minimumSignificantDigits": 3, "maximumSignificantDigits": 3},
       "@@###": {"minimumSignificantDigits": 2, "maximumSignificantDigits": 5},
       "@@@@E0": {"notation": "scientific", "minimumSignificantDigits": 4, "maximumSignificantDigits": 4},
-      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
-      "00.##E0": {"notation": "scientific", "minimumIntegerDigits": 2, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
-      "0005": {"minimumIntegerDigits": 2},
-      "0.00": {"minimumIntegerDigits": 1, "minimumFractionDigits": 2, "maximumFractionDigits": 2},
-      "0.000E0": {"notation": "scientific", "minimumIntegerDigits": 1, "minimumFractionDigits": 3, "maximumFractionDigits": 3},
-      "0.0##": {"minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
-      "#": {"minimumIntegerDigits": 1, "maximumFractionDigits": 0},
-      "0.#E0": {"notation": "scientific", "minimumIntegerDigits": 1, "maximumFractionDigits": 1},
-      "0.##E0": {"notation": "scientific", "minimumIntegerDigits": 1, "maximumFractionDigits": 2},
-      ".0E0": {"notation": "scientific", "minimumIntegerDigits":0, "minimumFractionDigits": 1, "maximumFractionDigits": 1},
-      ".0#E0": {"notation": "scientific", "minimumIntegerDigits":0, "minimumFractionDigits": 1, "maximumFractionDigits": 2},
-      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": 25, "maximumSignificantDigits": 25},
-      "0.0": {"minimumIntegerDigits": 1, "minimumFractionDigits": 2, "maximumFractionDigits": 2}
+      "0.0##E0": {"notation": "scientific", "minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "00.##E0": {"notation": "scientific", "minimumIntegerDigits":2, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "0005": {"minimumIntegerDigits":2},
+      "0.00": {"minimumIntegerDigits":1, "minimumFractionDigits": 2, "maximumFractionDigits": 2},
+      "0.000E0": {"notation": "scientific", "minimumIntegerDigits":1, "minimumFractionDigits": 3, "maximumFractionDigits": 3},
+      "0.0##": {"minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 3},
+      "#": {"minimumIntegerDigits":1, "maximumFractionDigits": 0},
+      "0.#E0": {"notation": "scientific", "minimumIntegerDigits":1, "maximumFractionDigits": 1},
+      "0.##E0": {"notation": "scientific", "minimumIntegerDigits":1, "maximumFractionDigits": 2},
+      ".0E0": {"notation": "scientific", "minimumFractionDigits": 1, "maximumFractionDigits": 1},
+      ".0#E0": {"notation": "scientific", "minimumFractionDigits": 1, "maximumFractionDigits": 2},
+      "@@@@@@@@@@@@@@@@@@@@@@@@@": {"minimumSignificantDigits": 21, "maximumSignificantDigits": 21},
+      "0.0": {"minimumIntegerDigits":1, "minimumFractionDigits": 1, "maximumFractionDigits": 1}
       }
 
   ecma402_options = []
@@ -285,7 +394,7 @@ def mapRoundingToECMA402(rounding):
       "halffloor": 'halfFloor',
       "floor": 'floor',
       "ceiling": 'ceil',
-      "unnecessary": None
+      "unnecessary": "unnecessary"
       }
   return ecma402_rounding_map[rounding]
 
@@ -387,22 +496,30 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
 
 def resolveOptions(raw_options, skeleton_list):
-  # Resolve conflicts with options before putting them into the test's options.
-  # TODO: fix
-  resolved = raw_options
-  if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
-    resolved.pop('minimumSignificantDigits')
+    # Resolve conflicts with options before putting them into the test's options.
+    # TODO: fix all the potential conflicts
+    resolved = raw_options
+    if 'minimumSignificantDigits' in resolved and 'maximumFractionDigits' in resolved:
+        resolved.pop('minimumSignificantDigits')
 
-  if skeleton_list and 'percent' in skeleton_list:
-    resolved['style'] = 'unit'
-    resolved['unit'] = 'percent'
-    if 'unit-width-full-name' in skeleton_list:
+    # Set up default maximumFractionDigits if if not compact or currency
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' not in resolved or resolved['notation'] != 'compact') and
+        ('style' not in resolved or resolved['style'] != 'currency')):
+        resolved['maximumFractionDigits'] = 6
+
+    if skeleton_list and 'percent' in skeleton_list:
+        resolved['style'] = 'unit'
+        resolved['unit'] = 'percent'
+    if skeleton_list and 'unit-width-full-name' in skeleton_list:
         resolved['currencyDisplay'] = 'name'
         resolved['unitDisplay'] = 'long'
-  return resolved
+    return resolved
 
 
 # Count is the starting point for the values
+# Use older Decimal Format specifications
+# Source data: https://github.com/unicode-org/icu/blob/main/icu4c/source/test/testdata/dcfmtest.txt
 def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   original_count = count
   recommentline = re.compile('^\s*#')
@@ -423,17 +540,21 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
+      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
       resolved_options_dict = resolveOptions(json_part, None)
+      # None of these old patterns use groupings
+      resolved_options_dict['useGrouping'] = False
 
-      if not json_part:
-          x = 1
       if rounding_mode:
           entry['options']['roundingMode'] = rounding_mode
-      entry['options'] |= json_part
+      else:
+          # Default if not specified
+          entry['options']['roundingMode'] = ecma402_rounding_map['halfdown']
+
+      entry['options'] |= resolved_options_dict  # ??? json_part
 
       all_tests_list.append(entry)
       verify_list.append({'label': label,
@@ -454,83 +575,103 @@ def stringifyCode(cp):
     return teststring
 
 
-def generateCollTestDataObjects(testdata_list):
-  recommentline = re.compile('^\s*#')
+def generateCollTestDataObjects(filename,
+                                icu_version,
+                                ignorePunctuation,
+                                start_count=0):
+    # Read raw data
+    rawcolltestdata = readFile(filename, icu_version)
 
-  test_list = []
-  verify_list = []
+    if not rawcolltestdata:
+        return None, None
 
-  max_digits = computeMaxDigitsForCount(len(testdata_list))  # Approximately correct
-  count = 0
-  data_errors = []  # Items with malformed Unicode
+    raw_testdata_list = rawcolltestdata.splitlines()
 
-  prev = None
-  for item in testdata_list[1:]:
-      if recommentline.match(item) or reblankline.match(item):
-          continue
-      # It's a data line.
-      if not prev:
-          # Just getting started.
-          prev = parseCollTestData(item)
-          continue
+    # Handles lines of strings to be compared with collation.
+    # Adds field for ignoring punctuation as needed.
+    recommentline = re.compile('^\s*#')
 
-      # Get the code points for each test
-      next = parseCollTestData(item)
+    test_list = []
+    verify_list = []
 
-      if not next:
-          # This is a problem with the data input. D80[0-F] is the high surrogate
-          data_errors.append(item)
-          continue
-      label = str(count).rjust(max_digits, '0')
-      test_list.append({'label': label, 's1': prev, 's2': next})
-      verify_list.append({'label': label, 'verify': True})
+    max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximately correct
+    count = start_count
+    data_errors = []  # Items with malformed Unicode
 
-      prev = next  # set up for next pair
-      count += 1
+    prev = None
+    index = 0
+    line_number = 0
+    for item in raw_testdata_list[1:]:
+        
+        line_number += 1
+        if recommentline.match(item) or reblankline.match(item):
+            continue
+        # It's a data line.
+        if not prev:
+            # Just getting started.
+            prev = parseCollTestData(item)
+            continue
 
-  logging.info('Coll Test: %d lines processed', len(test_list))
-  if data_errors:
-      logging.info('!! %s DATA ERRORS: %s', len(data_errors), data_errors)
-  return test_list, verify_list
+        # Get the code points for each test
+        next = parseCollTestData(item)
+
+        if not next:
+            # This is a problem with the data input. D80[0-F] is the high surrogate
+            data_errors.append([index, item])
+            continue
+
+        label = str(count).rjust(max_digits, '0')
+        new_test = {'label': label, 's1': prev, 's2': next, 'line': line_number}
+        if ignorePunctuation:
+            new_test['ignorePunctuation'] = True
+        test_list.append(new_test)
+
+        verify_list.append({'label': label, 'verify': True})
+
+        prev = next  # set up for next pair
+        count += 1
+        index += 1
+
+    logging.info('Coll Test: %d lines processed', len(test_list))
+    if data_errors:
+        logging.warning('!! %s File %s has DATA ERRORS: %s',
+                        filename, len(data_errors), data_errors)
+
+    return test_list, verify_list
 
 
-def insert_collation_descr(tests_obj, verify_obj, test_type='collation_short'):
-    verify_obj['Test Scenario'] = tests_obj['Test scenario'] = 'coll_shift_short'
-    verify_obj['test_type'] = tests_obj['test_type'] = test_type
-    tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second. If the second string is greater than the first string, the test fails.'
-    return
+def insert_collation_header(test_objs):
+    for obj in test_objs:
+        obj['Test scenario'] = 'collation_short'
+        obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
+
+
+def insert_nonignorable_coll_descr(tests_obj, verify_obj):
+  verify_obj['Test Scenario'] = tests_obj['Test scenario'] = "coll_nonignorable_short"
+  tests_obj['description'] =  'UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error.'
+  return
 
 
 def languageNameDescr(tests_json, verify_json):
-    # Adds information to LanguageName tests and verify JSON
-    descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
-    test_id =  'language_display_name'
-    source_url = 'No URL yet.'
-    version = 'unspecified'
-    tests_json = {
-        'test_type': test_id,
-        'Test scenario': test_id,
-        'description': descr,
-        'source': {
-            'repository': 'conformance-test',
-            'version': 'trunk',
-            'url': source_url,
-            'source_version': version
-        }
-    }
+  # Adds information to LanguageName tests and verify JSON
+  descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
+  test_id =  'language_display_name'
+  version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
+  source = 'No URL yet.'
+  tests_json['Test scenario'] = test_id
+  tests_json['description'] = descr
+  tests_json['version'] = version
+  tests_json['url'] = source
+  verify_json['Test scenario'] = test_id
 
-    verify_json = {'test_type': test_id,
-                   'Test scenario': test_id
-                   }
-    return
+  return
 
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
   # returns JSON data for tests and verification
   test_scenario = 'number_fmt'
   test_data = {
-      'Test scenario': test_scenario,
-      'test_type': 'number_format',
+      "Test scenario": test_scenario,
       'description':
           'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
       "source": {"repository": "icu", "version": "trunk"},
@@ -538,9 +679,7 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
       'tests': tests_obj
   }
   verify_data = {
-      'Test scenario': test_scenario,
-      'test_type': 'number_format',
-      'verifications': verify_obj
+      "Test scenario": test_scenario, 'verifications': verify_obj
   }
   return test_data, verify_data
 
@@ -563,13 +702,18 @@ def main(args):
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
 
-        # TODO: WHy doesn't logging.info produce output?
+        # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 
-        data_generator.processCollationTestData()
+        data_generator.processLikelySubtagsData()
 
         data_generator.processNumberFmtTestData()
+
+        # This is slow
+        data_generator.processCollationTestData()
+
+        # This is slow
         data_generator.processLangNameTestData()
 
         logger.info('++++ Data generation for %s is complete.', icu_version)

@@ -22,7 +22,7 @@ static SUPPORTED_OPTIONS: [&str; 5] = [
     "maximumIntegerDigits",
     "minimumFractionDigits",
     "maximumFractionDigits",
-    "roundingMode",
+    "RoundingMode",
 ];
 
 // Runs decimal and number formatting given patterns or skeletons.
