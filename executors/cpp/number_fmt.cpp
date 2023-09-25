@@ -23,6 +23,7 @@
 //#include "unicode/parseerr.h"
 #include "unicode/plurrule.h"
 #include "unicode/ucurr.h"
+#include "unicode/stringpiece.h"
 #include "unicode/unum.h"
 #include "unicode/unumberformatter.h"
 #include "unicode/uobject.h"
@@ -51,7 +52,11 @@ using std::string;
 using icu::number::NumberFormatter;
 using icu::number::Notation;
 using icu::number::Precision;
+
+using icu::CurrencyUnit;
 using icu::MeasureUnit;
+
+using number::impl::UFormattedNumberData;
 
 using icu::number::LocalizedNumberFormatter;
 using icu::number::FormattedNumber;
@@ -83,6 +88,7 @@ const string test_numfmt(json_object *json_in) {
   // Get options
   json_object *notation_obj;
   json_object *unit_obj;
+  json_object *unitDisplay_obj;
   json_object *style_obj;
   json_object *currencyDisplay_obj;
   json_object *roundingMode_obj;
@@ -91,13 +97,16 @@ const string test_numfmt(json_object *json_in) {
 
   string notation_string = "";
   string unit_string = "";
+  string unitDisplay_string = "";
   string style_string = "";
   string currency_string = "";
   string roundingMode_string = "";
   string compactDisplay_string = "";
   string currencyDisplay_string = "";
 
+  // Defaults for settings.
   MeasureUnit unit_setting= NoUnit::base();
+  UNumberUnitWidth unit_width_setting= UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
   Notation notation_setting= Notation::simple();
 
   char16_t uCurrency[4];
@@ -106,13 +115,24 @@ const string test_numfmt(json_object *json_in) {
     if (notation_obj) {
       notation_string = json_object_get_string(notation_obj);
     }
-    // TODO: Initialize notation_setting basedc on this string.
 
+    // TODO: Initialize notation_setting based on this string.
     unit_obj = json_object_object_get(options_obj, "unit");
     if (unit_obj) {
       unit_string = json_object_get_string(unit_obj);
       if (unit_string == "percent") {
         unit_setting= NoUnit::percent();
+      }
+    }
+
+    unitDisplay_obj = json_object_object_get(options_obj, "unitDisplay");
+    if (unitDisplay_obj) {
+      unitDisplay_string = json_object_get_string(unitDisplay_obj);
+      if (unitDisplay_string == "narrow") {
+        unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
+      }
+      else if (unitDisplay_string == "long") {
+        unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME;
       }
     }
 
@@ -134,11 +154,22 @@ const string test_numfmt(json_object *json_in) {
     currencyDisplay_obj = json_object_object_get(options_obj, "currencyDisplay");
     if (currencyDisplay_obj) {
       currencyDisplay_string = json_object_get_string(currencyDisplay_obj);
+      if (currencyDisplay_string == "narrowSymbol") {
+        UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
+      }
+      else if (currencyDisplay_string == "symbol") {
+        UNumberUnitWidth::UNUM_UNIT_WIDTH_SHORT;
+      }
+      else if (currencyDisplay_string == "name") {
+        UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME;
+      }
     }
 
     currency_obj = json_object_object_get(options_obj, "currency");
     if (currency_obj) {
       currency_string = json_object_get_string(currency_obj);
+      // Set the unit to a currency value
+      unit_setting = CurrencyUnit(icu::StringPiece(currency_string), status);
     }
 
     roundingMode_obj = json_object_object_get(options_obj, "roundingMode");
@@ -146,7 +177,6 @@ const string test_numfmt(json_object *json_in) {
       roundingMode_string = json_object_get_string(roundingMode_obj);
     }
   }
-
 
   // Additional parameters and values
   json_object *input_obj = json_object_object_get(json_in, "input");
@@ -167,27 +197,29 @@ const string test_numfmt(json_object *json_in) {
   if (notation_string == "scientific") {
     nf = NumberFormatter::withLocale(displayLocale)
          .notation(Notation::scientific())
-         .unit(unit_setting);
-  }
+         .unit(unit_setting)
+         .unitWidth(unit_width_setting);
+ }
   else  if (notation_string == "compact") {
     // TODO !!! GENERALIZE
     // Check for style
       nf = NumberFormatter::withLocale(displayLocale)
            .notation(notation_setting)
-           .unit(unit_setting);
+           .unit(unit_setting)
+           .unitWidth(unit_width_setting);
   }
   else if (style_string == "currency") {
     nf = NumberFormatter::withLocale(displayLocale)
-         .unit(CurrencyUnit(currency_string, status));
-  }
-  else if (style_string == "unit" && unit_string == "percent") {
-    cout << "# PERCENT" << endl;
-    nf = NumberFormatter::withLocale(displayLocale)
-         .unit(unit_setting);
+         .unit(CurrencyUnit(currency_string, status))
+         .unit(unit_setting)
+         .unitWidth(unit_width_setting);
   }
   else {
-    // Default
-    nf = NumberFormatter::withLocale(displayLocale);
+    // Use settings to initialize the formatter
+    nf = NumberFormatter::withLocale(displayLocale)
+         .notation(notation_setting)
+         .unit(unit_setting)
+         .unitWidth(unit_width_setting);
   }
 
   if (U_FAILURE(status)) {
