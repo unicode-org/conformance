@@ -41,7 +41,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         result_string = false;
     }
 
-    let mut comparison_number : i16 = 0;
+    let mut comparison_number: i16 = 0;
     if comparison == Ordering::Less {
         comparison_number = -1;
     } else if comparison == Ordering::Greater {

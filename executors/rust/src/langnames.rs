@@ -37,7 +37,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "test_type": "display_names",
                 "unsupported": "language_label",
                 "error_type": "unsupported",
-            }))
+            }));
         }
     };
 

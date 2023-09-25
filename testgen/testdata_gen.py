@@ -711,7 +711,7 @@ def generateCollTestData2(filename,
                         'label': label,
                         's1': string1,
                         's2': string2,
-                        'compare_type': compare_string,
+                        'compare_type': compare_type,
                         'test_description': test_description
                     }
                     if locale:
