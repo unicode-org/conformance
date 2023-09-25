@@ -159,6 +159,7 @@ class generateData():
     def processLangNameTestData(self):
         json_test = {'test_type': 'lang_names'}
         json_verify = {'test_type': 'lang_names'}
+
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -581,7 +582,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
+      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
@@ -927,10 +928,7 @@ def languageNameDescr(tests_json, verify_json):
         }
     }
 
-    verify_json = {'test_type': test_id,
-                   'Test scenario': test_id
-                   }
-    return
+  return
 
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
