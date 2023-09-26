@@ -79,7 +79,6 @@ class TestReport:
         self.failure_summaries = None
         self.debug = 0
 
-
         self.verifier_obj = None
 
 
