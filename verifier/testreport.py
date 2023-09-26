@@ -438,7 +438,7 @@ class TestReport():
           options = input_data.get('options')
           # Get each combo of key/value
           for key,value in options.items():
-            failure_combo = key + ':' + value
+            failure_combo = key + ':' + str(value)
             results[failure_combo].append(label)
 
         # Try fields in language_names
