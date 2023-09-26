@@ -40,8 +40,18 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     if !result {
         result_string = false;
     }
+
+    let mut comparison_number: i16 = 0;
+    if comparison == Ordering::Less {
+        comparison_number = -1;
+    } else if comparison == Ordering::Greater {
+        comparison_number = 1;
+    }
+    // TODO: Convert comparison to "<", "=", or ">"
     let json_result = json!({
         "label": label,
-        "result": result_string});
+        "result": result_string,
+        "compare_result": comparison_number
+    });
     Ok(json_result)
 }

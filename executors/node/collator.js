@@ -3,17 +3,24 @@
 // Collation: determine the sensitivity that corresponds to the strength.
 module.exports = {
 
-  testCollationShort: function(json, shifted) {
-    // !!! TODO: remove shifted flag
-
+  testCollationShort: function(json) {
     // Global default locale
-    let testLocale = undefined;
-    // TODO: set locale if provided in the test data.
 
+    // Locale if provided in the test data.
+    let testLocale = undefined;
+    if ('locale' in json) {
+      testLocale = json['locale'];
+    }
     let testCollOptions = {};
     if ('ignorePunctuation' in json) {
       testCollOptions = {
         ignorePunctuation:json['ignorePunction']}
+    }
+
+    // Get other fields if provided
+    let rules = undefined;
+    if ('rules' in json) {
+      rules = json['rules'];
     }
 
     // Set up collator object with optional locale and testOptions.
@@ -33,7 +40,7 @@ module.exports = {
       }
       outputLine = {'label':json['label'],
                     'result': result_bool,
-                    'compare': compared,
+                    'compare_result': compared,
                    }
 
       if (result != true) {
@@ -43,7 +50,7 @@ module.exports = {
 
     } catch (error) {
       outputLine =  {'label': json['label'],
-                     'error_message': error.message,
+                     'error_message': 'LABEL: ' + json['label'] + ' ' + error.message,
                      'error': 'Collator compare failed'
                  };
     }
