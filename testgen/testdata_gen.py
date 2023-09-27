@@ -592,6 +592,8 @@ def generateCollTestData2(filename,
 
     label_num = start_count
 
+    encode_errors = []
+
     test_list = []
     verify_list = []
 
@@ -616,7 +618,6 @@ def generateCollTestData2(filename,
     attribute_test = re.compile('^\% (\S+)\s*=\s*(\S+)')
     rules = ''
 
-    # TODO: get tests from this data format
     # Ignore comment lines
     string1 = ''
     string2 = ''
@@ -700,24 +701,51 @@ def generateCollTestData2(filename,
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
                     # Note that this doesn't seem to handle \x encoding, howeveer.
-                    string2 = compare_string.encode().decode('unicode_escape')
+                    try:
+                        s = compare_string.encode()
+                        string2 = s.decode('unicode_escape')
+                        #string2 = compare_string.encode().decode('unicode_escape')
+                    except UnicodeEncodeError as err:
+                        logging.error('%s: line: %d. PROBLEM ENCODING', err, line_number)
+                        continue
+
                     compare_comment = is_comparison.group(3)
-                    # Generate the test case
+
                     label = str(label_num).rjust(max_digits, '0')
                     label_num += 1
                     test_case = {
                         'label': label,
                         's1': string1,
-                        's2': string2,
                         'compare_type': compare_type,
                         'test_description': test_description
                     }
+
+                    # If either string has unpaired surrogates, ignore the case, with a warning
+                    if check_unpaired_surrogate_in_string(string2):
+                        # String 1 is the previous, already checked
+                        try:
+                            #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
+                            #                file_name, line_number, string1, compare_string)
+                            encode_errors.append([line_number, compare_string])
+                        except UnicodeEncodeError as err:
+                            logging.error('!!! Line %s encoding error: %s', err)
+
+                        string2 = compare_string
+                        test_case['warning'] = 'unpaired surrogate in test case - not decoded'
+                    else:
+                        string2 = compare_string.encode().decode('unicode_escape')
+
+                    test_case['s2'] = string2
+
+                    # Generate the test case
+                    label = str(label_num).rjust(max_digits, '0')
+                    label_num += 1
                     if locale:
                         test_case['locale'] = locale
                     # Keep this for the next comparison test
                     string1 = string2
                     if compare_comment:
-                        test_case['compare_comment'] = compare_comment
+                       test_case['compare_comment'] = compare_comment
                     if rules:
                         test_case['rules'] = '\n'.join(rules)
                     if attributes:
@@ -735,9 +763,36 @@ def generateCollTestData2(filename,
         if is_attribute:
             attributes.append([is_attribute.group(1), is_attribute.group(2)])
             continue
-
+    if encode_errors:
+        logging.warning('!! %s File %s has DATA ERRORS: %s',
+                        filename, len(encode_errors), encode_errors)
     return test_list, verify_list
 
+
+def check_unpaired_surrogate_in_string(text):
+    # Look for unmatched high/low surrogates in the text
+    high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+    low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
+
+    match_high = high_surrogate_pattern.findall(text)
+    match_low = low_surrogate_pattern.findall(text)
+
+    if not match_high and not match_low:
+        return False
+
+    if match_high and not match_low:
+        return True
+
+    if not match_high and match_low:
+        return True
+
+    # TODO: Check if each high match is immediately followed by a low match
+    # Now, assume that they are paired
+    return False
+
+
+
+    return False
 
 def generateCollTestDataObjects(filename,
                                 icu_version,
