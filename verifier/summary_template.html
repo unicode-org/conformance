@@ -14,15 +14,19 @@
 
       // The summary data for all the tests.
       let exec_summary_json;
-      fetch('exec_summary.json')
-        .then((response) => response.json())
-        .then((data) => {exec_summary_json = data});
-
-      // Load the Visualization API and the corechart package.
-      google.charts.load('current', {'packages':['corechart']});
-
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
+      Promise.all([
+          fetch_promise = fetch('exec_summary.json')
+              .then((response) => response.json())
+              .then((data) => {exec_summary_json = data}),
+          new Promise((resolve, reject) => {
+              $(document).ready(resolve);
+          })
+      ]).then(([fetch_promise, _ready]) => {
+          // Load the Visualization API and the corechart package.
+          google.charts.load('current', {'packages':['corechart']});
+          // Set a callback to run when the Google Visualization API is loaded.
+          google.charts.setOnLoadCallback(drawChart);
+      });
 
       // Callback that creates and populates a data table
       // Instantiates it with data, and draws it.
@@ -35,20 +39,22 @@
                              {role: 'annotation'}];
 
           // Get all the types of tests available
+          // Sort output in alpha order by executor and by test_type
           const test_types = Object.keys(exec_summary_json);
+          test_types.sort()
           /* Get all the execs */
           let tests_by_type_and_exec = {};
 
           // Find all the kinds of executors
-          let execs = new Set();
+          let exec_set = new Set();
           for (const test_type of test_types) {
               const tests = exec_summary_json[test_type];
               for (node_version of tests) {
-                  execs.add(node_version['exec']);
+                  exec_set.add(node_version['exec']);
               }
           }
 
-          // TODO: Create header for each executor
+          const execs = Array.from(exec_set).sort();
           let th = table.insertRow();
           let td = th.insertCell();
           td.innerHTML = "Test Type";
@@ -89,11 +95,12 @@
                           let link = '<a href="' +
                               report['html_file_name'] + '"' +
                               ' target="_blank">' +
-                              report['version']['icuVersion'] +
+                              report['icu_version'] +
                               '</a><br />';
                           details.push(link);
                       }
                   }
+                  td = tr.insertCell();
                   if (reports.length > 0) {
                       // Create the data for the reports
                       // Make a new area for displaying ig.
@@ -106,10 +113,9 @@
                               0: {color:'#00dd77'},  // Passing
                               1: {color:'#dd0000'},  // Failing
                               2: {color:'#ffdd00'},  // Error
-                              3: {color: '#777777'}  // 
+                              3: {color: '#777777'}  //
                           },
                       };
-                      td = tr.insertCell();
                       //   Set up options and links
                       const chart = new google.visualization.BarChart(td);
                       const chart_data = google.visualization.arrayToDataTable(data);
@@ -168,6 +174,7 @@ th {
   </head>
   <body>
     <h1>ICU Data Driven Test Summary</h1>
+    <p>Read more about the<a href="https://github.com/unicode-org/conformance"> Unicode Conformance project</a>.
     <h2>Tests and platforms</h2>
     <h3>Report generated: $datetime</h3>
     <p>Executors verified: $all_platforms</p>

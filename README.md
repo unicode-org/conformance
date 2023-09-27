@@ -45,7 +45,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 * Test verification uses ICU version information in the test output files for
   matching with the corresponding expected results. Verification output appears
   in the testResults subdirectory for each node, e.g. testOutput/rust/icu71.
-  
+
 ## Architectural Overview
 
 Conceptually, there are three main functional units of the DDT implementation:
@@ -68,11 +68,11 @@ The test type is indicated with the "Test scenario" field.
 Individual data tests are stored as an array of items, each with a label and
 paramters to be set for computing a result.
 
-  Example line for coll_shift_short:
+  Example line for collation_short:
   ```
   {
   "description": "UCA conformance test. Compare the first data\n   string with the second and with strength = identical level\n   (using S3.10). If the second string is greater than the first\n   string, then stop with an error.",
-  "Test scenario": "coll_shift_short",
+  "Test scenario": "collation_short",
   "tests": [
     {
       "label": "0000000",
@@ -85,7 +85,7 @@ paramters to be set for computing a result.
 
   Sample verify data:
   ```
-  {"Test scenario": "coll_shift_short",
+  {"Test scenario": "collation_short",
   "verifications": [
     {
       "label": "0000000",
@@ -169,11 +169,11 @@ testOutput/node file are shown here:
   "test_environment": {
     "test_language": "nodejs",
     "executor": "/usr/bin/nodejs ../executors/nodejs/executor.js",
-    "test_type": "coll_shift_short",
+    "test_type": "collation_short",
     "datetime": "10/07/2022, 16:19:00",
     "timestamp": "1665184740.2130146",
-    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/coll_test_shift.json",
-    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testOutputs/node/icu73/coll_test_shift.json",
+    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/collation_testt.json",
+    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testOutputs/node/icu73/collation_test.json",
     "icu_version": "ICUVersion.ICU71",
     "cldr_version": "CLDRVersion.CLDR41",
     "test_count": "192707"
@@ -232,10 +232,10 @@ The verifier_test_report.json file contains information on tests run and compari
 Data Driven Test was initiated in 2022 at Google. The first release of the
 package was delivered in October, 2022.
 
-# LICENSE
+### Copyright & Licenses
 
-See [LICENSE](./LICENSE)
+Copyright © 2022-2023 Unicode, Inc. Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the United States and other countries.
 
-```
-SPDX-License-Identifier: Unicode-DFS-2016
-```
+The project is released under [LICENSE](./LICENSE).
+
+A CLA is required to contribute to this project - please refer to the [CONTRIBUTING.md](https://github.com/unicode-org/.github/blob/main/.github/CONTRIBUTING.md) file (or start a Pull Request) for more information.
