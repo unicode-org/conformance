@@ -1,11 +1,16 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/collation_short_verify_schema.json'",
- "title": "ICU Collation verify data description",
- "description": "This documents format of collation short verify data",
+ "$id": "https://github.com/unicode/conformance/number_format__verify_schema.json'",
+ "title": "ICU Number format verify data description",
+ "description": "This documents format of number format verify data",
  "type": "object",
  "properties": {
    "additionalProperties": false,
-   "verifications": {
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["number_fmt"]
+   },
+   "tests": {
      "type": "array",
      "items": {
        "type": "object",
@@ -17,14 +22,14 @@
          },
          "verify": {
            "description": "The expected value for the test result",
-           "type": "boolean"
+           "type": "string"
          }
-       }
-     },
-     "required": [
-       "label",
-       "verify"
-     ]
+       },
+       "required": [
+         "label",
+         "verify" 
+       ]       
+     }
    }
  }
 }

@@ -23,6 +23,8 @@ NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
 class generateData():
     def __init__(self, icu_version):
         self.icu_version = icu_version
+        # If set, this is the maximum number of tests generated for each.
+        self.run_limit = None
 
     def setVersion(self, selected_version):
         self.icu_version = selected_version
@@ -58,8 +60,10 @@ class generateData():
 
     def processCollationTestData(self):
         # Get each kind of collation tests and create a unified data set
-        json_test = {'tests':[]}
-        json_verify = {'verifications': []}
+        json_test = {'test_type': 'collation_short',
+                     'tests':[]}
+        json_verify = {'test_type': 'collation_short',
+                       'verifications': []}
         insert_collation_header([json_test, json_verify])
 
         start_count = 0
@@ -95,8 +99,12 @@ class generateData():
             ignorePunctuation=False,
             start_count=len(json_test['tests']))
 
+        # Resample as needed
         json_test['tests'].extend(test_nonignorable)
+        json_test['tests'] = self.sample_tests(json_test['tests'])
+
         json_verify['verifications'].extend(verify_nonignorable)
+        json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
@@ -121,6 +129,9 @@ class generateData():
             test_list = num_testdata_object_list + dcml_testdata_object_list
             verify_list = num_verify_object_list + dcml_verify_object_list
             json_test, json_verify = insertNumberFmtDescr(test_list, verify_list)
+
+            json_test['tests'] = self.sample_tests(json_test['tests'])
+            json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
 
             self.saveJsonFile('num_fmt_test_file.json', json_test)
 
@@ -182,11 +193,22 @@ class generateData():
             jverify.append({'label': label, 'verify': test_data[2]})
             count += 1
 
-      json_tests['tests'] = jtests
-      json_verify['verifications'] = jverify
+      json_tests['tests'] = self.sample_tests(jtests)
+      json_verify['verifications'] = self.sample_tests(jverify)
 
       logging.info('LangNames Test (%s): %d lines processed', self.icu_version, count)
       return
+
+    def sample_tests(self, all_tests):
+        if self.run_limit < 0 or len(all_tests) <= self.run_limit:
+            return all_tests
+        else:
+            # Sample to get about run_limit items
+            increment = len(all_tests) // self.run_limit
+            samples = []
+            for index in range(0, len(all_tests), increment):
+                samples.append(all_tests[index])
+            return samples
 
     def processLikelySubtagsData(self):
 
@@ -272,8 +294,8 @@ class generateData():
             count += 1
 
         # Add to the test and verify json data
-        json_test['tests'] = test_list
-        json_verify['verifications'] = verify_list
+        json_test['tests'] = self.sample_tests(test_list)
+        json_verify['verifications'] = self.sample_tests(verify_list)
 
         # Output the files including the json dump
         self.saveJsonFile('likely_subtags_test.json', json_test)
@@ -732,6 +754,7 @@ def generateCollTestData2(filename,
 
                         string2 = compare_string
                         test_case['warning'] = 'unpaired surrogate in test case - not decoded'
+
                     else:
                         string2 = compare_string.encode().decode('unicode_escape')
 
@@ -918,6 +941,8 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 def setupArgs():
     parser = argparse.ArgumentParser(prog='testdata_gen')
     parser.add_argument('--icu_versions', nargs='*', default=[])
+    # -1 is no limit
+    parser.add_argument('--run_limit', nargs='?', type=int, default=-1)
     new_args = parser.parse_args()
     return new_args
 
@@ -925,13 +950,14 @@ def setupArgs():
 def main(args):
     new_args = setupArgs()
 
-    logger = logging.Logger("TEST_GENEREATE LOGGER")
+    logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
     logger.info('+++ Generating .json files for icu_versions %s',
                  new_args.icu_versions)
 
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
+        data_generator.run_limit = new_args.run_limit
 
         # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',

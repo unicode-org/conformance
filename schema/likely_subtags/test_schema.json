@@ -38,15 +38,11 @@
            "type": "string"
          },
          "option": {
-           "description": "Type of processing requested",
            "type": "string",
-           "enum": [
-               "maximize",
-               "minimize",
-               "minimizeFavorScript",
-               "minimizeFavorRegion"
-             ]
-           ]
+           "description": "Type of processing requested",
+           "enum": ["maximize", "minimize",
+                    "minimizeFavorScript",
+                    "minimizeFavorRegion"]
          }
        }
      },
@@ -55,6 +51,7 @@
        "locale",
        "option"
      ]
+   }
  },
  "required": ["test_type"]
 }

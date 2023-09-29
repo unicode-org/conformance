@@ -1,0 +1,47 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/collation_short_verify_schema.json'",
+ "title": "ICU Collation verify data description",
+ "description": "This documents format of collation short verify data",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["collation_short"]
+   },
+   "tests": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "boolean"
+         },
+         "result": {
+           "description": "The actual result found",
+           "type": "boolean"
+         },
+         "compare_result": {
+           "description": "Actual value from the comparison",
+           "type": "integer"
+         },
+         "compare": {
+           "description": "Comparison method",
+           "type": "integer"
+         }
+       }
+     },
+     "required": [
+       "label",
+       "verify"
+     ]
+   }
+ }
+}

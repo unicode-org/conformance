@@ -20,7 +20,7 @@
        "repository": {
          "description": "Reference to the repository",
          "type": "string"
-       }
+       },
        "url": {
          "description": "Reference to the source of this conformance data",
          "type": "string"
@@ -28,7 +28,7 @@
        "source_version": {
          "description": "version of conformance data",
          "type": "string"
-       },
+       }
      }
    },
    "tests": {

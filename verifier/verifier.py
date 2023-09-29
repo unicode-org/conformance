@@ -417,8 +417,8 @@ class Verifier:
         try:
             return self.verifyExpectedDict[test_label]
         except BaseException as err:
-            print('----- findExpectedWithLabel %s' % err)
-            print('  No item with test_label = %s' % test_label)
+            print('----- find_expected_with_label %s' % err)
+            print('  No expected item with test_label = %s' % test_label)
         return True
 
     def find_testdata_with_label(self, test_label):
@@ -431,7 +431,7 @@ class Verifier:
             return self.testdataDict[test_label]
         except BaseException as err:
             print('----- findTestdataWithLabel %s' % err)
-            print('  No item with test_label = %s' % test_label)
+            print('  No test data item with test_label = %s' % test_label)
             print('  SUGGESTION: Check if test results are synced with test data!')
 
         return True

@@ -1,11 +1,16 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/number_format__verify_schema.json'",
- "title": "ICU Number format verify data description",
- "description": "This documents format of number format verify data",
+ "$id": "https://github.com/unicode/conformance/language_name_verify_schema.json'",
+ "title": "ICU Language Name verify data description",
+ "description": "This documents format of language name verify data",
  "type": "object",
+ "additionalProperties": false,
  "properties": {
-   "additionalProperties": false,
-   "verifications": {
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["lang_names"]
+   },
+   "tests": {
      "type": "array",
      "items": {
        "type": "object",

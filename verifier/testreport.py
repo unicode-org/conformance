@@ -622,8 +622,12 @@ class TestReport:
             # The following checks work on strings
             try:
                 # Try
-                sm = SequenceMatcher(None, expected, actual)
-                sm_opcodes = sm.get_opcodes()
+                try:
+                    sm = SequenceMatcher(None, expected, actual)
+                    sm_opcodes = sm.get_opcodes()
+                except TypeError as err:
+                    # TODO Figure this out.
+                    continue
 
                 for diff in sm_opcodes:
                     # Look for insert, delete, replace

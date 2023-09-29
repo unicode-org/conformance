@@ -9,12 +9,14 @@ schema_file_map = {
             "prod_file": "collation_test.json"
         },
         "verify_data": {
+            # For, eventually, checking the files created by the verifier.
             "schema_file": "collation_short/verify_schema.json",
-            "prod_file": "collation_verify.json"
+            "prod_file": "pass.json"
         },
         "result_data": {
-            "schema_file": "collation_short/esult_schema..json",
-            "prod_file": "pass.json"
+            # For checking test outputs.
+            "schema_file": "collation_short/result_schema.json",
+            "prod_file": "collation_test.json"
         }
     },
 
@@ -28,7 +30,7 @@ schema_file_map = {
             'prod_file': 'num_fmt_verify_file.json'
         },
         "result_data": {
-            "schema_file": "number_format/esult_schema..json",
+            "schema_file": "number_format/result_schema.json",
             "prod_file": "pass.json"
         }
     },
@@ -43,7 +45,7 @@ schema_file_map = {
             'prod_file': 'lang_name_verify_file.json'
         },
         "result_data": {
-            "schema_file": "language_names/esult_schema..json",
+            "schema_file": "language_names/result_schema.json",
             "prod_file": "pass.json"
         }
     },
@@ -58,7 +60,7 @@ schema_file_map = {
             'prod_file': 'likely_subtags_verify.json'
         },
         "result_data": {
-            "schema_file": "likely_subtags/esult_schema..json",
+            "schema_file": "likely_subtags/result_schema.json",
             "prod_file": "pass.json"
         }
     },
