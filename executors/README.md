@@ -18,7 +18,7 @@ input stream (stdin). The protocol expected is described below.
 
 Each executor should accept JSON data describing the test to be performed from
 stdin. The executor may run a single test on each execution or may perform
-multipe tests until it receives a command to stop its operation.
+multiple tests until it receives a command to stop its operation.
 
 Tests should be stateless, i.e., each test should create a test environment that
 does not depend on the results of previous tests or stored states.
