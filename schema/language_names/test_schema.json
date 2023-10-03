@@ -7,7 +7,7 @@
    "test_type": {
      "description": "the name language_display_name",
      "type": "string",
-     "enum": ["language_names"]
+     "enum": ["lang_names"]
    },
    "Test scenario": {
      "type": "string",
@@ -60,7 +60,5 @@
    },
    "additionalProperties": false
  },
- "required": [
-   "test_type"
- ]
+ "required": ["test_type", "tests"]
 }

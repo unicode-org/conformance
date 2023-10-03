@@ -27,11 +27,11 @@ schema_file_map = {
         },
         "verify_data": {
             "schema_file": "number_format/verify_schema.json",
-            'prod_file': 'num_fmt_verify_file.json'
+            'prod_file': 'pass.json'
         },
         "result_data": {
             "schema_file": "number_format/result_schema.json",
-            "prod_file": "pass.json"
+            "prod_file": 'num_fmt_test_file.json'
         }
     },
 
@@ -42,11 +42,11 @@ schema_file_map = {
         },
         "verify_data": {
             "schema_file": "language_names/verify_schema.json",
-            'prod_file': 'lang_name_verify_file.json'
+            'prod_file': 'pass.json'
         },
         "result_data": {
             "schema_file": "language_names/result_schema.json",
-            "prod_file": "pass.json"
+            "prod_file": "lang_name_test_file.json"
         }
     },
 
@@ -61,7 +61,7 @@ schema_file_map = {
         },
         "result_data": {
             "schema_file": "likely_subtags/result_schema.json",
-            "prod_file": "pass.json"
+            "prod_file": "likely_subtags_test.json"
         }
     },
 

@@ -144,8 +144,8 @@ class generateData():
         return
 
     def processLangNameTestData(self):
-        json_test = {}
-        json_verify = {}
+        json_test = {'test_type': 'lang_names'}
+        json_verify = {'test_type': 'lang_names'}
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -897,7 +897,7 @@ def insert_nonignorable_coll_descr(tests_obj, verify_obj):
 def languageNameDescr(tests_json, verify_json):
     # Adds information to LanguageName tests and verify JSON
     descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
-    test_id =  'language_display_name'
+    test_id =  'lang_names'
     source_url = 'No URL yet.'
     version = 'unspecified'
     tests_json = {
@@ -923,7 +923,7 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
   test_scenario = 'number_fmt'
   test_data = {
       'Test scenario': test_scenario,
-      'test_type': 'number_format',
+      'test_type': 'number_fmt',
       'description':
           'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
       "source": {"repository": "icu", "version": "trunk"},
@@ -932,7 +932,7 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
   }
   verify_data = {
       'Test scenario': test_scenario,
-      'test_type': 'number_format',
+      'test_type': 'number_fmt',
       'verifications': verify_obj
   }
   return test_data, verify_data

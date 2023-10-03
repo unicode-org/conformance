@@ -115,7 +115,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     if style == "unit" || style == "currency" || unit == "percent" {
         return Ok(json!({
             "label": label,
-            "error_defail": {"style": style, "unit": unit},
+            "error_detail": {"style": style, "unit": unit},
             "unsupported": "unit or style not implemented",
             "error_type": "unsupported",
         }));

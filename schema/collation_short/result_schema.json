@@ -28,6 +28,10 @@
            "description": "The actual result found",
            "type": "boolean"
          },
+          "locale": {
+            "description": "optional field indication locale tag for running test",
+            "type": "string"
+          },
          "compare_result": {
            "description": "Actual value from the comparison",
            "type": "integer"
@@ -35,12 +39,56 @@
          "compare": {
            "description": "Comparison method",
            "type": "integer"
+         },
+         "compare_type": {
+           "description": "Comparison method requested",
+           "type": "string"
+         },
+         "compare_comment": {
+           "description": "Descripts results from comparison",
+           "type": "string"
+         },
+          "test_description": {
+            "description": "Option field telling about this particular test",
+            "type": "string"
+          },
+          "rules": {
+            "description": "Optional custom rule set",
+            "type": "string"
+          },
+          "s1": {
+            "description": "First string for comparison",
+            "type": "string"
+          },
+          "s2": {
+            "description": "Second string for comparison",
+            "type": "string"
+          },
+          "attributes": {
+            "description": "Optional information about this collation test",
+            "type": "array"
+          },
+          "ignorePunctuation" : {
+            "description": "If collation should ignore punctuatio",
+            "type": "boolean"
+          },
+          "line" : {
+            "description": "line of the source of test data",
+            "type": "integer"
+          },
+         "error": {
+           "description": "What was unexpected",
+           "type": "string"
+         },
+         "error_message": {
+           "description": "More about the error",
+           "type": "string"
          }
        }
      },
      "required": [
        "label",
-       "verify"
+       "result"
      ]
    }
  }

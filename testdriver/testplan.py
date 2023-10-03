@@ -201,7 +201,7 @@ class TestPlan:
             # These should come from the Executor
             "icu_version": '%s' % self.icuVersion,
             "cldr_version": '%s' % self.cldrVersion,
-            "test_count": "%d" % len(self.tests)
+            "test_count": len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment
         return test_environment
@@ -503,7 +503,7 @@ class TestPlan:
                 logging.error(' !!!!!! %s' % self.run_error_message)
 
                 # TODO!!!! Return an error for the offending line instead of failing for the whole batch
-                
+
                 return None
                 input = json.loads(input_line.replace('#EXIT', ''))
                 error_result = {'label': input['label'],
