@@ -31,6 +31,7 @@ class conformance_schema_validator():
         self.test_types = schema_files.all_test_types
         self.executors = []
         self.icu_versions = []
+        self.debug_leve = 0
 
     def validate_json_file(self, schema_file_path, data_file_path):
         # Returns  True, None if data is validated against the schema
@@ -88,6 +89,8 @@ class conformance_schema_validator():
         all_results = []
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
+                if self.debug > 0:
+                    logging.debug('Checking test data %s, %s', test_type, icu_version)
                 logging.info('Checking %s, %s', test_type, icu_version)
                 results, msg = self.check_test_data_schema(icu_version, test_type)
                 if results == 'no file':
@@ -167,7 +170,7 @@ class conformance_schema_validator():
             return False, err
         except jsonschema.exceptions.ValidationError as err:
             # This is OK since it's only checking the schema's structure
-            return True, err
+            return True, None
 
         return True, None
 

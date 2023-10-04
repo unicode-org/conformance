@@ -1,6 +1,9 @@
 # Points to file names for each supported JSON files.
 
-all_test_types = ['collation_short', 'number_format', 'language_names', 'likely_subtags']
+all_test_types = ['collation_short',
+                  'number_format',
+                  'language_names',
+                  'likely_subtags']
 
 schema_file_map = {
     "collation_short": {

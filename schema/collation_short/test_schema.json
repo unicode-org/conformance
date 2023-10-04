@@ -6,6 +6,9 @@
   "type": "object",
   "properties": {
     "additionalProperties": false,
+    "description": {
+      "type": "string"
+    },
     "test_type": {
       "description": "The name of this test",
       "type": "string",
@@ -17,7 +20,7 @@
     },
     "tests": {
       "description": "list of N test for collation each of type collation_short",
-      "type": "array",
+      "type": ["array", "null"],
       "items": {
         "type": "object",
         "additionalProperties": false,

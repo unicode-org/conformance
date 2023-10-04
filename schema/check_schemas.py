@@ -1,6 +1,7 @@
 # Schema checker for the schemas in Conformance Testing
 # For ICU Conformance project, Data Driven Testing
 import argparse
+from datetime import datetime
 import glob
 import json
 
@@ -10,8 +11,49 @@ import os.path
 import sys
 
 import schema
-import schema_files
-from schema_files import schema_file_map
+from schema_files import all_test_types
+
+class validate_schema():
+    def __init__(self, schema_base='.'):
+        self.schema_base = schema_base
+
+    def save_schema_validation_summary(self, validation_status):
+
+        failed_validations = []
+        passed_validations = []
+        for result in validation_status:
+            print(result)
+            if result['result']:
+                passed_validations.append(result)
+            else:
+                failed_validations.append(result)
+
+        summary_json = {
+            'validation_type': 'Schema files',
+            'schema_validation_base': self.schema_base,
+            'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
+            'validations': {
+                'failed': failed_validations,
+                'passed': passed_validations
+            }
+        }
+
+        try:
+            summary_data = json.dumps(summary_json)
+        except BaseException as err:
+            logging.error('%s: Cannot create JSON summary: %s', err, summary_json)
+            return None
+
+        try:
+            output_filename = os.path.join(self.schema_base, 'schema_validation_summary.json')
+            file_out = open(output_filename, mode='w', encoding='utf-8')
+            file_out.write(summary_data)
+            file_out.close()
+        except BaseException as error:
+            logging.warning('Error: %s. Cannot save validation summary in file %s', err, output_filename)
+            return None
+
+        return output_filename
 
 def main(args):
     logger = logging.Logger("TEST SCHEMAS LOGGER")
@@ -22,19 +64,26 @@ def main(args):
     # Todo: use setters to initialize schema_validator
     schema_validator.schema_base = '.'
 
-    schema_base = '.'
+    if len(args) > 1:
+        schema_base = args[1]
+    else:
+        schema_base = '.'
     schema_errors = []
     schema_count = 0
+
+    val_schema = validate_schema(schema_base)
 
     # An array of information to be reported on the main DDT page
     validation_status = []
 
-    for test_type in schema_files.all_test_types:
-        for schema_name in ['test_schema.json', 'result_schema.json']:
-            schema_file_path = os.path.join(schema_base, test_type, schema_name)
-            result, err = schema_validator.validate_schema_file(schema_file_path)
+    for test_type in all_test_types:
+        schema_test_base = os.path.join(schema_base, test_type)
+        schema_test_json_files = os.path.join(schema_test_base, '*.json')
+        schema_file_names = glob.glob(schema_test_json_files)
+        for schema_file in schema_file_names:
+            result, err = schema_validator.validate_schema_file(schema_file)
             validation_status.append({"test_type": test_type,
-                                      "schema_path": schema_file_path,
+                                      "schema_path": schema_file,
                                       "result": result,
                                       "error_info": err
                                       })
@@ -43,6 +92,8 @@ def main(args):
                 logging.error('Bad Schema at %s', schema_file_path)
             schema_count += 1
 
+    ok = val_schema.save_schema_validation_summary(validation_status)
+
     if schema_errors:
         print('SCHEMA: %d fail out of %d:' % (
             len(schema_errors), schema_count))
@@ -50,7 +101,7 @@ def main(args):
             print('  %s' % failure)
         exit(1)
     else:
-        print("All %d schema files are valid" % schema_count)
+        print("All %d schema are valid" % schema_count)
         exit(0)
 
 
