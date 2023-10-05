@@ -30,6 +30,8 @@ class validate_schema():
 
         summary_json = {
             'validation_type': 'Schema files',
+            'description': 'Results of checking schema files for correct syntax',
+            'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
             'schema_validation_base': self.schema_base,
             'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
             'validations': {

@@ -90,6 +90,8 @@ def main(args):
 
     # Create .json
     summary_json = {
+        'validation_type': 'output of test executors',
+        'description': 'Validation of test execution outputs vs. schema',
         'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
         'validations': {
             'failed': failed_validations,

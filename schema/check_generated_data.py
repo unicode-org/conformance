@@ -68,6 +68,8 @@ def main(args):
 
     # Create .json
     summary_json = {
+        'validation_type': 'Generated test data files',
+        'description': 'Results of validating generated test data agains schema',
         'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
         'validations': {
             'failed': failed_validations,
