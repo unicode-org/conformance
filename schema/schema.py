@@ -132,7 +132,8 @@ class conformance_schema_validator():
         logging.info('Validating %s with icu version %s', test_type, icu_version)
 
         # Check test output vs. the schema
-        schema_verify_file = os.path.join(self.schema_base, test_type, 'result_schema.json')
+        schema_file_name = schema_file_map[test_type]['result_data']['schema_file']
+        schema_verify_file = os.path.join(self.schema_base, schema_file_name)
         if not os.path.exists(schema_verify_file):
             return 'no file', "no schema file"
         result_file_name = schema_file_map[test_type]['result_data']['prod_file']
@@ -196,9 +197,9 @@ class conformance_schema_validator():
 
     def validate_test_output_with_schema(self):
         all_results = []
-        for test_type in self.test_types:
+        for executor in self.executors:
             for icu_version in self.icu_versions:
-                for executor in self.executors:
+                for test_type in self.test_types:
                     logging.info('Checking %s, %s, %s', test_type, icu_version, executor)
                     results, msg = self.check_test_output_schema(icu_version, test_type, executor)
                     if results == 'no file':

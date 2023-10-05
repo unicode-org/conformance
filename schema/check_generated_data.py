@@ -34,7 +34,7 @@ def main(args):
     if os.path.exists(test_data_path):
         check_path = os.path.join(test_data_path, 'icu*')
         icu_dirs = glob.glob(check_path)
-        print('ICU DIRES = %s' % icu_dirs)
+        print('ICU DIRECTORIES = %s' % icu_dirs)
         for dir in icu_dirs:
             icu_versions.append(os.path.basename(dir))
 
