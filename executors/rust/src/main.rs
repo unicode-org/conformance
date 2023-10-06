@@ -27,7 +27,6 @@ use std::collections::HashMap;
 
 use std::env;
 use std::io::{self};
-use std::panic;
 
 use substring::Substring;
 
@@ -82,37 +81,19 @@ fn main() -> io::Result<()> {
             // https://crates.io/crates/rustc_version_runtime
             // https://github.com/serde-rs/json
 
-            // These fail when executed by testDriver.py
-            // https://doc.rust-lang.org/std/panic/fn.catch_unwind.html
-            let check_icu_info = panic::catch_unwind(|| {
-                icu_testdata::versions::icu_tag();
+            #[allow(deprecated)] // this function only exists in icu_testdata
+            let icu_version = &icu_testdata::versions::icu_tag();
+            #[allow(deprecated)]
+            let cldr_version = &icu_testdata::versions::cldr_tag();
+
+            let json_result = json!(
+            {
+                "platform": "rust",
+                "platformVersion": rustc_version_runtime::version().to_string(),
+                "icuVersion": icu_version,
+                "cldrVersion": cldr_version,
             });
-
-            if check_icu_info.is_ok() {
-                let icu_version = &icu_testdata::versions::icu_tag();
-                let cldr_version = &icu_testdata::versions::cldr_tag();
-
-                let json_result = json!(
-                {
-                    "platform": "rust",
-                    "platformVersion": rustc_version_runtime::version().to_string(),
-                    "icuVersion": icu_version,
-                    "cldrVersion": cldr_version,
-                });
-                println!("{}", json_result);
-            } else {
-                let json_result = json!(
-                    {
-                        "platform": "rust",
-                        "platformVersion":
-                        rustc_version_runtime::version().to_string(),
-                        "icuVersion": "unknown",
-                        "cldrVersion": "unknown",
-                    }
-                );
-                log::debug!("# RESULT returned = {}", json_result.to_string());
-                println!("{}", json_result);
-            }
+            println!("{}", json_result);
         } else {
             // Expecting test information as JSON data in a single line.
 
