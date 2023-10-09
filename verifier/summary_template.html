@@ -157,7 +157,14 @@
 
       function present_validation_data() {
          // TBD
-         let x = 1;
+         let div = document.getElementById('schema_validation');
+         div.innerHTML = JSON.stringify(schema_validation_summary);
+
+         div = document.getElementById('generated_test_data_validation');
+         div.innerHTML = JSON.stringify(generated_test_validation_summary);
+
+         div = document.getElementById('test_output_validation');
+         div.innerHTML = JSON.stringify(test_output_validation_summary);
       }
 
   </script>
