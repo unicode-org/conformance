@@ -55,8 +55,6 @@ struct NumberFormatOptions {
 
 // Runs decimal and number formatting given patterns or skeletons.
 pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
-    let provider = icu_testdata::unstable();
-
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
@@ -126,16 +124,14 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let result_string = if is_compact {
         // We saw compact!
         let cdf = if compact_type == "short" {
-            CompactDecimalFormatter::try_new_short_unstable(
-                &provider,
+            CompactDecimalFormatter::try_new_short(
                 &data_locale,
                 Default::default(),
             )
             .unwrap()
         } else {
             println!("#{:?}", "   LONG");
-            CompactDecimalFormatter::try_new_long_unstable(
-                &provider,
+            CompactDecimalFormatter::try_new_long(
                 &data_locale,
                 Default::default(),
             )
@@ -155,7 +151,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     } else {
         // FixedDecimal
         // Can this fail with invalid options?
-        let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options.clone())
+        let fdf = FixedDecimalFormatter::try_new(&data_locale, options.clone())
             .expect("Data should load successfully");
 
         let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
