@@ -83,14 +83,14 @@ def main(args):
         schema_test_json_files = os.path.join(schema_test_base, '*.json')
         schema_file_names = glob.glob(schema_test_json_files)
         for schema_file in schema_file_names:
-            result, err = schema_validator.validate_schema_file(schema_file)
+            result, err, file_path = schema_validator.validate_schema_file(schema_file)
             validation_status.append({"test_type": test_type,
                                       "schema_path": schema_file,
                                       "result": result,
-                                      "error_info": err
+                                      "error_info": str(err)
                                       })
             if not result:
-                schema_errors.append([schema_file_path, result, err])
+                schema_errors.append([schema_file_path, result, err, file_path])
                 logging.error('Bad Schema at %s', schema_file_path)
             schema_count += 1
 
