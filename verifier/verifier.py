@@ -5,6 +5,7 @@ import glob
 import json
 import logging
 import os
+import shutil
 import sys
 
 from testreport import TestReport
@@ -36,6 +37,7 @@ class Verifier:
         self.expected = None
         self.report_file = None
         self.verify_data_file = None
+        self.report_file_name = 'testReports'
         self.result_file = None
         self.reportPath = None
         self.verifyPath = None
@@ -467,11 +469,52 @@ class Verifier:
         summary_report = SummaryReport(self.file_base)
         summary_report.setup_all_test_results()
 
+        # Get schema summary data to the testReport head
+        schema_validation_list = self.schema_results()
+
         # And make the output HTML results
         result = summary_report.create_summary_html()
         if not result:
             print('!!!!!! SUMMARY HTML fails')
 
+    def schema_results(self):
+        # Locate the files in schema, testData, and testOutput
+        schema_validation_name = 'schema_validation_summary.json'
+        conformance_base = os.path.dirname(self.file_base)
+        schema_validation = os.path.join(conformance_base, 'schema', schema_validation_name)
+        if os.path.exists(schema_validation):
+            # Copy to report path
+            validation_copy = os.path.join(self.file_base, self.report_file_name, schema_validation_name)
+            try:
+                shutil.copyfile(schema_validation, validation_copy)
+            except BaseException as error:
+                logging.warning('%s. Cannot copy schema validation file from %s to %s',
+                                error,schema_validation, validation_copy)
+
+        generated_data_validation_name = 'test_data_validation_summary.json'
+        generated_validation = os.path.join(self.file_base, 'testData', generated_data_validation_name)
+        if os.path.exists(generated_validation):
+            # Copy to report path
+            validation_copy = os.path.join(self.file_base, self.report_file_name, generated_data_validation_name)
+            try:
+                shutil.copyfile(generated_validation, validation_copy)
+            except BaseException as error:
+                logging.warning('%s. Cannot copy schema validation file from %s to %s',
+                                error, generated_data_validation_name, validation_copy)
+
+        test_output_validation_name = 'test_output_validation_summary.json'
+        test_output_validation = os.path.join(self.file_base, 'testOutput', test_output_validation_name)
+        if os.path.exists(test_output_validation):
+            # Copy to report path
+            # Copy to report path
+            validation_copy = os.path.join(self.file_base, self.report_file_name, test_output_validation_name)
+            try:
+                shutil.copyfile(test_output_validation, validation_copy)
+            except BaseException as error:
+                logging.warning('%s. Cannot copy schema validation file from %s to %s',
+                                error, test_output_validation, validation_copy)
+
+        return [schema_validation_name, generated_data_validation_name, test_output_validation_name]
 
 class VerifyPlan:
     # Details of a verification plan
