@@ -61,7 +61,7 @@ def main(args):
     schema_count = len(all_results)
     for result in all_results:
         print(result)
-        if result[2]:
+        if result['result']:
             passed_validations.append(result)
         else:
             failed_validations.append(result)

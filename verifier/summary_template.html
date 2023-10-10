@@ -10,6 +10,110 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <!-- JQuery -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+
+<style>
+  ul {
+      margin: 7px 0;
+      margin-bottom: 7px;
+  }
+  h4 {
+      margin: 7px 0;
+  }
+  p {
+      margin: 5px 0;
+  }
+</style>
+<!-- <script src="validation.js"</script> -->
+    <script type="text/javascript">
+      // Load and present information about schema validation.
+      let schema_validation_summary
+      let generated_test_validation_summary;
+      let test_output_validation_summary;
+
+      // Get schema validataion summary for display.
+      let p1 = fetch('./schema_validation_summary.json');
+      let p2 = fetch('./test_data_validation_summary.json');
+      let p3 = fetch('./test_output_validation_summary.json');
+
+      Promise.all([
+          p1.then((response) => response.json())
+              .then((data) => {
+                  schema_validation_summary = data}),
+          p2.then((response) => response.json())
+              .then((data) => {
+                  generated_test_validation_summary = data}),
+          p3.then((response) => response.json())
+              .then((data) => {
+                  test_output_validation_summary = data}),
+      ]).then(([p1, p2, p3, _ready]) => {
+          present_validation_data();
+      });
+
+      function present_validation_data() {
+          format_schema_results(schema_validation_summary,
+                                'schema_validation_status', 'schema_validation_detail');
+          format_schema_results(generated_test_validation_summary,
+                                'generated_validation_status', 'generated_validation_detail');
+          format_schema_results(test_output_validation_summary,
+                                'output_validation_status', 'output_validation_detail');
+      }
+
+      function format_schema_results(validation_data, status_item, detail_item) {
+          // TBD - improve formatting.
+          let detail = document.getElementById(detail_item);
+          let validations = validation_data['validations'];
+          let valid_lines = [];
+          // valid_lines.push('<h4>' + validation_data['validation_type'] + '</h4>');
+
+          let num_failed = validations['failed'].length;
+          let num_passed = validations['passed'].length;
+
+          valid_lines.push('<p>Passing validations:</p>')
+          if (num_passed > 0) {
+              valid_lines.push('<ul>')
+              for (let v of validations['passed']) {
+                  let line_text = v['test_type'];
+                  if ('icu_version' in v) {
+                      line_text += ', ' + v['icu_version'];
+                  }
+                  if ('executor' in v) {
+                      line_text += ', ' + v['executor'];
+                  }
+                  valid_lines.push('<li>' + line_text + '</li>');
+              }
+              valid_lines.push('</ul>')
+          }
+
+          if (num_failed > 0) {
+              valid_lines.push('<p>Failing validations:</p>')
+              valid_lines.push('<ul>')
+              for (let v of validations['failed']) {
+                  let line_text =  v['test_type'];
+                  if ('icu_version' in v) {
+                      line_text += ', ' + v['icu_version'];
+                  }
+                  if ('executor' in v) {
+                      line_text += ', ' + v['executor'];
+                  }
+                  line_text += ': ' + v['error_info'];
+                  valid_lines.push(line_text);
+              }
+              valid_lines.push('</ul>');
+          }
+
+          detail.innerHTML = valid_lines.join('<br />');
+
+          let status = document.getElementById(status_item);
+          let status_output = '';
+          if (validations['failed'].length == 0) {
+              status_output = '<h4>All tests pass</h4>'
+          }
+          status_output +=
+              'Number passed: ' + num_passed + '<br />Number failed: ' + num_failed;
+          status.innerHTML = status_output;
+      }
+    </script>
+
     <script type="text/javascript">
 
       // The summary data for all the tests.
@@ -131,42 +235,6 @@
               }
               }
           }
-
-          let schema_validation_summary
-          let generated_test_validation_summary;
-          let test_output_validation_summary;
-
-        // Get schema validataion summary for display.
-        let p1 = fetch('./schema_validation_summary.json');
-        let p2 = fetch('./test_data_validation_summary.json');
-        let p3 = fetch('./test_output_validation_summary.json');
-
-        Promise.all([
-          p1.then((response) => response.json())
-              .then((data) => {
-                  schema_validation_summary = data}),
-          p2.then((response) => response.json())
-              .then((data) => {
-                  generated_test_validation_summary = data}),
-          p3.then((response) => response.json())
-              .then((data) => {
-                  test_output_validation_summary = data}),
-      ]).then(([p1, p2, p3, _ready]) => {
-        present_validation_data();
-      });
-
-      function present_validation_data() {
-         // TBD
-         let div = document.getElementById('schema_validation');
-         div.innerHTML = JSON.stringify(schema_validation_summary);
-
-         div = document.getElementById('generated_test_data_validation');
-         div.innerHTML = JSON.stringify(generated_test_validation_summary);
-
-         div = document.getElementById('test_output_validation');
-         div.innerHTML = JSON.stringify(test_output_validation_summary);
-      }
-
   </script>
 
   <style>
@@ -228,13 +296,16 @@ th {
 
     <h2>Schema validation results</h2>
     <h3>Checks for schema correctness</h3>
-    <div id="schema_validation">
+    <p id="schema_validation_status"> </p>
+    <p id="schema_validation_detail">
     </div>
     <h3>Checks for generated test data correctness</h3>
-    <div id="generated_test_data_validation">
+    <p id="generated_validation_status"> </p>
+    <p id="generated_validation_detail">
     </div>
     <h3>Checks for test output correctness</h3>
-    <div id="test_output_validation">
+    <p id="output_validation_status"> </p>
+    <p id="output_validation_detail">
     </div>
 
   </body>

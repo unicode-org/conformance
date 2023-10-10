@@ -92,17 +92,18 @@ class conformance_schema_validator():
                 if self.debug > 0:
                     logging.debug('Checking test data %s, %s', test_type, icu_version)
                 logging.info('Checking %s, %s', test_type, icu_version)
-                result_list =  self.check_test_data_schema(icu_version, test_type)
-                results = result_list[0]
-                msg = result_list[1]
-                if results == 'no file':
+                result_data =  self.check_test_data_schema(icu_version, test_type)
+                print(result_data)
+                msg = result_data['err_info']
+                if not result_data['data_file_name']:
                     # This is not an error but simple a test that wasn't run.
                     continue
-                if not results:
-                    logging.warning('VALIDATION FAILS: %s %s. MSG=%s', test_type, icu_version, msg)
+                if not result_data['result']:
+                    logging.warning('VALIDATION FAILS: %s %s. MSG=%s',
+                                    test_type, icu_version, result_data['err_info'])
                 else:
                     logging.warning('VALIDATION WORKS: %s %s', test_type, icu_version)
-                all_results.append([test_type, icu_version, results, str(msg), result_list[-2], result_list[-1]])
+                all_results.append(result_data)
         return all_results
 
     def check_test_data_schema(self, icu_version, test_type):
@@ -111,18 +112,32 @@ class conformance_schema_validator():
 
         # Check test output vs. the test data schema
         schema_verify_file = os.path.join( self.schema_base, test_type, 'test_schema.json')
+        results = {
+            'test_type': test_type,
+            'icu_version': icu_version,
+            'result': None,
+            'err_info': None,
+            'test_schema': schema_verify_file,
+            'data_file_name': None
+        }
         if not os.path.exists(schema_verify_file):
-            return 'no file', "no schema file"
+            results['err_info'] = "No file"
+            return Results
 
         filename_map = schema_file_map[test_type]
         result_file_name = schema_file_map[test_type]['test_data']['prod_file']
         test_file_name = os.path.join(self.test_data_base, icu_version, result_file_name)
         if not os.path.exists(test_file_name):
-            return 'no file', "no data file"
+            return results
 
+        results['data_file_name'] = test_file_name
         result, err_info = self.validate_json_file(schema_verify_file, test_file_name)
-
-        results = [result, err_info, schema_verify_file, result_file_name]
+        if isinstance(result, list):
+            results['error_message'] = result[0]
+            test_result = False
+        else:
+            test_result = result
+        results['result'] = result
         if result:
             logging.info('Test data %s validated with %s, ICU %s', test_type, icu_version)
         else:
@@ -141,17 +156,30 @@ class conformance_schema_validator():
             return 'no file', "no schema file"
         result_file_name = schema_file_map[test_type]['result_data']['prod_file']
         test_result_file = os.path.join(self.test_output_base, executor, icu_version, result_file_name)
+        results = {
+            'test_type': test_type,
+            'icu_version': icu_version,
+            'executor': executor,
+            'result': None,
+            'err_info': None,
+            'test_schema': schema_verify_file,
+            'data_file_name': None
+        }
         if not os.path.exists(test_result_file):
-            return 'no file', "no data file"
+            results['data_file_name'] = None
+            results['err_info'] = "no data file"
+            return results
+        results['data_file_name'] = test_result_file
 
         result, err_msg = self.validate_json_file(schema_verify_file, test_result_file)
-
+        results['result'] = result
+        results['err_info'] = err_msg
         if result:
             logging.info('Result data %s validated with %s, ICU %s', test_type, executor, icu_version)
         else:
             logging.error('Result data %s FAILED with %s ICU %s: %s', test_type, executor, icu_version, err_msg)
 
-        return result, err_msg
+        return results
     def validate_schema_file(self, schema_file_path):
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
@@ -204,15 +232,16 @@ class conformance_schema_validator():
             for icu_version in self.icu_versions:
                 for test_type in self.test_types:
                     logging.info('Checking %s, %s, %s', test_type, icu_version, executor)
-                    results, msg = self.check_test_output_schema(icu_version, test_type, executor)
-                    if results == 'no file':
+                    results = self.check_test_output_schema(icu_version, test_type, executor)
+                    if not results['data_file_name']:
                         # This is not an error but simple a test that wasn't run.
                         continue
-                    if not results:
-                        logging.warning('VALIDATION FAILS: %s %s %s. MSG=%s', test_type, icu_version, executor, msg)
+                    if not results['result']:
+                        logging.warning('VALIDATION FAILS: %s %s %s. MSG=%s',
+                                        test_type, icu_version, executor, results['err_info'])
                     else:
                         logging.warning('VALIDATION WORKS: %s %s %s', test_type, icu_version, executor)
-                    all_results.append([test_type, icu_version, executor, results, msg])
+                    all_results.append(results)
         return all_results
 
 def set_up_args():
