@@ -1,25 +1,26 @@
 # Points to file names for each supported JSON files.
 
-all_test_types = ['collation_short',
+ALL_TEST_TYPES = ['collation_short',
                   'number_format',
                   'language_names',
                   'likely_subtags']
 
-test_file_to_test_type_map = {
+TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation_short',
     'lang_name_test_file': 'language_names',
     'likely_subtags_test': 'likely_subtags',
     'num_fmt_test_file': 'number_fmt'
 }
 
-schema_file_map = {
+SCHEMA_FILE_MAP = {
     "collation_short": {
         "test_data": {
             "schema_file": "collation_short/test_schema.json",
             "prod_file": "collation_test.json"
         },
         "verify_data": {
-            # For, eventually, checking the files created by the verifieos.path.splitext(path)r.
+            # For, eventually, checking the expected output created by the test generator.
+
             "schema_file": "collation_short/verify_schema.json",
             "prod_file": "pass.json"
         },
