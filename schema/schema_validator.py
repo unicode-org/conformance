@@ -22,7 +22,7 @@ ch.setLevel(logging.INFO)
 
 # Given a directory, validate JSON files against expected schema
 
-class conformance_schema_validator():
+class ConformanceSchemaValidator():
     def __init__(self):
         # Where to find these files
         self.schema_base = None
@@ -315,7 +315,7 @@ def main(args):
     logger.setLevel(logging.INFO)
     logger.info('+++ Running JSON Schema tests')
 
-    schema_validator = conformance_schema_validator()
+    schema_validator = ConformanceSchemaValidator()
     # Todo: use setters to initialize schema_validator
     schema_validator.schema_base = '.'
     schema_validator.test_data_base = os.path.split(base_folders[0])[0]

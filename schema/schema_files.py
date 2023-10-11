@@ -19,7 +19,7 @@ schema_file_map = {
             "prod_file": "collation_test.json"
         },
         "verify_data": {
-            # For, eventually, checking the files created by the verifieos.path.splitext(path)r.
+            # For, eventually, checking the expected outpu created by the test generator.
             "schema_file": "collation_short/verify_schema.json",
             "prod_file": "pass.json"
         },

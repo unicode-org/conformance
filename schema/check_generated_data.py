@@ -10,7 +10,7 @@ import logging
 import os.path
 import sys
 
-import schema
+import schema_validator
 import schema_files
 from schema_files import schema_file_map
 from schema_files import all_test_types
@@ -41,18 +41,18 @@ def main(args):
     print('ICU directories = %s' % icu_versions)
     print('test types = %s' % all_test_types)
 
-    schema_validator = schema.conformance_schema_validator()
-    # Todo: use setters to initialize schema_validator
-    schema_validator.schema_base = '.'
-    schema_validator.test_data_base = test_data_path
-    schema_validator.icu_versions = sorted(icu_versions)
-    schema_validator.test_types = all_test_types
-    schema_validator.debug = 1
+    validator = schema_validator.ConformanceSchemaValidator()
+    # Todo: use setters to initialize validator
+    validator.schema_base = '.'
+    validator.test_data_base = test_data_path
+    validator.icu_versions = sorted(icu_versions)
+    validator.test_types = all_test_types
+    validator.debug = 1
     schema_base = '.'
     schema_data_results = []
     schema_count = 0
 
-    all_results = schema_validator.validate_test_data_with_schema()
+    all_results = validator.validate_test_data_with_schema()
     print('  %d results for generated test data' % (len(all_results)))
 
     schema_errors = 0

@@ -10,10 +10,10 @@ import logging
 import os.path
 import sys
 
-import schema
+import schema_validator
 from schema_files import all_test_types
 
-class validate_schema():
+class ValidateSchema():
     def __init__(self, schema_base='.'):
         self.schema_base = schema_base
 
@@ -62,9 +62,9 @@ def main(args):
     logger.setLevel(logging.INFO)
     logger.info('+++ Test JSON Schema files')
 
-    schema_validator = schema.conformance_schema_validator()
-    # Todo: use setters to initialize schema_validator
-    schema_validator.schema_base = '.'
+    validator = schema_validator.ConformanceSchemaValidator()
+    # Todo: use setters to initialize validator
+    validator.schema_base = '.'
 
     if len(args) > 1:
         schema_base = args[1]
@@ -73,7 +73,7 @@ def main(args):
     schema_errors = []
     schema_count = 0
 
-    val_schema = validate_schema(schema_base)
+    val_schema = ValidateSchema(schema_base)
 
     # An array of information to be reported on the main DDT page
     validation_status = []
@@ -83,7 +83,7 @@ def main(args):
         schema_test_json_files = os.path.join(schema_test_base, '*.json')
         schema_file_names = glob.glob(schema_test_json_files)
         for schema_file in schema_file_names:
-            result, err, file_path = schema_validator.validate_schema_file(schema_file)
+            result, err, file_path = validator.validate_schema_file(schema_file)
             validation_status.append({"test_type": test_type,
                                       "schema_path": schema_file,
                                       "result": result,
