@@ -51,6 +51,9 @@ fn main() -> io::Result<()> {
 
     // TODO: supported_test_map to call the functions.
 
+    // TODO: Handle problem with
+    // Error: Custom { kind: INvalidData, error: Error{"unexpected end of hex escape"
+    // As in collation 000144, 0998, 0142
     let mut buffer = String::new();
 
     loop {
@@ -124,7 +127,10 @@ fn main() -> io::Result<()> {
                 run_collation_test(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 run_numberformat_test(&json_info)
-            } else if (test_type == "display_names") || (test_type == "language_display_name") {
+            } else if (test_type == "display_names")
+                || (test_type == "language_display_name")
+                || (test_type == "lang_names")
+            {
                 run_language_name_test(&json_info)
             } else if test_type == "likely_subtags" {
                 run_likelysubtags_test(&json_info)

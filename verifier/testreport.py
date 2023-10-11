@@ -77,6 +77,7 @@ class TestReport:
 
         self.verifier_obj = None
 
+
         self.timestamp = None
         self.results = None
         self.verify = None
@@ -151,25 +152,28 @@ class TestReport:
         # For the items, count messages and arguments for each
         groups = defaultdict(list)
         for error in test_errors:
-            label = error['label']
-            details = error.get('error_detail')
-            if not details:
-                # Try getting the group_tag
-                details = error.get(group_tag)
-            if isinstance(details, str):
-                detail = details
-                group = group_tag
-            else:
-                detail = details.get(group_tag)
-                group = group_tag
-
-            if group:
-                if not groups.get(group):
-                    groups[group] = {detail: []}  # insert empty list
-                if not groups[group].get(detail):
-                    groups[group][detail] = [label]
+            try:
+                label = error['label']
+                details = error.get('error_detail')
+                if not details:
+                    # Try getting the group_tag
+                    details = error.get(group_tag)
+                if isinstance(details, str):
+                    detail = details
+                    group = group_tag
                 else:
-                    groups[group][detail].append(label)
+                    detail = details.get(group_tag)
+                    group = group_tag
+
+                if group:
+                    if not groups.get(group):
+                        groups[group] = {detail: []}  # insert empty list
+                    if not groups[group].get(detail):
+                        groups[group][detail] = [label]
+                    else:
+                        groups[group][detail].append(label)
+            except:
+                continue
 
         return dict(groups)
 
@@ -394,14 +398,17 @@ class TestReport:
             error_summary = self.compute_test_error_summary(self.test_errors,
                                                             'error')
             error_summary_lines = []
-            errors_in_error_summary = error_summary['error']
-            if error_summary and 'error' in error_summary:
+            try:
                 errors_in_error_summary = error_summary['error']
-                for key, labels in errors_in_error_summary.items():
-                    count = len(labels)
-                    sub = {'error': key, 'count': count}
-                    error_summary_lines.append(
-                        self.test_error_summary_template.safe_substitute(sub))
+                if error_summary and 'error' in error_summary:
+                    errors_in_error_summary = error_summary['error']
+                    for key, labels in errors_in_error_summary.items():
+                        count = len(labels)
+                        sub = {'error': key, 'count': count}
+                        error_summary_lines.append(
+                            self.test_error_summary_template.safe_substitute(sub))
+            except:
+                errors_in_error_summary = None
 
             html_map['test_error_labels'] = errors_in_error_summary
             table = self.templates.summary_table_template.safe_substitute(
@@ -494,12 +501,19 @@ class TestReport:
         results['locale'] = {}  # Dictionary of labels for each locale
         for test in failing_tests:
             # Get input_data, if available
-            label = test['label']
+            try:
+                label = test['label']
+            except:
+                label = ''
+
             input_data = test.get('input_data')
 
             if input_data:
                 # Look at locale
-                locale = input_data.get('locale')
+                try:
+                    locale = input_data.get('locale')
+                except:
+                    locale = None
                 if locale:
                     if locale in results['locale']:
                         results['locale'][locale].append(label)
@@ -519,44 +533,58 @@ class TestReport:
 
                 # Try fields in language_names
                 for key in ['language_label', 'locale_label']:
-                    if input_data.get(key):
-                        value = input_data[key]
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].append(label)
-                        else:
-                            results[key][value] = [label]
+                    try:
+                        if input_data.get(key):
+                            value = input_data[key]
+                            if key not in results:
+                                results[key] = {}
+                                if value in results[key]:
+                                    results[key][value].append(label)
+                                else:
+                                    results[key][value] = [label]
+                    except:
+                        continue
 
                 # Try fields in likely_subtags
                 for key in ['option', 'locale']:
-                    if input_data.get(key):
-                        value = input_data[key]
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].append(label)
-                        else:
-                            results[key][value] = [label]
+                    try:
+                        if input_data.get(key):
+                            value = input_data[key]
+                            if key not in results:
+                                results[key] = {}
+                                if value in results[key]:
+                                    results[key][value].append(label)
+                                else:
+                                    results[key][value] = [label]
+                    except:
+                        continue
 
                 for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
-                    if test.get(key):  # For collation results
-                        value = test[key]
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].append(label)
-                        else:
-                            results[key][value] = [label]
+                    try:
+                        if test.get(key):  # For collation results
+                            value = test[key]
+                            if key not in results:
+                                results[key] = {}
+                                if value in results[key]:
+                                    results[key][value].append(label)
+                                else:
+                                    results[key][value] = [label]
+                    except:
+                        continue
+
                 for key in ['ignorePunctuation']:
-                    if (test.get('input_data') and test['input_data'].get(key)):  # For collation results
-                        value = test['input_data'][key]
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].append(label)
-                        else:
-                            results[key][value] = [label]
+                    try:
+                        if (test.get('input_data') and test['input_data'].get(key)):  # For collation results
+                            value = test['input_data'][key]
+                            if key not in results:
+                                results[key] = {}
+                                if value in results[key]:
+                                    results[key][value].append(label)
+                                else:
+                                    results[key][value] = [label]
+                    except:
+                        continue
+
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
             # Sort these by number of items in each set.
@@ -594,8 +622,12 @@ class TestReport:
             # The following checks work on strings
             try:
                 # Try
-                sm = SequenceMatcher(None, expected, actual)
-                sm_opcodes = sm.get_opcodes()
+                try:
+                    sm = SequenceMatcher(None, expected, actual)
+                    sm_opcodes = sm.get_opcodes()
+                except TypeError as err:
+                    # TODO Figure this out.
+                    continue
 
                 for diff in sm_opcodes:
                     # Look for insert, delete, replace

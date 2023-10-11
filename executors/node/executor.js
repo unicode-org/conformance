@@ -64,16 +64,18 @@ const supported_test_types = [
   Symbol("decimal_fmt"),
   Symbol("number_fmt"),
   Symbol("display_names"),
+  Symbol("lang_names"),
   Symbol("language_display_name"),
   Symbol("local_info")
 ];
 const supported_tests_json = {"supported_tests":
                               [
+                                "collation_short",
                                 "coll_shift_short",
-                                "coll_nonignorable_short",
                                 "decimal_fmt",
                                 "number_fmt",
                                 "display_names",
+                                "lang_names",
                                 "language_display_name"
                               ]};
 
@@ -95,8 +97,8 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  if (testId == "coll_shift_short") {
-    return testTypes.TestCollShiftShort;
+  if (testId == "coll_shift_short" || testId == "collation_short") {
+    return testTypes.TestCollationShort;
   }
   if (testId == "collation_short") {
     return testTypes.TestCollationShort;
@@ -115,7 +117,7 @@ function parseJsonForTestId(parsed) {
   if (testId == "display_names") {
     return testTypes.TestDisplayNames;
   }
-  if (testId == "language_display_name") {
+  if (testId == "language_display_name" || testId == "lang_names") {
     return testTypes.TestLangNames;
   }
   console.log("#*********** NODE Unknown test type = " + testId);
@@ -185,7 +187,7 @@ rl.on('line', function(line) {
 
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
-    if (test_type == "collation_short") {
+    if (test_type == "coll_shift_short" || test_type == "collation_short") {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
@@ -194,7 +196,7 @@ rl.on('line', function(line) {
     if (test_type == "display_names") {
       outputLine = displaynames.testDisplayNames(parsedJson);
     } else
-    if (test_type == "language_display_name") {
+    if (test_type == "language_display_name" || test_type == "lang_names") {
       outputLine = langnames.testLangNames(parsedJson);
     } else
     if (test_type == "likely_subtags") {
@@ -209,7 +211,7 @@ rl.on('line', function(line) {
 
     if ('error' in outputLine) {
       // To get the attention of the driver
-      console.log("#!! ERROR in NODE call: " + jsonOut);
+      console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
     }
 
     // Send result to stdout for verification

@@ -133,7 +133,33 @@
     },
     {
         "run": {
+            "icu_version": "icu72",
+            "exec": "rust",
+            "test_type": [
+                "collation_short",
+                "number_fmt",
+                "lang_names",
+                "likely_subtags"
+            ],
+            "per_execution": 10000
+        }
+    },
+    {
+        "run": {
             "icu_version": "icu73",
+            "exec": "rust",
+            "test_type": [
+                "collation_short",
+                "number_fmt",
+                "lang_names",
+                "likely_subtags"
+            ],
+            "per_execution": 10000
+        }
+    },
+    {
+        "run": {
+            "icu_version": "icu74",
             "exec": "rust",
             "test_type": [
                 "collation_short",

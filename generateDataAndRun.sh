@@ -34,6 +34,13 @@ python3 testdata_gen.py  --icu_versions $all_icu_versions
 cp -r icu* ../$TEMP_DIR/testData
 popd
 
+# Verify that schema files are valid
+pushd schema
+python check_schemas.py $pwd
+# And check generated data against schemas.
+python check_generated_data.py ../$TEMP_DIR/testData
+popd
+
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 #
 # Run test data tests through all executors
@@ -93,6 +100,11 @@ popd
 #
 # Run verifier
 #
+
+# Verify that test output matches schema.
+pushd schema
+python check_test_output.py ../$TEMP_DIR/testOutput
+popd
 
 # Verify everything
 mkdir -p $TEMP_DIR/testReports

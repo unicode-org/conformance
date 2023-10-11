@@ -23,6 +23,8 @@ NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
 class generateData():
     def __init__(self, icu_version):
         self.icu_version = icu_version
+        # If set, this is the maximum number of tests generated for each.
+        self.run_limit = None
 
     def setVersion(self, selected_version):
         self.icu_version = selected_version
@@ -58,8 +60,10 @@ class generateData():
 
     def processCollationTestData(self):
         # Get each kind of collation tests and create a unified data set
-        json_test = {'tests':[]}
-        json_verify = {'verifications': []}
+        json_test = {'test_type': 'collation_short',
+                     'tests':[]}
+        json_verify = {'test_type': 'collation_short',
+                       'verifications': []}
         insert_collation_header([json_test, json_verify])
 
         start_count = 0
@@ -95,13 +99,16 @@ class generateData():
             ignorePunctuation=False,
             start_count=len(json_test['tests']))
 
+        # Resample as needed
         json_test['tests'].extend(test_nonignorable)
+        json_test['tests'] = self.sample_tests(json_test['tests'])
+
         json_verify['verifications'].extend(verify_nonignorable)
+        json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
         self.saveJsonFile('collation_verify.json', json_verify)
-
 
     def processNumberFmtTestData(self):
         filename = 'dcfmtest.txt'
@@ -123,6 +130,9 @@ class generateData():
             verify_list = num_verify_object_list + dcml_verify_object_list
             json_test, json_verify = insertNumberFmtDescr(test_list, verify_list)
 
+            json_test['tests'] = self.sample_tests(json_test['tests'])
+            json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
+
             self.saveJsonFile('num_fmt_test_file.json', json_test)
 
             output_path = os.path.join(self.icu_version, 'num_fmt_verify_file.json')
@@ -134,9 +144,8 @@ class generateData():
         return
 
     def processLangNameTestData(self):
-
-        json_test = {}
-        json_verify = {}
+        json_test = {'test_type': 'lang_names'}
+        json_verify = {'test_type': 'lang_names'}
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -184,11 +193,22 @@ class generateData():
             jverify.append({'label': label, 'verify': test_data[2]})
             count += 1
 
-      json_tests['tests'] = jtests
-      json_verify['verifications'] = jverify
+      json_tests['tests'] = self.sample_tests(jtests)
+      json_verify['verifications'] = self.sample_tests(jverify)
 
       logging.info('LangNames Test (%s): %d lines processed', self.icu_version, count)
       return
+
+    def sample_tests(self, all_tests):
+        if self.run_limit < 0 or len(all_tests) <= self.run_limit:
+            return all_tests
+        else:
+            # Sample to get about run_limit items
+            increment = len(all_tests) // self.run_limit
+            samples = []
+            for index in range(0, len(all_tests), increment):
+                samples.append(all_tests[index])
+            return samples
 
     def processLikelySubtagsData(self):
 
@@ -274,8 +294,8 @@ class generateData():
             count += 1
 
         # Add to the test and verify json data
-        json_test['tests'] = test_list
-        json_verify['verifications'] = verify_list
+        json_test['tests'] = self.sample_tests(test_list)
+        json_verify['verifications'] = self.sample_tests(verify_list)
 
         # Output the files including the json dump
         self.saveJsonFile('likely_subtags_test.json', json_test)
@@ -546,7 +566,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
+      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
@@ -594,6 +614,8 @@ def generateCollTestData2(filename,
 
     label_num = start_count
 
+    encode_errors = []
+
     test_list = []
     verify_list = []
 
@@ -618,7 +640,6 @@ def generateCollTestData2(filename,
     attribute_test = re.compile('^\% (\S+)\s*=\s*(\S+)')
     rules = ''
 
-    # TODO: get tests from this data format
     # Ignore comment lines
     string1 = ''
     string2 = ''
@@ -702,24 +723,52 @@ def generateCollTestData2(filename,
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
                     # Note that this doesn't seem to handle \x encoding, howeveer.
-                    string2 = compare_string.encode().decode('unicode_escape')
+                    try:
+                        s = compare_string.encode()
+                        string2 = s.decode('unicode_escape')
+                        #string2 = compare_string.encode().decode('unicode_escape')
+                    except UnicodeEncodeError as err:
+                        logging.error('%s: line: %d. PROBLEM ENCODING', err, line_number)
+                        continue
+
                     compare_comment = is_comparison.group(3)
-                    # Generate the test case
+
                     label = str(label_num).rjust(max_digits, '0')
                     label_num += 1
                     test_case = {
                         'label': label,
                         's1': string1,
-                        's2': string2,
                         'compare_type': compare_type,
                         'test_description': test_description
                     }
+
+                    # If either string has unpaired surrogates, ignore the case, with a warning
+                    if check_unpaired_surrogate_in_string(string2):
+                        # String 1 is the previous, already checked
+                        try:
+                            #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
+                            #                file_name, line_number, string1, compare_string)
+                            encode_errors.append([line_number, compare_string])
+                        except UnicodeEncodeError as err:
+                            logging.error('!!! Line %s encoding error: %s', err)
+
+                        string2 = compare_string
+                        test_case['warning'] = 'unpaired surrogate in test case - not decoded'
+
+                    else:
+                        string2 = compare_string.encode().decode('unicode_escape')
+
+                    test_case['s2'] = string2
+
+                    # Generate the test case
+                    label = str(label_num).rjust(max_digits, '0')
+                    label_num += 1
                     if locale:
                         test_case['locale'] = locale
                     # Keep this for the next comparison test
                     string1 = string2
                     if compare_comment:
-                        test_case['compare_comment'] = compare_comment
+                       test_case['compare_comment'] = compare_comment
                     if rules:
                         test_case['rules'] = '\n'.join(rules)
                     if attributes:
@@ -737,10 +786,36 @@ def generateCollTestData2(filename,
         if is_attribute:
             attributes.append([is_attribute.group(1), is_attribute.group(2)])
             continue
-
+    if encode_errors:
+        logging.warning('!! %s File %s has DATA ERRORS: %s',
+                        filename, len(encode_errors), encode_errors)
     return test_list, verify_list
 
 
+def check_unpaired_surrogate_in_string(text):
+    # Look for unmatched high/low surrogates in the text
+    high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+    low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
+
+    match_high = high_surrogate_pattern.findall(text)
+    match_low = low_surrogate_pattern.findall(text)
+
+    if not match_high and not match_low:
+        return False
+
+    if match_high and not match_low:
+        return True
+
+    if not match_high and match_low:
+        return True
+
+    # TODO: Check if each high match is immediately followed by a low match
+    # Now, assume that they are paired
+    return False
+
+
+
+    return False
 
 def generateCollTestDataObjects(filename,
                                 icu_version,
@@ -820,25 +895,35 @@ def insert_nonignorable_coll_descr(tests_obj, verify_obj):
 
 
 def languageNameDescr(tests_json, verify_json):
-  # Adds information to LanguageName tests and verify JSON
-  descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
-  test_id =  'language_display_name'
-  version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
-  source = 'No URL yet.'
-  tests_json['Test scenario'] = test_id
-  tests_json['description'] = descr
-  tests_json['version'] = version
-  tests_json['url'] = source
-  verify_json['Test scenario'] = test_id
+    # Adds information to LanguageName tests and verify JSON
+    descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
+    test_id =  'lang_names'
+    source_url = 'No URL yet.'
+    version = 'unspecified'
+    tests_json = {
+        'test_type': test_id,
+        'Test scenario': test_id,
+        'description': descr,
+        'source': {
+            'repository': 'conformance-test',
+            'version': 'trunk',
+            'url': source_url,
+            'source_version': version
+        }
+    }
 
-  return
+    verify_json = {'test_type': test_id,
+                   'Test scenario': test_id
+                   }
+    return
 
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
   # returns JSON data for tests and verification
   test_scenario = 'number_fmt'
   test_data = {
-      "Test scenario": test_scenario,
+      'Test scenario': test_scenario,
+      'test_type': 'number_fmt',
       'description':
           'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
       "source": {"repository": "icu", "version": "trunk"},
@@ -846,7 +931,9 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
       'tests': tests_obj
   }
   verify_data = {
-      "Test scenario": test_scenario, 'verifications': verify_obj
+      'Test scenario': test_scenario,
+      'test_type': 'number_fmt',
+      'verifications': verify_obj
   }
   return test_data, verify_data
 
@@ -854,6 +941,8 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 def setupArgs():
     parser = argparse.ArgumentParser(prog='testdata_gen')
     parser.add_argument('--icu_versions', nargs='*', default=[])
+    # -1 is no limit
+    parser.add_argument('--run_limit', nargs='?', type=int, default=-1)
     new_args = parser.parse_args()
     return new_args
 
@@ -861,13 +950,14 @@ def setupArgs():
 def main(args):
     new_args = setupArgs()
 
-    logger = logging.Logger("TEST_GENEREATE LOGGER")
+    logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
     logger.info('+++ Generating .json files for icu_versions %s',
                  new_args.icu_versions)
 
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
+        data_generator.run_limit = new_args.run_limit
 
         # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
