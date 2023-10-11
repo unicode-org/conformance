@@ -11,7 +11,7 @@ import os.path
 import sys
 
 import schema_validator
-from schema_files import all_test_types
+from schema_files import ALL_TEST_TYPES
 
 class ValidateSchema():
     def __init__(self, schema_base='.'):
@@ -78,7 +78,7 @@ def main(args):
     # An array of information to be reported on the main DDT page
     validation_status = []
 
-    for test_type in all_test_types:
+    for test_type in ALL_TEST_TYPES:
         schema_test_base = os.path.join(schema_base, test_type)
         schema_test_json_files = os.path.join(schema_test_base, '*.json')
         schema_file_names = glob.glob(schema_test_json_files)

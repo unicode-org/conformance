@@ -13,8 +13,8 @@ import sys
 
 import schema_validator
 import schema_files
-from schema_files import schema_file_map
-from schema_files import all_test_types
+from schema_files import SCHEMA_FILE_MAP
+from schema_files import ALL_TEST_TYPES
 
 def main(args):
     if len(args) <= 1:
@@ -49,7 +49,7 @@ def main(args):
         for file in json_files:
             try:
                 test_file_prefix = os.path.splitext(os.path.basename(file))[0]
-                test_type = schema_files.test_file_to_test_type_map[test_file_prefix]
+                test_type = schema_files.TEST_FILE_TO_TEST_TYPE_MAP[test_file_prefix]
                 test_type_set.add(test_type)
             except BaseException as err:
                 logging.error('!!! %s for file %s', err, file
@@ -59,7 +59,7 @@ def main(args):
 
     icu_versions = sorted(list(icu_version_set))
     print('ICU directories = %s' % icu_versions)
-    print('test types = %s' % all_test_types)
+    print('test types = %s' % ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator

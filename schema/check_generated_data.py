@@ -12,8 +12,8 @@ import sys
 
 import schema_validator
 import schema_files
-from schema_files import schema_file_map
-from schema_files import all_test_types
+from schema_files import SCHEMA_FILE_MAP
+from schema_files import ALL_TEST_TYPES
 
 def main(args):
     if len(args) <= 1:
@@ -39,14 +39,14 @@ def main(args):
             icu_versions.append(os.path.basename(dir))
 
     print('ICU directories = %s' % icu_versions)
-    print('test types = %s' % all_test_types)
+    print('test types = %s' % ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
     validator.schema_base = '.'
     validator.test_data_base = test_data_path
     validator.icu_versions = sorted(icu_versions)
-    validator.test_types = all_test_types
+    validator.test_types = ALL_TEST_TYPES
     validator.debug = 1
     schema_base = '.'
     schema_data_results = []

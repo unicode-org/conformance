@@ -14,7 +14,7 @@ import os.path
 import sys
 
 import schema_files
-from schema_files import schema_file_map
+from schema_files import SCHEMA_FILE_MAP
 
 # ?? Move to the initialization
 ch = logging.StreamHandler()
@@ -28,7 +28,7 @@ class ConformanceSchemaValidator():
         self.schema_base = None
         self.test_data_base = None
         self.test_output_base = None
-        self.test_types = schema_files.all_test_types
+        self.test_types = schema_files.ALL_TEST_TYPES
         self.executors = []
         self.icu_versions = []
         self.debug_leve = 0
@@ -124,8 +124,8 @@ class ConformanceSchemaValidator():
             results['err_info'] = "No file"
             return Results
 
-        filename_map = schema_file_map[test_type]
-        result_file_name = schema_file_map[test_type]['test_data']['prod_file']
+        filename_map = SCHEMA_FILE_MAP[test_type]
+        result_file_name = SCHEMA_FILE_MAP[test_type]['test_data']['prod_file']
         test_file_name = os.path.join(self.test_data_base, icu_version, result_file_name)
         if not os.path.exists(test_file_name):
             return results
@@ -150,11 +150,11 @@ class ConformanceSchemaValidator():
         logging.info('Validating %s with icu version %s', test_type, icu_version)
 
         # Check test output vs. the schema
-        schema_file_name = schema_file_map[test_type]['result_data']['schema_file']
+        schema_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['schema_file']
         schema_verify_file = os.path.join(self.schema_base, schema_file_name)
         if not os.path.exists(schema_verify_file):
             return 'no file', "no schema file"
-        result_file_name = schema_file_map[test_type]['result_data']['prod_file']
+        result_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['prod_file']
         test_result_file = os.path.join(self.test_output_base, executor, icu_version, result_file_name)
         results = {
             'test_type': test_type,
@@ -180,6 +180,7 @@ class ConformanceSchemaValidator():
             logging.error('Result data %s FAILED with %s ICU %s: %s', test_type, executor, icu_version, err_msg)
 
         return results
+
     def validate_schema_file(self, schema_file_path):
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
@@ -280,7 +281,7 @@ def process_args(args):
         # Test types
         test_type = args[2]
         if test_type == "ALL":
-            test_types = schema_files.all_test_types
+            test_types = schema_files.ALL_TEST_TYPES
         else:
             test_types = [test_type]
 
