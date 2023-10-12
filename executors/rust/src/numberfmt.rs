@@ -124,18 +124,10 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let result_string = if is_compact {
         // We saw compact!
         let cdf = if compact_type == "short" {
-            CompactDecimalFormatter::try_new_short(
-                &data_locale,
-                Default::default(),
-            )
-            .unwrap()
+            CompactDecimalFormatter::try_new_short(&data_locale, Default::default()).unwrap()
         } else {
             println!("#{:?}", "   LONG");
-            CompactDecimalFormatter::try_new_long(
-                &data_locale,
-                Default::default(),
-            )
-            .unwrap()
+            CompactDecimalFormatter::try_new_long(&data_locale, Default::default()).unwrap()
         };
         // input.parse().map_err(|e| e.to_string())?;
         let input_num = CompactDecimal::from_str(input).map_err(|e| e.to_string())?;
