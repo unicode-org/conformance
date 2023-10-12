@@ -23,7 +23,7 @@ use std::str::FromStr;
 use writeable::Writeable;
 
 // Support options - update when ICU4X adds support
-static SUPPORTED_OPTIONS: [&str; 6] = [
+static _SUPPORTED_OPTIONS: [&str; 6] = [
     "compactDisplay",
     "minimumIntegerDigits",
     "maximumIntegerDigits",
@@ -58,7 +58,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
-    let langid = if json_obj.get("locale") != None {
+    let langid = if json_obj.get("locale").is_some() {
         let locale_name = &json_obj["locale"].as_str().unwrap();
         Locale::from_str(locale_name).unwrap()
     } else {
@@ -157,10 +157,10 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
         // Apply relevant options for digits.
         if let Some(x) = option_struct.minimum_fraction_digits {
-            input_num.pad_end(-1 * x as i16);
+            input_num.pad_end(-(x as i16));
         }
         if let Some(x) = option_struct.maximum_fraction_digits {
-            input_num.half_even(-1 * x as i16);
+            input_num.half_even(-(x as i16));
         }
         if let Some(x) = option_struct.maximum_integer_digits {
             input_num.set_max_position(x as i16);
