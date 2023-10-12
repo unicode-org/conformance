@@ -9,9 +9,10 @@ use icu::collator::*;
 use icu::locid::locale;
 
 // Function runs comparison using collator
-pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
+pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
+    let ignore_punctuation: &Option<bool> = &json_obj["ignorePunctuation"].as_bool();
     let str1: &str = json_obj["s1"].as_str().unwrap();
     let str2: &str = json_obj["s2"].as_str().unwrap();
 
@@ -20,8 +21,12 @@ pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
     let mut options = CollatorOptions::new();
     options.strength = Some(Strength::Tertiary);
 
-    // Does this ignore punctuation?
-    //coll_options.set_alternate_handling(Some(AlternateHandling::Shifted));
+    // Ignore punctuation only if using shifted test.
+    if let Some(ip) = ignore_punctuation {
+        if *ip {
+            options.alternate_handling = Some(AlternateHandling::Shifted);
+        }
+    }
 
     let collator: Collator =
         Collator::try_new_unstable(&data_provider, &locale!("en").into(), options).unwrap();
@@ -35,8 +40,18 @@ pub fn run_coll_test(json_obj: &Value) -> Result<Value, String> {
     if !result {
         result_string = false;
     }
+
+    let mut comparison_number: i16 = 0;
+    if comparison == Ordering::Less {
+        comparison_number = -1;
+    } else if comparison == Ordering::Greater {
+        comparison_number = 1;
+    }
+    // TODO: Convert comparison to "<", "=", or ">"
     let json_result = json!({
         "label": label,
-        "result": result_string});
+        "result": result_string,
+        "compare_result": comparison_number
+    });
     Ok(json_result)
 }

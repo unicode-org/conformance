@@ -31,8 +31,8 @@ class DdtOptions():
     self.parallel_mode = None  # For each exec or using N CPUs?
     self.exec_mode = 'one_test'  # Default. 'multi_test
 
-type_options = ['collation_short', 'coll_shift_short', 'decimal_fmt', 'display_names',
-                'number_fmt', 'lang_names', 'ALL']
+type_options = ['collation_short', 'decimal_fmt', 'display_names',
+                'number_fmt', 'lang_names', 'likely_subtags', 'ALL']
 
 class DdtArgs():
   def __init__(self, args):
@@ -143,12 +143,11 @@ def setCommonArgs(parser):
 def argsTestData():
   tests = [
       ['--test_type', 'collation_short'],
-      ['--test_type', 'coll_shift_short'],
-      ['--test_type', 'coll_shift_short', '-t', 'decimal_fmt'],
-      ['--test_type', 'coll_shift_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
-       'lang_names'],
-
-      ['--test', 'coll_shift_short', 'ALL', 'decimal_fmt'],
+      ['--test_type', 'collation_short', '-t', 'decimal_fmt'],
+      ['--test_type', 'collation_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
+       'lang_names',
+       'likely_subtags'],
+      ['--test', 'collation_short', 'ALL', 'decimal_fmt'],
 
       ['--test_type', 'ALL'],
       '--type ALL decimal_fmt --exec a b c d'.split(),

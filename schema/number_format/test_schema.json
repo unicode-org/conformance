@@ -8,7 +8,7 @@
    "test_type": {
      "description": "The name of the test",
      "type": "string",
-     "enum": ["number_format"]
+     "enum": ["number_fmt"]
    },
    "Test scenario": {
      "type": "string",
@@ -147,7 +147,9 @@
                "type": "string",
                "description": "rounding mode to be used",
                "enum": ["ceil", "floor", "expand", "trunc",
-                        "halfCeil", "halfFloor", "halfExpand", "halfTrunc", "halfEven"],
+                        "halfCeil", "halfFloor", "halfExpand",
+                        "halfTrunc", "halfEven",
+                        "unnecessary"],
                "default": "halfEven"
              },
              "roundingIncrement": {
@@ -178,5 +180,5 @@
      }
    }
  },
- "required": ["test_type"]
+ "required": ["test_type", "tests"]
 }

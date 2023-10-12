@@ -7,7 +7,7 @@
    "test_type": {
      "description": "the name language_display_name",
      "type": "string",
-     "enum": ["language_names"]
+     "enum": ["lang_names"]
    },
    "Test scenario": {
      "type": "string",
@@ -20,7 +20,7 @@
        "repository": {
          "description": "Reference to the repository",
          "type": "string"
-       }
+       },
        "url": {
          "description": "Reference to the source of this conformance data",
          "type": "string"
@@ -28,7 +28,7 @@
        "source_version": {
          "description": "version of conformance data",
          "type": "string"
-       },
+       }
      }
    },
    "tests": {
@@ -60,7 +60,5 @@
    },
    "additionalProperties": false
  },
- "required": [
-   "test_type"
- ]
+ "required": ["test_type", "tests"]
 }

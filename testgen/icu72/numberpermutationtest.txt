@@ -9100,4 +9100,3 @@ latin sign-accounting-except-zero decimal-always
     0.
     +91,827.3645
     -0.22222
-

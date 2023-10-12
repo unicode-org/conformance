@@ -11,11 +11,14 @@
 // 8. Decide on a repository structure
 // DONE 9. Modularize into separate files for each type of test
 // 10. Fix test_type and switch statement
+// 11. Add language names
 
 // References for ICU4X:
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
 
 mod collator;
+mod langnames;
+mod likelysubtags;
 mod numberfmt;
 
 use serde_json::{json, Value};
@@ -29,8 +32,9 @@ use std::panic;
 use substring::Substring;
 
 // Test modules for each type
-use collator::run_coll_test;
-
+use collator::run_collation_test;
+use langnames::run_language_name_test;
+use likelysubtags::run_likelysubtags_test;
 use numberfmt::run_numberformat_test;
 
 // Read from stdin, call functions to get json, output the result.
@@ -42,12 +46,14 @@ fn main() -> io::Result<()> {
     // Supported tests names mapping to functions.
     // Use these strings to respond to test requests.
     let _supported_test_map = HashMap::from([
-        ("collation_short".to_string(), run_coll_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
-        ("coll_shift_short".to_string(), run_coll_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
+        ("collation_short".to_string(), run_collation_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
     ]);
 
     // TODO: supported_test_map to call the functions.
 
+    // TODO: Handle problem with
+    // Error: Custom { kind: INvalidData, error: Error{"unexpected end of hex escape"
+    // As in collation 000144, 0998, 0142
     let mut buffer = String::new();
 
     loop {
@@ -62,8 +68,11 @@ fn main() -> io::Result<()> {
             // Returns JSON list of supported tests.
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
-                { "supported_tests": ["collation_short", "coll_shift_short", "number_fmt", "decimal_fmt"] }
-                // { "supported_tests": test_vec }
+                { "supported_tests": [
+                    "collation_short",
+                    "number_fmt",
+                    "decimal_fmt",
+                    "likelysubtags"] }
             );
             println!("{}", json_result);
         }
@@ -115,20 +124,28 @@ fn main() -> io::Result<()> {
 
             // TODO!!! : supported_test_map to call the functions.
             let json_result = if test_type == "collation_short" {
-                // TODO: Get the json result and print here
-                run_coll_test(&json_info)
+                run_collation_test(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
-                // TODO: Get the json result and print here
                 run_numberformat_test(&json_info)
+            } else if (test_type == "display_names")
+                || (test_type == "language_display_name")
+                || (test_type == "lang_names")
+            {
+                run_language_name_test(&json_info)
+            } else if test_type == "likely_subtags" {
+                run_likelysubtags_test(&json_info)
             } else {
                 Err(test_type.to_string())
             };
+
+            // Sends the result to stdout.
             match json_result {
                 Ok(value) => println!("{}", value),
-                Err(s) => println!(
+                Err(error_string) => println!(
                     "{}",
-                    json!({"error": s, "label": label,
-                           "type": "unknown test type",
+                    json!({"error": error_string,
+                           "label": label,
+                           "error_type": "unknown test type",
                            "error_detail": json_info})
                 ),
             }

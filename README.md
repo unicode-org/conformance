@@ -16,7 +16,7 @@ indicate the expected output from implementations when given the data and
 argument settings for each of the many individual data items.
 
 Note that these tests are only part of the testing required for ICU-compliant
-libraries. Many additional tests are implmeneted in the
+libraries. Many additional tests are implemented in the
 
 * !!! TODO: reference to data specifications
 
@@ -36,7 +36,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 
 * Data generation uses specifications starting with ICU versions 70, 71, etc. For each ICU release, these data should be updated.
 
-* Test execution allows setting the data version explictly with a command line
+* Test execution allows setting the data version explicitly with a command line
   argument --icuversion that points to the indicated test data. The ICU version
   of the test executor platform is requested from each platform at the start of
   the test driver. Output directories are created under the platform for the
@@ -45,7 +45,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 * Test verification uses ICU version information in the test output files for
   matching with the corresponding expected results. Verification output appears
   in the testResults subdirectory for each node, e.g. testOutput/rust/icu71.
-  
+
 ## Architectural Overview
 
 Conceptually, there are three main functional units of the DDT implementation:
@@ -66,13 +66,13 @@ Data generation creates two files:
 The test type is indicated with the "Test scenario" field.
 
 Individual data tests are stored as an array of items, each with a label and
-paramters to be set for computing a result.
+parameters to be set for computing a result.
 
-  Example line for coll_shift_short:
+  Example line for collation_short:
   ```
   {
   "description": "UCA conformance test. Compare the first data\n   string with the second and with strength = identical level\n   (using S3.10). If the second string is greater than the first\n   string, then stop with an error.",
-  "Test scenario": "coll_shift_short",
+  "Test scenario": "collation_short",
   "tests": [
     {
       "label": "0000000",
@@ -85,7 +85,7 @@ paramters to be set for computing a result.
 
   Sample verify data:
   ```
-  {"Test scenario": "coll_shift_short",
+  {"Test scenario": "collation_short",
   "verifications": [
     {
       "label": "0000000",
@@ -128,7 +128,7 @@ item
 the test case
 
 ### Open questions for the verifier:
-* What should bedone if the test driver fails to complete? How can this be
+* What should be done if the test driver fails to complete? How can this be
   determined?
 
     * Proposal: each test execution shall output a completion message,
@@ -151,7 +151,7 @@ set up as follows:
 ## Directory testOutput
 
 This contains a subdirectory for each executor. The output file from each test
-is stored in thes appropriate subdirectory. Each test result contains the label
+is stored in the appropriate subdirectory. Each test result contains the label
 of the test and the result of the test. This may be a boolean or a formatted
 string.
 
@@ -169,11 +169,11 @@ testOutput/node file are shown here:
   "test_environment": {
     "test_language": "nodejs",
     "executor": "/usr/bin/nodejs ../executors/nodejs/executor.js",
-    "test_type": "coll_shift_short",
+    "test_type": "collation_short",
     "datetime": "10/07/2022, 16:19:00",
     "timestamp": "1665184740.2130146",
-    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/coll_test_shift.json",
-    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testOutputs/node/icu73/coll_test_shift.json",
+    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/collation_testt.json",
+    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testOutputs/node/icu73/collation_test.json",
     "icu_version": "ICUVersion.ICU71",
     "cldr_version": "CLDRVersion.CLDR41",
     "test_count": "192707"
@@ -216,7 +216,7 @@ The verifier_test_report.json file contains information on tests run and compari
 
 * The executor and test type
 * Date and time of the test
-* Execution informtion, from the testResults directory
+* Execution information, from the testResults directory
 * Total number of tests executed
 * Total number of tests failing
 * Total number of tests succeeding
@@ -232,10 +232,10 @@ The verifier_test_report.json file contains information on tests run and compari
 Data Driven Test was initiated in 2022 at Google. The first release of the
 package was delivered in October, 2022.
 
-# LICENSE
+### Copyright & Licenses
 
-See [LICENSE](./LICENSE)
+Copyright © 2022-2023 Unicode, Inc. Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the United States and other countries.
 
-```
-SPDX-License-Identifier: Unicode-DFS-2016
-```
+The project is released under [LICENSE](./LICENSE).
+
+A CLA is required to contribute to this project - please refer to the [CONTRIBUTING.md](https://github.com/unicode-org/.github/blob/main/.github/CONTRIBUTING.md) file (or start a Pull Request) for more information.

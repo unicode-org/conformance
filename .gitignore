@@ -1,9 +1,15 @@
 #*#
 *~
 *#
+.vscode
+
+.pylintrc
+.idea
+
 executors/rust/target/
 **/__pycache__/
-DDT_DATA/test*/*
+DDT_DATA/testOutput*/*
+DDT_DATA/testReports*/*
 
 TEMP_DATA
 
@@ -19,3 +25,8 @@ testgen/icu*/*.json
 
 # C / CPP compiled
 *.o
+
+testdriver/.local-chrome/
+testgen/*.json
+
+TEMP_DATA/*
