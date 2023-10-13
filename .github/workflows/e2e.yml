@@ -22,7 +22,10 @@ jobs:
       - uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
         with:
           sdk: stable
-
+      - name: Set version of Rust
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: 1.73
       - uses: actions/checkout@v2
       - run: bash generateDataAndRun.sh
       - name: Setup Pages

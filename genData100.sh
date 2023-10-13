@@ -19,6 +19,7 @@ rm -rf $TEMP_DIR
 # Clear out old data, then create new directory and copy test / verify data there
 mkdir -p $TEMP_DIR/testData
 
+
 #
 # Setup (generate) test data & expected values
 # 
@@ -29,7 +30,7 @@ source_file=${1:-'run_config.json'}
 # Generates all new test data
 pushd testgen
 all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
-python3 testdata_gen.py  --icu_versions $all_icu_versions
+python3 testdata_gen.py  --icu_versions $all_icu_versions --run_limit 100
 # And copy results to subdirectories.
 cp -r icu* ../$TEMP_DIR/testData
 popd
@@ -49,8 +50,8 @@ all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 if jq -e 'index("rust")' <<< $all_execs_json > /dev/null
 then
     pushd executors/rust/
-    cargo clean
-    cargo build --release
+#    cargo clean
+#    cargo build --release
     popd
 fi
 
@@ -89,7 +90,7 @@ jq -c '.[]' ../$source_file | while read i; do
     exec_command=$(jq -r -c '.run.exec' <<< $i)
     test_type=$(jq -r -c '.run.test_type | join(" ")'  <<< $i)
     per_execution=$(jq -r -c '.run.per_execution' <<< $i)
-    python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution
+    python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution --run_limit 100
     echo $?
 done
 

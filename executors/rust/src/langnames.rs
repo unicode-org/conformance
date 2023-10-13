@@ -15,15 +15,13 @@ use std::str::FromStr;
 
 // Function runs language names tests
 pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
-    let provider = icu_testdata::unstable();
-
     let label = &json_obj["label"].as_str().unwrap();
     let options: DisplayNamesOptions = Default::default();
 
     let language_label = json_obj["language_label"]
         .as_str()
         .unwrap()
-        .replace("_", "-");
+        .replace('_', "-");
     let input_lang_result = Language::from_str(&language_label);
     let input_lang = match input_lang_result {
         Ok(l) => l,
@@ -75,8 +73,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     // The locale data may not yet be supported.
     let data_locale = DataLocale::from(&langid);
 
-    let display_name_formatter =
-        LanguageDisplayNames::try_new_unstable(&provider, &data_locale.into(), options);
+    let display_name_formatter = LanguageDisplayNames::try_new(&data_locale, options);
 
     let json_result = match display_name_formatter {
         Ok(formatter) => {
