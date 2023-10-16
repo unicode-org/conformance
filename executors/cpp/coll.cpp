@@ -73,10 +73,10 @@ const string test_collator(json_object *json_in)  //
     coll_result = "False";
     // Include date for the failing test
     json_object_object_add(return_json,
-                           "string1",
+                           "s1",
                            json_object_new_string(string1.c_str()));
     json_object_object_add(return_json,
-                           "string2",
+                           "s2",
                            json_object_new_string(string2.c_str()));
     if (result == UCOL_EQUAL) {
       json_object_object_add(return_json,

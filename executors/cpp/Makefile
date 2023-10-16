@@ -19,6 +19,7 @@
 TARGET=executor
 
 # All object files (C or C++)
+# OBJECTS=main.o coll.o numfmt.o langnames.o util.o capi.o
 OBJECTS=main.o coll.o numfmt.o util.o capi.o
 
 #### rules
