@@ -90,8 +90,8 @@ def main(args):
                                       "error_info": str(err)
                                       })
             if not result:
-                schema_errors.append([schema_file_path, result, err, file_path])
-                logging.error('Bad Schema at %s', schema_file_path)
+                schema_errors.append([schema_file, result, err, file_path])
+                logging.error('Bad Schema at %s', schema_file)
             schema_count += 1
 
     ok = val_schema.save_schema_validation_summary(validation_status)

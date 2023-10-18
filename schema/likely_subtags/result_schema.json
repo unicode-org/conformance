@@ -112,11 +112,27 @@
          "error_message": {
            "description": "What went wrong",
            "type": "string"
+         },
+         "error_detail": {
+           "description": "more information on the failure",
+           "type": "object",
+           "properties": {
+             "option": {
+               "description": "Parameters causing the failure",
+               "type": "string",
+               "enum": ["minimizeFavorRegion"]
+             }
+           }
+         },
+         "error_type": {
+           "description": "",
+           "type": "string",
+           "enum": ["unsupported"]
          }
        },
        "required": [
          "label"
-       ]       
+       ]
      }
    }
  }
