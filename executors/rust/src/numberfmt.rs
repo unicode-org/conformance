@@ -78,7 +78,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let option_struct: NumberFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
     let mut is_compact = false;
     let mut compact_type = "";
-    let mut _is_scientific = false;
+    let mut is_scientific = false;
     let mut _rounding_mode = "";
     let mut style = "";
     let mut unit = "";
@@ -89,7 +89,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         compact_type = &option_struct.compact_display.as_ref().unwrap();
     }
     if option_struct.notation == Some(String::from("scientific")) {
-        _is_scientific = true;
+        is_scientific = true;
     }
     if option_struct.style.is_some() {
         style = &option_struct.style.as_ref().unwrap();
@@ -110,10 +110,12 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // UNSUPPORTED THINGS.
     // This will change with new additions to ICU4X.
-    if style == "unit" || style == "currency" || unit == "percent" {
+    if style == "unit" || style == "currency" || unit == "percent" || is_scientific {
         return Ok(json!({
             "label": label,
-            "error_detail": {"style": style, "unit": unit},
+            "error_detail": {"style": style,
+                             "unit": unit,
+                             "scientific": is_scientific},
             "unsupported": "unit or style not implemented",
             "error_type": "unsupported",
         }));
