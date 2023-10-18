@@ -32,7 +32,7 @@ pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
             "error_type": "unsupported",
         }));
     }
-        
+
     if test_option == &"minimize" {
         lc.minimize(&mut locale);
     } else if test_option == &"maximize" {
