@@ -44,12 +44,13 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         Some(s) => s,
         None => {
             return Ok(json!({
-                "error": String::from("Missing locale_label"),
+                "error": "locale label",
                 "label": label,
                 "language_label": language_label,
                 "test_type": "display_names",
                 "unsupported": "locale name",
                 "error_type": "unsupported",
+                "error_detail": {"unsupported_locale": &locale_name_result}
             }))
         }
     };
@@ -65,6 +66,8 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "locale_label": locale_name,
                 "language_label": language_label,
                 "test_type": "display_names",
+                "unsupported": "locale name",
+                "error_type": "unsupported",
                 "error_detail": {"unsupported_locale": locale_name},
             }))
         }
@@ -87,6 +90,8 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "label": label,
                 "locale_label": locale_name,
                 "error": e.to_string(),
+                "error_type": "unsupported",
+                "unsupported": e.to_string(),
                 "error_detail": {"unsupported_locale": locale_name}
             })
         }
