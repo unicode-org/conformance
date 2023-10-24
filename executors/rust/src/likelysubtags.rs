@@ -13,7 +13,7 @@ use std::str::FromStr;
 
 // Function runs language names tests
 pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
-    let lc = LocaleExpander::new();
+    let lc = LocaleExpander::new_extended();
 
     let label = &json_obj["label"].as_str().unwrap();
 

@@ -132,10 +132,10 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
             CompactDecimalFormatter::try_new_long(&data_locale, Default::default()).unwrap()
         };
         // input.parse().map_err(|e| e.to_string())?;
-        let input_num = CompactDecimal::from_str(input).map_err(|e| e.to_string())?;
-        let formatted_cdf = cdf.format_compact_decimal(&input_num);
+        let input_num = FixedDecimal::from_str(input).map_err(|e| e.to_string())?;
+        let formatted_cdf = cdf.format_fixed_decimal(input_num);
         formatted_cdf
-            .map_err(|e| e.to_string())?
+            //.map_err(|e| e.to_string())?
             .write_to_string()
             .into_owned()
     // }
