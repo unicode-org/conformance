@@ -51,6 +51,9 @@ module.exports = {
     }
     if (rounding) {
       options['roundingMode'] = rounding;
+    } else {
+      // Default expected by the data
+      options['roundingMode'] = 'halfEven';
     }
     return options;
   },
@@ -60,7 +63,7 @@ module.exports = {
     const skeleton = json['skeleton'];
 
     const pattern = json['pattern'];
-    const rounding = json['rounding'];
+    const rounding = json['roundingMode'];
     let input = parseFloat(json['input']);  // May be changed with some options
 
     let options;
@@ -80,6 +83,13 @@ module.exports = {
         options = none;
       }
     } else {
+      // Default maximumFractionDigits and rounding modes are set in test generation
+      let roundingMode = options['roundingMode'];
+      if (! roundingMode) {
+        // Tests assume halfEven.
+        roundingMode = options['roundingMode'] = 'halfEven';
+      }
+
       // Check each option for implementation.
 
       // Handle percent - input value is the basis of the actual percent
@@ -140,6 +150,8 @@ module.exports = {
       // Formatting as JSON
       resultString = result ? result : 'None'
 
+
+
       outputLine = {"label": json['label'],
                     "result": resultString,
                    };
@@ -147,6 +159,7 @@ module.exports = {
       // Handle type of the error
       outputLine = {"label": json['label'],
                     "error": "formatting error",
+                    'error_detail': error.message
                    };
       if (error instanceof RangeError) {
         outputLine["error_detail"] =  error.message;

@@ -58,40 +58,57 @@ class generateData():
 
     def processCollationTestData(self):
         # Get each kind of collation tests and create a unified data set
-        json_test = {}
-        json_verify = {}
+        json_test = {'test_type': 'collation_short',
+                     'tests':[],
+                     'data_errors': []}
+        json_verify = {'test_type': 'collation_short',
+                       'verifications': []}
         insert_collation_header([json_test, json_verify])
 
+        start_count = 0
+
+        # Data from more complex tests in github's unicode-org/icu repository
+        # icu4c/source/test/testdata/collationtest.txt
+        test_complex, verify_complex, data_errors = generateCollTestData2(
+            'collationtest.txt',
+            self.icu_version,
+            ignorePunctuation=False,
+            start_count=len(json_test['tests']))
+
+        if verify_complex:
+            json_verify['verifications'].extend(verify_complex)
+        if test_complex:
+            json_test['tests'].extend(test_complex)
+        if data_errors:
+            json_test['data_errors'].extend(data_errors)
+
         # Collation ignoring punctuation
-        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
+        test_ignorable, verify_ignorable, data_errors =  generateCollTestDataObjects(
             'CollationTest_SHIFTED_SHORT.txt',
             self.icu_version,
             ignorePunctuation=True,
             start_count=0)
 
-        json_test['tests'] = test_ignorable
-        json_verify['verifications'] = verify_ignorable
-
-        if test_ignorable:
-            start_count = len(test_ignorable)
-        else:
-            start_count = 0
+        json_test['tests'].extend(test_ignorable)
+        if data_errors:
+            json_test['data_errors'].extend(data_errors)
+        json_verify['verifications'].extend(verify_ignorable)
 
         # Collation considering punctuation
-        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
+        test_nonignorable, verify_nonignorable, data_errors = generateCollTestDataObjects(
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
             start_count=start_count)
 
-        if json_verify['verifications']:
-            json_verify['verifications'].extend(verify_nonignorable)
-        else:
-            json_verify['verifications'] = verify_nonignorable
-        if test_nonignorable:
-            json_test['tests'].extend(test_nonignorable)
-        else:
-            json_test['tests'] = test_nonignorable
+        # Resample as needed
+        json_test['tests'].extend(test_nonignorable)
+        json_test['tests'] = self.sample_tests(json_test['tests'])
+        if data_errors:
+            json_test['data_errors'].extend(data_errors)
+
+        json_verify['verifications'].extend(verify_nonignorable)
+        json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
@@ -508,6 +525,10 @@ def resolveOptions(raw_options, skeleton_list):
         ('style' not in resolved or resolved['style'] != 'currency')):
         resolved['maximumFractionDigits'] = 6
 
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' in resolved and resolved['notation'] == 'compact')):
+        resolved['maximumFractionDigits'] = 2
+
     if skeleton_list and 'percent' in skeleton_list:
         resolved['style'] = 'unit'
         resolved['unit'] = 'percent'
@@ -575,6 +596,218 @@ def stringifyCode(cp):
     return teststring
 
 
+def generateCollTestData2(filename,
+                          icu_version,
+                          ignorePunctuation,
+                          start_count=0):
+    # Read raw data from complex test file, e.g., collation_test.txt
+    test_list, verify_list = None, None
+
+    label_num = start_count
+
+    encode_errors = []
+
+    test_list = []
+    verify_list = []
+
+    rawcolltestdata = readFile(filename, icu_version)
+    if not rawcolltestdata:
+        return test_list, verify_list
+
+    raw_testdata_list = rawcolltestdata.splitlines()
+    max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximate
+    recommentline = re.compile('^[\ufeff\s]*#(.*)')
+
+    root_locale = re.compile('@ root')
+    locale_string = re.compile('@ locale (\S+)')
+    test_line = re.compile('^\*\* test:(.*)')
+    rule_header_pattern = re.compile('^@ rules')
+    rule_pattern = re.compile('^&.*')
+
+    compare_pattern = re.compile('^\* compare(.*)')
+
+    comparison_pattern = re.compile('(\S+)\s+(\S+)\s*(\#?.*)')  # compare operator followed by string
+
+    attribute_test = re.compile('^\% (\S+)\s*=\s*(\S+)')
+    rules = ''
+
+    # Ignore comment lines
+    string1 = ''
+    string2 = ''
+    attributes = []
+    test_description = ''
+
+    # Get @ root or @ locale ...
+    # Check for "@ rules"
+    # Handle % options, e.g., strengt=h, reorder=, backwards=, caseFirst=,
+    #  ...
+    # Find "* compare" section and create list of tests for this,
+    # starting comparison with empty string ''.
+    # Handle compre options =, <, <1, <2, <3, <4
+
+    locale = ''
+    line_number = 0
+    num_lines = len(raw_testdata_list)
+    while line_number < num_lines:
+        line_in = raw_testdata_list[line_number]
+        line_number += 1
+
+        is_comment = recommentline.match(line_in)
+        if line_in[0:1] == '#' or is_comment or reblankline.match(line_in):
+            continue
+
+        if root_locale.match(line_in):
+            locale = 'und'
+            continue
+        locale_match = locale_string.match(line_in)
+        if locale_match:
+            locale = locale_match.group(1)
+            continue
+
+        # Find "** test" section
+        is_test =  test_line.match(line_in)
+        if is_test:
+            test_description = is_test.group(1)
+            rules = []
+            tests_for_test = []
+            locale = ''
+            attributes = []
+            continue
+
+        # Handle rules, to be applied in subsequent tests
+        is_rules = rule_header_pattern.match(line_in)
+        if is_rules:
+            # Read rule lines until  a "*" line is found
+            rules = []
+            # Skip comment and empty lines
+            while line_number < num_lines:
+                if line_number >= num_lines:
+                    break
+                line_in = raw_testdata_list[line_number]
+                if len(line_in) == 0 or line_in[0] == '#':
+                    line_number += 1
+                    continue
+                if line_in[0] == '*':
+                    break
+                rules.append(line_in.strip())
+                line_number += 1
+            continue
+
+        is_compare = compare_pattern.match(line_in)
+        if is_compare:
+            compare_mode = True
+            info = is_compare.group(1)
+            while line_number < num_lines:
+                line_number += 1
+                if line_number >= num_lines:
+                    break
+                line_in = raw_testdata_list[line_number]
+
+                if len(line_in) == 0 or line_in[0] == '#':
+                    continue
+                if line_in[0] == '*':
+                    break
+
+                is_comparison = comparison_pattern.match(line_in)
+                # Handle compare options =, <, <1, <2, <3, <4
+                if is_comparison:
+                    compare_type = is_comparison.group(1)
+                    compare_string = is_comparison.group(2)
+                    # Note that this doesn't seem to handle \x encoding, howeveer.
+                    try:
+                        s = compare_string.encode()
+                        string2 = s.decode('unicode_escape')
+                        #string2 = compare_string.encode().decode('unicode_escape')
+                    except UnicodeEncodeError as err:
+                        logging.error('%s: line: %d. PROBLEM ENCODING', err, line_number)
+                        continue
+
+                    compare_comment = is_comparison.group(3)
+
+                    label = str(label_num).rjust(max_digits, '0')
+                    label_num += 1
+                    test_case = {
+                        'label': label,
+                        's1': string1,
+                        'compare_type': compare_type,
+                        'test_description': test_description
+                    }
+
+                    # If either string has unpaired surrogates, ignore the case, with a warning
+                    if check_unpaired_surrogate_in_string(string2):
+                        # String 1 is the previous, already checked
+                        try:
+                            #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
+                            #                file_name, line_number, string1, compare_string)
+                            encode_errors.append([line_number, compare_string])
+                        except UnicodeEncodeError as err:
+                            logging.error('!!! Line %s encoding error: %s', err)
+
+                        string2 = compare_string
+                        test_case['warning'] = 'unpaired surrogate in test case - not decoded'
+
+                    else:
+                        string2 = compare_string.encode().decode('unicode_escape')
+
+                    test_case['s2'] = string2
+
+                    # Generate the test case
+                    label = str(label_num).rjust(max_digits, '0')
+                    label_num += 1
+                    if locale:
+                        test_case['locale'] = locale
+                    # Keep this for the next comparison test
+                    string1 = string2
+                    if compare_comment:
+                       test_case['compare_comment'] = compare_comment
+                    if rules:
+                        test_case['rules'] = '\n'.join(rules)
+                    if attributes:
+                        test_case['attributes'] = attributes
+                    test_list.append(test_case)
+                    verify_list.append({
+                        'label': label,
+                        'verify': True
+                    })
+                    # Just to record which ones belong to this test
+                    tests_for_test.append(test_case)
+            continue
+
+        is_attribute = attribute_test.match(line_in)
+        if is_attribute:
+            attributes.append([is_attribute.group(1), is_attribute.group(2)])
+            continue
+    if encode_errors:
+        logging.warning('!! %s File %s has DATA ERRORS: %s',
+                        filename, len(encode_errors), encode_errors)
+    return test_list, verify_list, encode_errors
+
+
+def check_unpaired_surrogate_in_string(text):
+    # Look for unmatched high/low surrogates in the text
+    high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+    low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
+
+    match_high = high_surrogate_pattern.findall(text)
+    match_low = low_surrogate_pattern.findall(text)
+
+    if not match_high and not match_low:
+        return False
+
+    if match_high and not match_low:
+        return True
+
+    if not match_high and match_low:
+        return True
+
+    # TODO: Check if each high match is immediately followed by a low match
+    # Now, assume that they are paired
+    return False
+
+
+
+    return False
+
 def generateCollTestDataObjects(filename,
                                 icu_version,
                                 ignorePunctuation,
@@ -637,7 +870,7 @@ def generateCollTestDataObjects(filename,
         logging.warning('!! %s File %s has DATA ERRORS: %s',
                         filename, len(data_errors), data_errors)
 
-    return test_list, verify_list
+    return test_list, verify_list, data_errors
 
 
 def insert_collation_header(test_objs):
