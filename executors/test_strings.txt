@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LANGUAGE DISPLAY NAMES
 {"test_type": "lang_names", "label": "01", "language_label": "en", "locale_label": "af"}
 {"test_type": "lang_names", "label": "01", "language_label": "", "locale_label": "fr"}
@@ -43,6 +44,35 @@
 {"test_type": "collation_short", "label":"0001377","s1":"\\u0009?","s2":"\\u000a!","line":12,"ignorePunctuation":true}
 {"test_type": "collation_short", "label":"00008","s1":"ä","s2":"Ã¤","compare_type":"=","test_description":" simple CEs & expansions","rules":"&\\x01\n<<<\\u0300\n&9<\\x00\n&\\uA00A\\uA00B=\\uA002\n&\\uA00A\\uA00B\\u00050005=\\uA003"}
 
+=======
+{"test_type": "display_names", "label": "01", "language_label": "en", "locale_label": "af"}
+{"test_type": "display_names", "label": "01", "language_label": "", "locale_label": "fr"}
+{"test_type": "display_names", "label": "01", "language_label": "de", "locale_label": "fr"}
+{"test_type": "display_names", "label": "02", "language_label": "fr", "locale_label": "de"}
+{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "ja"}
+{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "pt-PT"}
+{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "zh-CN"}
+{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "es"}
+{"test_type": "display_names", "label": "LANG_af_NA", "language_label": "en", "locale_label": "af_NA"}
+{"label":"188691","language_label":"zh_MO","locale_label":"en_150","test_type":"language_display_name"}
+{"label":"188691","language_label":"zh-TW","locale_label":"en","test_type":"language_display_name"}
+{"label":"188691","language_label":"zh","locale_label":"en","test_type":"language_display_name"}
+{"label":"zh zh","language_label":"zh","locale_label":"zh","test_type":"language_display_name"}
+{"label":"en zh","language_label":"en","locale_label":"zh-CN","test_type":"language_display_name"}
+{"label":"188691","language_label":"zh-CN","locale_label":"en","test_type":"language_display_name"}
+
+{"label":"zh en-150","language_label":"zh","locale_label":"en_150","test_type":"language_display_name"}
+
+# COLLATION
+{"test_type": "coll_shift_short", "label": "COLL_ABC1", "string1": "de", "string2" : "da"}
+{"test_type": "coll_shift_short", "label": "COLL_ABC2", "string1": "de", "string2" : "df"}
+{"test_type": "coll_shift_short", "label":"000009","string1":"\\u000d?","string2":"!"}
+{"test_type": "coll_shift_short", "label":"000017","string1":" !","string2":" !"}    
+
+# COLLATION Non-ignorable
+{"test_type": "coll_nonignorable_short", "label": "COLL_ABC1", "string1": "de", "string2" : "da"}
+{"test_type": "coll_nonignorable_short", "label": "COLL_ABC2", "string1": "de", "string2" : "df"}
+>>>>>>> 5099837 (Don't submit)
     
 {"test_type": "number_fmt", "label":"NUM_2345", "input": "23.45","locale":"it","options":{"maximumFractionDigits":3}}
 {"test_type": "number_fmt", "label":"NUM_2345", "input": "23.4567","locale":"fr","options":{"maximumFractionDigits":"1"}}
@@ -52,6 +82,7 @@
 {"test_type": "number_fmt", "label": "0000", "locale": "bn", "skeleton": "compact-short percent unit-width-narrow", "input": "123456", "options": { "notation": "compact", "compactDisplay": "short"}}
 
 {"label": "7333", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}
+<<<<<<< HEAD
 
 
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
@@ -68,6 +99,16 @@
 # LOCALE_INFO
 {"test_type":"likely_subtags", "option":"maximize", "locale":"en", "label":"en_max"}
 {"test_type":"likely_subtags", "option":"minimize", "locale":"en-US", "label":"en_min"}
+=======
+    
+{"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
+{"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"9182734567890","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}    
+
+# For testing rejection of unknown type
+{"test_type": "bogus_fmt", "label":"NUM_2345", "input": "23.45","locale":"it","options":{"maximumFractionDigits":3}}
+    
+# Local_info
+>>>>>>> 5099837 (Don't submit)
 {"test_type":"likely_subtags", "option":"maximize", "locale":"fr", "label":"1"}
 {"test_type":"likely_subtags", "option":"maximize", "locale":"fr-Latn-FR", "label":"1"}
 {"test_type":"likely_subtags", "option":"minimize", "locale":"fr-Latn-FR", "label":"1"}
@@ -77,13 +118,26 @@
 {"test_type":"likely_subtags", "option":"maximize", "locale":"af-Latn-AQ", "label":"bad_id_max"}    
 {"test_type":"likely_subtags", "label": "0006", "locale": "af", "option": "minimizeFavorRegion"}
 {"test_type":"likely_subtags", "label": "0007", "locale": "af", "option": "minimizeFavorScript"}
+<<<<<<< HEAD
 {"test_type":"likely_subtags", "label": "bad option", "locale": "af", "option": "who_knows"}
 
 
 {"test_type": "collation_short", "label": "00689", "s1": "101a", "compare_type": "<2", "test_description": " simple locale data test", "s2": "\u00c3\u00a4", "locale": "de"}
+=======
+
+
+>>>>>>> 5099837 (Don't submit)
 {"test_type": "collation_short", "label": "0000000", "s1": "\\u0009!", "s2": "\\u0009?", "ignorePunctuation": true}
 {"test_type": "collation_short", "label": "do_fail", "s1": "abc", "s2": "aba", "ignorePunctuation": true}
 {"test_type": "collation_short", "label": "dont_fail", "s1": "abc", "s2": "abe", "ignorePunctuation": true}
 
 {"test_type": "collation_short", "label": "0178423", "s1": "\udbff\udff8A", "s2": "\udbff\udff8b"},
+<<<<<<< HEAD
 {"test_type": "collation_short", "label": "0178424", "s1": "\udbff\udff8b", "s2": "\udbff\
+=======
+{"test_type": "collation_short", "label": "0178424", "s1": "\udbff\udff8b", "s2": "\udbff\udff9!"}    
+
+
+//
+{"test_type": "number_fmt", "label":"2062","locale":"es-MX","skeleton":"currency/EUR unit-width-narrow .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"narrow","maximumFractionDigits":3,"minimumFractionDigits":3}}
+>>>>>>> 5099837 (Don't submit)

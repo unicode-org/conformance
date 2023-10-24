@@ -551,6 +551,10 @@ def resolveOptions(raw_options, skeleton_list):
         ('style' not in resolved or resolved['style'] != 'currency')):
         resolved['maximumFractionDigits'] = 6
 
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' in resolved and resolved['notation'] == 'compact')):
+        resolved['maximumFractionDigits'] = 2
+
     if skeleton_list and 'percent' in skeleton_list:
         resolved['style'] = 'unit'
         resolved['unit'] = 'percent'
@@ -776,6 +780,7 @@ def generateCollTestData2(filename,
                             test_case['compare_type'] = compare_type
                     if test_description:
                         test_case['test_description'] = test_description
+
                     if compare_comment:
                        test_case['compare_comment'] = compare_comment
                     if rules:
@@ -785,6 +790,7 @@ def generateCollTestData2(filename,
 
                     test_list.append(test_case)
                     # We always expect True as the result
+
                     verify_list.append({
                         'label': label,
                         'verify': True
