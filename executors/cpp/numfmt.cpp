@@ -39,27 +39,27 @@ const string ret_value =
     "{\"label\": \"0000000\", \"result\": \"0\u00a0%\"}";
 
 const string test_numfmt(json_object *json_in) {
-  cout << "# NUM_FMT: " << json_object_to_json_string(json_in);
+  // cout << "# NUM_FMT: " << json_object_to_json_string(json_in);
 
   // TODO: implement parsing of input and formatting output
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
-  cout << "# NUM_FMT: " << json_object_get_string(label_obj);
+  //cout << "# NUM_FMT: " << json_object_get_string(label_obj);
 
   json_object *skeleton_obj = json_object_object_get(json_in, "skeleton");
   string skeleton = json_object_get_string(skeleton_obj);
-  cout << "# NUM_FMT: " << json_object_get_string(skeleton_obj);
+  //cout << "# NUM_FMT: " << json_object_get_string(skeleton_obj);
 
   json_object *locale_obj = json_object_object_get(json_in, "locale");
   string locale_string = json_object_get_string(locale_obj);
-  cout << "# NUM_FMT locale: " << json_object_get_string(locale_obj);
+  //cout << "# NUM_FMT locale: " << json_object_get_string(locale_obj);
 
   json_object *options_obj = json_object_object_get(json_in, "options");
   string options = json_object_get_string(options_obj);
-  cout << "# NUM_FMT: " << json_object_get_string(options_obj);
+  //cout << "# NUM_FMT: " << json_object_get_string(options_obj);
 
   json_object *input_obj = json_object_object_get(json_in, "input");
-  cout << "# NUM_FMT: " << json_object_get_string(input_obj);
+  //cout << "# NUM_FMT: " << json_object_get_string(input_obj);
 
   // CREATE FORMATTER AND EXECUTE IT
   Locale locale_selected(locale_string.c_str());
@@ -67,6 +67,7 @@ const string test_numfmt(json_object *json_in) {
   NumberFormat *fmt = NumberFormat::createInstance(locale_selected, status);
   check(status, "NumberFormat::createInstance");
 
+  // Actually call the number formatter
   string result = json_object_get_string(input_obj);
 
   json_object *return_json = json_object_new_object();
@@ -76,7 +77,7 @@ const string test_numfmt(json_object *json_in) {
                          json_object_new_string(result.c_str()));
 
   string return_str = json_object_to_json_string(return_json);
-  cout << "# NUM_FMT: " << return_str;
+  // cout << "# NUM_FMT: " << return_str;
   return return_str;
 }
 

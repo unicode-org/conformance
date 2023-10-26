@@ -41,8 +41,8 @@ const string test_collator(json_object *json_in)  //
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
 
-  json_object *str1 = json_object_object_get(json_in, "string1");
-  json_object *str2 = json_object_object_get(json_in, "string2");
+  json_object *str1 = json_object_object_get(json_in, "s1");
+  json_object *str2 = json_object_object_get(json_in, "s2");
 
   string string1 = json_object_get_string(str1);
   string string2 = json_object_get_string(str2);
