@@ -2,7 +2,6 @@
  * Executor provides tests for NumberFormat and DecimalFormat.
  */
 
-use fixed_decimal::CompactDecimal;
 use fixed_decimal::FixedDecimal;
 use fixed_decimal::SignDisplay;
 // TODO: use fixed_decimal::ScientificDecimal;
@@ -53,6 +52,9 @@ struct NumberFormatOptions {
     unit: Option<String>,
     unit_display: Option<String>,
     use_grouping: Option<bool>,
+    // unsupported options with special labels for conformance
+    conformance_scale: Option<String>,
+    conformance_decimal_always: Option<bool>,
 }
 
 // Runs decimal and number formatting given patterns or skeletons.
