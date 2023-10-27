@@ -116,22 +116,19 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // UNSUPPORTED THINGS.
     // This will change with new additions to ICU4X.
-    if style == "unit" ||
-        style == "currency" ||
-        unit == "percent" ||
-        is_scientific
-        ||
-        option_struct.minimum_significant_digits.is_some() ||
-        option_struct.maximum_significant_digits.is_some() ||
-        (
-        is_compact && (
-            option_struct.minimum_fraction_digits.is_some() ||
-            option_struct.maximum_fraction_digits.is_some() ||
-            option_struct.minimum_integer_digits.is_some() ||
-            option_struct.maximum_integer_digits.is_some() ||
-            option_struct.rounding_mode.is_some() ||
-            option_struct.sign_display.is_some()
-))
+    if style == "unit"
+        || style == "currency"
+        || unit == "percent"
+        || is_scientific
+        || option_struct.minimum_significant_digits.is_some()
+        || option_struct.maximum_significant_digits.is_some()
+        || (is_compact
+            && (option_struct.minimum_fraction_digits.is_some()
+                || option_struct.maximum_fraction_digits.is_some()
+                || option_struct.minimum_integer_digits.is_some()
+                || option_struct.maximum_integer_digits.is_some()
+                || option_struct.rounding_mode.is_some()
+                || option_struct.sign_display.is_some()))
     {
         return Ok(json!({
             "label": label,
@@ -150,7 +147,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // Returns error if parsing the number string fails.
     let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
-    
+
     let result_string = if is_compact {
         // We saw compact!
         let cdf = if compact_type == "short" {
@@ -208,12 +205,12 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
             Some("always") => Some(SignDisplay::Always),
             Some("exceptZero") => Some(SignDisplay::ExceptZero),
             Some("negative") => Some(SignDisplay::Negative),
-            _ => None
+            _ => None,
         };
         if let Some(sign_display) = sign_display {
             input_num.apply_sign_display(sign_display);
         }
-        
+
         // Apply the options and get formatted string.
         fdf.format(&input_num).write_to_string().into_owned()
     };
