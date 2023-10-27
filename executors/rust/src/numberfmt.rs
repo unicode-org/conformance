@@ -4,6 +4,7 @@
 
 use fixed_decimal::CompactDecimal;
 use fixed_decimal::FixedDecimal;
+use fixed_decimal::SignDisplay;
 // TODO: use fixed_decimal::ScientificDecimal;
 
 use icu::decimal::options;
@@ -45,6 +46,7 @@ struct NumberFormatOptions {
     minimum_integer_digits: Option<u8>,
     minimum_significant_digits: Option<u8>,
     notation: Option<String>,
+    numbering_system: Option<String>,
     rounding_mode: Option<String>,
     sign_display: Option<String>,
     style: Option<String>,
@@ -64,7 +66,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     } else {
         locale!("und")
     };
-    let data_locale = DataLocale::from(langid);
+    let mut data_locale = DataLocale::from(langid);
 
     let input = &json_obj["input"].as_str().unwrap();
 
@@ -104,13 +106,30 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // TODO: Use options to call operations including pad and trunc with rounding.
 
     // !! A test. More options to consider!
-    options.grouping_strategy = options::GroupingStrategy::Auto;
+    match option_struct.use_grouping {
+        Some(true) => options.grouping_strategy = options::GroupingStrategy::Always,
+        Some(false) => options.grouping_strategy = options::GroupingStrategy::Never,
+        _ => options.grouping_strategy = options::GroupingStrategy::Auto,
+    }
 
     // --------------------------------------------------------------------------------
 
     // UNSUPPORTED THINGS.
     // This will change with new additions to ICU4X.
-    if style == "unit" || style == "currency" || unit == "percent" || is_scientific {
+    if style == "unit"
+        || style == "currency"
+        || unit == "percent"
+        || is_scientific
+        || option_struct.minimum_significant_digits.is_some()
+        || option_struct.maximum_significant_digits.is_some()
+        || (is_compact
+            && (option_struct.minimum_fraction_digits.is_some()
+                || option_struct.maximum_fraction_digits.is_some()
+                || option_struct.minimum_integer_digits.is_some()
+                || option_struct.maximum_integer_digits.is_some()
+                || option_struct.rounding_mode.is_some()
+                || option_struct.sign_display.is_some()))
+    {
         return Ok(json!({
             "label": label,
             "error_detail": {"style": style,
@@ -122,7 +141,13 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     }
     // --------------------------------------------------------------------------------
 
+    if let Some(numsys) = option_struct.numbering_system.as_ref() {
+        data_locale.set_unicode_ext("nu".parse().unwrap(), numsys.parse().unwrap());
+    }
+
     // Returns error if parsing the number string fails.
+    let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
+
     let result_string = if is_compact {
         // We saw compact!
         let cdf = if compact_type == "short" {
@@ -132,6 +157,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
             CompactDecimalFormatter::try_new_long(&data_locale, Default::default()).unwrap()
         };
         // input.parse().map_err(|e| e.to_string())?;
+
         let input_num = FixedDecimal::from_str(input).map_err(|e| e.to_string())?;
         let formatted_cdf = cdf.format_fixed_decimal(input_num);
         formatted_cdf
@@ -148,13 +174,24 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         let fdf = FixedDecimalFormatter::try_new(&data_locale, options.clone())
             .expect("Data should load successfully");
 
-        let mut input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
         // Apply relevant options for digits.
+        if let Some(x) = option_struct.maximum_fraction_digits {
+            match option_struct.rounding_mode.as_deref() {
+                Some("ceil") => input_num.ceil(-(x as i16)),
+                Some("floor") => input_num.floor(-(x as i16)),
+                Some("expand") => input_num.expand(-(x as i16)),
+                Some("trunc") => input_num.trunc(-(x as i16)),
+                Some("halfCeil") => input_num.half_ceil(-(x as i16)),
+                Some("halfFloor") => input_num.half_floor(-(x as i16)),
+                Some("halfExpand") => input_num.half_expand(-(x as i16)),
+                Some("halfTrunc") => input_num.half_trunc(-(x as i16)),
+                Some("halfEven") => input_num.half_even(-(x as i16)),
+                _ => input_num.half_even(-(x as i16)),
+            };
+            input_num.trim_end();
+        }
         if let Some(x) = option_struct.minimum_fraction_digits {
             input_num.pad_end(-(x as i16));
-        }
-        if let Some(x) = option_struct.maximum_fraction_digits {
-            input_num.half_even(-(x as i16));
         }
         if let Some(x) = option_struct.maximum_integer_digits {
             input_num.set_max_position(x as i16);
@@ -162,6 +199,18 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         }
         if let Some(x) = option_struct.minimum_integer_digits {
             input_num.pad_start(x as i16);
+        }
+
+        let sign_display = match option_struct.sign_display.as_deref() {
+            Some("auto") => Some(SignDisplay::Auto),
+            Some("never") => Some(SignDisplay::Never),
+            Some("always") => Some(SignDisplay::Always),
+            Some("exceptZero") => Some(SignDisplay::ExceptZero),
+            Some("negative") => Some(SignDisplay::Negative),
+            _ => None,
+        };
+        if let Some(sign_display) = sign_display {
+            input_num.apply_sign_display(sign_display);
         }
 
         // Apply the options and get formatted string.
