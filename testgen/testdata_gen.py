@@ -402,6 +402,10 @@ def mapFmtSkeletonToECMA402(options):
     if o != 'scale/0.5' and o != 'decimal-always':
       option_detail = ecma402_map[o]
       options_dict = options_dict | option_detail
+    if o[0:5] == "scale":
+        options_dict = options_dict | {"conformanceScale": o[6:]}
+    if o == "decimal-always":
+        options_dict = options_dict | {"conformanceDecimalAlways": True}
 
    # TODO: resolve some combinations of entries that are in conflict
   return  options_dict
@@ -963,12 +967,12 @@ def main(args):
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 
+        data_generator.processNumberFmtTestData()
+
         # This is slow
         data_generator.processCollationTestData()
 
         data_generator.processLikelySubtagsData()
-
-        data_generator.processNumberFmtTestData()
 
         # This is slow
         data_generator.processLangNameTestData()
