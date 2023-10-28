@@ -124,6 +124,8 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         || is_scientific
         || option_struct.minimum_significant_digits.is_some()
         || option_struct.maximum_significant_digits.is_some()
+        || option_struct.conformance_scale.is_some()
+        || option_struct.conformance_decimal_always.is_some()
         || (is_compact
             && (option_struct.minimum_fraction_digits.is_some()
                 || option_struct.maximum_fraction_digits.is_some()

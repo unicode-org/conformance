@@ -403,9 +403,9 @@ def mapFmtSkeletonToECMA402(options):
       option_detail = ecma402_map[o]
       options_dict = options_dict | option_detail
     if o[0:5] == "scale":
-        options_dict = options_dict | {"conformance_scale": o[6:]}
+        options_dict = options_dict | {"conformanceScale": o[6:]}
     if o == "decimal-always":
-        options_dict = options_dict | {"conformance_decimal_always": True}
+        options_dict = options_dict | {"conformanceDecimalAlways": True}
 
    # TODO: resolve some combinations of entries that are in conflict
   return  options_dict
