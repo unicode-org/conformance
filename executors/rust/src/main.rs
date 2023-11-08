@@ -28,8 +28,6 @@ use std::collections::HashMap;
 use std::env;
 use std::io::{self};
 
-use substring::Substring;
-
 // Test modules for each type
 use collator::run_collation_test;
 use langnames::run_language_name_test;
@@ -60,10 +58,10 @@ fn main() -> io::Result<()> {
         if buffer_size == 0 {
             break;
         }
-        if buffer.substring(0, 5) == "#EXIT" {
+        if buffer.starts_with("#EXIT") {
             break;
         }
-        if buffer.substring(0, 6) == "#TESTS" {
+        if buffer.starts_with("#TESTS") {
             // Returns JSON list of supported tests.
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
@@ -76,15 +74,13 @@ fn main() -> io::Result<()> {
             println!("{}", json_result);
         }
 
-        if buffer.substring(0, 8) == "#VERSION" {
+        if buffer.starts_with("#VERSION") {
             // Get data version information from PackageMetadata
             // https://crates.io/crates/rustc_version_runtime
             // https://github.com/serde-rs/json
 
-            #[allow(deprecated)] // this function only exists in icu_testdata
-            let icu_version = &icu_testdata::versions::icu_tag();
-            #[allow(deprecated)]
-            let cldr_version = &icu_testdata::versions::cldr_tag();
+            let icu_version = icu_datagen::DatagenProvider::LATEST_TESTED_ICUEXPORT_TAG;
+            let cldr_version = icu_datagen::DatagenProvider::LATEST_TESTED_CLDR_TAG;
 
             let json_result = json!(
             {
