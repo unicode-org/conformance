@@ -702,6 +702,10 @@ def generateCollTestData2(filename,
                     continue
                 if line_in[0] == '*':
                     break
+                # Remove any comments in the line preceded by '#'
+                comment_start = line_in.find('#')
+                if comment_start >= 0:
+                    line_in = line_in[0:comment_start]
                 rules.append(line_in.strip())
                 line_number += 1
             continue
@@ -764,9 +768,7 @@ def generateCollTestData2(filename,
 
                     test_case['s2'] = string2
 
-                    # Generate the test case
-                    label = str(label_num).rjust(max_digits, '0')
-                    label_num += 1
+                    # Add info to the test case.
                     if locale:
                         test_case['locale'] = locale
                     # Keep this for the next comparison test
