@@ -1,6 +1,4 @@
-/*
- * Executor provides tests for Collator.
- */
+//! Executor provides tests for Collator.
 
 use serde_json::{json, Value};
 
