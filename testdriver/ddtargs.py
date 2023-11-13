@@ -147,14 +147,13 @@ def argsTestData():
       ['--test_type', 'collation_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
        'lang_names',
        'likely_subtags'],
-
       ['--test', 'collation_short', 'ALL', 'decimal_fmt'],
 
       ['--test_type', 'ALL'],
       '--type ALL decimal_fmt --exec a b c d'.split(),
 
       ['--exec', 'node'],
-      ['--exec nodens rust /bin/mytest'],
+      ['--exec node rust /bin/mytest'],
       '--exec node --test_type decimal_fmt --icu 71 --cldr 40'.split(),
       ['--exec', 'python py/exec.py'],
       '--test_random 1234'.split(),

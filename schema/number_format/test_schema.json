@@ -1,0 +1,184 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/number_format_test.json",
+ "title": "ICU Conformance test data description",
+ "description": "This documents the format of number format test data for execution",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["number_fmt"]
+   },
+   "Test scenario": {
+     "type": "string",
+     "description":" Obsolete tag to be removed and replaced with test Type"
+   },
+   "description": {
+     "type": "string"
+   },
+   "source": {
+     "type": "object",
+     "properties": {
+       "repository": {
+         "type": "string"
+       },
+       "version": {
+         "type": "string"
+       }
+     }
+   },
+   "url": {
+     "type": "string"
+   },
+   "tests": {
+     "description": "list of N test for collation each of type number_format",
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "locale": {
+           "description": "language tag for formatting the output",
+           "type": "string"
+         },
+         "skeleton": {
+           "description": "Skeleton-style description of parameters. Informational only. ",
+           "type": "string"
+         },
+         "input": {
+           "description": "string representation of the number to be formatted",
+           "type": "string"
+         },
+         "options": {
+           "description": "Formatting paramters for the number",
+           "type": "object",
+           "properties": {
+             "notation": {
+               "type": "string",
+               "description": "type of formatting, e.g., compact,scientific, unit, etc"
+             },
+             "compactDisplay": {
+               "type": "string",
+               "description": "more details on how to show compact values",
+               "enum": ["short", "long"],
+               "default": "short"
+             },
+             "signDisplay": {
+               "type": "string",
+               "description": "when toshow the sig for the number",
+               "enum": ["auto", "always", "exceptZero", "negative", "never"],
+               "default": "auto"                   
+             },
+             "style": {
+               "type": "string",
+               "description": "more details on the style of output",
+               "enum": ["decimal", "currency", "percent", "unit"]
+             },
+             "unit": {
+               "type": "string",
+               "description": "what unit to use in output"
+             },
+             "unitDisplay": {
+               "type": "string",
+               "description": "detail on showing the formatted unit",
+               "enum": ["long", "short", "narrow"]
+             },
+             "currency": {
+               "type": "string",
+               "description": "currency to use in curency formatting. ISo 4217 codes. Required if style is 'currency'"
+             },
+             "currencyDisplay": {
+               "type": "string",
+               "description": "detail on how to show the requested currency",
+               "enum": ["symbol", "narrowSymbol", "code", "name"],
+               "default": "symbol"
+             },
+             "minimumFractionDigits": {
+               "type": "integer",
+               "description": "minimum number of fraction digits to use",
+               "minimum": 0
+             },
+             "maximumFractionDigits": {
+               "type": "integer",
+               "description": "maximum number of fraction digits to use",
+               "minimum": 0
+             },
+             "minimumIntegerDigits": {
+               "type": "integer",
+               "description": "minimum number of integer digits to use",
+               "minimum": 0
+             },
+             "minimumSignificantDigits": {
+               "type": "integer",
+               "description": "minimum number of significant digits to use",
+               "minimum": 1
+             },
+             "maximumSignificantDigits": {
+               "type": "integer",
+               "description": "maximum number of significant digits to use",
+               "minimum": 1
+             },
+             "nu": {
+               "type": "string",
+               "description": "numbering system tor the output. From set of values",
+               "enum": ["adlm", "ahom", "arab", "arabext", "bali", "beng",
+                        "bhks", "brah", "cakm", "cham", "deva", "diak", "fullwide",
+                        "gong", "gonm", "gujr", "guru", "hanidec", "hmng", "hmnp",
+                        "java", "kali", "khmr", "knda", "lana", "lanatham", "laoo",
+                        "latn", "lepc", "limb", "mathbold", "mathdbl", "mathmono",
+                        "mathsanb", "mathsans", "mlym", "modi", "mong", "mroo", "mtei",
+                        "mymr", "mymrshan", "mymrtlng", "newa", "nkoo", "olck", "orya",
+                        "osma", "rohg", "saur", "segment", "shrd", "sind", "sinh",
+                        "sora", "sund", "takr", "talu", "tamldec", "telu", "thai",
+                        "tibt", "tirh", "vaii", "wara", "wcho"]
+             },
+             "roundingPriority": {
+               "type": "string",
+               "description": "how rounding is applied when both fraction and significant digits are specified",
+               "enum": ["auto", "morePrecision", "lessPrecision"],
+               "default": "auto"
+             },
+             "roundingMode": {
+               "type": "string",
+               "description": "rounding mode to be used",
+               "enum": ["ceil", "floor", "expand", "trunc",
+                        "halfCeil", "halfFloor", "halfExpand",
+                        "halfTrunc", "halfEven",
+                        "unnecessary"],
+               "default": "halfEven"
+             },
+             "roundingIncrement": {
+               "type": "integer",
+               "description": "increment used when rounding numbers",
+               "enum": [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500,
+                        1000, 2000, 2500, 5000]
+             },
+             "trailingZeroDisplay": {
+               "type": "string",
+               "description": "strategy for displaying trailing zeros on whole numbers",
+               "enum": ["auto", "stripIfInteger"],
+               "default": "auto"
+             },
+             "useGrouping": {
+               "type": ["boolean", "string"],
+               "description": "Should we group the outputs?",
+               "enum": [false, true, "always", "auto", "min2"],
+               "default": "auto"
+             }
+           }
+         }
+       },
+       "required": [
+         "label",
+         "input"
+       ]
+     }
+   }
+ },
+ "required": ["test_type", "tests"]
+}

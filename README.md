@@ -16,7 +16,7 @@ indicate the expected output from implementations when given the data and
 argument settings for each of the many individual data items.
 
 Note that these tests are only part of the testing required for ICU-compliant
-libraries. Many additional tests are implmeneted in the
+libraries. Many additional tests are implemented in the
 
 * !!! TODO: reference to data specifications
 
@@ -36,7 +36,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 
 * Data generation uses specifications starting with ICU versions 70, 71, etc. For each ICU release, these data should be updated.
 
-* Test execution allows setting the data version explictly with a command line
+* Test execution allows setting the data version explicitly with a command line
   argument --icuversion that points to the indicated test data. The ICU version
   of the test executor platform is requested from each platform at the start of
   the test driver. Output directories are created under the platform for the
@@ -66,7 +66,7 @@ Data generation creates two files:
 The test type is indicated with the "Test scenario" field.
 
 Individual data tests are stored as an array of items, each with a label and
-paramters to be set for computing a result.
+parameters to be set for computing a result.
 
   Example line for collation_short:
   ```
@@ -128,7 +128,7 @@ item
 the test case
 
 ### Open questions for the verifier:
-* What should bedone if the test driver fails to complete? How can this be
+* What should be done if the test driver fails to complete? How can this be
   determined?
 
     * Proposal: each test execution shall output a completion message,
@@ -151,7 +151,7 @@ set up as follows:
 ## Directory testOutput
 
 This contains a subdirectory for each executor. The output file from each test
-is stored in thes appropriate subdirectory. Each test result contains the label
+is stored in the appropriate subdirectory. Each test result contains the label
 of the test and the result of the test. This may be a boolean or a formatted
 string.
 
@@ -216,7 +216,7 @@ The verifier_test_report.json file contains information on tests run and compari
 
 * The executor and test type
 * Date and time of the test
-* Execution informtion, from the testResults directory
+* Execution information, from the testResults directory
 * Total number of tests executed
 * Total number of tests failing
 * Total number of tests succeeding

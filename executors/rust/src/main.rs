@@ -18,6 +18,7 @@
 
 mod collator;
 mod langnames;
+mod likelysubtags;
 mod numberfmt;
 
 use serde_json::{json, Value};
@@ -26,13 +27,13 @@ use std::collections::HashMap;
 
 use std::env;
 use std::io::{self};
-use std::panic;
 
 use substring::Substring;
 
 // Test modules for each type
 use collator::run_collation_test;
 use langnames::run_language_name_test;
+use likelysubtags::run_likelysubtags_test;
 use numberfmt::run_numberformat_test;
 
 // Read from stdin, call functions to get json, output the result.
@@ -44,11 +45,14 @@ fn main() -> io::Result<()> {
     // Supported tests names mapping to functions.
     // Use these strings to respond to test requests.
     let _supported_test_map = HashMap::from([
-        ("coll_shift_short".to_string(), run_collation_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
+        ("collation_short".to_string(), run_collation_test), // TODO: ,("number_fmt".to_string(), run_numberformat_test)
     ]);
 
     // TODO: supported_test_map to call the functions.
 
+    // TODO: Handle problem with
+    // Error: Custom { kind: INvalidData, error: Error{"unexpected end of hex escape"
+    // As in collation 000144, 0998, 0142
     let mut buffer = String::new();
 
     loop {
@@ -63,8 +67,11 @@ fn main() -> io::Result<()> {
             // Returns JSON list of supported tests.
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
-                { "supported_tests": ["coll_shift_short", "number_fmt", "decimal_fmt"] }
-                // { "supported_tests": test_vec }
+                { "supported_tests": [
+                    "collation_short",
+                    "number_fmt",
+                    "decimal_fmt",
+                    "likelysubtags"] }
             );
             println!("{}", json_result);
         }
@@ -74,37 +81,19 @@ fn main() -> io::Result<()> {
             // https://crates.io/crates/rustc_version_runtime
             // https://github.com/serde-rs/json
 
-            // These fail when executed by testDriver.py
-            // https://doc.rust-lang.org/std/panic/fn.catch_unwind.html
-            let check_icu_info = panic::catch_unwind(|| {
-                icu_testdata::versions::icu_tag();
+            #[allow(deprecated)] // this function only exists in icu_testdata
+            let icu_version = &icu_testdata::versions::icu_tag();
+            #[allow(deprecated)]
+            let cldr_version = &icu_testdata::versions::cldr_tag();
+
+            let json_result = json!(
+            {
+                "platform": "rust",
+                "platformVersion": rustc_version_runtime::version().to_string(),
+                "icuVersion": icu_version,
+                "cldrVersion": cldr_version,
             });
-
-            if check_icu_info.is_ok() {
-                let icu_version = &icu_testdata::versions::icu_tag();
-                let cldr_version = &icu_testdata::versions::cldr_tag();
-
-                let json_result = json!(
-                {
-                    "platform": "rust",
-                    "platformVersion": rustc_version_runtime::version().to_string(),
-                    "icuVersion": icu_version,
-                    "cldrVersion": cldr_version,
-                });
-                println!("{}", json_result);
-            } else {
-                let json_result = json!(
-                    {
-                        "platform": "rust",
-                        "platformVersion":
-                        rustc_version_runtime::version().to_string(),
-                        "icuVersion": "unknown",
-                        "cldrVersion": "unknown",
-                    }
-                );
-                log::debug!("# RESULT returned = {}", json_result.to_string());
-                println!("{}", json_result);
-            }
+            println!("{}", json_result);
         } else {
             // Expecting test information as JSON data in a single line.
 
@@ -119,8 +108,13 @@ fn main() -> io::Result<()> {
                 run_collation_test(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 run_numberformat_test(&json_info)
-            } else if (test_type == "display_names") || (test_type == "language_display_name") {
+            } else if (test_type == "display_names")
+                || (test_type == "language_display_name")
+                || (test_type == "lang_names")
+            {
                 run_language_name_test(&json_info)
+            } else if test_type == "likely_subtags" {
+                run_likelysubtags_test(&json_info)
             } else {
                 Err(test_type.to_string())
             };

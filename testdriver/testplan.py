@@ -194,14 +194,14 @@ class TestPlan:
             "test_language": self.test_lang,
             "executor": self.exec_command,
             "test_type": self.test_type,
-            "datetime": "%s" % run_date_time.strftime('%m/%d/%Y, %H:%M:%S'),
-            "timestamp": "%s" % timestamp,
+            "datetime": run_date_time.strftime('%m/%d/%Y, %H:%M:%S'),
+            "timestamp": timestamp,
             "input_file": self.inputFilePath,
 
             # These should come from the Executor
-            "icu_version": '%s' % self.icuVersion,
-            "cldr_version": '%s' % self.cldrVersion,
-            "test_count": "%d" % len(self.tests)
+            "icu_version": self.icuVersion,
+            "cldr_version": self.cldrVersion,
+            "test_count": len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment
         return test_environment
@@ -331,7 +331,7 @@ class TestPlan:
         # N tests may be given to send_one_line in a single batch.
         formatted_count = '{:,}'.format(test_count)
         for test in self.tests:
-            test.update({"test_type": self.testScenario})
+            test.update({"test_type": self.test_type})
 
             if self.progress_interval and test_num % self.progress_interval == 0:
                 formatted_num = '{:,}'.format(test_num)
@@ -478,6 +478,7 @@ class TestPlan:
         except KeyError as error:
             logging.warning('*** Cannot get testScenario from  %s. Err = %s',
                             self.inputFilePath, error)
+            self.testScenario = self.test_type
 
         self.tests = self.jsonData['tests']
         return self.tests
@@ -499,8 +500,25 @@ class TestPlan:
                 print('    ----> STDOUT= >%s<' % result.stdout)
                 self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' % (
                     result.returncode, result.stderr)
-                print(' !!!!!! %s' % self.run_error_message)
-            return None
+                logging.error(' !!!!!! %s' % self.run_error_message)
+
+                # TODO!!!! Return an error for the offending line instead of failing for the whole batch
+
+                return None
+                input = json.loads(input_line.replace('#EXIT', ''))
+                error_result = {'label': input['label'],
+                                'input_data': input,
+                                'error': self.run_error_message
+                }
+                return json.dumps(error_result)
         except BaseException as err:
             print('!!! send_one_line fails: input => %s<. Err = %s' % (input_line, err))
+            input = json.loads(input_line.replace('#EXIT', ''))
+            error_result = {'label': input['label'],
+                            'input_data': input,
+                            'error': err
+                            }
+            return json.dumps(error_result)
+
+
         return None

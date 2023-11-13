@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/unicode/conformance/collation_short_test.json'",
+  "title": "ICU Conformance test data description",
+  "description": "This documents the format of collation test data for execution",
+  "type": "object",
+  "properties": {
+    "additionalProperties": false,
+    "description": {
+      "type": "string"
+    },
+    "test_type": {
+      "description": "The name of this test",
+      "type": "string",
+     "enum": ["collation_short"]
+    },
+    "Test scenario": {
+      "type": "string",
+      "description":" Obsolete tag to be removed and replaced with test Type"
+    },
+    "tests": {
+      "description": "list of N test for collation each of type collation_short",
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "description": "A numeric ID, unique for the set of tests",
+            "type": "string"
+          },
+          "s1": {
+            "description": "First string for comparison",
+            "type": "string"
+          },
+          "s2": {
+            "description": "Second string for comparison",
+            "type": "string"
+          },
+          "locale": {
+            "description": "optional field indication locale tag for running test",
+            "type": "string"
+          },
+          "ignorePunctuation" : {
+            "description": "If collation should ignore punctuatio",
+            "type": "boolean"
+          },
+          "line" : {
+            "description": "line of the source of test data",
+            "type": "integer"
+          },
+          "compare_type": {
+            "description": "Optional method for comparing strings",
+            "type": "string"
+          },
+          "test_description": {
+            "description": "Option field telling about this particular test",
+            "type": "string"
+          },
+          "attributes": {
+            "description": "Optional information about this collation test",
+            "type": "array"
+          },
+          "rules": {
+            "description": "Optional custom rule set",
+            "type": "string"
+          },
+          "compare_comment": {
+            "description": "Optional information on comparison method",
+            "type": "string"
+          },          
+          "warning": {
+            "description": "Present when data has a problem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "s1",
+          "s2"
+        ]
+      }
+    }
+  }
+}

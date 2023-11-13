@@ -109,6 +109,12 @@ testDatasets[testName] = DataSet(testType.collation_short.value,
                                  'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
+testName = 'collation_short'
+testDatasets[testName] = DataSet(testType.collation_short.value,
+                                 'collation_test.json',
+                                 'collation_verify.json',
+                                 CLDRVersion.CLDR41, ICUVersion.ICU71)
+
 testName = 'decimal_fmt'
 testDatasets[testName] = DataSet(testType.decimal_fmt.value,
                                  'dcml_fmt_test_file.json',
@@ -117,8 +123,8 @@ testDatasets[testName] = DataSet(testType.decimal_fmt.value,
 
 testName = 'display_names'
 testDatasets[testName] = DataSet(testType.display_names.value,
-                                 'display_names.json',
-                                 'display_names_verify.json',
+                                 'lang_name_test_file.json',
+                                 'lang_name_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'lang_names'
