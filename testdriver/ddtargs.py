@@ -155,7 +155,7 @@ def argsTestData():
       ['--exec', 'node'],
       ['--exec node rust /bin/mytest'],
       '--exec node --test_type decimal_fmt --icu 71 --cldr 40'.split(),
-      ['--exec', 'python py/exec.py'],
+      ['--exec', 'python3 py/exec.py'],
       '--test_random 1234'.split(),
       ['--exec', '--custom_testfile', 'testData/customtest1.json',
        'testData/customtest2.json',
