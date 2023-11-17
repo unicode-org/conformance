@@ -2,7 +2,7 @@
 
 use serde_json::{json, Value};
 
-use icu_displaynames::{DisplayNamesOptions, LanguageDisplayNames};
+use icu::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
 
 use icu::locid::subtags::Language;
 use icu::locid::Locale;
