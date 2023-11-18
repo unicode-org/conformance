@@ -577,6 +577,15 @@ class TestReport:
                     except:
                         continue
 
+                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
+                    if test.get(key):  # For collation results
+                        value = test[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].append(label)
+                        else:
+                            results[key][value] = [label]
                 for key in ['ignorePunctuation']:
                     try:
                         if (test.get('input_data') and test['input_data'].get(key)):  # For collation results

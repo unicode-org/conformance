@@ -14,7 +14,7 @@ module.exports = {
     let testCollOptions = {};
     if ('ignorePunctuation' in json) {
       testCollOptions = {
-        ignorePunctuation:json['ignorePunction']}
+        ignorePunctuation:json['ignorePunctuation']}
     }
 
     // Get other fields if provided

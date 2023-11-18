@@ -734,6 +734,9 @@ def generateCollTestData2(filename,
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
                     # Note that this doesn't seem to handle \x encoding, howeveer.
+                    string2 = compare_string.encode().decode('unicode_escape')
+                    compare_comment = is_comparison.group(3)
+                    # Generate the test case
                     try:
                         s = compare_string.encode()
                         string2 = s.decode('unicode_escape')
