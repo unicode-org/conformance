@@ -8,6 +8,7 @@ import json
 
 
 import logging
+import logging.config
 import os.path
 import sys
 
@@ -17,6 +18,8 @@ from schema_files import SCHEMA_FILE_MAP
 from schema_files import ALL_TEST_TYPES
 
 def main(args):
+    logging.config.fileConfig("../logging.conf")
+
     if len(args) <= 1:
         logging.error('Please specify the path to the test output directory')
         exit(1)

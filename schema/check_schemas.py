@@ -7,6 +7,7 @@ import json
 
 
 import logging
+import logging.config
 import os.path
 import sys
 
@@ -16,6 +17,7 @@ from schema_files import ALL_TEST_TYPES
 class ValidateSchema():
     def __init__(self, schema_base='.'):
         self.schema_base = schema_base
+        logging.config.fileConfig("../logging.conf")
 
     def save_schema_validation_summary(self, validation_status):
 

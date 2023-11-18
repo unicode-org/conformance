@@ -30,3 +30,5 @@ testdriver/.local-chrome/
 testgen/*.json
 
 TEMP_DATA/*
+
+debug.log*
