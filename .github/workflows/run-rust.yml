@@ -9,10 +9,9 @@ on:
 jobs:
   rust_lint:
     strategy:
+      fail-fast: false
       matrix:
-        icu4x-version:
-          - 1.3
-          - 1.4
+        icu4x-version: [ '1.3', '1.4' ]
     name: Lint the executor code for ICU4X
     runs-on: ubuntu-latest
     steps:
@@ -26,10 +25,10 @@ jobs:
         name: "Run Clippy"
         with:
           command: clippy
-          args: --all-targets --all-features --manifest-path executors/rust/${{ icu4x-version }}/Cargo.toml
+          args: --all-targets --all-features --manifest-path executors/rust/${{ matrix.icu4x-version }}/Cargo.toml
       - uses: actions-rs/cargo@v1
         name: "Run Rustfmt"
         with:
           command: fmt
-          args: --manifest-path executors/rust/${{ icu4x-version }}/Cargo.toml -- --check
+          args: --manifest-path executors/rust/${{ matrix.icu4x-version }}/Cargo.toml -- --check
   
