@@ -13,6 +13,7 @@ from datetime import datetime
 import glob
 import json
 import logging
+import logging.config
 import os
 from string import Template
 import sys
@@ -45,6 +46,8 @@ class DiffSummary:
         self.single_diff_count = 0
 
         self.params_diff = {}
+
+        logging.config.fileConfig("../logging.conf")
 
     def add_diff(self, num_diffs, diff_list, last_diff):
         # Record single character differences
@@ -126,6 +129,8 @@ class TestReport:
         self.test_error_detail_template = templates.test_error_detail_template
 
         self.test_unsupported_template = templates.test_unsupported_template
+
+        logging.config.fileConfig("../logging.conf")
 
     def set_title(self, executor, result_version, test_type):
         self.title = 'Test %s executed on %s with data %s' % (test_type, executor, result_version)
@@ -871,6 +876,8 @@ class SummaryReport:
         self.entry_template = Template(
             '<td>$report_detail</td>'
         )
+
+        logging.config.fileConfig("../logging.conf")
 
     def get_json_files(self):
         # For each executor directory in testReports,

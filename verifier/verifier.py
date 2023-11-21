@@ -4,6 +4,7 @@ import datetime
 import glob
 import json
 import logging
+import logging.config
 import os
 import shutil
 import sys
@@ -61,6 +62,8 @@ class Verifier:
 
         # Filename used for the json version of verifier output
         self.report_filename = VERIFIER_REPORT_NAME
+
+        logging.config.fileConfig("../logging.conf")
 
     def open_verify_files(self):
         # Get test data, verify data, and results for a case.

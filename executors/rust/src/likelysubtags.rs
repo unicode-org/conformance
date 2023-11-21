@@ -1,15 +1,11 @@
-/*
- * Provides tests for likely subtags to mimimize and maximize.
- */
+//! Provides tests for likely subtags to mimimize and maximize.
 
 use serde_json::{json, Value};
 
 use icu::locid::Locale;
 use icu::locid_transform::LocaleExpander;
 
-use std::str::FromStr;
-
-// https://docs.rs/icu_locid_transform/latest/icu_locid_transform/
+// https://docs.rs/icu/latest/icu/locid_transform/
 
 // Function runs language names tests
 pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
@@ -21,7 +17,7 @@ pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
 
     let locale_str: &str = json_obj["locale"].as_str().unwrap();
 
-    let mut locale = Locale::from_str(locale_str).unwrap();
+    let mut locale = locale_str.parse::<Locale>().unwrap();
 
     if test_option == &"minimizeFavorRegion" {
         // This option is not yet supported.

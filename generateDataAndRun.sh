@@ -36,9 +36,9 @@ popd
 
 # Verify that schema files are valid
 pushd schema
-python check_schemas.py $pwd
+python3 check_schemas.py $pwd
 # And check generated data against schemas.
-python check_generated_data.py ../$TEMP_DIR/testData
+python3 check_generated_data.py ../$TEMP_DIR/testData
 popd
 
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
@@ -102,7 +102,7 @@ popd
 
 # Verify that test output matches schema.
 pushd schema
-python check_test_output.py ../$TEMP_DIR/testOutput
+python3 check_test_output.py ../$TEMP_DIR/testOutput
 popd
 
 # Verify everything

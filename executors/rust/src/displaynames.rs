@@ -1,15 +1,12 @@
-/*
- * Executor provides tests for DisplayNames.
- */
+//! Executor provides tests for DisplayNames.
 
 use serde_json::{json, Value};
 use std::io::{self, Write};
 
 use core::cmp::Ordering;
-use icu::displaynames::*;
 
+use icu::displaynames::*;
 use icu::locid::{locale, Locale};
-use icu_provider::DataLocale;
 
 // Function runs comparison using displaynames
 pub fn run_coll_test(json_obj: &Value) {
@@ -24,14 +21,13 @@ pub fn run_coll_test(json_obj: &Value) {
     } else {
         locale!("und")
     };
-    let data_locale = DataLocale::from(langid);
 
     let data_provider = icu_testdata::unstable();
 
     let mut options = DisplayNamesOptions::new();
 
     let displaynames: DisplayNames =
-        DisplayNames::try_new_unstable(&data_provider, data_locale, options).unwrap();
+        DisplayNames::try_new_unstable(&data_provider, langid.into(), options).unwrap();
 
     let result = displaynames.of(input);
 
