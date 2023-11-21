@@ -26,5 +26,8 @@ icu_datagen = { version = "~1.3", default-features = false }
 
 databake = { version = "0.1.3", features = ["derive"], optional = true}
 zerovec = { version = "0.10.0", features = ["yoke"] }
+
+[build-dependencies]
+cargo_metadata="0.18"
     
 [features]

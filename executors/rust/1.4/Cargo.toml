@@ -20,3 +20,7 @@ icu_datagen = { version = "~1.4", default-features = false }
 
 fixed_decimal ="0.5.3"
 writeable ="0.5.2"
+
+[build-dependencies]
+cargo_metadata="0.18"
+    
