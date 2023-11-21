@@ -52,8 +52,7 @@ class TestDriver:
                         # Run a non-specified executor. Compatibility of versions
                         # between test data and the executor should be done the text executor
                         # program itself.
-                        if self.debug:
-                            logging.info('!!! **** CUSTOM EXEC = %s', executor)
+                        logging.error('No executable command configured for executor platform: %s', executor)
                         exec_command = {'path': executor}
                     else:
                         # Set details for execution from ExecutorInfo
