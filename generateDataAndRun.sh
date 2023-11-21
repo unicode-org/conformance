@@ -45,14 +45,14 @@ all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 #
 # Run test data tests through all executors
 #
-# Compile Rust executor code for ICU4X 1.0
-if jq -e 'index("rust")' <<< $all_execs_json > /dev/null
-then
-    pushd executors/rust/
-    cargo clean
-    cargo build --release
-    popd
-fi
+# # Compile Rust executor code for ICU4X 1.0
+# if jq -e 'index("rust")' <<< $all_execs_json > /dev/null
+# then
+#     pushd executors/rust/
+#     cargo clean
+#     cargo build --release
+#     popd
+# fi
 
 if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
