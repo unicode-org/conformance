@@ -20,6 +20,7 @@
 #      faster but not hermetically isolated
 
 import argparse
+import logging
 import sys
 
 class DdtOptions():
@@ -172,12 +173,12 @@ def main(args):
   tests = argsTestData()
   for test in tests:
     try:
-      print('Args = %s' % test)
+      logging.debug('Args = %s' % test)
 
       result = argparse.parse(test)
-      print('  OPTIONS = %s' % argparse.options)
+      logging.debug('  OPTIONS = %s' % argparse.options)
     except BaseException as err:
-      print(' ERROR: %s ' % err)
+      logging.error(' ERROR: %s ' % err)
 
 if __name__ == "__main__":
     main(sys.argv)
