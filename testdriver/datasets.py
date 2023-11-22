@@ -7,6 +7,8 @@ from collections import defaultdict
 from enum import Enum
 
 import sys
+import logging
+import logging.config
 
 
 # Describes dataset and its versions.
@@ -21,6 +23,8 @@ class DataSet:
 
         self.status = None
         self.debug = False
+
+        logging.config.fileConfig("../logging.conf")
 
 
 def dataSetsForCldr(dataSets, cldr_version):
@@ -151,7 +155,7 @@ class ExecutorLang(Enum):
   NODE = "node"
   RUST = "rust"
   CPP = "cpp"
-  JAVA = "java"
+  ICU4J = "icu4j"
   DARTWEB = "dart_web"
   DARTNATIVE = "dart_native"
 
@@ -162,7 +166,7 @@ ExecutorCommands = {
     "dart_native" : "../executors/dart_native/bin/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "../executors/cpp/executor",
-    "java" : None
+    "icu4j" : "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
     }
 
 class ParallelMode(Enum):
@@ -214,7 +218,9 @@ IcuVersionToExecutorMap = {
     },
     'dart': {},
     'icu4c': {},
-    'icu4j': {},
+    'icu4j': {
+      '73': ['73']
+    },
 
 }
 # What versions of NodeJS use specific ICU versions
@@ -286,8 +292,8 @@ class ExecutorInfo():
       return {'path': lang}  # Nothing found
 
   def has(self, exec) :
-    if self.debug:
-      print('HAS %s in %s' % (exec, (self.systems.keys())))
+    logging.debug('HAS %s in %s', exec, (self.systems.keys()))
+
     try:
       return exec in self.systems
     except KeyError:
@@ -352,7 +358,11 @@ allExecutors.addSystem(system, '0.1.0',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71,
                        argList=['argA', 'argB', 'argZ'])
 
-system = ExecutorLang.JAVA
+system = ExecutorLang.ICU4J.value
+
+allExecutors.addSystem(system, '73',
+                       'mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor',
+                       CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,
@@ -396,6 +406,8 @@ def printCldrIcuMap():
       print('  %s not in map' % (name))
 
 def main(args):
+
+  logging.config.fileConfig("../logging.conf")
 
   printCldrIcuMap()
   print()

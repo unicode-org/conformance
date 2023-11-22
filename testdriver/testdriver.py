@@ -52,8 +52,7 @@ class TestDriver:
                         # Run a non-specified executor. Compatibility of versions
                         # between test data and the executor should be done the text executor
                         # program itself.
-                        if self.debug:
-                            logging.info('!!! **** CUSTOM EXEC = %s', executor)
+                        logging.error('No executable command configured for executor platform: %s', executor)
                         exec_command = {'path': executor}
                     else:
                         # Set details for execution from ExecutorInfo
@@ -61,6 +60,7 @@ class TestDriver:
                         exec_command = ddt_data.allExecutors.versionForCldr(
                             executor, resolved_cldr_version)
                         # The command needs to be something else!
+
                     new_plan = TestPlan(exec_command, test_type)
                     new_plan.set_options(arg_options)
                     new_plan.test_lang = executor.split()[0]
@@ -71,7 +71,8 @@ class TestDriver:
                     except KeyError as err:
                         logging.warning('!!! %s: No test data filename for %s', err, test_type)
 
-                    self.test_plans.append(new_plan)
+                    if not new_plan.ignore:
+                        self.test_plans.append(new_plan)
 
     def parse_args(self, args):
         # TODO: handle arguments for:

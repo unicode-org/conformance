@@ -35,6 +35,9 @@ class TestPlan:
         self.options = None
         self.testData = None
 
+        # Ignore this TestPlan. In other words, do not run
+        self.ignore = None
+
         # Additional args to subprocess.run
         self.args = args
 
@@ -62,6 +65,9 @@ class TestPlan:
             self.icu_version = options.icu_version
         except KeyError:
             logging.warning('NO ICU VERSION SET')
+
+        if options.ignore and not options.ignore == "null":
+            self.ignore = True
 
     def set_test_data(self, test_data):
         self.testData = test_data  # ???['tests']

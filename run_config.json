@@ -153,5 +153,16 @@
       ],
       "per_execution": 10000
     }
-  }  
+  },
+  {
+    "run": {
+      "icu_version": "icu73",
+      "exec": "icu4j",
+      "test_type": [
+        "collation_short"
+      ],
+      "per_execution": 10000,
+      "ignore": true
+    }
+  }
 ]
