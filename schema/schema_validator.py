@@ -93,10 +93,10 @@ class ConformanceSchemaValidator():
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
                 if self.debug > 0:
-                    logging.debug('Checking test data %s, %s', test_type, icu_version)
+                    logging.info('Checking test data %s, %s', test_type, icu_version)
                 logging.info('Checking %s, %s', test_type, icu_version)
                 result_data =  self.check_test_data_schema(icu_version, test_type)
-                print(result_data)
+                logging.debug('test result data = %s', result_data)
                 msg = result_data['err_info']
                 if not result_data['data_file_name']:
                     # This is not an error but simple a test that wasn't run.
@@ -105,7 +105,7 @@ class ConformanceSchemaValidator():
                     logging.warning('VALIDATION FAILS: %s %s. MSG=%s',
                                     test_type, icu_version, result_data['err_info'])
                 else:
-                    logging.warning('VALIDATION WORKS: %s %s', test_type, icu_version)
+                    logging.info('VALIDATION WORKS: %s %s', test_type, icu_version)
                 all_results.append(result_data)
         return all_results
 
@@ -244,7 +244,7 @@ class ConformanceSchemaValidator():
                         logging.warning('VALIDATION FAILS: %s %s %s. MSG=%s',
                                         test_type, icu_version, executor, results['err_info'])
                     else:
-                        logging.warning('VALIDATION WORKS: %s %s %s', test_type, icu_version, executor)
+                        logging.info('VALIDATION WORKS: %s %s %s', test_type, icu_version, executor)
                     all_results.append(results)
         return all_results
 
