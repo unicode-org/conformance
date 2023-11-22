@@ -266,7 +266,7 @@ def process_args(args):
     #   Directory for test result files
     # Get name of test and type
     if len(args) < 2:
-        print('you gotta give me something...')
+        logging.error('Not enough arguments provided')
         return
 
     base_folder = args[1]
@@ -327,10 +327,10 @@ def main(args):
     schema_validator.icu_versions = ['icu71', 'icu72', 'icu73', 'icu74']
     schema_validator.executors = ['node', 'rust', 'dart_web']
 
-    print('Checking test outputs')
+    logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
     for result in all_test_out_results:
-        print('  %s' % result)
+        logging.debug('  %s', result)
 
     # Check all schema files for correctness.
     schema_errors = schema_validator.check_schema_files()
@@ -342,16 +342,16 @@ def main(args):
     icu_versions = ['icu71', 'icu72', 'icu73', 'icu74']
     executor_list = ['node', 'rust', 'dart_web']
 
-    print('Checking generated data')
+    logging.info('Checking generated data')
     all_test_data_results = schema_validator.validate_test_data_with_schema()
     for result in all_test_data_results:
 
-        print('  %s' % result)
+        logging.debug('  %s', result)
 
-    print('Checking test outputs')
+    logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
     for result in all_test_out_results:
-        print('  %s' % result)
+        logging.debug('  %s', result)
     return
 
 if __name__ == "__main__":

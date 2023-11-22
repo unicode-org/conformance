@@ -85,7 +85,7 @@ def main(args):
     passed_validations = []
     schema_count = len(all_results)
     for result in all_results:
-        print(result)
+        logging.debug(result)
         if result['result']:
             passed_validations.append(result)
         else:

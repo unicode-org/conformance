@@ -100,7 +100,6 @@ class Verifier:
         try:
             self.report_file = open(self.report_path, encoding='utf-8', mode='w')
         except BaseException as err:
-            print('*** Cannot open file %s: Error = %s' % (self.report_path, err))
             logging.error('*** Cannot open file %s: Error = %s', self.report_path, err)
             return None
 
@@ -108,7 +107,6 @@ class Verifier:
         try:
             self.testdata_file = open(self.testdata_path, encoding='utf-8', mode='r')
         except BaseException as err:
-            print('*** Cannot open testdata file %s: Error = %s' % (self.testdata_path, err))
             logging.error('*** Cannot open testdata file %s: Error = %s', self.testdata_path, err)
             return None
 

@@ -131,7 +131,7 @@ class TestPlan:
         if self.options.run_limit:
             self.run_limit = int(self.options.run_limit)
             if self.debug:
-                print('!!! RUN LIMIT SET: %d' % self.run_limit)
+                logging.debug('!!! RUN LIMIT SET: %d', self.run_limit)
 
         if self.debug:
             logging.debug('Running plan %s on data %s',
@@ -192,7 +192,7 @@ class TestPlan:
             self.jsonOutput["platform error"] = self.run_error_message
         else:
             if self.debug:
-                print('TERMINATION INFO = %s' % result)
+                logging.debug('TERMINATION INFO = %s', result)
                 self.jsonOutput["platform"] = json.loads(result)
 
     def generate_header(self):
@@ -384,7 +384,7 @@ class TestPlan:
             return []
 
         if self.debug > 2:
-            print('PROCESSING %d tests' % len(tests_to_send))
+            logging.debug('PROCESSING %d tests', len(tests_to_send))
 
         # Ask process to exit when finished.
         out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT'
@@ -425,7 +425,7 @@ class TestPlan:
                 # Extract the message and check if we continue or not.
                 json_start = item.index('{')
                 json_text = item[json_start:]
-                print('JSON TEXT = %s' % json_text)
+                logging.debug('JSON TEXT = %s', json_text)
                 json_out = json.loads(json_text)
                 if 'error_retry' in json_out and json_out['error_retry']:
                     should_retry = json_out['error_retry']

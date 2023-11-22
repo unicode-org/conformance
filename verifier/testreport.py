@@ -979,8 +979,8 @@ class SummaryReport:
                     self.type_summary[test_type].append(test_results)
 
             except BaseException as err:
-                print('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s' % (
-                    executor, test_type, err))
+                logging.error('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s', 
+                    executor, test_type, err)
 
     def get_stats(self, entry):
         # Process items in a map to give HTML table value
@@ -1081,8 +1081,8 @@ class SummaryReport:
         html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
         if self.debug > 1:
-            print('HTML OUTPUT =\n%s' % html_output)
-            print('HTML OUTPUT FILEPATH =%s' % self.summary_html_path)
+            logging.debug('HTML OUTPUT =\n%s', html_output)
+            logging.debug('HTML OUTPUT FILEPATH =%s', self.summary_html_path)
         file.write(html_output)
         file.close()
 
