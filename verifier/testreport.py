@@ -774,9 +774,9 @@ class TestReport:
         if self.debug > 0:
             logging.info('--------- %s %s %d failures-----------',
                          self.exec, self.test_type, len(self.failing_tests))
-            logging.info('  SINGLE SUBSTITUTIONS: %s',
+            logging.debug('  SINGLE SUBSTITUTIONS: %s',
                          sort_dict_by_count(self.diff_summary.single_diffs))
-            logging.info('  PARAMETER DIFFERENCES: %s',
+            logging.debug('  PARAMETER DIFFERENCES: %s',
                          sort_dict_by_count(self.diff_summary.params_diff))
 
     def analyze_simple(self, test):
