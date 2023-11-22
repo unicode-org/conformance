@@ -7,7 +7,7 @@ use fixed_decimal::SignDisplay;
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
 
-use icu_compactdecimal::CompactDecimalFormatter;
+use icu::compactdecimal::CompactDecimalFormatter;
 
 use icu::locid::{extensions::unicode::key, locale, Locale};
 

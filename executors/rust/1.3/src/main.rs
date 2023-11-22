@@ -84,8 +84,8 @@ fn main() -> io::Result<()> {
 
             let json_result = json!(
             {
-                "platform": "rust",
-                "platformVersion": rustc_version_runtime::version().to_string(),
+                "platform": "ICU4X",
+                "platformVersion": std::env!("CONFORMANCE_ICU4X_VERSION"),
                 "icuVersion": icu_version,
                 "cldrVersion": cldr_version,
             });
