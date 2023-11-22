@@ -543,10 +543,10 @@ class TestReport:
                             value = input_data[key]
                             if key not in results:
                                 results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
                     except:
                         continue
 
@@ -557,10 +557,10 @@ class TestReport:
                             value = input_data[key]
                             if key not in results:
                                 results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
                     except:
                         continue
 
@@ -570,10 +570,10 @@ class TestReport:
                             value = test[key]
                             if key not in results:
                                 results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
                     except:
                         continue
 
@@ -592,10 +592,10 @@ class TestReport:
                             value = test['input_data'][key]
                             if key not in results:
                                 results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
                     except:
                         continue
 
@@ -950,7 +950,8 @@ class SummaryReport:
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
                     'version': platform,
-                    'icu_version': icu_version
+                    'icu_version': icu_version,
+                    'platform_version': '%s %s' % (platform['platform'], platform['platformVersion'])
                 }
             except BaseException as err:
                 logging.error('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
@@ -1012,14 +1013,20 @@ class SummaryReport:
 
         # Set of executors
         exec_set = set()
+        platform_version_list = set()
         for executor in self.exec_summary:
             exec_set.add(executor)
+            version = self.exec_summary[executor][0]['version']
+            platform_version_list.add(
+                '%s %s' % (version['platform'], version['platformVersion']))
 
         exec_list = sorted(list(exec_set))
+        platform_version_list = sorted(platform_version_list)
         # Build the table header
+
         header_list = ['<th>Test type</th>']
-        for executor in exec_list:
-            header_vals = {'header_data': executor}
+        for platform in platform_version_list:
+            header_vals = {'header_data': platform}
             header_list.append(self.header_item_template.safe_substitute(header_vals))
 
         html_map['exec_header_line'] = self.line_template.safe_substitute(
@@ -1036,12 +1043,12 @@ class SummaryReport:
                 row_items.append('<td>NOT TESTED</td>')
 
             index = 1
-            for executor in exec_list:
+            for platform_version in platform_version_list:
                 # Generate a TD element with the test data
                 for entry in self.type_summary[test]:
                     exec_version = entry['exec_version'].split('\n')[0]
                     # TODO: icu_version = entry['exec_version'].split('\n')[1]
-                    if entry['test_type'] == test and exec_version == executor:
+                    if entry['test_type'] == test and entry['platform_version'] == platform_version:
                         try:
                             # TODO: Add ICU version and detail link
                             link_info = '<a href="%s" target="_blank">Details</a>' % entry['html_file_name']
@@ -1049,9 +1056,8 @@ class SummaryReport:
                             row_items[index] = self.entry_template.safe_substitute(
                                 {'report_detail': icu_version_and_link})
                         except BaseException as err:
-                            print('!!!!! Error = %s' % err)
-                            print('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s' %
-                                  (test, executor, row_items, index))
+                            logging.error('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s. Error = %s',
+                                          test, executor, row_items, index, error)
                 index += 1
 
             data_rows.append(self.line_template.safe_substitute(
