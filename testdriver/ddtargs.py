@@ -140,6 +140,8 @@ def setCommonArgs(parser):
 
   parser.add_argument('--debug_level', default=None)
 
+  parser.add_argument('--ignore', default=None)
+
 def argsTestData():
   tests = [
       ['--test_type', 'collation_short'],
