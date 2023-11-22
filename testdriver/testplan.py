@@ -66,7 +66,7 @@ class TestPlan:
         except KeyError:
             logging.warning('NO ICU VERSION SET')
 
-        if options.ignore:
+        if options.ignore and not options.ignore == "null":
             self.ignore = True
 
     def set_test_data(self, test_data):
