@@ -153,8 +153,9 @@
           let exec_set = new Set();
           for (const test_type of test_types) {
               const tests = exec_summary_json[test_type];
-              for (node_version of tests) {
-                  exec_set.add(node_version['exec']);
+              for (const node_version of tests) {
+                    exec_set.add(node_version['version']['platform'])
+//                  exec_set.add(node_version['exec']);
               }
           }
 
@@ -166,6 +167,7 @@
           for (const exec of execs) {
               td = th.insertCell();
               td.innerHTML = exec;
+              td.style.textAlign = 'center';
               td = th.insertCell();
               td.innerHTML = "Details";
           }
@@ -184,11 +186,16 @@
                   let data = [data_groups];
                   let details = [];
                   for (const report of tests) {
-                      if (report['exec'] == exec) {
+                      if (report['version']['platform'] == exec) {
+//                      if (report['exec'] == exec) {
                           reports.push(report);
                           // Add data for this report.
+                          const version_label = report['version']['platformVersion'] +
+                              '\n' +
+                              report['version']['icuVersion'];
                           const report_data = [
-                              report['exec_version'],
+                              version_label,
+                        //      report['exec_version'],
                               report['pass_count'],
                               report['fail_count'],
                               report['error_count'],

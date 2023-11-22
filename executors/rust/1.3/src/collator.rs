@@ -1,6 +1,4 @@
-/*
- * Executor provides tests for Collator.
- */
+//! Executor provides tests for Collator.
 
 use serde_json::{json, Value};
 
@@ -48,7 +46,8 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     let json_result = json!({
         "label": label,
         "result": result_string,
-        "compare_result": comparison_number
+        "compare_result": comparison_number,
+        "actual_options": format!("{options:?}")
     });
     Ok(json_result)
 }

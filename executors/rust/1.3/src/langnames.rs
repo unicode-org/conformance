@@ -1,17 +1,11 @@
-/*
- * Executor provides tests for LanguageNames, a special case of DisplayNames.
- */
+//! Executor provides tests for LanguageNames, a special case of DisplayNames.
 
 use serde_json::{json, Value};
 
-use icu_displaynames::{DisplayNamesOptions, LanguageDisplayNames};
+use icu::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
 
 use icu::locid::subtags::Language;
 use icu::locid::Locale;
-
-use icu_provider::DataLocale;
-
-use std::str::FromStr;
 
 // Function runs language names tests
 pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
@@ -22,7 +16,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         .as_str()
         .unwrap()
         .replace('_', "-");
-    let input_lang_result = Language::from_str(&language_label);
+    let input_lang_result = language_label.parse::<Language>();
     let input_lang = match input_lang_result {
         Ok(l) => l,
         Err(_e) => {
@@ -55,7 +49,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    let langid_result = Locale::from_str(locale_name);
+    let langid_result = locale_name.parse::<Locale>();
 
     let langid = match langid_result {
         Ok(lid) => lid,
@@ -73,10 +67,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    // The locale data may not yet be supported.
-    let data_locale = DataLocale::from(&langid);
-
-    let display_name_formatter = LanguageDisplayNames::try_new(&data_locale, options);
+    let display_name_formatter = LanguageDisplayNames::try_new(&langid.into(), options);
 
     let json_result = match display_name_formatter {
         Ok(formatter) => {

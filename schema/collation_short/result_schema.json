@@ -83,6 +83,10 @@
          "error_message": {
            "description": "More about the error",
            "type": "string"
+         },
+         "actual_options": {
+           "description": "What was sent to the collation function",
+           "type": "string"
          }
        }
      },

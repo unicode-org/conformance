@@ -10,6 +10,7 @@ from jsonschema import ValidationError
 from jsonschema import exceptions
 
 import logging
+import logging.config
 import os.path
 import sys
 
@@ -32,6 +33,8 @@ class ConformanceSchemaValidator():
         self.executors = []
         self.icu_versions = []
         self.debug_leve = 0
+
+        logging.config.fileConfig("../logging.conf")
 
     def validate_json_file(self, schema_file_path, data_file_path):
         # Returns  True, None if data is validated against the schema
@@ -139,7 +142,7 @@ class ConformanceSchemaValidator():
             test_result = result
         results['result'] = result
         if result:
-            logging.info('Test data %s validated with %s, ICU %s', test_type, icu_version)
+            logging.info('Test data %s validated successfully, with ICU %s', test_type, icu_version)
         else:
             logging.error('Test data %s FAILED with ICU %s: %s', test_type, icu_version, err_info)
 

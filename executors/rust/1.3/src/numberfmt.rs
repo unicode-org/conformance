@@ -1,6 +1,4 @@
-/*
- * Executor provides tests for NumberFormat and DecimalFormat.
- */
+//! Executor provides tests for NumberFormat and DecimalFormat.
 
 use fixed_decimal::FixedDecimal;
 use fixed_decimal::SignDisplay;
@@ -9,16 +7,12 @@ use fixed_decimal::SignDisplay;
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
 
-use icu_compactdecimal::CompactDecimalFormatter;
+use icu::compactdecimal::CompactDecimalFormatter;
 
-use icu::locid::{locale, Locale};
-use icu_provider::DataLocale;
+use icu::locid::{extensions::unicode::key, locale, Locale};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-
-use std::panic;
-use std::str::FromStr;
 
 use writeable::Writeable;
 
@@ -62,13 +56,12 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
-    let langid = if json_obj.get("locale").is_some() {
+    let mut langid = if json_obj.get("locale").is_some() {
         let locale_name = &json_obj["locale"].as_str().unwrap();
-        Locale::from_str(locale_name).unwrap()
+        locale_name.parse::<Locale>().unwrap()
     } else {
         locale!("und")
     };
-    let mut data_locale = DataLocale::from(langid);
 
     let input = &json_obj["input"].as_str().unwrap();
 
@@ -90,19 +83,19 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         is_compact = true;
     }
     if option_struct.compact_display.is_some() {
-        compact_type = &option_struct.compact_display.as_ref().unwrap();
+        compact_type = option_struct.compact_display.as_ref().unwrap();
     }
     if option_struct.notation == Some(String::from("scientific")) {
         is_scientific = true;
     }
     if option_struct.style.is_some() {
-        style = &option_struct.style.as_ref().unwrap();
+        style = option_struct.style.as_ref().unwrap();
     }
     if option_struct.unit.is_some() {
-        unit = &option_struct.unit.as_ref().unwrap();
+        unit = option_struct.unit.as_ref().unwrap();
     }
     if option_struct.rounding_mode.is_some() {
-        _rounding_mode = &option_struct.rounding_mode.as_ref().unwrap();
+        _rounding_mode = option_struct.rounding_mode.as_ref().unwrap();
     }
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
     // TODO: Use options to call operations including pad and trunc with rounding.
@@ -146,7 +139,11 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // --------------------------------------------------------------------------------
 
     if let Some(numsys) = option_struct.numbering_system.as_ref() {
-        data_locale.set_unicode_ext("nu".parse().unwrap(), numsys.parse().unwrap());
+        langid
+            .extensions
+            .unicode
+            .keywords
+            .set(key!("nu"), numsys.parse().unwrap());
     }
 
     // Returns error if parsing the number string fails.
@@ -155,19 +152,16 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let result_string = if is_compact {
         // We saw compact!
         let cdf = if compact_type == "short" {
-            CompactDecimalFormatter::try_new_short(&data_locale, Default::default()).unwrap()
+            CompactDecimalFormatter::try_new_short(&langid.into(), Default::default()).unwrap()
         } else {
             println!("#{:?}", "   LONG");
-            CompactDecimalFormatter::try_new_long(&data_locale, Default::default()).unwrap()
+            CompactDecimalFormatter::try_new_long(&langid.into(), Default::default()).unwrap()
         };
         // input.parse().map_err(|e| e.to_string())?;
 
-        let input_num = FixedDecimal::from_str(input).map_err(|e| e.to_string())?;
+        let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
         let formatted_cdf = cdf.format_fixed_decimal(input_num);
-        formatted_cdf
-            //.map_err(|e| e.to_string())?
-            .write_to_string()
-            .into_owned()
+        formatted_cdf.write_to_string().into_owned()
     // }
     // else if is_scientific {
     //     let mut sci_decimal = input.parse::<ScientificDecimal>().map_err(|e| e.to_string());
@@ -175,7 +169,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     } else {
         // FixedDecimal
         // Can this fail with invalid options?
-        let fdf = FixedDecimalFormatter::try_new(&data_locale, options.clone())
+        let fdf = FixedDecimalFormatter::try_new(&langid.into(), options.clone())
             .expect("Data should load successfully");
 
         // Apply relevant options for digits.
@@ -218,7 +212,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         }
 
         // Apply the options and get formatted string.
-        fdf.format(&input_num).write_to_string().into_owned()
+        fdf.format_to_string(&input_num)
     };
 
     // Result to stdout.

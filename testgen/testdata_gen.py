@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+import logging.config
 import math
 import os
 import re
@@ -25,6 +26,8 @@ class generateData():
         self.icu_version = icu_version
         # If set, this is the maximum number of tests generated for each.
         self.run_limit = None
+
+        logging.config.fileConfig("../logging.conf")
 
     def setVersion(self, selected_version):
         self.icu_version = selected_version

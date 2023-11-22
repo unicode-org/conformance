@@ -2,6 +2,7 @@ from datetime import datetime
 import glob
 import json
 import logging
+import logging.config
 import os
 import subprocess
 import sys
@@ -52,6 +53,8 @@ class TestPlan:
         self.progress_interval = 1000
 
         self.verifier = None
+
+        logging.config.fileConfig("../logging.conf")
 
     def set_options(self, options):
         self.options = options

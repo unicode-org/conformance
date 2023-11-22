@@ -36,23 +36,23 @@ popd
 
 # Verify that schema files are valid
 pushd schema
-python check_schemas.py $pwd
+python3 check_schemas.py $pwd
 # And check generated data against schemas.
-python check_generated_data.py ../$TEMP_DIR/testData
+python3 check_generated_data.py ../$TEMP_DIR/testData
 popd
 
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 #
 # Run test data tests through all executors
 #
-# Compile Rust executor code for ICU4X 1.0
-if jq -e 'index("rust")' <<< $all_execs_json > /dev/null
-then
-    pushd executors/rust/
-    cargo clean
-    cargo build --release
-    popd
-fi
+# # Compile Rust executor code for ICU4X 1.0
+# if jq -e 'index("rust")' <<< $all_execs_json > /dev/null
+# then
+#     pushd executors/rust/
+#     cargo clean
+#     cargo build --release
+#     popd
+# fi
 
 if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
@@ -102,7 +102,7 @@ popd
 
 # Verify that test output matches schema.
 pushd schema
-python check_test_output.py ../$TEMP_DIR/testOutput
+python3 check_test_output.py ../$TEMP_DIR/testOutput
 popd
 
 # Verify everything
