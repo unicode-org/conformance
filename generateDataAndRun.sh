@@ -5,6 +5,9 @@
 # Save the results
 set -e
 
+# Rotate log files
+logrotate -s logrotate.state logrotate.conf
+
 ##########
 # Setup (generate) test data & expected values
 ##########
@@ -140,6 +143,3 @@ echo "End-to-end script finished successfully"
 # Clean up directory
 # ... after results are reported
 #rm -rf ../$TEMP_DIR
-
-# Rotate log files
-logrotate -s logrotate.state logrotate.conf
