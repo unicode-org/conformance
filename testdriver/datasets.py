@@ -288,7 +288,7 @@ class ExecutorInfo():
           return system[version]
       return {'path': ExecutorCommands[lang]}  # Nothing found
     except KeyError as err:
-      print('versionForCldr error = %s' % err)
+      logging.error('versionForCldr error = %s', err)
       return {'path': lang}  # Nothing found
 
   def has(self, exec) :
@@ -380,59 +380,55 @@ allExecutors.addSystem(system, DartVersion.Dart3,
 
 # TESTING
 def printExecutors(executors):
-  print('Executor paths:')
+  logging.debug('Executor paths:')
   for lang in executors.systems:
     ex = executors.systems[lang]
-    print('   %s' % (lang))
+    logging.debug('   %s', lang)
     for key in ex.keys():
-      print('     %s: %s' % (key, ex[key]['path']))
+      logging.debug('     %s: %s', key, ex[key]['path'])
 
 def printDatasets(ds):
-  print('Defined datasets:')
+  logging.debug('Defined datasets:')
   for item in ds:
-    print('  %s:' % (item))
-    print('    type: %s' % ds[item].test_type)
-    print('    test filename: %s' % ds[item].testDataFilename)
-    print('    verify filename: %s' % ds[item].verifyFilename)
-    print('    CLDR version: %s' % ds[item].cldr_version)
-    print('    ICU version: %s' % ds[item].icu_version)
+    logging.debug('  %s:', item)
+    logging.debug('    type: %s', ds[item].test_type)
+    logging.debug('    test filename: %s', ds[item].testDataFilename)
+    logging.debug('    verify filename: %s', ds[item].verifyFilename)
+    logging.debug('    CLDR version: %s', ds[item].cldr_version)
+    logging.debug('    ICU version: %s', ds[item].icu_version)
 
 def printCldrIcuMap():
-  print('CLDR version maps')
+  logging.debug('CLDR version maps')
   for name, member in CLDRVersion.__members__.items():
     try:
-      print('  %s in %s' % (name, cldr_icu_map[member]))
+      logging.debug('  %s in %s', name, cldr_icu_map[member])
     except KeyError:
-      print('  %s not in map' % (name))
+      logging.debug('  %s not in map', name)
 
 def main(args):
 
   logging.config.fileConfig("../logging.conf")
 
   printCldrIcuMap()
-  print()
   printDatasets(testDatasets)
-  print()
   printExecutors(allExecutors)
 
-  print()
   cldr_version = CLDRVersion.CLDR41
   ds = dataSetsForCldr(testDatasets, cldr_version)
-  print('test datasets for %s:' % cldr_version)
+  logging.info('test datasets for %s:', cldr_version)
   for label in ds:
-    print('  data file = %s' % (testDatasets[label].testDataFilename))
+    logging.info('  data file = %s', testDatasets[label].testDataFilename)
 
-  print()
-  print('All paths for testing %s' % (cldr_version))
+  logging.info('All paths for testing %s', cldr_version)
   lang = ExecutorLang.NODE
   for lang in [ExecutorLang.NODE, ExecutorLang.RUST, ExecutorLang.CPP,
                'newLanguage']:
     exec = allExecutors.versionsForCldr(lang, cldr_version)
-    print('  executor: %s' % (lang))
+    logging.info('  executor: %s', lang)
     if exec:
-      print('    path: %s argList=%s' % (exec['path'], exec['argList']))
+      logging.debug('    path: %s argList=%s', exec['path'], exec['argList'])
     else:
-      print('    ** No defined path')
+      logging.debug('    ** No defined path for executor\'s CLI command + args')
 
 if __name__ == '__main__':
     main(sys.argv)

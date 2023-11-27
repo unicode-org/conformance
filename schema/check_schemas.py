@@ -24,7 +24,7 @@ class ValidateSchema():
         failed_validations = []
         passed_validations = []
         for result in validation_status:
-            print(result)
+            logging.debug(result)
             if result['result']:
                 passed_validations.append(result)
             else:
@@ -99,13 +99,13 @@ def main(args):
     ok = val_schema.save_schema_validation_summary(validation_status)
 
     if schema_errors:
-        print('SCHEMA: %d fail out of %d:' % (
-            len(schema_errors), schema_count))
+        logging.error('SCHEMA: %d fail out of %d:', 
+            len(schema_errors), schema_count)
         for failure in schema_errors:
-            print('  %s' % failure)
+            logging.error('  %s', failure)
         exit(1)
     else:
-        print("All %d schema are valid" % schema_count)
+        logging.info("All %d schema are valid", schema_count)
         exit(0)
 
 
