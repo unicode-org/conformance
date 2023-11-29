@@ -490,6 +490,8 @@ class TestReport:
         # Flatten the dictionary.
         flat_items = {}
         for key, value in all_items.items():
+            if len(value) <= 0:
+                continue
             if type(value) == list:
                 flat_items[key] = value
             else:
@@ -527,20 +529,28 @@ class TestReport:
 
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error pars, too.
+            key_list = ['ignorePunctuation', 'options', 'unsupported_options', 'error_detail']
             input_data = test.get('input_data')
-            if input_data:
-                for key in ['ignorePunctuation', 'options', 'unsupported_options']:
-                    try:
-                        if (input_data.get(key)):  # For collation results
-                            value = test['input_data'][key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-                    except:
-                        continue
+            self.add_to_results_by_key(results, input_data, test, key_list)
+            error_detail = test.get('error_detail')
+            if error_detail:
+                error_keys = error_detail.keys()  # ['options']
+                self.add_to_results_by_key(results, error_detail, test, error_keys)
+
+            # if input_data:
+            #     add_to_results_by_key(results, input_data, test, key_list)
+            #     for key in key_list:
+            #         try:
+            #             if (input_data.get(key)):  # For collation results
+            #                 value = test['input_data'][key]
+            #                 if key not in results:
+            #                     results[key] = {}
+            #                 if value in results[key]:
+            #                     results[key][value].append(label)
+            #                 else:
+            #                     results[key][value] = [label]
+            #         except:
+            #             continue
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers

@@ -59,7 +59,7 @@ popd
 # Run Dart executors in a custom way
 #
 
-# TODO(?): Figure out why datasets.py can't support runnign multiple CLI commands,
+# TODO(?): Figure out why datasets.py can't support running multiple CLI commands,
 # if that is the reason why Dart needs custom handling in this end-to-end script
 
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')

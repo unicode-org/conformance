@@ -101,9 +101,8 @@ table th {
             count: 0,
             characterized: null,
             check_boxes: [],
-            selected_set: null,
             box_labels: [],
-            count: 0
+            selected_set: null
         },
         'fail': {
             json: null,
@@ -111,7 +110,7 @@ table th {
             characterized: null,
             check_boxes: [],
             box_labels: [],
-            selected_set: null,
+            selected_set: null
         },
         'error': {
             json: null,
@@ -119,8 +118,7 @@ table th {
             characterized: null,
             check_boxes: [],
             box_labels: [],
-            selected_set: null,
-            count: 0,
+            selected_set: null
         },
         'unsupported': {
             json: null,
@@ -132,7 +130,7 @@ table th {
         }
     };
 
-    // Get the JSON data from the tests. let test_results['unsupported'].json;
+    // Get the JSON data from the tests.
 
     // Characterizations of non-passing.
     let fail_char;
@@ -176,7 +174,6 @@ table th {
           p_unsupported_char.then((response) => response.json())
               .then((data) => {
                       test_results['unsupported'].characterized = data}),
-
 
           new Promise((resolve, reject) => {
               $(document).ready(resolve);
@@ -232,7 +229,7 @@ table th {
                 const labels_string = check_box.value;
                 const str_len = labels_string.length;
                 const labels = labels_string.split(",");
-                const newSet = new Set(labels);          
+                const newSet = new Set(labels);
                 if (! test_data.selected_set) {
                      // Start the set of selected items.
                     test_data.selected_set = newSet;
@@ -253,34 +250,28 @@ table th {
         const output = [...selected_count_items].filter(elem => elem.className == class_name);
         const newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
 
-        // TODO: Get the characterized data from the right set of items
+        // TODO: Get the characterized data from the correct set of items
         if (newSize == 0) {
             // Turn on all the check boxes in this group
             for (let index in test_data.check_boxes) {
                 const check_item = test_data.check_boxes[index];
-                const tag = box_class;
-                const check_div = document.getElementById(tag + "_div");
+                const check_div = check_item.parentElement;
                 check_div.style.display = 'block';
-                const check_box = document.getElementById(tag);
-                check_box.checked = false;
+                check_item.checked = false;
                 check_div.attributeStyleMap.clear();
             }
+            // Reset the count to all?
         } else {
-            // TODO: Look at all the sets that intersect with selected.
+            // Consider all the sets that intersect with selected.
             let intersection_checkboxes = [];
             for (let index in test_data.check_boxes) {
                 const check_item = test_data.check_boxes[index];
                 const label_string = check_item.value;
                 const str_len = label_string.length;
                 const labels = label_string.split(",");
-                // Make sure each label is trimmed.
-                for (let index in labels) {
-                  labels[index] = labels[index].trim();
-                }
                 const newSet = new Set(labels);
                 let intersectSet = new Set([...newSet].filter(i => test_data.selected_set.has(i)));
-    
-                // const div_for_checkbox = document.getElementById(tag + "_div");
+
                 const div_for_checkbox = check_item.parentElement;
                 if (intersectSet.size > 0) {
                     intersection_checkboxes.push(check_item);
@@ -303,7 +294,7 @@ table th {
         let selected_json_data = [];
         for (const item of test_results[item_type].json) {
             if (test_results[item_type].selected_set) {
-          
+
             let label = item['label'];
             if (test_results[item_type].selected_set.has(label)) {
                 selected_json_data.push(item);
@@ -438,53 +429,131 @@ table th {
         const test_info = test_results[data_class];
 
         // TODO: create "uncharacterized" entry for those not in category.
-        let all_labels = new Set();
+        let leftover_labels = new Set();
         const json = test_info['json'];
+        for (const item of json) {
+            leftover_labels.add(item['label']);
+        }
 
-        let data_set = test_info.characterized;
         let div_name = data_class + '_characterized';
-          let container = document.getElementById(div_name);
-          for (const item in data_set) {
-              let id = div_name + "_" + item;
-              let name = id;
-              const dict_values = data_set[item];
-              let count = 0;
-              for (let key of Object.keys(dict_values)) {
-                  const values = dict_values[key];
-                  if (Array.isArray(values)) {
-                    count += values.length;
-                  } else {
-                    count += 1;
-                  }
-              }
-              let box = document.createElement("INPUT");
-              box.setAttribute("type", "checkbox");
-              box.setAttribute("id", id);
-              box.setAttribute("name", name);
-              box.setAttribute("value", dict_values);
-              box.setAttribute("onclick", "checkboxChanged(this);");
-              box.className = data_class;
-              let label = document.createElement("label");
-              label.htmlFor = id;
-              const text = count + ":" + item;
-              label.appendChild(document.createTextNode(text));
+        let container = document.getElementById(div_name);
+        for (const characterization in test_info.characterized) {
+            let id = div_name + "_" + characterization;
+            let name = id;
+            const dict_values = test_info.characterized[characterization];
+            for (const label of dict_values) {
+                leftover_labels.delete(label);
+            }
+            let count = 0;
+            for (let key of Object.keys(dict_values)) {
+                const values = dict_values[key];
+                if (Array.isArray(values)) {
+                  count += values.length;
+                } else {
+                  count += 1;
+                }
+            }
+            const new_box = make_characterized_box(
+                id, data_class, characterization,
+                leftover_labels.size, container
+            );
+            let box = document.createElement("INPUT");
+            box.setAttribute("type", "checkbox");
+            box.setAttribute("id", id);
+            box.setAttribute("name", name);
+            box.setAttribute("value", [...dict_values]);
+            box.setAttribute("onclick", "checkboxChanged(this);");
+            box.className = data_class;
+            let box_label = document.createElement("label");
+            box_label.htmlFor = id;
+            const text = count + ":" + characterization;
+            box_label.appendChild(document.createTextNode(text));
 
-              let br = document.createElement('br');
-              if (container) {
-                  container.appendChild(box);
-                  container.appendChild(label);
-                  container.appendChild(br);
-              }
-              test_info.box_labels.push(item);
-              test_info.check_boxes.push(box);
-          }
+            let box_div = document.createElement("div");
+            box_div.setAttribute("id", "div_" + id);
+            let br = document.createElement('br');
+            box_div.appendChild(box);
+            box_div.appendChild(box_label);
+            box_div.appendChild(br);
+
+            if (container) {
+                container.appendChild(box_div);
+            }
+            test_info.box_labels.push(characterization);
+            test_info.check_boxes.push(box);
+        }
+        if (leftover_labels.size > 0) {
+            // Create a box with those and add to the set.
+            const characterization = "others";
+            let id = div_name + "_" + characterization;
+            const new_box = make_characterized_box(
+                id, data_class, characterization,
+                leftover_labels.size, container
+            );
+            test_info.box_labels.push(characterization);
+
+            let box = document.createElement("INPUT");
+            box.setAttribute("type", "checkbox");
+            box.setAttribute("id", id);
+            box.setAttribute("name", name);
+            box.setAttribute("value", [...leftover_labels]);  // Convert from set to list
+            box.setAttribute("onclick", "checkboxChanged(this);");
+            box.className = data_class;
+            let box_label = document.createElement("label");
+            box_label.htmlFor = id;
+            const text = leftover_labels.size + ":" + characterization;
+            box_label.appendChild(document.createTextNode(text));
+
+            let br = document.createElement('br');
+            let box_div = document.createElement("div");
+            box_div.setAttribute("id", "div_" + id);
+            box_div.appendChild(box);
+            box_div.appendChild(box_label);
+            box_div.appendChild(br);
+            if (container) {
+                container.appendChild(box_div);
+            }
+            test_info.check_boxes.push(box);
+        }
+    }
+
+    // This is not yet workking.
+    function make_characterized_box(
+        id, dict_values, data_class, characterization, count, container) {
+        let box = document.createElement("INPUT");
+        box.setAttribute("type", "checkbox");
+        box.setAttribute("id", id);
+        box.setAttribute("name", id);
+        box.setAttribute("value", dict_values);
+        box.setAttribute("onclick", "checkboxChanged(this);");
+        box.className = data_class;
+        let box_label = document.createElement("label");
+        box_label.htmlFor = id;
+        const text = count + ":" + characterization;
+        box_label.appendChild(document.createTextNode(text));
+
+        let box_div = document.createElement("div");
+        box_div.setAttribute("id", "div_" + id);
+        box_div.appendChild(box);
+        box_div.appendChild(box_label);
+        box_div.appendChild(document.createElement('br'));
+
+        if (container) {
+            container.appendChild(box_div);
+        }
+        return box;
     }
 
     function clearSelectedItems(the_button, test_class) {
-      // TODO: Clear all the check boxes
+      // TODO: Clear all the check boxes for this test_class.
+      const test_data = test_results[test_class];
+    for (const box in test_data.check_boxes) {
+        box.checked = false;
     }
-    
-    
+
+    }
+
+
 
 </script>
   </head>
@@ -520,7 +589,7 @@ table th {
             <div bp="3">
               <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>0</span>
                 <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>                
+                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
               </p>
               <div id='pass_characterized'>
               </div>
@@ -546,8 +615,8 @@ table th {
             <div bp="2">
               <p>Filtered count = <span id='selectedCount_fail' name='selectedCount' class='fail'>0</span>
                 <button id="showSelected" onclick="showSelectedItems(this, 'fail');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>                
-                
+                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+
               <div id='fail_characterized'>
                 </div>
             </div>  <!-- end of checkbox div -->
@@ -572,8 +641,8 @@ table th {
             <div bp="3">
               <p>Filtered count = <span id='selectedCount_error' name='selectedCount' class='error'>0</span>
                 <button id="showSelected_errors" onclick="showSelectedItems(this, 'error');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>                
-                
+                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+
               </p>
               <div id='errors_characterized'>
                 </div>
@@ -598,7 +667,7 @@ table th {
             <div bp="3">
               <p>Filtered count = <span id='selectedCount_unsupported' name='selectedCount' class='unsupported'>0</span>
                 <button id="showSelected_unsupported" onclick="showSelectedItems(this, 'unsupported');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>                
+                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
               </p>
               <dir id='unsupported_characterized'>
                 </div>
