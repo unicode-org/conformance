@@ -252,6 +252,10 @@ Requirements to run Data Driven Testing code locally:
         ```
         rustup update
         ```
+  - Install `logrotate`
+      ```
+      sudo apt-get install logrotate
+      ```
 
 # History
 

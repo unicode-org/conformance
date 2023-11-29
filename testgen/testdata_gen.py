@@ -143,7 +143,7 @@ class generateData():
             json.dump(json_verify, num_fmt_verify_file, indent=1)
             num_fmt_verify_file.close()
 
-            logging.warning('NumberFormat Test (%s): %s tests created', self.icu_version, count)
+            logging.info('NumberFormat Test (%s): %s tests created', self.icu_version, count)
         return
 
     def processLangNameTestData(self):

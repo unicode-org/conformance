@@ -26,7 +26,7 @@ def main(args):
     else:
         test_output_path = args[1]
 
-    print('TEST OUTPUT PATH = %s' % test_output_path)
+    logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
     logger.setLevel(logging.INFO)
@@ -61,8 +61,8 @@ def main(args):
             icu_version_set.add(os.path.basename(dir))
 
     icu_versions = sorted(list(icu_version_set))
-    print('ICU directories = %s' % icu_versions)
-    print('test types = %s' % ALL_TEST_TYPES)
+    logging.debug('ICU directories = %s', icu_versions)
+    logging.debug('test types = %s', ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
@@ -78,14 +78,14 @@ def main(args):
     schema_count = 0
 
     all_results = validator.validate_test_output_with_schema()
-    print('  %d results for generated test data' % (len(all_results)))
+    logging.debug('  %d results for generated test data', len(all_results))
 
     schema_errors = 0
     failed_validations = []
     passed_validations = []
     schema_count = len(all_results)
     for result in all_results:
-        print(result)
+        logging.debug(result)
         if result['result']:
             passed_validations.append(result)
         else:
@@ -114,13 +114,13 @@ def main(args):
 
 
     if schema_errors:
-        print('Test data file files: %d fail out of %d:' % (
-            len(schema_errors, schema_count)))
+        logging.error('Test data file files: %d fail out of %d:', 
+            len(schema_errors, schema_count))
         for failure in schema_errors:
-            print('  %s' % failure)
+            logging.error('  %s', failure)
         exit(1)
     else:
-        print("All %d test output files match with schema" % schema_count)
+        logging.info("All %d test output files match with schema", schema_count)
         exit(0)
 
 if __name__ == "__main__":
