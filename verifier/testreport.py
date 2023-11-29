@@ -9,8 +9,7 @@ from difflib import HtmlDiff
 from difflib import Differ
 from difflib import SequenceMatcher
 
-from datetime import datetime>>>>>>> main
-520
+from datetime import datetime
 
 import glob
 import json
@@ -504,17 +503,14 @@ class TestReport:
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
         return flat_combined_dict
 
- def characterize_failures_by_options(self, tests, result_type):
+    def characterize_failures_by_options(self, tests, result_type):
         # Looking at options
         results = defaultdict(list)
         for test in tests:
             try:
                 label = test['label']
             except:
-                label = ''>>>>>>> main
-520
-
-
+                label = ''
             key_list = ['locale', 'locale_label', 'option', 'options',
                         'language_label', 'ignorePunctuation', 'compare_result',
                         'compare_type', 'test_description', 'unsupported_options']
