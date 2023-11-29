@@ -502,7 +502,7 @@ class TestReport:
 
     def characterize_failures_by_options(self, failing_tests):
         # User self.failing_tests, looking at options
-        results = {}
+        results = defaultdict(list)
         results['locale'] = {}  # Dictionary of labels for each locale
         for test in failing_tests:
             # Get input_data, if available
@@ -564,7 +564,8 @@ class TestReport:
                     except:
                         continue
 
-                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
+                options =['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']
+                for key in options:
                     try:
                         if test.get(key):  # For collation results
                             value = test[key]
@@ -601,7 +602,6 @@ class TestReport:
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
-            # Sort these by number of items in each set.
             # TODO: Find the largest intersections of these sets and sort by size
             combo_list = [(combo, len(results[combo])) for combo in results]
             combo_list.sort(key=take_second, reverse=True)
@@ -924,7 +924,7 @@ class SummaryReport:
             executor = ''
 
             icu_version = os.path.basename(os.path.dirname(dir_path))
-            test_results = {}
+            test_results = defaultdict(list)
             test_type = None
             try:
                 executor = test_environment['test_language']
