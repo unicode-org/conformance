@@ -541,110 +541,110 @@ table th {
     </div>
     <br>
     <div id='test_result_details' class='test_results'>
-    <details>
-      <summary>Passing tests <span id='pass_count'>($passing_tests)</span></summary>
-      <!-- Using pagination.js -->
-      <div id="pass-pagination-container"></div>
-      <div id="pass-data-container"></div>
-      <div id='testPassCharacterized'>
-        <details>
-          <summary class="pass">Passing tests characterized</summary>
-          <div bp="grid">
-            <div bp="3">
-              <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>0</span>
-                <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
-              </p>
-              <div id='pass_characterized'>
+      <details>
+        <summary>Passing tests <span id='pass_count'>($passing_tests)</span></summary>
+        <!-- Using pagination.js -->
+        <div id="pass-pagination-container"></div>
+        <div id="pass-data-container"></div>
+        <div id='testPassCharacterized'>
+          <details>
+            <summary class="pass">Passing tests characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>0</span>
+                  <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">Update display</button>
+                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+                </p>
+                <div id='pass_characterized'>
+                </div>
+              </div>  <!-- end of checkbox div -->
+              <div bp="9">
+                <div id="characterized-pagination-container_pass"></div>
+                <div id="characterized-data-container_pass"></div>
               </div>
-            </div>  <!-- end of checkbox div -->
-            <div bp="9">
-              <div id="characterized-pagination-container_pass"></div>
-              <div id="characterized-data-container_pass"></div>
-            </div>
-          </div> <!-- grid end -->
-        </details>
-      </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
 
-    </details>
+      </details>
 
-    <details>
-      <summary>Failing tests <span id='fail_count'>($failing_tests)</span></summary>
-      <div id="fail-pagination-container"></div>
-      <div id="fail-data-container"></div>
-      <div id='testFailuresCharacterized'>
-        <details>
-          <summary class="fail">Failures characterized</summary>
-          <div bp="grid">
-            <div bp="2">
-              <p>Filtered count = <span id='selectedCount_fail' name='selectedCount' class='fail'>0</span>
-                <button id="showSelected" onclick="showSelectedItems(this, 'fail');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+      <details>
+        <summary>Failing tests <span id='fail_count'>($failing_tests)</span></summary>
+        <div id="fail-pagination-container"></div>
+        <div id="fail-data-container"></div>
+        <div id='testFailuresCharacterized'>
+          <details>
+            <summary class="fail">Failures characterized</summary>
+            <div bp="grid">
+              <div bp="2">
+                <p>Filtered count = <span id='selectedCount_fail' name='selectedCount' class='fail'>0</span>
+                  <button id="showSelected" onclick="showSelectedItems(this, 'fail');">Update display</button>
+                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
 
-              <div id='fail_characterized'>
+                  <div id='fail_characterized'>
+                  </div>
+              </div>  <!-- end of checkbox div -->
+              <div bp="10">
+                <div id="characterized-pagination-container_fail"></div>
+                <div id="characterized-data-container_fail"></div>
+              </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
+      </details>  <!-- failing tests -->
+
+      <details>
+        <summary>Test errors <span id='error_count'>($error_count)</span></summary>
+        <h2 id='testErrors'>Test Errors ($error_count)</h2>
+        <div id="error-pagination-container"></div>
+        <div id="error-data-container"></div>
+        <div id='testErrorsCharacterized'>
+          <details>
+            <summary class="error">Errors characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_error' name='selectedCount' class='error'>0</span>
+                  <button id="showSelected_errors" onclick="showSelectedItems(this, 'error');">Update display</button>
+                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+
+                </p>
+                <div id='errors_characterized'>
                 </div>
-            </div>  <!-- end of checkbox div -->
-            <div bp="10">
-              <div id="characterized-pagination-container_fail"></div>
-              <div id="characterized-data-container_fail"></div>
-            </div>
-          </div> <!-- grid end -->
-        </details>
-      </div>
-    </details>  <!-- failing tests -->
+              </div>  <!-- end of checkbox div -->
+              <div bp="9">
+                <div id="characterized-pagination-container_error"></div>
+                <div id="characterized-data-container_error"></div>
+              </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
+      </details>
 
-    <details>
-      <summary>Test errors <span id='error_count'>($error_count)</span></summary>
-      <h2 id='testErrors'>Test Errors ($error_count)</h2>
-      <div id="error-pagination-container"></div>
-      <div id="error-data-container"></div>
-      <div id='testErrorsCharacterized'>
-        <details>
-          <summary class="error">Errors characterized</summary>
-          <div bp="grid">
-            <div bp="3">
-              <p>Filtered count = <span id='selectedCount_error' name='selectedCount' class='error'>0</span>
-                <button id="showSelected_errors" onclick="showSelectedItems(this, 'error');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
-
-              </p>
-              <div id='errors_characterized'>
-                </div>
-            </div>  <!-- end of checkbox div -->
-            <div bp="9">
-              <div id="characterized-pagination-container_error"></div>
-              <div id="characterized-data-container_error"></div>
-            </div>
-          </div> <!-- grid end -->
-        </details>
-      </div>
-    </details>
-
-    <details>
-      <summary>Unsupported tests <span id='unsupported_count'>($unsupported_count)</span></summary>
-      <div id="unsupported-pagination-container"></div>
-      <div id="unsupported-data-container"></div>
-      <div id='testUnsupportedCharacterized'>
-        <details>
-          <summary class="unsupported">Unsupported characterized</summary>
-          <div bp="grid">
-            <div bp="3">
-              <p>Filtered count = <span id='selectedCount_unsupported' name='selectedCount' class='unsupported'>0</span>
-                <button id="showSelected_unsupported" onclick="showSelectedItems(this, 'unsupported');">Update display</button>
-                <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
-              </p>
-              <dir id='unsupported_characterized'>
-                </div>
+      <details>
+        <summary>Unsupported tests <span id='unsupported_count'>($unsupported_count)</span></summary>
+        <div id="unsupported-pagination-container"></div>
+        <div id="unsupported-data-container"></div>
+        <div id='testUnsupportedCharacterized'>
+          <details>
+            <summary class="unsupported">Unsupported characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_unsupported' name='selectedCount' class='unsupported'>0</span>
+                  <button id="showSelected_unsupported" onclick="showSelectedItems(this, 'unsupported');">Update display</button>
+                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+                </p>
+                <div id='unsupported_characterized'>
+              </div>
             </div>  <!-- end of checkbox div -->
             <div bp="9">
               <div id="characterized-pagination-container_unsupported"></div>
               <div id="characterized-data-container_unsupported"></div>
             </div>
-          </div> <!-- grid end -->
+        </div> <!-- grid end -->
         </details>
-      </div>
-    </details>
     </div>
+    </details>
+</div>
 
-  </body>
+</body>
 </html>
