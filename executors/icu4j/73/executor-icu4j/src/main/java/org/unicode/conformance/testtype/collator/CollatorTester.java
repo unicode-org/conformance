@@ -21,6 +21,6 @@ public class CollatorTester implements ITestType {
 
   @Override
   public String formatOutputJson(ITestTypeOutputJson outputJson) {
-    return ExecutorUtils.GSON.toJson(outputJson);
+    return ExecutorUtils.GSON.toJson((CollatorOutputJson) outputJson);
   }
 }
