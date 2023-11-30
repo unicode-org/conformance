@@ -439,7 +439,6 @@ table th {
         let container = document.getElementById(div_name);
         for (const characterization in test_info.characterized) {
             let id = div_name + "_" + characterization;
-            let name = id;
             const dict_values = test_info.characterized[characterization];
             for (const label of dict_values) {
                 leftover_labels.delete(label);
@@ -474,16 +473,17 @@ table th {
         }
     }
 
-    // This is not yet working.
+    /*
+      Create a check box with the labels for a characterization.
+        id: data_class plus the characterization
+        dict_values: the set of labels attached to this check box
+        data_class: one of "pass", "fail", etc.
+        characterization: string describing the identified attribute(s)
+        count: how many are in the list of labels
+        container: the HTML object containing the div of this checkbox
+    */
     function make_characterized_box(
         id, dict_values, data_class, characterization, count, container) {
-        /* id: data_class plus the characterization
-          dict_values: the set of labels attached to this check box
-          data_class: one of "pass", "fail", etc.
-          characterization: string describing the identified attribute(s)
-          count: how many are in the list of labels
-          container: the HTML object containing the div of this checkbox
-          */
         let box = document.createElement("INPUT");
         box.setAttribute("type", "checkbox");
         box.setAttribute("id", id);
