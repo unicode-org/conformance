@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.unicode.conformance.testtype.CollatorInputJson;
-import org.unicode.conformance.testtype.CollatorOutputJson;
-import org.unicode.conformance.testtype.CollatorTester;
+import org.unicode.conformance.testtype.collator.CollatorInputJson;
+import org.unicode.conformance.testtype.collator.CollatorOutputJson;
+import org.unicode.conformance.testtype.collator.CollatorTester;
 
 /**
  * Unit test for simple App.

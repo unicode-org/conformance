@@ -1,7 +1,9 @@
-package org.unicode.conformance.testtype;
+package org.unicode.conformance.testtype.collator;
 
-import com.google.gson.Gson;
 import org.unicode.conformance.ExecutorUtils;
+import org.unicode.conformance.testtype.ITestType;
+import org.unicode.conformance.testtype.ITestTypeInputJson;
+import org.unicode.conformance.testtype.ITestTypeOutputJson;
 
 public class CollatorTester implements ITestType {
 

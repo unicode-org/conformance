@@ -1,4 +1,6 @@
-package org.unicode.conformance.testtype;
+package org.unicode.conformance.testtype.collator;
+
+import org.unicode.conformance.testtype.ITestTypeInputJson;
 
 public class CollatorInputJson implements ITestTypeInputJson {
   public String test_type;
