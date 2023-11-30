@@ -5,6 +5,8 @@ import org.unicode.conformance.ExecutorUtils;
 
 public class CollatorTester implements ITestType {
 
+  public static CollatorTester INSTANCE = new CollatorTester();
+
   @Override
   public ITestTypeInputJson parseInputJson(String inputLine) {
     return ExecutorUtils.GSON.fromJson(inputLine, CollatorInputJson.class);
