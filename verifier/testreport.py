@@ -10,6 +10,7 @@ from difflib import Differ
 from difflib import SequenceMatcher
 
 from datetime import datetime
+
 import glob
 import json
 import logging
@@ -349,22 +350,22 @@ class TestReport:
         #html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
         # Characterize successes, too.
-        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
+        pass_characterized = self.characterize_failures_by_options(self.passing_tests, 'pass')
         flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
         self.save_characterized_file(flat_combined_passing, "pass")
 
         # Get and save failures, errors, unsupported
-        error_characterized = self.characterize_failures_by_options(self.test_errors)
+        error_characterized = self.characterize_failures_by_options(self.test_errors, 'error')
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
         self.save_characterized_file(flat_combined_errors, "error")
 
-        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
+        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases, 'unsupported')
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
 
-        # TODO: SHhould we compute top 3-5 overlaps for each set?
+        # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
-        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
+        fail_characterized = self.characterize_failures_by_options(self.failing_tests, 'fail')
         fail_simple_diffs = self.check_simple_text_diffs()
         flat_combined_dict = self.flatten_and_combine(fail_characterized,
                                                       fail_simple_diffs)
@@ -490,6 +491,8 @@ class TestReport:
         # Flatten the dictionary.
         flat_items = {}
         for key, value in all_items.items():
+            if len(value) <= 0:
+                continue
             if type(value) == list:
                 flat_items[key] = value
             else:
@@ -500,85 +503,19 @@ class TestReport:
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
         return flat_combined_dict
 
-    def characterize_failures_by_options(self, failing_tests):
-        # User self.failing_tests, looking at options
+    def characterize_failures_by_options(self, tests, result_type):
+        # Looking at options
         results = defaultdict(list)
-        results['locale'] = {}  # Dictionary of labels for each locale
-        for test in failing_tests:
-            # Get input_data, if available
+        for test in tests:
             try:
                 label = test['label']
             except:
                 label = ''
-
-            input_data = test.get('input_data')
-
-            if input_data:
-                # Look at locale
+            key_list = ['locale', 'locale_label', 'option', 'options',
+                        'language_label', 'ignorePunctuation', 'compare_result',
+                        'compare_type', 'test_description', 'unsupported_options']
+            for key in key_list:
                 try:
-                    locale = input_data.get('locale')
-                except:
-                    locale = None
-                if locale:
-                    if locale in results['locale']:
-                        results['locale'][locale].append(label)
-                    else:
-                        results['locale'][locale] = [label]
-
-                    options = input_data.get('options')
-                    if options:
-                        # Get each combo of key/value
-                        for key, value in options.items():
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-
-                # Try fields in language_names
-                for key in ['language_label', 'locale_label']:
-                    try:
-                        if input_data.get(key):
-                            value = input_data[key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-                    except:
-                        continue
-
-                # Try fields in likely_subtags
-                for key in ['option', 'locale']:
-                    try:
-                        if input_data.get(key):
-                            value = input_data[key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-                    except:
-                        continue
-
-                options =['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']
-                for key in options:
-                    try:
-                        if test.get(key):  # For collation results
-                            value = test[key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-                    except:
-                        continue
-
-                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
                     if test.get(key):  # For collation results
                         value = test[key]
                         if key not in results:
@@ -587,26 +524,59 @@ class TestReport:
                             results[key][value].append(label)
                         else:
                             results[key][value] = [label]
-                for key in ['ignorePunctuation']:
-                    try:
-                        if (test.get('input_data') and test['input_data'].get(key)):  # For collation results
-                            value = test['input_data'][key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-                    except:
-                        continue
+                except:
+                    continue
+
+            # Look at the input_data part of the test result
+            # TODO: Check the error_detail and error pars, too.
+            key_list = ['ignorePunctuation', 'options', 'unsupported_options', 'error_detail']
+            input_data = test.get('input_data')
+            self.add_to_results_by_key(results, input_data, test, key_list)
+            error_detail = test.get('error_detail')
+            if error_detail:
+                error_keys = error_detail.keys()  # ['options']
+                self.add_to_results_by_key(results, error_detail, test, error_keys)
+
+            # if input_data:
+            #     add_to_results_by_key(results, input_data, test, key_list)
+            #     for key in key_list:
+            #         try:
+            #             if (input_data.get(key)):  # For collation results
+            #                 value = test['input_data'][key]
+            #                 if key not in results:
+            #                     results[key] = {}
+            #                 if value in results[key]:
+            #                     results[key][value].append(label)
+            #                 else:
+            #                     results[key][value] = [label]
+            #         except:
+            #             continue
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
             # TODO: Find the largest intersections of these sets and sort by size
-            combo_list = [(combo, len(results[combo])) for combo in results]
-            combo_list.sort(key=take_second, reverse=True)
+
+        # This is not used!
+        combo_list = [(combo, len(results[combo])) for combo in results]
+        combo_list.sort(key=take_second, reverse=True)
 
         return dict(results)
+
+    # TODO: Use the following function to update lists.
+    def add_to_results_by_key(self, results, input_data, test, key_list):
+        if input_data:
+            for key in key_list:
+                try:
+                    if (input_data.get(key)):  # For collation results
+                        value = test['input_data'][key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].append(label)
+                        else:
+                            results[key][value] = [label]
+                except:
+                    continue
 
     def check_simple_text_diffs(self):
         results = defaultdict(list)
