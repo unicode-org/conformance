@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+import logging.config
 import math
 import os
 import re
@@ -23,6 +24,10 @@ NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
 class generateData():
     def __init__(self, icu_version):
         self.icu_version = icu_version
+        # If set, this is the maximum number of tests generated for each.
+        self.run_limit = None
+
+        logging.config.fileConfig("../logging.conf")
 
     def setVersion(self, selected_version):
         self.icu_version = selected_version
@@ -69,7 +74,7 @@ class generateData():
 
         # Data from more complex tests in github's unicode-org/icu repository
         # icu4c/source/test/testdata/collationtest.txt
-        test_complex, verify_complex, data_errors = generateCollTestData2(
+        test_complex, verify_complex = generateCollTestData2(
             'collationtest.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -77,35 +82,30 @@ class generateData():
 
         if verify_complex:
             json_verify['verifications'].extend(verify_complex)
+
         if test_complex:
             json_test['tests'].extend(test_complex)
-        if data_errors:
-            json_test['data_errors'].extend(data_errors)
 
         # Collation ignoring punctuation
-        test_ignorable, verify_ignorable, data_errors =  generateCollTestDataObjects(
+        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
             'CollationTest_SHIFTED_SHORT.txt',
             self.icu_version,
             ignorePunctuation=True,
-            start_count=0)
+            start_count=len(json_test['tests']))
 
         json_test['tests'].extend(test_ignorable)
-        if data_errors:
-            json_test['data_errors'].extend(data_errors)
         json_verify['verifications'].extend(verify_ignorable)
 
         # Collation considering punctuation
-        test_nonignorable, verify_nonignorable, data_errors = generateCollTestDataObjects(
+        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
-            start_count=start_count)
+            start_count=len(json_test['tests']))
 
         # Resample as needed
         json_test['tests'].extend(test_nonignorable)
         json_test['tests'] = self.sample_tests(json_test['tests'])
-        if data_errors:
-            json_test['data_errors'].extend(data_errors)
 
         json_verify['verifications'].extend(verify_nonignorable)
         json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
@@ -113,7 +113,6 @@ class generateData():
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
         self.saveJsonFile('collation_verify.json', json_verify)
-
 
     def processNumberFmtTestData(self):
         filename = 'dcfmtest.txt'
@@ -135,6 +134,9 @@ class generateData():
             verify_list = num_verify_object_list + dcml_verify_object_list
             json_test, json_verify = insertNumberFmtDescr(test_list, verify_list)
 
+            json_test['tests'] = self.sample_tests(json_test['tests'])
+            json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
+
             self.saveJsonFile('num_fmt_test_file.json', json_test)
 
             output_path = os.path.join(self.icu_version, 'num_fmt_verify_file.json')
@@ -142,13 +144,12 @@ class generateData():
             json.dump(json_verify, num_fmt_verify_file, indent=1)
             num_fmt_verify_file.close()
 
-            logging.warning('NumberFormat Test (%s): %s tests created', self.icu_version, count)
+            logging.info('NumberFormat Test (%s): %s tests created', self.icu_version, count)
         return
 
     def processLangNameTestData(self):
-
-        json_test = {}
-        json_verify = {}
+        json_test = {'test_type': 'lang_names'}
+        json_verify = {'test_type': 'lang_names'}
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -196,11 +197,22 @@ class generateData():
             jverify.append({'label': label, 'verify': test_data[2]})
             count += 1
 
-      json_tests['tests'] = jtests
-      json_verify['verifications'] = jverify
+      json_tests['tests'] = self.sample_tests(jtests)
+      json_verify['verifications'] = self.sample_tests(jverify)
 
       logging.info('LangNames Test (%s): %d lines processed', self.icu_version, count)
       return
+
+    def sample_tests(self, all_tests):
+        if self.run_limit < 0 or len(all_tests) <= self.run_limit:
+            return all_tests
+        else:
+            # Sample to get about run_limit items
+            increment = len(all_tests) // self.run_limit
+            samples = []
+            for index in range(0, len(all_tests), increment):
+                samples.append(all_tests[index])
+            return samples
 
     def processLikelySubtagsData(self):
 
@@ -286,8 +298,8 @@ class generateData():
             count += 1
 
         # Add to the test and verify json data
-        json_test['tests'] = test_list
-        json_verify['verifications'] = verify_list
+        json_test['tests'] = self.sample_tests(test_list)
+        json_verify['verifications'] = self.sample_tests(verify_list)
 
         # Output the files including the json dump
         self.saveJsonFile('likely_subtags_test.json', json_test)
@@ -315,6 +327,7 @@ def readFile(filename, version=''):
 
 
 def parseCollTestData(testdata):
+  testdata = testdata.encode().decode('unicode_escape')
   recodepoint = re.compile(r'[0-9a-fA-F]{4,6}')
 
   return_list= []
@@ -393,6 +406,10 @@ def mapFmtSkeletonToECMA402(options):
     if o != 'scale/0.5' and o != 'decimal-always':
       option_detail = ecma402_map[o]
       options_dict = options_dict | option_detail
+    if o[0:5] == "scale":
+        options_dict = options_dict | {"conformanceScale": o[6:]}
+    if o == "decimal-always":
+        options_dict = options_dict | {"conformanceDecimalAlways": True}
 
    # TODO: resolve some combinations of entries that are in conflict
   return  options_dict
@@ -525,10 +542,6 @@ def resolveOptions(raw_options, skeleton_list):
         ('style' not in resolved or resolved['style'] != 'currency')):
         resolved['maximumFractionDigits'] = 6
 
-    if ('maximumFractionDigits' not in resolved and
-        ('notation' in resolved and resolved['notation'] == 'compact')):
-        resolved['maximumFractionDigits'] = 2
-
     if skeleton_list and 'percent' in skeleton_list:
         resolved['style'] = 'unit'
         resolved['unit'] = 'percent'
@@ -561,7 +574,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
+      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
@@ -573,7 +586,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
           entry['options']['roundingMode'] = rounding_mode
       else:
           # Default if not specified
-          entry['options']['roundingMode'] = ecma402_rounding_map['halfdown']
+          entry['options']['roundingMode'] = ecma402_rounding_map['halfeven']
 
       entry['options'] |= resolved_options_dict  # ??? json_part
 
@@ -592,7 +605,11 @@ def stringifyCode(cp):
     if cp < 0x20 or cp == 0x22 or cp == 127 or cp == 0x5c:
         teststring = '\\u' + format(cp, '04x')
     else:
-        teststring = chr(cp)
+        try:
+            teststring = chr(cp)
+        except ValueError as err:
+            teststring = cp
+
     return teststring
 
 
@@ -689,6 +706,10 @@ def generateCollTestData2(filename,
                     continue
                 if line_in[0] == '*':
                     break
+                # Remove any comments in the line preceded by '#'
+                comment_start = line_in.find('#')
+                if comment_start >= 0:
+                    line_in = line_in[0:comment_start]
                 rules.append(line_in.strip())
                 line_number += 1
             continue
@@ -714,6 +735,9 @@ def generateCollTestData2(filename,
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
                     # Note that this doesn't seem to handle \x encoding, howeveer.
+                    string2 = compare_string.encode().decode('unicode_escape')
+                    compare_comment = is_comparison.group(3)
+                    # Generate the test case
                     try:
                         s = compare_string.encode()
                         string2 = s.decode('unicode_escape')
@@ -751,9 +775,7 @@ def generateCollTestData2(filename,
 
                     test_case['s2'] = string2
 
-                    # Generate the test case
-                    label = str(label_num).rjust(max_digits, '0')
-                    label_num += 1
+                    # Add info to the test case.
                     if locale:
                         test_case['locale'] = locale
                     # Keep this for the next comparison test
@@ -780,7 +802,7 @@ def generateCollTestData2(filename,
     if encode_errors:
         logging.warning('!! %s File %s has DATA ERRORS: %s',
                         filename, len(encode_errors), encode_errors)
-    return test_list, verify_list, encode_errors
+    return test_list, verify_list
 
 
 def check_unpaired_surrogate_in_string(text):
@@ -835,7 +857,6 @@ def generateCollTestDataObjects(filename,
     index = 0
     line_number = 0
     for item in raw_testdata_list[1:]:
-        
         line_number += 1
         if recommentline.match(item) or reblankline.match(item):
             continue
@@ -870,7 +891,7 @@ def generateCollTestDataObjects(filename,
         logging.warning('!! %s File %s has DATA ERRORS: %s',
                         filename, len(data_errors), data_errors)
 
-    return test_list, verify_list, data_errors
+    return test_list, verify_list
 
 
 def insert_collation_header(test_objs):
@@ -886,25 +907,35 @@ def insert_nonignorable_coll_descr(tests_obj, verify_obj):
 
 
 def languageNameDescr(tests_json, verify_json):
-  # Adds information to LanguageName tests and verify JSON
-  descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
-  test_id =  'language_display_name'
-  version = {'source': {'repository': 'conformance-test', 'version': 'trunk'}}
-  source = 'No URL yet.'
-  tests_json['Test scenario'] = test_id
-  tests_json['description'] = descr
-  tests_json['version'] = version
-  tests_json['url'] = source
-  verify_json['Test scenario'] = test_id
+    # Adds information to LanguageName tests and verify JSON
+    descr =  'Language display name test cases. The first code declares the language whose display name is requested while the second code declares the locale to display the language name in.'
+    test_id =  'lang_names'
+    source_url = 'No URL yet.'
+    version = 'unspecified'
+    tests_json = {
+        'test_type': test_id,
+        'Test scenario': test_id,
+        'description': descr,
+        'source': {
+            'repository': 'conformance-test',
+            'version': 'trunk',
+            'url': source_url,
+            'source_version': version
+        }
+    }
 
-  return
+    verify_json = {'test_type': test_id,
+                   'Test scenario': test_id
+                   }
+    return
 
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
   # returns JSON data for tests and verification
   test_scenario = 'number_fmt'
   test_data = {
-      "Test scenario": test_scenario,
+      'Test scenario': test_scenario,
+      'test_type': 'number_fmt',
       'description':
           'Number formatter test cases. The skeleton entry corresponds to the formatting specification used by ICU while the option entries adhere to ECMA-402 syntax.',
       "source": {"repository": "icu", "version": "trunk"},
@@ -912,7 +943,9 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
       'tests': tests_obj
   }
   verify_data = {
-      "Test scenario": test_scenario, 'verifications': verify_obj
+      'Test scenario': test_scenario,
+      'test_type': 'number_fmt',
+      'verifications': verify_obj
   }
   return test_data, verify_data
 
@@ -920,6 +953,8 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 def setupArgs():
     parser = argparse.ArgumentParser(prog='testdata_gen')
     parser.add_argument('--icu_versions', nargs='*', default=[])
+    # -1 is no limit
+    parser.add_argument('--run_limit', nargs='?', type=int, default=-1)
     new_args = parser.parse_args()
     return new_args
 
@@ -927,24 +962,25 @@ def setupArgs():
 def main(args):
     new_args = setupArgs()
 
-    logger = logging.Logger("TEST_GENEREATE LOGGER")
+    logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
     logger.info('+++ Generating .json files for icu_versions %s',
                  new_args.icu_versions)
 
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
+        data_generator.run_limit = new_args.run_limit
 
         # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 
-        data_generator.processLikelySubtagsData()
-
         data_generator.processNumberFmtTestData()
 
         # This is slow
         data_generator.processCollationTestData()
+
+        data_generator.processLikelySubtagsData()
 
         # This is slow
         data_generator.processLangNameTestData()

@@ -16,9 +16,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.7.0
+      - name: test sourcing nvm.sh
+        run: source "$HOME/.nvm/nvm.sh"
+        shell: bash
+      - name: test nvm command
+        shell: bash -l -eo pipefail {0}
+        run: nvm ls
       - name: "Run Node.js collator sample"
+        shell: bash -l -eo pipefail {0}
         run: |
+          source "$HOME/.nvm/nvm.sh"
           cd testdriver
-          sh runAll_node_local.sh
+          bash runAll_node_local.sh
           cd ../verifier
-          sh verifyNode_local.sh
+          bash verifyNode_local.sh

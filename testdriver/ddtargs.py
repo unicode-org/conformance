@@ -1,7 +1,7 @@
 # Process command line arguments for running DDT
 
 # Args expected with examples
-#  test_type: coll_shift, decimal_fmt, etc.
+#  test_type: collation_short, decimal_fmt, etc.
 #  exec: node, rust, cpp, java, custom
 #  cldr_version: 41
 #  icu_version: 71.1
@@ -20,6 +20,7 @@
 #      faster but not hermetically isolated
 
 import argparse
+import logging
 import sys
 
 class DdtOptions():
@@ -31,8 +32,8 @@ class DdtOptions():
     self.parallel_mode = None  # For each exec or using N CPUs?
     self.exec_mode = 'one_test'  # Default. 'multi_test
 
-type_options = ['coll_shift_short', 'decimal_fmt', 'display_names',
-                'number_fmt', 'lang_names', 'ALL']
+type_options = ['collation_short', 'decimal_fmt', 'display_names',
+                'number_fmt', 'lang_names', 'likely_subtags', 'ALL']
 
 class DdtArgs():
   def __init__(self, args):
@@ -140,22 +141,24 @@ def setCommonArgs(parser):
 
   parser.add_argument('--debug_level', default=None)
 
+  parser.add_argument('--ignore', default=None)
+
 def argsTestData():
   tests = [
-      ['--test_type', 'coll_shift_short'],
-      ['--test_type', 'coll_shift_short', '-t', 'decimal_fmt'],
-      ['--test_type', 'coll_shift_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
-       'lang_names'],
-
-      ['--test', 'coll_shift_short', 'ALL', 'decimal_fmt'],
+      ['--test_type', 'collation_short'],
+      ['--test_type', 'collation_short', '-t', 'decimal_fmt'],
+      ['--test_type', 'collation_short', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
+       'lang_names',
+       'likely_subtags'],
+      ['--test', 'collation_short', 'ALL', 'decimal_fmt'],
 
       ['--test_type', 'ALL'],
       '--type ALL decimal_fmt --exec a b c d'.split(),
 
       ['--exec', 'node'],
-      ['--exec nodens rust /bin/mytest'],
+      ['--exec node rust /bin/mytest'],
       '--exec node --test_type decimal_fmt --icu 71 --cldr 40'.split(),
-      ['--exec', 'python py/exec.py'],
+      ['--exec', 'python3 py/exec.py'],
       '--test_random 1234'.split(),
       ['--exec', '--custom_testfile', 'testData/customtest1.json',
        'testData/customtest2.json',
@@ -170,12 +173,12 @@ def main(args):
   tests = argsTestData()
   for test in tests:
     try:
-      print('Args = %s' % test)
+      logging.debug('Args = %s' % test)
 
       result = argparse.parse(test)
-      print('  OPTIONS = %s' % argparse.options)
+      logging.debug('  OPTIONS = %s' % argparse.options)
     except BaseException as err:
-      print(' ERROR: %s ' % err)
+      logging.error(' ERROR: %s ' % err)
 
 if __name__ == "__main__":
     main(sys.argv)

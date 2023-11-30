@@ -5,7 +5,7 @@
 
    The type of test determines the corresponding test function that then
    receives the test case. This includes the type of operation, e.g.,
-   collation, number format, locale matching, etc.
+   collation, number format, locale matching, likely subtags, etc.
 
    The data includes parameters needed to specify the function called as well
    as the test data passed to the function.
@@ -24,6 +24,8 @@ let displaynames = require('./displaynames.js')
 
 let langnames = require('./langnames.js')
 
+let likely_subtags = require('./likely_subtags.js')
+
 /**
  * TODOs:
  * 1. Handle other types of test cases.
@@ -38,12 +40,14 @@ let langnames = require('./langnames.js')
   * Started 28-July-2022, ccornelius@google.com
  */
 
-let doLogInput = 0;
+let doLogInput = 0;  // TODO: How to turn this on from command line?
 let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
+  TestCollationShort : Symbol("collation_short"),
   TestCollShiftShort : Symbol("coll_shift_short"),
+  TestCollNonignorableShort : Symbol("coll_nonignorable_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
   TestNumberFormat : Symbol("number_fmt"),
   TestDateTimeFormat : Symbol("datetime_fmtl"),
@@ -54,18 +58,24 @@ const testTypes = {
 }
 
 const supported_test_types = [
+  Symbol("collation_short"),
   Symbol("coll_shift_short"),
+  Symbol("coll_nonignorable_short"),
   Symbol("decimal_fmt"),
   Symbol("number_fmt"),
   Symbol("display_names"),
-  Symbol("language_display_name")
+  Symbol("lang_names"),
+  Symbol("language_display_name"),
+  Symbol("local_info")
 ];
 const supported_tests_json = {"supported_tests":
                               [
+                                "collation_short",
                                 "coll_shift_short",
                                 "decimal_fmt",
                                 "number_fmt",
                                 "display_names",
+                                "lang_names",
                                 "language_display_name"
                               ]};
 
@@ -87,16 +97,27 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
+  if (testId == "coll_shift_short" || testId == "collation_short") {
+    return testTypes.TestCollationShort;
+  }
+  if (testId == "collation_short") {
+    return testTypes.TestCollationShort;
+  }
   if (testId == "coll_shift_short") {
     return testTypes.TestCollShiftShort;
   }
+
+  if (testId == "coll_nonignorable_short"){
+    return testTypes.TestCollNonignorableShort;
+  }
+
   if (testId == "decimal_fmt" || testId == "number_fmt") {
     return testTypes.TestDecimalFormat;
   }
   if (testId == "display_names") {
     return testTypes.TestDisplayNames;
   }
-  if (testId == "language_display_name") {
+  if (testId == "language_display_name" || testId == "lang_names") {
     return testTypes.TestLangNames;
   }
   console.log("#*********** NODE Unknown test type = " + testId);
@@ -123,12 +144,13 @@ rl.on('line', function(line) {
   // Check for commands starting with "#".
   if (line == "#VERSION") {
     // JSON output of the test enviroment.
-    let versionJson = {'platform': 'NodeJS',
-                       'platformVersion': process.version,
-                       'icuVersion': process.versions.icu,
-                      };
+    const versionJson = {'platform': 'NodeJS',
+                         'platformVersion': process.version,
+                         'icuVersion': process.versions.icu,
+                         'cldrVersion': process.versions.cldr
+                        };
 
-    // TODO: Make this more specific JSON info.
+    // TODO: Make this more specific for JSON info.
     lineOut = JSON.stringify(versionJson);
     process.stdout.write(lineOut);
   } else
@@ -146,12 +168,13 @@ rl.on('line', function(line) {
     try {
       parsedJson = JSON.parse(line);
     } catch (error) {
-      outputLine = {'Cannot parse input line': error,
+      outputLine = {'error': error,
+                    'message': 'Cannot parse input line',
                     'input_line': line,
                     "testId": testId};
 
       // Send result to stdout for verification
-      jsonOut = JSON.stringify(outputLine);
+      const jsonOut = JSON.stringify(outputLine);
       if (doLogOutput > 0) {
         console.log("## ERROR " + lineId + ' ' + outputLine + ' !!!!!');
       }
@@ -162,32 +185,36 @@ rl.on('line', function(line) {
       console.log("#----- PARSED JSON: " + JSON.stringify(parsedJson));
     }
 
-    // testId = parseJsonForTestId(parsedJson);
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
-    if (test_type == "coll_shift_short") {
+    if (test_type == "coll_shift_short" || test_type == "collation_short") {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
-      outputLine = numberformatter.testDecimalFormat(parsedJson);
+      outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput);
     } else
     if (test_type == "display_names") {
       outputLine = displaynames.testDisplayNames(parsedJson);
     } else
-    if (test_type == "language_display_name") {
+    if (test_type == "language_display_name" || test_type == "lang_names") {
       outputLine = langnames.testLangNames(parsedJson);
+    } else
+    if (test_type == "likely_subtags") {
+      outputLine = likely_subtags.testLikelySubtags(parsedJson);
     } else {
-      outputLine = {'error': 'unknown test type', 'testId': testId,
-                    'unsupported_test': testId};
+      outputLine = {'error': 'unknown test type',
+                    'test_type': test_type,
+                    'unsupported_test': test_type};
     }
+
+    const jsonOut = JSON.stringify(outputLine);
 
     if ('error' in outputLine) {
       // To get the attention of the driver
-      console.log("#!! ERROR in NODE call: " + JSON.stringify(outputLine));
+      console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
     }
 
     // Send result to stdout for verification
-    jsonOut = JSON.stringify(outputLine);
     process.stdout.write(jsonOut + '\n');
     if (doLogOutput > 0) {
       console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');

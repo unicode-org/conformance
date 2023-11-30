@@ -1,0 +1,99 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/collation_short_verify_schema.json'",
+ "title": "ICU Collation verify data description",
+ "description": "This documents format of collation short verify data",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["collation_short"]
+   },
+   "tests": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "boolean"
+         },
+         "result": {
+           "description": "The actual result found",
+           "type": "boolean"
+         },
+          "locale": {
+            "description": "optional field indication locale tag for running test",
+            "type": "string"
+          },
+         "compare_result": {
+           "description": "Actual value from the comparison",
+           "type": "integer"
+         },
+         "compare": {
+           "description": "Comparison method",
+           "type": "integer"
+         },
+         "compare_type": {
+           "description": "Comparison method requested",
+           "type": "string"
+         },
+         "compare_comment": {
+           "description": "Descripts results from comparison",
+           "type": "string"
+         },
+          "test_description": {
+            "description": "Option field telling about this particular test",
+            "type": "string"
+          },
+          "rules": {
+            "description": "Optional custom rule set",
+            "type": "string"
+          },
+          "s1": {
+            "description": "First string for comparison",
+            "type": "string"
+          },
+          "s2": {
+            "description": "Second string for comparison",
+            "type": "string"
+          },
+          "attributes": {
+            "description": "Optional information about this collation test",
+            "type": "array"
+          },
+          "ignorePunctuation" : {
+            "description": "If collation should ignore punctuatio",
+            "type": "boolean"
+          },
+          "line" : {
+            "description": "line of the source of test data",
+            "type": "integer"
+          },
+         "error": {
+           "description": "What was unexpected",
+           "type": "string"
+         },
+         "error_message": {
+           "description": "More about the error",
+           "type": "string"
+         },
+         "actual_options": {
+           "description": "What was sent to the collation function",
+           "type": "string"
+         }
+       }
+     },
+     "required": [
+       "label",
+       "result"
+     ]
+   }
+ }
+}

@@ -60,6 +60,5 @@
 {"test_type": "collation_short", "label": "0178423", "s1": "\udbff\udff8A", "s2": "\udbff\udff8b"},
 {"test_type": "collation_short", "label": "0178424", "s1": "\udbff\udff8b", "s2": "\udbff\udff9!"}    
 
-
 //
 {"test_type": "number_fmt", "label":"2062","locale":"es-MX","skeleton":"currency/EUR unit-width-narrow .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"narrow","maximumFractionDigits":3,"minimumFractionDigits":3}}
