@@ -424,11 +424,11 @@ table th {
 
     function create_checkbox_area(data_class) {
           /* Given a set of labels and named characteristics, create a set of checkboxes with
-             labels for selecting a subset of items. Put this in the indicated div.
+             labels for selecting a subset of items. Put this in the proper div.
+             Create "Other" category for any non-categorized tests.
           */
         const test_info = test_results[data_class];
 
-        // TODO: create "uncharacterized" entry for those not in category.
         let leftover_labels = new Set();
         const json = test_info['json'];
         for (const item of json) {
@@ -453,78 +453,42 @@ table th {
                   count += 1;
                 }
             }
-            const new_box = make_characterized_box(
-                id, data_class, characterization,
-                leftover_labels.size, container
-            );
-            let box = document.createElement("INPUT");
-            box.setAttribute("type", "checkbox");
-            box.setAttribute("id", id);
-            box.setAttribute("name", name);
-            box.setAttribute("value", [...dict_values]);
-            box.setAttribute("onclick", "checkboxChanged(this);");
-            box.className = data_class;
-            let box_label = document.createElement("label");
-            box_label.htmlFor = id;
-            const text = count + ":" + characterization;
-            box_label.appendChild(document.createTextNode(text));
-
-            let box_div = document.createElement("div");
-            box_div.setAttribute("id", "div_" + id);
-            let br = document.createElement('br');
-            box_div.appendChild(box);
-            box_div.appendChild(box_label);
-            box_div.appendChild(br);
-
-            if (container) {
-                container.appendChild(box_div);
-            }
+            if (count > 0) {
+                const new_box = make_characterized_box(
+                    id, dict_values, data_class, characterization,
+                    count, container);
             test_info.box_labels.push(characterization);
-            test_info.check_boxes.push(box);
+                test_info.check_boxes.push(new_box);
+            }
         }
         if (leftover_labels.size > 0) {
-            // Create a box with those and add to the set.
+            // Create an item for non-categorized results.
             const characterization = "others";
             let id = div_name + "_" + characterization;
             const new_box = make_characterized_box(
-                id, data_class, characterization,
-                leftover_labels.size, container
-            );
+                id, leftover_labels, data_class, characterization,
+                leftover_labels.size, container);
+
             test_info.box_labels.push(characterization);
-
-            let box = document.createElement("INPUT");
-            box.setAttribute("type", "checkbox");
-            box.setAttribute("id", id);
-            box.setAttribute("name", name);
-            box.setAttribute("value", [...leftover_labels]);  // Convert from set to list
-            box.setAttribute("onclick", "checkboxChanged(this);");
-            box.className = data_class;
-            let box_label = document.createElement("label");
-            box_label.htmlFor = id;
-            const text = leftover_labels.size + ":" + characterization;
-            box_label.appendChild(document.createTextNode(text));
-
-            let br = document.createElement('br');
-            let box_div = document.createElement("div");
-            box_div.setAttribute("id", "div_" + id);
-            box_div.appendChild(box);
-            box_div.appendChild(box_label);
-            box_div.appendChild(br);
-            if (container) {
-                container.appendChild(box_div);
-            }
-            test_info.check_boxes.push(box);
+            test_info.check_boxes.push(new_box);
         }
     }
 
-    // This is not yet workking.
+    // This is not yet working.
     function make_characterized_box(
         id, dict_values, data_class, characterization, count, container) {
+        /* id: data_class plus the characterization
+          dict_values: the set of labels attached to this check box
+          data_class: one of "pass", "fail", etc.
+          characterization: string describing the identified attribute(s)
+          count: how many are in the list of labels
+          container: the HTML object containing the div of this checkbox
+          */
         let box = document.createElement("INPUT");
         box.setAttribute("type", "checkbox");
         box.setAttribute("id", id);
         box.setAttribute("name", id);
-        box.setAttribute("value", dict_values);
+        box.setAttribute("value", [...dict_values]);
         box.setAttribute("onclick", "checkboxChanged(this);");
         box.className = data_class;
         let box_label = document.createElement("label");
