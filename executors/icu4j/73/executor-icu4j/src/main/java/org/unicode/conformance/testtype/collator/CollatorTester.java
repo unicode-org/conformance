@@ -39,6 +39,12 @@ public class CollatorTester implements ITestType {
       output.error = "unsupported";
       output.error_message = e.getMessage();
       return output;
+    } finally {
+      if (coll == null) {
+        output.error = "unsupported";
+        output.error_message = "Couldn't construct RuleBasedCollator with provided options";
+        return output;
+      }
     }
 
     try {

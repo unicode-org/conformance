@@ -8,9 +8,14 @@ public interface ITestType {
 
   String formatOutputJson(ITestTypeOutputJson outputJson);
 
-  default String getFinalOutputFromInput(String inputLine) throws Exception {
+  default ITestTypeOutputJson getStructuredOutputFromInput(String inputLine) throws Exception {
     ITestTypeInputJson inputJson = parseInputJson(inputLine);
     ITestTypeOutputJson outputJson = computeOutputJson(inputJson);
+    return outputJson;
+  }
+
+  default String getFinalOutputFromInput(String inputLine) throws Exception {
+    ITestTypeOutputJson outputJson = getStructuredOutputFromInput(inputLine);
     String formattedOutput = formatOutputJson(outputJson);
     return formattedOutput;
   }

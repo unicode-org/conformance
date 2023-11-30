@@ -1,6 +1,7 @@
 package org.unicode.conformance;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -14,14 +15,9 @@ import org.unicode.conformance.testtype.collator.CollatorTester;
  */
 public class Icu4jExecutorTest 
 {
-    /**
-     * Rigorous Test :-)
-     */
-    @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
-    }
+    //
+    // tests
+    //
 
     @Test
     public void testParseSimpleJsonInput() {
@@ -64,5 +60,33 @@ public class Icu4jExecutorTest
         assertEquals("Canonical JSON string should round trip",
             formattedString,
             reformattedString);
+    }
+
+    @Test
+    public void testBasicTestCase() throws Exception {
+        String testInput =
+            "{\n"
+            + "  \"label\": \"0151240\",\n"
+            + "  \"string1\": \"ꌌ?\",\n"
+            + "  \"string2\": \"ꌌa\"\n"
+            + "}";
+        CollatorOutputJson output =
+            (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInput(testInput);
+
+        assertTrue(output.result);
+    }
+
+    @Test
+    public void testBasicTestCase_negativeTestFailure() throws Exception {
+        String testInput =
+            "{\n"
+                + "  \"label\": \"0151240\",\n"
+                + "  \"string2\": \"ꌌ?\",\n"
+                + "  \"string1\": \"ꌌa\"\n"
+                + "}";
+        CollatorOutputJson output =
+            (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInput(testInput);
+
+        assertFalse(output.result);
     }
 }
