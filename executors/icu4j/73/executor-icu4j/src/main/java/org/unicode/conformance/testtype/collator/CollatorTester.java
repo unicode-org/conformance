@@ -22,7 +22,7 @@ public class CollatorTester implements ITestType {
   }
 
   @Override
-  public ITestTypeOutputJson computeOutputJson(ITestTypeInputJson inputJson) {
+  public ITestTypeOutputJson execute(ITestTypeInputJson inputJson) {
     CollatorInputJson input = (CollatorInputJson) inputJson;
 
     // partially construct output
