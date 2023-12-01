@@ -63,7 +63,7 @@ public class Icu4jExecutorTest
     }
 
     @Test
-    public void testBasicTestCase() throws Exception {
+    public void testBasicTestCase() {
         String testInput =
             "{\n"
             + "  \"label\": \"0151240\",\n"
@@ -77,7 +77,7 @@ public class Icu4jExecutorTest
     }
 
     @Test
-    public void testBasicTestCase_negativeTestFailure() throws Exception {
+    public void testBasicTestCase_negativeTestFailure() {
         String testInput =
             "{\n"
                 + "  \"label\": \"0151240\",\n"

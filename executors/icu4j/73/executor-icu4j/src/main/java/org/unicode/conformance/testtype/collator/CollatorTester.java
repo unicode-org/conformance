@@ -22,7 +22,7 @@ public class CollatorTester implements ITestType {
   }
 
   @Override
-  public ITestTypeOutputJson computeOutputJson(ITestTypeInputJson inputJson) throws Exception {
+  public ITestTypeOutputJson computeOutputJson(ITestTypeInputJson inputJson) {
     CollatorInputJson input = (CollatorInputJson) inputJson;
 
     // partially construct output
@@ -74,14 +74,18 @@ public class CollatorTester implements ITestType {
   // helper fns
   //
 
-  public Collator getCollatorForInput(CollatorInputJson input) throws Exception {
+  public Collator getCollatorForInput(CollatorInputJson input) {
     RuleBasedCollator result = null;
 
     if (input.locale == null) {
       if (input.rules == null) {
         result = (RuleBasedCollator) RuleBasedCollator.getInstance();
       } else {
-        result = new RuleBasedCollator(input.rules);
+        try {
+          result = new RuleBasedCollator(input.rules);
+        } catch (Exception e) {
+          return null;
+        }
       }
     } else {
       ULocale locale = ULocale.forLanguageTag(input.locale);
@@ -89,7 +93,11 @@ public class CollatorTester implements ITestType {
       if (input.rules != null) {
         String defaultRules = result.getRules();
         String newRules = defaultRules + input.rules;
-        result = new RuleBasedCollator(newRules);
+        try {
+          result = new RuleBasedCollator(newRules);
+        } catch (Exception e) {
+          return null;
+        }
       }
     }
 

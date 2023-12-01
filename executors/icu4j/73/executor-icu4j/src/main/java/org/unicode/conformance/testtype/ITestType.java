@@ -4,11 +4,11 @@ public interface ITestType {
 
   ITestTypeInputJson parseInputJson(String inputLine);
 
-  ITestTypeOutputJson computeOutputJson(ITestTypeInputJson inputJson) throws Exception;
+  ITestTypeOutputJson computeOutputJson(ITestTypeInputJson inputJson);
 
   String formatOutputJson(ITestTypeOutputJson outputJson);
 
-  default ITestTypeOutputJson getStructuredOutputFromInput(String inputLine) throws Exception {
+  default ITestTypeOutputJson getStructuredOutputFromInput(String inputLine) {
     ITestTypeInputJson inputJson = parseInputJson(inputLine);
     ITestTypeOutputJson outputJson = computeOutputJson(inputJson);
     return outputJson;
