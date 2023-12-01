@@ -1,8 +1,11 @@
 package org.unicode.conformance;
 
+import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Hello world!
@@ -10,8 +13,15 @@ import java.io.InputStreamReader;
  */
 public class Icu4jExecutor {
 
+    public static final String PLATFORM_VERSION = "73.2";
+    public static final String ICU_VERSION = "72?";
+
+    public static final String CLDR_VERSION = "42?";
+
     /**
-     * Entry point for the executor
+     * Entry point for the executor.
+     *
+     * Run on an infinite loop until the input "#EXIT" is received.
      */
     public static void main(String[] args) throws IOException {
         try (InputStreamReader isr = new InputStreamReader(System.in);
@@ -60,9 +70,21 @@ public class Icu4jExecutor {
             return null;
         } else if (inputLine.trim().equals("")) {
             return "";
+        } else if (inputLine.equals("#VERSION")) {
+            return getVersionResponse();
         } else {
             return getTestCaseResponse(inputLine);
         }
+    }
+
+    public static String getVersionResponse() {
+        Map<String,String> versionMap = new HashMap<>();
+        versionMap.put("cldrVersion", CLDR_VERSION);
+        versionMap.put("icuVersion", ICU_VERSION);
+        versionMap.put("platformVersion", PLATFORM_VERSION);
+
+        String result = ExecutorUtils.GSON.toJson(versionMap);
+        return result;
     }
 
     public static String getTestCaseResponse(String inputLine) {
