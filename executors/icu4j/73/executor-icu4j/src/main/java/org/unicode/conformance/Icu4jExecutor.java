@@ -1,11 +1,13 @@
 package org.unicode.conformance;
 
+import com.google.gson.reflect.TypeToken;
 import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Hello world!
@@ -88,6 +90,19 @@ public class Icu4jExecutor {
     }
 
     public static String getTestCaseResponse(String inputLine) {
+
+        io.lacuna.bifurcan.Map<String,String> parsedInputPersistentMap =
+            ExecutorUtils.parseInputLine(inputLine);
+
+        Optional<String> testType = parsedInputPersistentMap.get("test_type");
+
+        if (testType == null) {
+            io.lacuna.bifurcan.IMap response =
+                parsedInputPersistentMap
+                    .put("error", "Error in input")
+                    .put("error_msg", "Error in input found in executor before execution");
+        }
+
         throw new RuntimeException("Unimplemented!");
     }
 

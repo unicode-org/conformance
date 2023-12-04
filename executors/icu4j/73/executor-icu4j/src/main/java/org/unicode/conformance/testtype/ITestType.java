@@ -1,8 +1,22 @@
 package org.unicode.conformance.testtype;
 
+import org.unicode.conformance.ExecutorUtils;
+
 public interface ITestType {
 
-  ITestTypeInputJson parseInputJson(String inputLine);
+  default io.lacuna.bifurcan.Map<String,String> parseInput(String inputLine) {
+    return ExecutorUtils.parseInputLine(inputLine);
+  }
+
+  ITestTypeInputJson inputMapToJson(io.lacuna.bifurcan.Map<String,String> inputMapData);
+
+  default ITestTypeInputJson parseInputJson(String inputLine) {
+    io.lacuna.bifurcan.Map<String,String> inputMapData =
+        parseInput(inputLine);
+      ITestTypeInputJson inputJson = inputMapToJson(inputMapData);
+
+      return inputJson;
+  }
 
   ITestTypeOutputJson execute(ITestTypeInputJson inputJson);
 

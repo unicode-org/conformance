@@ -39,6 +39,13 @@
       <artifactId>gson</artifactId>
       <version>2.10.1</version>
     </dependency>
+
+    <!-- Persistent Data Structure library -->
+    <dependency>
+      <groupId>io.lacuna</groupId>
+      <artifactId>bifurcan</artifactId>
+      <version>0.2.0-alpha4</version>
+    </dependency>
   </dependencies>
 
   <build>
