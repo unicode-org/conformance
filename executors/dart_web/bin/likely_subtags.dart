@@ -27,6 +27,8 @@ String testLikelySubtags(String jsonEncoded) {
   } catch (error) {
     outputLine.addAll({
       'error_message': error.toString(),
+      'unsupported': 'unsupported subtags',
+      'error_type': 'unsupported',
       'error': 'Failure in locale subtags.'
     });
   }

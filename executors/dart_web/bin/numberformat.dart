@@ -102,6 +102,8 @@ String testDecimalFormat(
       // This is a special kind of unsupported.
       return jsonEncode({
         'label': label,
+        'unsupported': 'parsing error',
+        'error_type': 'unsupported',
         'error': 'Option parsing error: $e',
       });
     }
@@ -156,6 +158,7 @@ String testDecimalFormat(
     return jsonEncode({
       'label': label,
       'unsupported': 'unsupported_options',
+      'error_type': 'unsupported',
       'error_detail': {'unsupported_options': unsupportedOptions}
     });
   }
