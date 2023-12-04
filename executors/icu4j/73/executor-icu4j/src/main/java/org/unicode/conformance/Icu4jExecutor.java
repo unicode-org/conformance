@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.unicode.conformance.testtype.ITestType;
+import org.unicode.conformance.testtype.collator.CollatorTester;
 
 /**
  * Hello world!
@@ -46,11 +48,11 @@ public class Icu4jExecutor {
             String line = br.readLine();
             String response = computeResponseString(line);
             handleResponseString(response);
-        } catch (IOException ioe) {
+        } catch (Exception e) {
             // At this level, we assume the IOException is coming from BufferedReader.
             // Any test case execution errors should be handled higher in the call stack (deeper in
             // the code)
-            String javaErrorMsg = ioe.getMessage();
+            String javaErrorMsg = e.getMessage();
             String executorErrorMsg = "! " + javaErrorMsg;
             ExecutorUtils.printResponseString(executorErrorMsg);
         }
@@ -67,7 +69,7 @@ public class Icu4jExecutor {
      *   <pre>#</pre></li>
      * </ul>
      */
-    public static String computeResponseString(String inputLine) {
+    public static String computeResponseString(String inputLine) throws Exception {
         if (inputLine.equals("#EXIT")) {
             return null;
         } else if (inputLine.trim().equals("")) {
@@ -89,21 +91,38 @@ public class Icu4jExecutor {
         return result;
     }
 
-    public static String getTestCaseResponse(String inputLine) {
+    public static String getTestCaseResponse(String inputLine) throws Exception {
 
         io.lacuna.bifurcan.Map<String,String> parsedInputPersistentMap =
             ExecutorUtils.parseInputLine(inputLine);
 
-        Optional<String> testType = parsedInputPersistentMap.get("test_type");
+        Optional<String> testTypeOpt = parsedInputPersistentMap.get("test_type");
 
-        if (testType == null) {
+        if (!testTypeOpt.isPresent()) {
             io.lacuna.bifurcan.IMap response =
                 parsedInputPersistentMap
                     .put("error", "Error in input")
                     .put("error_msg", "Error in input found in executor before execution");
-        }
 
-        throw new RuntimeException("Unimplemented!");
+            // TODO: format this as JSON
+            return response.toString();
+        } else {
+            String testTypeStr = testTypeOpt.get();
+            ITestType testType;
+            if (testTypeStr.equals("collate_short")) {
+                testType = new CollatorTester();
+            } else {
+                io.lacuna.bifurcan.IMap response =
+                    parsedInputPersistentMap
+                        .put("error", "Error in input")
+                        .put("error_msg", "Error in input found in executor before execution");
+
+                // TODO: format this as JSON
+                return response.toString();
+            }
+
+            return testType.getFinalOutputFromInput(parsedInputPersistentMap);
+        }
     }
 
     /**

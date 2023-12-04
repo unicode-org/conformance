@@ -71,7 +71,7 @@ public class Icu4jExecutorTest
             + "  \"string2\": \"ꌌa\"\n"
             + "}";
         CollatorOutputJson output =
-            (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInput(testInput);
+            (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
         assertTrue(output.result);
     }
@@ -85,7 +85,7 @@ public class Icu4jExecutorTest
                 + "  \"string1\": \"ꌌa\"\n"
                 + "}";
         CollatorOutputJson output =
-            (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInput(testInput);
+            (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
         assertFalse(output.result);
     }

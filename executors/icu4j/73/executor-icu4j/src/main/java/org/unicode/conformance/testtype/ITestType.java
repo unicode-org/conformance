@@ -22,14 +22,19 @@ public interface ITestType {
 
   String formatOutputJson(ITestTypeOutputJson outputJson);
 
-  default ITestTypeOutputJson getStructuredOutputFromInput(String inputLine) {
-    ITestTypeInputJson inputJson = parseInputJson(inputLine);
+  default ITestTypeOutputJson getStructuredOutputFromInputStr(String inputLine) {
+    io.lacuna.bifurcan.Map<String,String> inputMapData = parseInput(inputLine);
+    return getStructuredOutputFromInput(inputMapData);
+  }
+
+  default ITestTypeOutputJson getStructuredOutputFromInput(io.lacuna.bifurcan.Map<String,String> inputMapData) {
+    ITestTypeInputJson inputJson = inputMapToJson(inputMapData);
     ITestTypeOutputJson outputJson = execute(inputJson);
     return outputJson;
   }
 
-  default String getFinalOutputFromInput(String inputLine) throws Exception {
-    ITestTypeOutputJson outputJson = getStructuredOutputFromInput(inputLine);
+  default String getFinalOutputFromInput(io.lacuna.bifurcan.Map<String,String> inputMapData) throws Exception {
+    ITestTypeOutputJson outputJson = getStructuredOutputFromInput(inputMapData);
     String formattedOutput = formatOutputJson(outputJson);
     return formattedOutput;
   }
