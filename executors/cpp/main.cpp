@@ -53,7 +53,7 @@ std::string supported_tests[6] = {
 };
 
 
-std::string cppVersion = "executorCpp1.0";
+std::string cppVersion = "1.0";
 
 /**
  * Main   --  process command line, call tests or return data
@@ -77,7 +77,7 @@ int main(int argc, const char** argv)
       json_object_object_add(version, "icuVersion",
                              json_object_new_string(U_ICU_VERSION));
       json_object_object_add(version, "platformVersion",
-                             json_object_new_string(cppVersion.c_str()));
+                             json_object_new_string(U_ICU_VERSION));
       cout << json_object_to_json_string(version) << endl;
     } else if (line == "#TESTS") {
       // TODO: get from the array of supported tests

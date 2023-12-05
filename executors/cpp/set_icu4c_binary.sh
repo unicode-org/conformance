@@ -34,6 +34,12 @@ ls -l icu/usr/local/lib
 popd
 
 # Remove old version of executor and rebuild
+pushd ../executors/cpp
 make clean
 
-LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib make
+LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib
+PATH=/tmp/icu/icu/usr/local/bin:$PATH
+
+make
+
+popd

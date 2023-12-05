@@ -30,9 +30,6 @@ using std::cout;
 using std::endl;
 using std::string;
 
-// TODO: Replace this with JSON output
-const string ret_value = "{\"label\": \"0\", \"result\": \"True\"}";
-
 /**
  * test_collator  --  process JSON inputs, run comparator, return result
  */
@@ -47,9 +44,22 @@ const string test_collator(json_object *json_in)  //
   string string1 = json_object_get_string(str1);
   string string2 = json_object_get_string(str2);
 
-  // In the default locale
+  // Create a collator, possibly in the default locale
   UErrorCode status = U_ZERO_ERROR;
-  UCollator *coll = ucol_open(NULL, &status);
+
+  bool has_locale;
+  json_object *locale_obj = json_object_object_get(json_in, "locale");
+
+  UCollator *coll;
+  if (locale_obj) {
+    const char *locale_string = json_object_get_string(locale_obj);
+    // cout << "LOCALE: " << locale_string << endl;
+    coll = ucol_open(locale_string, &status);
+  } else {
+    // cout << "NO LOCALE OBJ" << endl;
+    const char *locale_string = NULL;
+    coll = ucol_open(locale_string, &status);
+  }
 
   char16_t source[100];
   char16_t target[100];
@@ -60,7 +70,23 @@ const string test_collator(json_object *json_in)  //
   u_unescape(opt_source, source, 100);
   u_unescape(opt_target, target, 100);
 
-  string coll_result = "True";
+
+  if (locale_obj) {
+    has_locale = true;
+  } else {
+    has_locale = false;
+  }
+
+  bool ignore_punctuation = false;
+  json_object *ignore_obj = json_object_object_get(json_in, "ignorePunctuation");
+
+  if (ignore_obj) {
+    ignore_punctuation = true;
+    status = U_ZERO_ERROR;
+    ucol_setMaxVariable(coll, UCOL_REORDER_CODE_PUNCTUATION, &status);
+  }
+
+  bool coll_result = true;
   UCollationResult result = ucol_strcoll(coll,
                                          source, -1,
                                          target, -1);
@@ -70,7 +96,7 @@ const string test_collator(json_object *json_in)  //
   json_object_object_add(return_json, "label", label_obj);
 
   if (result != UCOL_LESS) {
-    coll_result = "False";
+    coll_result = false;
     // Include date for the failing test
     json_object_object_add(return_json,
                            "s1",
@@ -81,21 +107,20 @@ const string test_collator(json_object *json_in)  //
     if (result == UCOL_EQUAL) {
       json_object_object_add(return_json,
                              "compare",
-                             json_object_new_string("UCOLL_EQUAL"));
+                             json_object_new_int64(0));
     } else {
       json_object_object_add(return_json,
                              "compare",
-                             json_object_new_string("UCOLL_GREATER"));
+                             json_object_new_int64(1));
     }
   }
   ucol_close(coll);
 
   json_object_object_add(return_json,
                          "result",
-                         json_object_new_string(coll_result.c_str()));
+                         json_object_new_boolean(coll_result));
 
   string return_str = json_object_to_json_string(return_json);
 
-  // cout << "# COLL OUT: " << return_str << endl;
   return return_str;
 }

@@ -31,7 +31,7 @@ class TestDriver:
 
         return
 
-   def set_args(self, arg_options):
+    def set_args(self, arg_options):
         # Options come from parse of command line
         self.icuVersion = arg_options.icu_version
         self.cldrVersion = arg_options.cldr

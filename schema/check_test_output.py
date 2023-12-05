@@ -102,8 +102,11 @@ def main(args):
         }
     }
 
-    summary_data = json.dumps(summary_json)
-
+    try:
+        summary_data = json.dumps(summary_json)
+    except TypeError as err :
+        logging.error('Error: %s\n  Cannot dump JSON for %s: ',
+                      err, summary_json)
     try:
         output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
         file_out = open(output_filename, mode='w', encoding='utf-8')

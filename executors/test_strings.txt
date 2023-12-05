@@ -17,10 +17,10 @@
 {"label":"zh en-150","language_label":"zh","locale_label":"en_150","test_type":"language_display_name"}
 
 # COLLATION
-{"test_type": "coll_shift_short", "label": "COLL_ABC1", "string1": "de", "string2" : "da"}
-{"test_type": "coll_shift_short", "label": "COLL_ABC2", "string1": "de", "string2" : "df"}
-{"test_type": "coll_shift_short", "label":"000009","string1":"\\u000d?","string2":"!"}
-{"test_type": "coll_shift_short", "label":"000017","string1":" !","string2":" !"}    
+{"test_type": "collation_short", "label": "COLL_ABC1", "string1": "de", "string2" : "da"}
+{"test_type": "collation_short", "label": "COLL_ABC2", "string1": "de", "string2" : "df"}
+{"test_type": "collation_short", "label":"000009","string1":"\\u000d?","string2":"!"}
+{"test_type": "collation_short", "label":"000017","string1":" !","string2":" !"}    
 
 # COLLATION Non-ignorable
 {"test_type": "coll_nonignorable_short", "label": "COLL_ABC1", "string1": "de", "string2" : "da"}
@@ -53,6 +53,7 @@
 {"test_type":"likely_subtags", "label": "0007", "locale": "af", "option": "minimizeFavorScript"}
 
 
+{"test_type": "collation_short", "label": "00689", "s1": "101a", "compare_type": "<2", "test_description": " simple locale data test", "s2": "\u00c3\u00a4", "locale": "de"}
 {"test_type": "collation_short", "label": "0000000", "s1": "\\u0009!", "s2": "\\u0009?", "ignorePunctuation": true}
 {"test_type": "collation_short", "label": "do_fail", "s1": "abc", "s2": "aba", "ignorePunctuation": true}
 {"test_type": "collation_short", "label": "dont_fail", "s1": "abc", "s2": "abe", "ignorePunctuation": true}
