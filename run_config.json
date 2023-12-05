@@ -9,7 +9,7 @@
       "icu_version": "icu71",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation_short"
       ],
       "per_execution": 100
     }
@@ -24,7 +24,7 @@
       "icu_version": "icu72",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation_short"
       ],
       "per_execution": 100
     }
