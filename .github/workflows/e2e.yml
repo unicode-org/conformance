@@ -19,6 +19,8 @@ jobs:
     name: End-to-end (Gen data, run tests, gen GH Pages)
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
       - name: Cache ICU4C binary versions
         id: icu4c-binaries
         uses: actions/cache@v3
@@ -35,7 +37,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
             toolchain: 1.73
-      - uses: actions/checkout@v2
       - name: Run End-to-end script
         run: bash generateDataAndRun.sh
       - name: Setup Pages
