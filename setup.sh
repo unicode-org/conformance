@@ -5,7 +5,7 @@ set -e
 
 # install libjson-c-dev if not already installed
 dpkg --list | grep libjson-c-dev || error_code=$?
-if [ $error_code -ne 0 ]
+if [[ $error_code -ne 0 ]]
 then
     sudo apt-get install libjson-c-dev
 fi
