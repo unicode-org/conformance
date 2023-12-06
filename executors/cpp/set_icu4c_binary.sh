@@ -18,12 +18,13 @@ echo "SETTING UP " $TMP
 mkdir -p $TMP
 rm -rf $TMP/*
 
+# Get the release and unpack.
+cp $ICU_PATH $TMP
+ls -ltra
+
 pushd $TMP
 echo "NOW IN " $TMP
 
-# Get the release and unpack.
-cp $ICU_PATH .
-ls -ltra
 
 # curl -L $ICU_PATH | tar xvfpz -
 tar xvfz *.tgz
