@@ -20,6 +20,12 @@ source $NVM_DIR/nvm.sh;
 # Setup
 #
 
+# Ensure that ICU4C binaries have been downloaded locally
+if [[ ! -d gh-cache ]]
+then
+  bash setup.sh
+fi
+
 export TEMP_DIR=TEMP_DATA
 export TEST_LIMIT=100
 
