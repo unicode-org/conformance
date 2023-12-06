@@ -3,7 +3,7 @@
     "prereq": {
       "name": "Get ICU4C 71",
       "version": "71.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh https://github.com/unicode-org/icu/releases/download/release-71-1/icu4c-71_1-Ubuntu20.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-71_1-Ubuntu20.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu71",
@@ -18,7 +18,7 @@
     "prereq": {
       "name": "Get ICU4C 72",
       "version": "72.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-72_1-Ubuntu22.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu72",
@@ -33,7 +33,7 @@
     "prereq": {
       "name": "Get ICU4C 73",
       "version": "73.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh https://github.com/unicode-org/icu/releases/download/release-73-1/icu4c-73_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-73_1-Ubuntu22.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu73",
@@ -48,7 +48,7 @@
     "prereq": {
       "name": "Get ICU4x",
       "version": "74.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh https://github.com/unicode-org/icu/releases/download/release-74-1/icu4c-74_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_1-Ubuntu22.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu74",

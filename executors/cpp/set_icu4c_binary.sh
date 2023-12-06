@@ -22,7 +22,7 @@ pushd $TMP
 echo "NOW IN " $TMP
 
 # Get the release and unpack.
-wget $ICU_PATH
+cp $ICU_PATH .
 ls -ltra
 
 # curl -L $ICU_PATH | tar xvfpz -

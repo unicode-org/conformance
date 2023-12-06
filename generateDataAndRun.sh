@@ -12,6 +12,12 @@ logrotate -s logrotate.state logrotate.conf
 # Setup (generate) test data & expected values
 ##########
 
+# Ensure that ICU4C binaries have been downloaded locally
+if [[ ! -d gh-cache ]]
+then
+  bash setup.sh
+fi
+
 # Enable seting the version of NodeJS
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;

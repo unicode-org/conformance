@@ -19,7 +19,18 @@ jobs:
     name: End-to-end (Gen data, run tests, gen GH Pages)
     runs-on: ubuntu-latest
     steps:
-      - uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
+      - name: Cache ICU4C binary versions
+        id: icu4c-binaries
+        uses: actions/cache@v3
+        with:
+          path: gh-cache
+          key: ${{ runner.os }}-icu4c-binaries
+      - name: Download ICU4C binaries if not present
+        if: steps.icu4c-binaries.outputs.cache-hit != 'true'
+        run: |
+          bash setup.sh
+      - name: Setup version of Dart
+        uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
         with:
           sdk: stable
       - name: Set version of Rust
@@ -27,7 +38,8 @@ jobs:
         with:
             toolchain: 1.73
       - uses: actions/checkout@v2
-      - run: bash generateDataAndRun.sh
+      - name: Run End-to-end script
+        run: bash generateDataAndRun.sh
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
