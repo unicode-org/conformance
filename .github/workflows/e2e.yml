@@ -27,9 +27,14 @@ jobs:
         with:
           path: gh-cache
           key: ${{ runner.os }}-icu4c-binaries
+<<<<<<< HEAD
       - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
         run: bash setup.sh
 
+=======
+      - name: ICU4C Setup # install JSON-C, download ICU4C binaries if not present
+        run: bash setup.sh
+>>>>>>> 34fd3a3 (Install JSON-C dependency if not installed at beginning of CI or e2e script)
       - name: Setup version of Dart
         uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
         with:
