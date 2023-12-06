@@ -3,6 +3,14 @@
 # If there's a problem, exit with error status
 set -e
 
+# install libjson-c-dev if not already installed
+dpkg --list | grep libjson-c-dev || error_code=$?
+if [ $error_code -ne 0 ]
+then
+    sudo apt-get install libjson-c-dev
+fi
+
+# download ICU4C binaries if they don't exist
 if [[ ! -d gh-cache ]]
 then
     mkdir -p gh-cache
