@@ -25,7 +25,6 @@ ls -ltra
 pushd $TMP
 echo "NOW IN " $TMP
 
-
 # curl -L $ICU_PATH | tar xvfpz -
 tar xvfz *.tgz
 rm *.tgz
