@@ -513,8 +513,13 @@ class TestReport:
             except:
                 label = ''
             key_list = ['locale', 'locale_label', 'option', 'options',
-                        'language_label', 'ignorePunctuation', 'compare_result',
-                        'compare_type', 'test_description', 'unsupported_options']
+                        'language_label',
+                        # Collation
+                        # 'ignorePunctuation', 'compare_result',
+                        'compare_type', 'test_description', 'unsupported_options', 'rules', 'test_description',
+                        'warning'
+                        # Number format
+                        'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode', ]
             for key in key_list:
                 try:
                     if test.get(key):  # For collation results
@@ -530,13 +535,15 @@ class TestReport:
 
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error pars, too.
-            key_list = ['ignorePunctuation', 'options', 'unsupported_options', 'error_detail']
+            key_list = ['ignorePunctuation', 'options', 'unsupported_options', 'error_detail', 'compare_type', 'rules',
+                        'test_description', 'locale'
+                        ]
             input_data = test.get('input_data')
-            self.add_to_results_by_key(results, input_data, test, key_list)
+            self.add_to_results_by_key(label, results, input_data, test, key_list)
             error_detail = test.get('error_detail')
             if error_detail:
                 error_keys = error_detail.keys()  # ['options']
-                self.add_to_results_by_key(results, error_detail, test, error_keys)
+                self.add_to_results_by_key(label, results, error_detail, test, error_keys)
 
             # if input_data:
             #     add_to_results_by_key(results, input_data, test, key_list)
@@ -564,12 +571,14 @@ class TestReport:
         return dict(results)
 
     # TODO: Use the following function to update lists.
-    def add_to_results_by_key(self, results, input_data, test, key_list):
+    def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
             for key in key_list:
                 try:
                     if (input_data.get(key)):  # For collation results
                         value = test['input_data'][key]
+                        if key == 'rules':
+                            value = 'RULE'  # A special case to avoid over-characterization
                         if key not in results:
                             results[key] = {}
                         if value in results[key]:
@@ -950,7 +959,7 @@ class SummaryReport:
                     self.type_summary[test_type].append(test_results)
 
             except BaseException as err:
-                logging.error('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s', 
+                logging.error('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s',
                     executor, test_type, err)
 
     def get_stats(self, entry):
