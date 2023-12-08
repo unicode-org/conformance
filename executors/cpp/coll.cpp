@@ -45,22 +45,27 @@ const string test_collator(json_object *json_in)  //
   string string2 = json_object_get_string(str2);
 
   // Create a collator, possibly in the default locale
+  UCollator *coll;
   UErrorCode status = U_ZERO_ERROR;
 
-  bool has_locale;
   json_object *locale_obj = json_object_object_get(json_in, "locale");
 
-  UCollator *coll;
   if (locale_obj) {
     const char *locale_string = json_object_get_string(locale_obj);
-    // cout << "LOCALE: " << locale_string << endl;
     coll = ucol_open(locale_string, &status);
   } else {
-    // cout << "NO LOCALE OBJ" << endl;
-    const char *locale_string = NULL;
+    const char *locale_string = nullptr;
     coll = ucol_open(locale_string, &status);
   }
 
+  // Allow for different levels or types of comparison.
+  json_object *compare_type = json_object_object_get(json_in, "compare_type");
+  if (compare_type) {
+    const char *comparison_type = json_object_get_string(compare_type);
+    cout << "COMPARISON TYPE = " << comparison_type << endl;
+  }
+
+  // These are the actual strings to be compared.
   char16_t source[100];
   char16_t target[100];
   char opt_source[100];
@@ -70,57 +75,41 @@ const string test_collator(json_object *json_in)  //
   u_unescape(opt_source, source, 100);
   u_unescape(opt_target, target, 100);
 
-
-  if (locale_obj) {
-    has_locale = true;
-  } else {
-    has_locale = false;
-  }
-
-  bool ignore_punctuation = false;
   json_object *ignore_obj = json_object_object_get(json_in, "ignorePunctuation");
 
   if (ignore_obj) {
-    ignore_punctuation = true;
-    status = U_ZERO_ERROR;
     ucol_setMaxVariable(coll, UCOL_REORDER_CODE_PUNCTUATION, &status);
   }
 
+  const int32_t unspecified_length = -1;
   bool coll_result = true;
-  UCollationResult result = ucol_strcoll(coll,
-                                         source, -1,
-                                         target, -1);
+  UCollationResult result = ucol_strcoll(
+      coll,
+      source, unspecified_length,
+      target, unspecified_length);
 
-  // The json result.
+  // The json test output.
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
+  int64_t numeric_result = int64_t(result);
   if (result != UCOL_LESS) {
     coll_result = false;
-    // Include date for the failing test
-    json_object_object_add(return_json,
-                           "s1",
-                           json_object_new_string(string1.c_str()));
-    json_object_object_add(return_json,
-                           "s2",
-                           json_object_new_string(string2.c_str()));
-    if (result == UCOL_EQUAL) {
-      json_object_object_add(return_json,
-                             "compare",
-                             json_object_new_int64(0));
-    } else {
-      json_object_object_add(return_json,
-                             "compare",
-                             json_object_new_int64(1));
-    }
+
+    // Include data compared in the failing test
+    json_object_object_add(
+        return_json, "s1", json_object_new_string(string1.c_str()));
+    json_object_object_add(
+        return_json, "s2", json_object_new_string(string2.c_str()));
+
+    // What was the actual returned value?
+    json_object_object_add(
+        return_json, "compare", json_object_new_int64(numeric_result));
   }
   ucol_close(coll);
 
-  json_object_object_add(return_json,
-                         "result",
-                         json_object_new_boolean(coll_result));
+  json_object_object_add(
+      return_json, "result", json_object_new_boolean(coll_result));
 
-  string return_str = json_object_to_json_string(return_json);
-
-  return return_str;
+  return  json_object_to_json_string(return_json);
 }
