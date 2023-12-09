@@ -120,7 +120,6 @@ class generateData():
         if rawdcmlfmttestdata:
             BOM = '\xef\xbb\xbf'
             if rawdcmlfmttestdata.startswith(BOM):
-                logging.info('Skip BOM')
                 rawdcmlfmttestdata = rawdcmlfmttestdata[3:]
 
         filename = 'numberpermutationtest.txt'
@@ -322,7 +321,7 @@ def readFile(filename, version=''):
         with open(path, 'r', encoding='utf8') as testdata:
             return testdata.read()
     except BaseException as err:
-        logging.warning('** Cannot read file %s. Error = %s', path, err)
+        logging.warning('** READ: Error = %s', err)
         return None
 
 
@@ -482,7 +481,6 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
   expected_count = len(test_list) * len(NUMBERFORMAT_LOCALE_INDICES) * len(NUMBERS_TO_TEST) + count
   max_digits = computeMaxDigitsForCount(expected_count)
-  logging.info('  Expected count  of number fmt tests: %s', expected_count)
 
   for test_options in test_list:
     # The first three specify the formatting.
@@ -563,7 +561,6 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   verify_list = []
 
   expected = len(test_list) + count
-  logging.info('  expected count = %s', (len(test_list) -1))
   max_digits = computeMaxDigitsForCount(expected)
 
   for item in test_list[1:]:
@@ -686,7 +683,6 @@ def generateCollTestData2(filename,
         if is_test:
             test_description = is_test.group(1)
             rules = []
-            tests_for_test = []
             locale = ''
             attributes = []
             continue
@@ -715,7 +711,10 @@ def generateCollTestData2(filename,
             continue
 
         is_compare = compare_pattern.match(line_in)
+        compare_type = None
         if is_compare:
+            # Initialize string1 to the empty string.
+            string1 = ''
             compare_mode = True
             info = is_compare.group(1)
             while line_number < num_lines:
@@ -750,12 +749,7 @@ def generateCollTestData2(filename,
 
                     label = str(label_num).rjust(max_digits, '0')
                     label_num += 1
-                    test_case = {
-                        'label': label,
-                        's1': string1,
-                        'compare_type': compare_type,
-                        'test_description': test_description
-                    }
+
 
                     # If either string has unpaired surrogates, ignore the case, with a warning
                     if check_unpaired_surrogate_in_string(string2):
@@ -773,26 +767,38 @@ def generateCollTestData2(filename,
                     else:
                         string2 = compare_string.encode().decode('unicode_escape')
 
-                    test_case['s2'] = string2
+                    test_case = {
+                        'label': label,
+                        's1': string1,
+                        's2': string2,
+                    }
 
                     # Add info to the test case.
                     if locale:
                         test_case['locale'] = locale
-                    # Keep this for the next comparison test
-                    string1 = string2
+                    if compare_type:
+                        if type(compare_type) in [list, tuple]:
+                            test_case['compare_type'] = compare_type[0]
+                        else:
+                            test_case['compare_type'] = compare_type
+                    if test_description:
+                        test_case['test_description'] = test_description
                     if compare_comment:
                        test_case['compare_comment'] = compare_comment
                     if rules:
                         test_case['rules'] = '\n'.join(rules)
                     if attributes:
                         test_case['attributes'] = attributes
+
                     test_list.append(test_case)
+                    # We always expect True as the result
                     verify_list.append({
                         'label': label,
                         'verify': True
                     })
-                    # Just to record which ones belong to this test
-                    tests_for_test.append(test_case)
+
+                    # Keep this for the next comparison test
+                    string1 = string2
             continue
 
         is_attribute = attribute_test.match(line_in)
@@ -824,9 +830,6 @@ def check_unpaired_surrogate_in_string(text):
 
     # TODO: Check if each high match is immediately followed by a low match
     # Now, assume that they are paired
-    return False
-
-
 
     return False
 
@@ -964,14 +967,11 @@ def main(args):
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
-    logger.info('+++ Generating .json files for icu_versions %s',
-                 new_args.icu_versions)
 
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
         data_generator.run_limit = new_args.run_limit
 
-        # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 
