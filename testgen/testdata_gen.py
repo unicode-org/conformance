@@ -713,7 +713,7 @@ def generateCollTestData2(filename,
         is_compare = compare_pattern.match(line_in)
         compare_type = None
         if is_compare:
-            # Reset string1 to the empty string.
+            # Initialize string1 to the empty string.
             string1 = ''
             compare_mode = True
             info = is_compare.group(1)
