@@ -78,7 +78,8 @@ const string test_collator(json_object *json_in)  //
   json_object *ignore_obj = json_object_object_get(json_in, "ignorePunctuation");
 
   if (ignore_obj) {
-    ucol_setMaxVariable(coll, UCOL_REORDER_CODE_PUNCTUATION, &status);
+    ucol_setAttribute(coll, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED,
+                      &status);
   }
 
   const int32_t unspecified_length = -1;
@@ -93,7 +94,7 @@ const string test_collator(json_object *json_in)  //
   json_object_object_add(return_json, "label", label_obj);
 
   int64_t numeric_result = int64_t(result);
-  if (result != UCOL_LESS) {
+  if (result == UCOL_GREATER) {
     coll_result = false;
 
     // Include data compared in the failing test
