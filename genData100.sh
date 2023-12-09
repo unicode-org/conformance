@@ -16,6 +16,17 @@ logrotate -s logrotate.state logrotate.conf
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
 
+#
+# Setup
+#
+
+# Ensure that ICU4C binaries have been downloaded locally
+if [[ ! -d gh-cache ]]
+then
+  bash setup.sh
+fi
+
+export TEMP_DIR=TEMP_DATA
 export TEST_LIMIT=100
 
 export TEMP_DIR=TEMP_DATA_100
@@ -29,20 +40,22 @@ mkdir -p $TEMP_DIR/testData
 # Setup (generate) test data & expected values
 # 
 
+echo "PARSING run_config.json"
 source_file=${1:-'run_config.json'}
 
 
 # Generates all new test data
-source_file=${1:-'run_config.json'}
 pushd testgen
 all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
 python3 testdata_gen.py  --icu_versions $all_icu_versions --run_limit $TEST_LIMIT
+
 # And copy results to subdirectories.
 cp -r icu* ../$TEMP_DIR/testData
 popd
 
 # Verify that schema files are valid
 pushd schema
+
 python3 check_schemas.py $pwd
 # And check generated data against schemas.
 python3 check_generated_data.py ../$TEMP_DIR/testData
@@ -98,6 +111,8 @@ jq -c '.[]' ../$source_file | while read i; do
     exec_command=$(jq -r -c '.run.exec' <<< $i)
     test_type=$(jq -r -c '.run.test_type | join(" ")'  <<< $i)
     per_execution=$(jq -r -c '.run.per_execution' <<< $i)
+
+
     ignore=$(jq -r -c '.run.ignore' <<< $i)
     python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution --ignore $ignore --run_limit $TEST_LIMIT
     echo $?

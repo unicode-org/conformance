@@ -64,7 +64,8 @@ class generateData():
     def processCollationTestData(self):
         # Get each kind of collation tests and create a unified data set
         json_test = {'test_type': 'collation_short',
-                     'tests':[]}
+                     'tests':[],
+                     'data_errors': []}
         json_verify = {'test_type': 'collation_short',
                        'verifications': []}
         insert_collation_header([json_test, json_verify])
@@ -856,7 +857,6 @@ def generateCollTestDataObjects(filename,
     index = 0
     line_number = 0
     for item in raw_testdata_list[1:]:
-
         line_number += 1
         if recommentline.match(item) or reblankline.match(item):
             continue

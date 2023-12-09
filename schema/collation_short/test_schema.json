@@ -80,6 +80,12 @@
           "s2"
         ]
       }
+    },
+    "data_errors": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "array"
+      }
     }
   }
 }

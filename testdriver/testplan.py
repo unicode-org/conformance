@@ -508,6 +508,7 @@ class TestPlan:
                 logging.debug('    ----> STDOUT= >%s<', result.stdout)
                 self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' % (
                     result.returncode, result.stderr)
+                logging.error(' !!!!!! exec_list = %s\n  input_line = %s' % (self.exec_list, input_line))
                 logging.error(' !!!!!! %s' % self.run_error_message)
 
                 # TODO!!!! Return an error for the offending line instead of failing for the whole batch
