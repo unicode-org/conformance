@@ -99,26 +99,24 @@ public class Icu4jExecutor {
         Optional<String> testTypeOpt = parsedInputPersistentMap.get("test_type");
 
         if (!testTypeOpt.isPresent()) {
-            io.lacuna.bifurcan.IMap response =
+            io.lacuna.bifurcan.IMap<String,String> response =
                 parsedInputPersistentMap
                     .put("error", "Error in input")
                     .put("error_msg", "Error in input found in executor before execution");
 
-            // TODO: format this as JSON
-            return response.toString();
+            return ExecutorUtils.formatAsJson(response);
         } else {
             String testTypeStr = testTypeOpt.get();
             ITestType testType;
             if (testTypeStr.equals("collate_short")) {
                 testType = new CollatorTester();
             } else {
-                io.lacuna.bifurcan.IMap response =
+                io.lacuna.bifurcan.IMap<String,String> response =
                     parsedInputPersistentMap
                         .put("error", "Error in input")
                         .put("error_msg", "Error in input found in executor before execution");
 
-                // TODO: format this as JSON
-                return response.toString();
+                return ExecutorUtils.formatAsJson(response);
             }
 
             return testType.getFinalOutputFromInput(parsedInputPersistentMap);
