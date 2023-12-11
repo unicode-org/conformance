@@ -108,7 +108,7 @@ public class Icu4jExecutor {
         } else {
             String testTypeStr = testTypeOpt.get();
             ITestType testType;
-            if (testTypeStr.equals("collate_short")) {
+            if (testTypeStr.equals("collation_short")) {
                 testType = new CollatorTester();
             } else {
                 io.lacuna.bifurcan.IMap<String,String> response =

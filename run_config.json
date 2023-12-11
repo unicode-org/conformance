@@ -222,7 +222,7 @@
         "collation_short"
       ],
       "per_execution": 10000,
-      "ignore": true
+      "ignore": false
     }
   }
 ]
