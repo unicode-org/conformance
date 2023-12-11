@@ -165,7 +165,7 @@ ExecutorCommands = {
     "dart_web" : "node ../executors/dart_web/out/executor.js",
     "dart_native" : "../executors/dart_native/bin/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
-    "cpp":   "../executors/cpp/executor",
+    "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
     "icu4j" : "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
     }
 
@@ -350,7 +350,7 @@ allExecutors.addSystem(
     system, CppVersion.Cpp,
     '../executors/cpp/executor',
     CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73,
-    env={'LD_LIBRARY_PATH': '/tmp/icu73/lib', 'PATH': '/tmp/icu73/bin'})
+    env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu73/bin'})
 
 system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',

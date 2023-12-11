@@ -40,18 +40,20 @@ using std::string;
 
 // Test functions
 extern const string test_collator(json_object *json_in);
-extern const string test_numfmt(json_object *json_in);
+// extern const string test_numfmt(json_object *json_in);
+// extern const string test_langnames(json_object *json_in);
 
-std::string supported_tests[5] = {
-  "coll_shift_short",
-  "decimal_fmt",
-  "number_fmt",
-  "display_names",
-  "language_display_name"
+std::string supported_tests[6] = {
+  "collation_short"
+  // "decimal_fmt",
+  // "number_fmt",
+  // "display_names",
+  // "language_display_name",
+  // "likely_subtags"
 };
 
 
-std::string cppVersion = "executorCpp1.0";
+std::string cppVersion = "1.0";
 
 /**
  * Main   --  process command line, call tests or return data
@@ -75,7 +77,7 @@ int main(int argc, const char** argv)
       json_object_object_add(version, "icuVersion",
                              json_object_new_string(U_ICU_VERSION));
       json_object_object_add(version, "platformVersion",
-                             json_object_new_string(cppVersion.c_str()));
+                             json_object_new_string(U_ICU_VERSION));
       cout << json_object_to_json_string(version) << endl;
     } else if (line == "#TESTS") {
       // TODO: get from the array of supported tests
@@ -101,13 +103,16 @@ int main(int argc, const char** argv)
       json_object *test_type_obj = json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);
 
-      if (test_type == "coll_shift_short" ) {
+      if (test_type == "collation_short" ) {
         outputLine = test_collator(json_input);
       }
-      else if (test_type == "number_fmt" ) {
-        cout << "# !!! test_type = " << test_type << endl;
-        outputLine = test_numfmt(json_input);
-      } else {
+      // else if (test_type == "number_fmt") {
+      //   outputLine = test_numfmt(json_input);
+      //   // }
+      // else if (test_type == "language_display_name") {
+      //   outputLine = test_langnames(json_input);
+      // }
+else {
         std::string outputLine = "# BAD TEST " + test_type;
       }
 

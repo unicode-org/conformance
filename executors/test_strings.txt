@@ -18,17 +18,20 @@
 {"label":"zh en-150","language_label":"zh","locale_label":"en_150","test_type":"language_display_name"}
 
 # COLLATION
-{"test_type": "coll_shift_short", "label": "COLL_ABC1", "s1": "de", "s2" : "da"}
-{"test_type": "coll_shift_short", "label": "COLL_ABC2", "s1": "de", "s2" : "df"}
-{"test_type": "coll_shift_short", "label":"000009","s1":"\\u000d?","s2":"!"}
-{"test_type": "coll_shift_short", "label":"000017","s1":" !","s2":" !"}    
+{"test_type": "collation_short", "label": "COLL_ABC1", "s1": "de", "s2" : "da"}
+{"test_type": "collation_short", "label": "COLL_ABC2", "s1": "de", "s2" : "df"}
+{"test_type": "collation_short", "label":"000009","s1":"\\u000d?","s2":"!"}
+{"test_type": "collation_short", "label":"000017","s1":" !","s2":" !"}    
 
+# Equal comparison
+{"test_type": "collation_short", "label":"xxxx","s1":"aa","s2":"ab", "compare_type":"="}
+{"test_type": "collation_short", "label":"xxxx","s1":"aa","s2":"ab", "compare_type":"<"}
+    {"test_type": "collation_short", "label":"xxxx","s1":"aa","s2":"xx", "compare_type":"="}
+            
 # COLLATION Non-ignorable
-{"test_type": "coll_nonignorable_short", "label": "COLL_ABC1", "s1": "de", "s2" : "da"}
-{"test_type": "coll_nonignorable_short", "label": "COLL_ABC2", "s1": "de", "s2" : "df"}
-
-# DECIMAL FORMAT
-
+{"test_type": "collation_short", "label": "COLL_ABC1", "s1": "de", "s2" : "da"}
+{"test_type": "collation_short", "label": "COLL_ABC2", "s1": "de", "s2" : "df"}
+    
 {"test_type": "number_fmt", "label":"NUM_2345", "input": "23.45","locale":"it","options":{"maximumFractionDigits":3}}
 {"test_type": "number_fmt", "label":"NUM_2345", "input": "23.4567","locale":"fr","options":{"maximumFractionDigits":"1"}}
 
@@ -56,9 +59,13 @@
 {"test_type":"likely_subtags", "label": "0007", "locale": "af", "option": "minimizeFavorScript"}
 
 
+{"test_type": "collation_short", "label": "00689", "s1": "101a", "compare_type": "<2", "test_description": " simple locale data test", "s2": "\u00c3\u00a4", "locale": "de"}
 {"test_type": "collation_short", "label": "0000000", "s1": "\\u0009!", "s2": "\\u0009?", "ignorePunctuation": true}
 {"test_type": "collation_short", "label": "do_fail", "s1": "abc", "s2": "aba", "ignorePunctuation": true}
 {"test_type": "collation_short", "label": "dont_fail", "s1": "abc", "s2": "abe", "ignorePunctuation": true}
 
 {"test_type": "collation_short", "label": "0178423", "s1": "\udbff\udff8A", "s2": "\udbff\udff8b"},
 {"test_type": "collation_short", "label": "0178424", "s1": "\udbff\udff8b", "s2": "\udbff\udff9!"}    
+
+//
+{"test_type": "number_fmt", "label":"2062","locale":"es-MX","skeleton":"currency/EUR unit-width-narrow .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"narrow","maximumFractionDigits":3,"minimumFractionDigits":3}}

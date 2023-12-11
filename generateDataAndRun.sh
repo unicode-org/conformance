@@ -12,6 +12,12 @@ logrotate -s logrotate.state logrotate.conf
 # Setup (generate) test data & expected values
 ##########
 
+# Ensure that ICU4C binaries have been downloaded locally
+if [[ ! -d gh-cache ]]
+then
+  bash setup.sh
+fi
+
 # Enable seting the version of NodeJS
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
@@ -59,7 +65,7 @@ popd
 # Run Dart executors in a custom way
 #
 
-# TODO(?): Figure out why datasets.py can't support runnign multiple CLI commands,
+# TODO(?): Figure out why datasets.py can't support running multiple CLI commands,
 # if that is the reason why Dart needs custom handling in this end-to-end script
 
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
