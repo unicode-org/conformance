@@ -144,7 +144,7 @@ class TestPlan:
         return
 
     def request_executor_info(self):
-        version_info = "#VERSION"
+        version_info = "#VERSION\n#EXIT\n"
         result = self.send_one_line(version_info)
         if result and result[0] == "#":
             # There's debug data. Take the 2nd line of this result
@@ -496,10 +496,12 @@ class TestPlan:
         self.run_error_message = None
         try:
             result = subprocess.run(self.exec_list,
+            result = subprocess.run(self.exec_command,
                                     input=input_line,  # Usually a JSON string.
                                     encoding='utf-8',
                                     capture_output=True,
-                                    env=self.exec_env)
+                                    env=self.exec_env,
+                                    shell=True)
             if not result.returncode:
                 return result.stdout
             else:
