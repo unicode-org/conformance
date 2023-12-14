@@ -29,38 +29,43 @@ using std::string;
 
 
 const string test_langnames (json_object *json_in) {
-  cout << "# LANGNAME: " << json_object_to_json_string(json_in);
+  UErrorCode errorCode;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
-  cout << "# LABEL: " << json_object_get_string(label_obj);
 
-  json_object *return_json = json_object_new_object();
-  json_object_object_add(return_json, "label", label_obj);
-  json_object_object_add(return_json,
-                         "result",
-                         json_object_new_string(result.c_str()));
 
+  // The locale in which the name is given.
   json_object *locale_label_obj = json_object_object_get(json_in, "locale_label");
   string locale_string = json_object_get_string(locale_label_obj);
-  cout << "# locale label: " << json_object_get_string(locale_label_obj);
 
+  // The language's name to be displayed.
   json_object *language_label_obj = json_object_object_get(json_in, "language_label");
   string language_label_string = json_object_get_string(language_label_obj);
-  cout << "# language label: " << json_object_get_string(language_label_obj);
 
-  Locale display_locale(locale_string);
-  UnicodeString display_lang(lange_label_string);
+  cout << "# LOCALE: " << locale_string << endl;
+  cout << "# Language: " << language_label_string << endl;
 
-  UnicodeString &name = getDisplayLanguage(const display_locale, UnicodeString &display_lang);
+  Locale displayLocale(locale_string.c_str());
 
+  Locale testLocale(language_label_string.c_str());
+
+  UnicodeString testLang;
+
+  testLocale.getDisplayLanguage(displayLocale, testLang);
+
+  char test_result_string[100] = "";
+  int32_t chars_out = testLang.extract(test_result_string, 100, nullptr, errorCode);
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
   json_object_object_add(return_json,
                          "result",
-                         json_object_new_string(name.c_str()));
- string return_str = json_object_to_json_string(return_json);
+                         json_object_new_string(test_result_string));
 
 
-  return result_string;
+  cout << "# test_Result_string: " << test_result_string << endl;
+
+  string return_string = json_object_to_json_string(return_json);
+
+  return return_string;
 }
