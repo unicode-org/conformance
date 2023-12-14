@@ -43,9 +43,6 @@ const string test_langnames (json_object *json_in) {
   json_object *language_label_obj = json_object_object_get(json_in, "language_label");
   string language_label_string = json_object_get_string(language_label_obj);
 
-  cout << "# LOCALE: " << locale_string << endl;
-  cout << "# Language: " << language_label_string << endl;
-
   Locale displayLocale(locale_string.c_str());
 
   Locale testLocale(language_label_string.c_str());
@@ -53,7 +50,8 @@ const string test_langnames (json_object *json_in) {
   UnicodeString testLang;
 
   testLocale.getDisplayName(displayLocale, testLang);
-  //testLocale.getDisplayLanguage(displayLocale, testLang);
+  // The following gives only the language name, without region information
+  /// testLocale.getDisplayLanguage(displayLocale, testLang);
 
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
@@ -61,7 +59,6 @@ const string test_langnames (json_object *json_in) {
   char test_result_string[100] = "";
   int32_t chars_out = testLang.extract(test_result_string, 100, nullptr, status);
   if (U_FAILURE(status)) {
-    cout << "# CPP LANGNAMES Error" << endl;
     json_object *error_msg = json_object_new_object();
 
     json_object_object_add(return_json,
@@ -70,7 +67,6 @@ const string test_langnames (json_object *json_in) {
     json_object_object_add(return_json,
                            "result",
                            json_object_new_string(test_result_string));
-    cout << "# test_Result_string: " << test_result_string << endl;
   }
 
   string return_string = json_object_to_json_string(return_json);
