@@ -157,8 +157,14 @@ class TestPlan:
         else:
             if self.debug:
                 logging.debug('EXECUTOR INFO = %s', result)
+
             try:
                 self.jsonOutput["platform"] = json.loads(result)
+            except BaseException as error:
+                logging.error("Encountered error in parsing executor result string as JSON: %s", error)
+                return None
+
+            try:
                 self.platformVersion = self.jsonOutput["platform"]["platformVersion"]
                 self.icuVersion = self.jsonOutput["platform"]["icuVersion"]
                 try:
@@ -176,7 +182,8 @@ class TestPlan:
                                                    self.options.icu_version,
                                                    # self.platformVersion,
                                                    self.testData.testDataFilename)
-            except (KeyError, IndexError):
+            except (KeyError, IndexError) as error:
+                logging.error("Encountered error processing executor JSON values: %s", error)
                 return None
         return True
 
