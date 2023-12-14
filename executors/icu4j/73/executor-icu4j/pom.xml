@@ -11,12 +11,13 @@
   <name>executor-icu4j</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
@@ -90,11 +91,52 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+
+        <!-- exec:exec build target enables running CLI commands -->
         <plugin>
           <artifactId>exec-maven-plugin</artifactId>
           <version>3.1.1</version>
         </plugin>
+
+        <!-- Create an all-in-one (statically linked) Jar file -->
+        <plugin>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.5.1</version>
+          <!-- Maven Shade Plugin transformers don't work as expected, so -->
+          <!-- use jar plugin -->
+          <!-- https://stackoverflow.com/questions/30757739/no-main-manifest-attribute-in-jar -->
+        </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <!-- Maven Shade Plugin transformers don't work as expected, so -->
+        <!-- use jar plugin -->
+        <!-- https://stackoverflow.com/questions/30757739/no-main-manifest-attribute-in-jar -->
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <transformers>
+                <transformer implementation=
+                    "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>org.unicode.conformance.Icu4jExecutor</Main-Class>
+                    <Build-Number>1.0</Build-Number>
+                  </manifestEntries>
+                  <!--                    <mainClass>org.unicode.conformance.Icu4jExecutor</mainClass>-->
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
