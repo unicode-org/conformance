@@ -395,7 +395,7 @@ class TestPlan:
             logging.debug('PROCESSING %d tests', len(tests_to_send))
 
         # Ask process to exit when finished.
-        out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT'
+        out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT\n'
 
         if self.debug > 2:
             logging.info('+++ Test LINE TO EXECUTOR = %s', out_and_exit)
