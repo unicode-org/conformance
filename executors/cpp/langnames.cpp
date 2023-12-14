@@ -54,18 +54,24 @@ const string test_langnames (json_object *json_in) {
 
   testLocale.getDisplayLanguage(displayLocale, testLang);
 
-  char test_result_string[100] = "";
-  int32_t chars_out = testLang.extract(test_result_string, 100, nullptr, errorCode);
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
-  json_object_object_add(return_json,
-                         "result",
-                         json_object_new_string(test_result_string));
 
+  char test_result_string[100] = "";
+  int32_t chars_out = testLang.extract(test_result_string, 100, nullptr, errorCode);
+  if (U_FAILURE(errorCode)) {
+    cout << "# CPP LANGNAMES Error" << endl;
+    json_object *error_msg = json_object_new_object();
 
-  cout << "# test_Result_string: " << test_result_string << endl;
+    json_object_object_add(return_json,
+                           "error", json_object_new_string("langnames extract error"));
+  } else {
+    json_object_object_add(return_json,
+                           "result",
+                           json_object_new_string(test_result_string));
+    cout << "# test_Result_string: " << test_result_string << endl;
+  }
 
   string return_string = json_object_to_json_string(return_json);
-
   return return_string;
 }
