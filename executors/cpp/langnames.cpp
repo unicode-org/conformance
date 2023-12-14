@@ -52,7 +52,8 @@ const string test_langnames (json_object *json_in) {
 
   UnicodeString testLang;
 
-  testLocale.getDisplayLanguage(displayLocale, testLang);
+  testLocale.getDisplayName(displayLocale, testLang);
+  //testLocale.getDisplayLanguage(displayLocale, testLang);
 
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
