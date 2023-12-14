@@ -162,7 +162,7 @@ class TestPlan:
                 self.jsonOutput["platform"] = json.loads(result)
             except json.JSONDecodeError as error:
                 logging.error("Encountered error in parsing executor result string as JSON: %s", error)
-                logging.error("Result string received from executor: %s", result)
+                logging.error("Result string received from executor: [%s]", result)
                 return None
 
             try:
