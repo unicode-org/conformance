@@ -361,12 +361,8 @@ allExecutors.addSystem(system, '0.1.0',
 system = ExecutorLang.ICU4J.value
 
 allExecutors.addSystem(system, '73',
-                       'mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:exec -Dexec.executable="mvn" -Dexec.args="compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"',
+                       'mvn -q -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:exec -Dexec.executable="mvn" -Dexec.args="compile exec:java -q -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
-
-# allExecutors.addSystem(system, '73',
-#                        'mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor',
-#                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,
