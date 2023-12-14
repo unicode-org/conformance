@@ -221,8 +221,7 @@
       "test_type": [
         "collation_short"
       ],
-      "per_execution": 10000,
-      "ignore": false
+      "per_execution": 10000
     }
   }
 ]
