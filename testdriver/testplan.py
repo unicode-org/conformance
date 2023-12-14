@@ -495,10 +495,11 @@ class TestPlan:
     def send_one_line(self, input_line):
         self.run_error_message = None
         try:
-            result = subprocess.run(self.exec_list,
+            result = subprocess.run(self.exec_command,
                                     input=input_line,  # Usually a JSON string.
                                     encoding='utf-8',
                                     capture_output=True,
+                                    shell=True,
                                     env=self.exec_env)
             if not result.returncode:
                 return result.stdout
