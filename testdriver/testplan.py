@@ -486,7 +486,7 @@ class TestPlan:
                 logging.error('CANNOT parse JSON from file %s: %s', self.inputFilePath, error)
                 return None
         except FileNotFoundError as err:
-            logging.error('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
+            logging.info('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
             return None
 
         try:
