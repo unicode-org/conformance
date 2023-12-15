@@ -17,7 +17,7 @@ import org.unicode.conformance.testtype.collator.CollatorTester;
  */
 public class Icu4jExecutor {
 
-    public static final String PLATFORM = "icu4j";
+    public static final String PLATFORM = "ICU4J";
     public static final String PLATFORM_VERSION = "73.2";
     public static final String ICU_VERSION = "73";
 
