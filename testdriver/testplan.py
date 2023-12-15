@@ -522,13 +522,13 @@ class TestPlan:
 
                 # Handle problems with decoding errors and other unknowns.
                 error_result = {'label': 'UNKNOWN',
-                                'input_data': input,
+                                'input_data': input_line,
                                 'error': self.run_error_message
                                 }
                 return json.dumps(error_result)
         except BaseException as err:
             logging.error('!!! send_one_line fails: input => %s<. Err = %s', input_line, err)
-            input = json.loads(input_line.replace('#EXIT', '').trim())
+            input = json.loads(input_line.replace('#EXIT', '').strip())
             error_result = {'label': input['label'],
                             'input_data': input,
                             'error': err
