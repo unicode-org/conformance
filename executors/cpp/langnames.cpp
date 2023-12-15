@@ -58,7 +58,7 @@ const string test_langnames (json_object *json_in) {
 
   char test_result_string[1000] = "";
 
-  int32_t chars_out = testLang.extract(test_result_string, 100, nullptr, status);
+  int32_t chars_out = testLang.extract(test_result_string, 1000, nullptr, status);
   if (U_FAILURE(status)) {
     json_object *error_msg = json_object_new_object();
 
