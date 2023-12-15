@@ -12,7 +12,7 @@ public class ExecutorUtils {
   public static Gson GSON = new Gson();
 
   public static void printResponseString(String responseString) {
-    System.out.print(responseString);
+    System.out.println(responseString);
   }
 
   public static io.lacuna.bifurcan.Map<String,String> parseInputLine(String inputLine) {
