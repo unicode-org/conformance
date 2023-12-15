@@ -17,6 +17,7 @@ import org.unicode.conformance.testtype.collator.CollatorTester;
  */
 public class Icu4jExecutor {
 
+    public static final String PLATFORM = "icu4j";
     public static final String PLATFORM_VERSION = "73.2";
     public static final String ICU_VERSION = "73";
 
@@ -83,6 +84,7 @@ public class Icu4jExecutor {
 
     public static String getVersionResponse() {
         Map<String,String> versionMap = new HashMap<>();
+        versionMap.put("platform", PLATFORM);
         versionMap.put("cldrVersion", CLDR_VERSION);
         versionMap.put("icuVersion", ICU_VERSION);
         versionMap.put("platformVersion", PLATFORM_VERSION);
