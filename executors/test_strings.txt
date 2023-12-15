@@ -1,3 +1,4 @@
+# LANGUAGE DISPLAY NAMES
 {"test_type": "display_names", "label": "01", "language_label": "en", "locale_label": "af"}
 {"test_type": "display_names", "label": "01", "language_label": "", "locale_label": "fr"}
 {"test_type": "display_names", "label": "01", "language_label": "de", "locale_label": "fr"}
@@ -43,10 +44,10 @@
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"9182734567890","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}    
 
-# For testing rejection of unknown type
+# FOR TESTING REJECTION OF UNKNOWN TYPE
 {"test_type": "bogus_fmt", "label":"NUM_2345", "input": "23.45","locale":"it","options":{"maximumFractionDigits":3}}
     
-# Local_info
+# LOCALE_INFO
 {"test_type":"likely_subtags", "option":"maximize", "locale":"fr", "label":"1"}
 {"test_type":"likely_subtags", "option":"maximize", "locale":"fr-Latn-FR", "label":"1"}
 {"test_type":"likely_subtags", "option":"minimize", "locale":"fr-Latn-FR", "label":"1"}

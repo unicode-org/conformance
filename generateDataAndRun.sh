@@ -22,6 +22,11 @@ fi
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
 
+##########
+# Regenerate test data and verify against schema
+##########
+
+# Clear old data
 export TEMP_DIR=TEMP_DATA
 rm -rf $TEMP_DIR
 

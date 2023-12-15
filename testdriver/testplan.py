@@ -144,7 +144,7 @@ class TestPlan:
         return
 
     def request_executor_info(self):
-        version_info = "#VERSION"
+        version_info = "#VERSION\n#EXIT\n"
         result = self.send_one_line(version_info)
         if result and result[0] == "#":
             # There's debug data. Take the 2nd line of this result
@@ -157,8 +157,15 @@ class TestPlan:
         else:
             if self.debug:
                 logging.debug('EXECUTOR INFO = %s', result)
+
             try:
                 self.jsonOutput["platform"] = json.loads(result)
+            except json.JSONDecodeError as error:
+                logging.error("Encountered error in parsing executor result string as JSON: %s", error)
+                logging.error("Result string received from executor: [%s]", result)
+                return None
+
+            try:
                 self.platformVersion = self.jsonOutput["platform"]["platformVersion"]
                 self.icuVersion = self.jsonOutput["platform"]["icuVersion"]
                 try:
@@ -176,7 +183,8 @@ class TestPlan:
                                                    self.options.icu_version,
                                                    # self.platformVersion,
                                                    self.testData.testDataFilename)
-            except (KeyError, IndexError):
+            except (KeyError, IndexError) as error:
+                logging.error("Encountered error processing executor JSON values: %s", error)
                 return None
         return True
 
@@ -387,7 +395,7 @@ class TestPlan:
             logging.debug('PROCESSING %d tests', len(tests_to_send))
 
         # Ask process to exit when finished.
-        out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT'
+        out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT\n'
 
         if self.debug > 2:
             logging.info('+++ Test LINE TO EXECUTOR = %s', out_and_exit)
@@ -478,7 +486,7 @@ class TestPlan:
                 logging.error('CANNOT parse JSON from file %s: %s', self.inputFilePath, error)
                 return None
         except FileNotFoundError as err:
-            logging.error('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
+            logging.info('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
             return None
 
         try:
@@ -499,8 +507,8 @@ class TestPlan:
                                     input=input_line,  # Usually a JSON string.
                                     encoding='utf-8',
                                     capture_output=True,
-                                    shell=True,
-                                    env=self.exec_env)
+                                    env=self.exec_env,
+                                    shell=True)
             if not result.returncode:
                 return result.stdout
             else:
