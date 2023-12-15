@@ -56,7 +56,7 @@ const string test_langnames (json_object *json_in) {
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  char test_result_string[100] = "";
+  char test_result_string[1000] = "";
 
   int32_t chars_out = testLang.extract(test_result_string, 100, nullptr, status);
   if (U_FAILURE(status)) {
