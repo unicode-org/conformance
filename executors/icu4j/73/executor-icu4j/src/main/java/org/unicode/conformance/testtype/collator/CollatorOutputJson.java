@@ -8,7 +8,8 @@ public class CollatorOutputJson implements ITestTypeOutputJson {
 
   public String label;
 
-  public boolean verify;
+  // Comment this out for now. Only bring back if needed
+  // public boolean verify;
 
   public boolean result;
 
