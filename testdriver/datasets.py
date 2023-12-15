@@ -361,7 +361,7 @@ allExecutors.addSystem(system, '0.1.0',
 system = ExecutorLang.ICU4J.value
 
 allExecutors.addSystem(system, '73',
-                       'mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor',
+                       'java -jar ../executors/icu4j/73/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 
 system = ExecutorLang.DARTWEB.value
