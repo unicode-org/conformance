@@ -17,9 +17,10 @@
 
 #include <json-c/json.h>
 
+#include <cstring>
 #include <iostream>
 #include <string>
-#include <cstring>
+#include <regex>
 
 using std::cout;
 using std::endl;
@@ -42,7 +43,7 @@ const string test_likely_subtags(json_object *json_in) {
 
   Locale displayLocale(locale_string.c_str());
 
-  const char* test_result_string;
+  const char* test_result;
   const string error_message_max = "error in maximize";
   const string error_message_min = "error in minimize";
   const string protected_msg = "This ICU4C API is protected";
@@ -52,29 +53,25 @@ const string test_likely_subtags(json_object *json_in) {
   json_object_object_add(return_json, "label", label_obj);
 
   // The default.
-  test_result_string = empty_result;
+  test_result = empty_result;
   if (option_string == "maximize") {
     // This makes the maximized form
     Locale maximized(displayLocale);
     maximized.addLikelySubtags(status);
     if (U_FAILURE(status)) {
-      test_result_string = error_message_max.c_str();
-      cout << "ERROR MAXIMIZED:" << test_result_string << endl;
+      test_result = error_message_max.c_str();
     } else {
-      test_result_string = maximized.getName();
-      cout << "MAXIMIZED:" << test_result_string << endl;
+      test_result = maximized.getName();
     }
   }
   else if (option_string == "minimize" || option_string == "minimizeFavorRegion") {
     // Minimize
     displayLocale.minimizeSubtags(status);
     if (U_FAILURE(status)) {
-      test_result_string = error_message_min.c_str();
-      cout << "ERROR MINIMIZED:" << test_result_string << endl;
+      test_result = error_message_min.c_str();
     } else {
       const char* min_name = displayLocale.getName();
-      cout << "MINIMIZED:" << min_name << endl;
-      test_result_string = min_name;
+      test_result = min_name;
     }
   }
   else if (option_string == "minimizeFavorScript") {
@@ -104,16 +101,20 @@ const string test_likely_subtags(json_object *json_in) {
   }
 
   if (U_FAILURE(status)) {
-    cout << "REPORTING AN ERROR: " << test_result_string;
     json_object *error_msg = json_object_new_object();
 
     json_object_object_add(return_json,
                            "error",
-                           json_object_new_string(test_result_string));
+                           json_object_new_string(test_result));
   } else {
+    // Replace "_" with "-" in the result to be consistent with expected results.
+    string test_result_as_string = test_result;
+    string test_result_updated =
+        std::regex_replace(test_result_as_string, std::regex("_"), "-");
+
     json_object_object_add(return_json,
                            "result",
-                           json_object_new_string(test_result_string));
+                           json_object_new_string(test_result_updated.c_str()));
   }
 
   return  json_object_to_json_string(return_json);

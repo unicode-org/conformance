@@ -40,16 +40,14 @@ using std::string;
 
 // Test functions
 extern const string test_collator(json_object *json_in);
-// extern const string test_numfmt(json_object *json_in);
-// extern const string test_langnames(json_object *json_in);
+extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
-
+// extern const string test_numfmt(json_object *json_in);
 std::string supported_tests[6] = {
   "collation_short"
   // "decimal_fmt",
   // "number_fmt",
-  // "display_names",
-  // "language_display_name",
+  "lang_names",
   "likely_subtags"
 };
 
@@ -96,8 +94,7 @@ int main(int argc, const char** argv)
       // Parse the JSON data.
       // Get the test type and call the test function.
 
-      std::string outputLine = "# BAD TEST ";
-      // !!! cout << "# input line: " << line << endl;
+      std::string outputLine;
 
       struct json_object *json_input;
       json_input = json_tokener_parse(line.c_str());
@@ -114,11 +111,17 @@ int main(int argc, const char** argv)
       // else if (test_type == "number_fmt") {
       //   outputLine = test_numfmt(json_input);
       //   // }
-      // else if (test_type == "language_display_name") {
-      //   outputLine = test_langnames(json_input);
-      // }
+      else if (test_type == "lang_names") {
+        outputLine = test_langnames(json_input);
+      }
+      else if (test_type == "likely_subtags") {
+        // !!!       outputLine = test_likely_subtags(json_input);
+      }
       else {
-        std::string outputLine = "# BAD TEST " + test_type;
+        outputLine =  "# BAD TEST " + test_type;
+        //       "{\"error\": \"unknown test type\"," +
+        //       "\"test_type\":" +  test_type + "," +
+        //       "\"unsupported_test:\"" + test_type + "}";
       }
 
       // TODO: Instead of a string, get JSON output and stringify it.
