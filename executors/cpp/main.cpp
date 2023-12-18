@@ -42,6 +42,7 @@ using std::string;
 extern const string test_collator(json_object *json_in);
 // extern const string test_numfmt(json_object *json_in);
 // extern const string test_langnames(json_object *json_in);
+extern const string test_likely_subtags(json_object *json_in);
 
 std::string supported_tests[6] = {
   "collation_short"
@@ -49,7 +50,7 @@ std::string supported_tests[6] = {
   // "number_fmt",
   // "display_names",
   // "language_display_name",
-  // "likely_subtags"
+  "likely_subtags"
 };
 
 
@@ -106,13 +107,17 @@ int main(int argc, const char** argv)
       if (test_type == "collation_short" ) {
         outputLine = test_collator(json_input);
       }
+      else if (test_type == "likely_subtags") {
+        outputLine = test_likely_subtags(json_input);
+      }
+
       // else if (test_type == "number_fmt") {
       //   outputLine = test_numfmt(json_input);
       //   // }
       // else if (test_type == "language_display_name") {
       //   outputLine = test_langnames(json_input);
       // }
-else {
+      else {
         std::string outputLine = "# BAD TEST " + test_type;
       }
 
