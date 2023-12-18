@@ -70,11 +70,13 @@ class generateData():
                        'verifications': []}
         insert_collation_header([json_test, json_verify])
 
+        data_error_list = []
+
         start_count = 0
 
         # Data from more complex tests in github's unicode-org/icu repository
         # icu4c/source/test/testdata/collationtest.txt
-        test_complex, verify_complex = generateCollTestData2(
+        test_complex, verify_complex, encode_errors = generateCollTestData2(
             'collationtest.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -86,8 +88,10 @@ class generateData():
         if test_complex:
             json_test['tests'].extend(test_complex)
 
+        data_error_list.extend(encode_errors)
+
         # Collation ignoring punctuation
-        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
+        test_ignorable, verify_ignorable, data_errors =  generateCollTestDataObjects(
             'CollationTest_SHIFTED_SHORT.txt',
             self.icu_version,
             ignorePunctuation=True,
@@ -95,9 +99,10 @@ class generateData():
 
         json_test['tests'].extend(test_ignorable)
         json_verify['verifications'].extend(verify_ignorable)
+        data_error_list.extend(data_errors)
 
         # Collation considering punctuation
-        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
+        test_nonignorable, verify_nonignorable, data_errors = generateCollTestDataObjects(
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -106,9 +111,14 @@ class generateData():
         # Resample as needed
         json_test['tests'].extend(test_nonignorable)
         json_test['tests'] = self.sample_tests(json_test['tests'])
+        data_error_list.extend(data_errors)
+
+        # Store data errors with the tests
+        json_test['data_errors'] = data_error_list
 
         json_verify['verifications'].extend(verify_nonignorable)
         json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
+        # TODO: Store data errors with the tests
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
@@ -733,40 +743,22 @@ def generateCollTestData2(filename,
                 if is_comparison:
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
-                    # Note that this doesn't seem to handle \x encoding, howeveer.
-                    string2 = compare_string.encode().decode('unicode_escape')
+                    # Note that this doesn't seem to handle \x encoding, however.
                     compare_comment = is_comparison.group(3)
                     # Generate the test case
                     try:
-                        s = compare_string.encode()
-                        string2 = s.decode('unicode_escape')
-                        #string2 = compare_string.encode().decode('unicode_escape')
-                    except UnicodeEncodeError as err:
+                        string2 = compare_string.encode().decode('unicode_escape')
+                    except (BaseException, UnicodeEncodeError) as err:
                         logging.error('%s: line: %d. PROBLEM ENCODING', err, line_number)
                         continue
 
                     compare_comment = is_comparison.group(3)
 
-                    label = str(label_num).rjust(max_digits, '0')
-                    label_num += 1
+                label = str(label_num).rjust(max_digits, '0')
+                label_num += 1
 
-
-                    # If either string has unpaired surrogates, ignore the case, with a warning
-                    if check_unpaired_surrogate_in_string(string2):
-                        # String 1 is the previous, already checked
-                        try:
-                            #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
-                            #                file_name, line_number, string1, compare_string)
-                            encode_errors.append([line_number, compare_string])
-                        except UnicodeEncodeError as err:
-                            logging.error('!!! Line %s encoding error: %s', err)
-
-                        string2 = compare_string
-                        test_case['warning'] = 'unpaired surrogate in test case - not decoded'
-
-                    else:
-                        string2 = compare_string.encode().decode('unicode_escape')
-
+                # # If either string has unpaired surrogates, ignore the case and record it.
+                if not check_unpaired_surrogate_in_string(string1) and not check_unpaired_surrogate_in_string(string2):
                     test_case = {
                         'label': label,
                         's1': string1,
@@ -796,9 +788,13 @@ def generateCollTestData2(filename,
                         'label': label,
                         'verify': True
                     })
+                else:
+                    # Record the problem and skip
+                    encode_errors.append([line_number, line_in])
+                    pass
 
-                    # Keep this for the next comparison test
-                    string1 = string2
+                # Keep this for the next comparison test
+                string1 = string2
             continue
 
         is_attribute = attribute_test.match(line_in)
@@ -806,15 +802,16 @@ def generateCollTestData2(filename,
             attributes.append([is_attribute.group(1), is_attribute.group(2)])
             continue
     if encode_errors:
-        logging.warning('!! %s File %s has DATA ERRORS: %s',
+        logging.warning('!! %s File has %s ENCODING ERRORS: %s',
                         filename, len(encode_errors), encode_errors)
-    return test_list, verify_list
+    return test_list, verify_list, encode_errors
 
-
+high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
 def check_unpaired_surrogate_in_string(text):
     # Look for unmatched high/low surrogates in the text
-    high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
-    low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
+    #high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+    #low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
 
     match_high = high_surrogate_pattern.findall(text)
     match_low = low_surrogate_pattern.findall(text)
@@ -826,6 +823,9 @@ def check_unpaired_surrogate_in_string(text):
         return True
 
     if not match_high and match_low:
+        return True
+
+    if len(match_high) != len(match_low):
         return True
 
     # TODO: Check if each high match is immediately followed by a low match
@@ -891,10 +891,10 @@ def generateCollTestDataObjects(filename,
 
     logging.info('Coll Test: %d lines processed', len(test_list))
     if data_errors:
-        logging.warning('!! %s File %s has DATA ERRORS: %s',
+        logging.warning('!! %s File has %s DATA ERRORS: %s',
                         filename, len(data_errors), data_errors)
 
-    return test_list, verify_list
+    return test_list, verify_list, data_errors
 
 
 def insert_collation_header(test_objs):
