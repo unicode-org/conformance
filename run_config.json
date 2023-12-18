@@ -9,9 +9,10 @@
       "icu_version": "icu71",
       "exec": "cpp",
       "test_type": [
-        "collation_short"
+        "collation_short",
+        "lang_names"
       ],
-      "per_execution": 100
+      "per_execution": 10000
     }
   },
   {
@@ -24,9 +25,10 @@
       "icu_version": "icu72",
       "exec": "cpp",
       "test_type": [
-        "collation_short"
+        "collation_short",
+        "lang_names"
       ],
-      "per_execution": 100
+      "per_execution": 10000
     }
   },
   {
@@ -39,14 +41,15 @@
       "icu_version": "icu73",
       "exec": "cpp",
       "test_type": [
-        "collation_short"
+        "collation_short",
+        "lang_names"
       ],
-      "per_execution": 100
+      "per_execution": 10000
     }
   },
   {
     "prereq": {
-      "name": "Get ICU4x",
+      "name": "Get ICU4C 74",
       "version": "74.1",
       "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_1-Ubuntu22.04-x64.tgz"
     },
@@ -54,9 +57,10 @@
       "icu_version": "icu74",
       "exec": "cpp",
       "test_type": [
-        "collation_short"
+        "collation_short",
+        "lang_names"
       ],
-      "per_execution": 100
+      "per_execution": 10000
     }
   },
   {

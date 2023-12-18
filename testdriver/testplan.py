@@ -520,18 +520,15 @@ class TestPlan:
                 logging.error(' !!!!!! exec_list = %s\n  input_line = %s' % (self.exec_list, input_line))
                 logging.error(' !!!!!! %s' % self.run_error_message)
 
-                # TODO!!!! Return an error for the offending line instead of failing for the whole batch
-
-                return None
-                input = json.loads(input_line.replace('#EXIT', ''))
-                error_result = {'label': input['label'],
-                                'input_data': input,
+                # Handle problems with decoding errors and other unknowns.
+                error_result = {'label': 'UNKNOWN',
+                                'input_data': input_line,
                                 'error': self.run_error_message
-                }
+                                }
                 return json.dumps(error_result)
         except BaseException as err:
             logging.error('!!! send_one_line fails: input => %s<. Err = %s', input_line, err)
-            input = json.loads(input_line.replace('#EXIT', ''))
+            input = json.loads(input_line.replace('#EXIT', '').strip())
             error_result = {'label': input['label'],
                             'input_data': input,
                             'error': err
