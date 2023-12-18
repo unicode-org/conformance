@@ -757,24 +757,7 @@ def generateCollTestData2(filename,
                 label = str(label_num).rjust(max_digits, '0')
                 label_num += 1
 
-                # # If either string has unpaired surrogates, ignore the case, with a warning
-                # if check_unpaired_surrogate_in_string(string2):
-                #     # String 1 is the previous, already checked
-                #     try:
-                #         #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
-                #         #                file_name, line_number, string1, compare_string)
-                #         encode_errors.append([line_number, compare_string])
-                #     except UnicodeEncodeError as err:
-                #         logging.error('!!! Line %s encoding error: %s', err)
-                #
-                #     string2 = compare_string
-                #     test_case['warning'] = 'unpaired surrogate in test case - not decoded'
-                #     # Skip this case.
-                #     continue
-                # else:
-                #     string2 = compare_string.encode().decode('unicode_escape')
-
-                # Don't create a test case the surrogate pairs are not correct.
+                # # If either string has unpaired surrogates, ignore the case and record it.
                 if not check_unpaired_surrogate_in_string(string1) and not check_unpaired_surrogate_in_string(string2):
                     test_case = {
                         'label': label,
