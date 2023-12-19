@@ -197,15 +197,13 @@ dependencies = [
 
 [[package]]
 name = "executor"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "cargo_metadata",
  "env_logger",
  "fixed_decimal",
  "icu",
  "icu_datagen",
- "icu_provider",
- "icu_testdata",
  "json",
  "log",
  "rustc_version_runtime",
@@ -755,33 +753,6 @@ name = "icu_segmenter_data"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3673d6698dcffce08cfe8fc5da3c11c3f2c663d5d6137fd58ab2cbf44235ab46"
-
-[[package]]
-name = "icu_testdata"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc4520710205b662c6fd83d1f2b29efc0fc44e338e3fc586790e7b3ac965ccbc"
-dependencies = [
- "icu_calendar",
- "icu_collator",
- "icu_collections",
- "icu_compactdecimal",
- "icu_datetime",
- "icu_decimal",
- "icu_displaynames",
- "icu_list",
- "icu_locid",
- "icu_locid_transform",
- "icu_normalizer",
- "icu_plurals",
- "icu_properties",
- "icu_provider",
- "icu_provider_adapters",
- "icu_segmenter",
- "icu_timezone",
- "zerotrie",
- "zerovec",
-]
 
 [[package]]
 name = "icu_timezone"
