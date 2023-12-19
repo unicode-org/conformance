@@ -7,6 +7,8 @@
  */
 
 
+#include "unicode/dcfmtsym.h"
+
 #include "unicode/utypes.h"
 #include "unicode/unistr.h"
 #include "unicode/locid.h"

@@ -11,6 +11,7 @@
       "test_type": [
         "collation_short",
         "lang_names",
+        "likely_subtags",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -28,6 +29,7 @@
       "test_type": [
         "collation_short",
         "lang_names",
+        "likely_subtags",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -45,6 +47,7 @@
       "test_type": [
         "collation_short",
         "lang_names",
+        "likely_subtags",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -62,6 +65,7 @@
       "test_type": [
         "collation_short",
         "lang_names",
+        "likely_subtags",
         "number_fmt"
       ],
       "per_execution": 10000
