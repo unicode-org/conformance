@@ -10,6 +10,7 @@
 #include "unicode/unistr.h"
 #include "unicode/locid.h"
 #include "unicode/uclean.h"
+#include <unicode/bytestream.h>
 
 #include "util.h"
 #include <stdio.h>
@@ -53,15 +54,30 @@ const string test_likely_subtags(json_object *json_in) {
   json_object_object_add(return_json, "label", label_obj);
 
   // The default.
+  string name_string;
+  StringByteSink<string> byteSink(&name_string);
+
+  // If needed.
+  json_object *error_msg = json_object_new_object();
+
   test_result = empty_result;
   if (option_string == "maximize") {
     // This makes the maximized form
     Locale maximized(displayLocale);
     maximized.addLikelySubtags(status);
+
     if (U_FAILURE(status)) {
       test_result = error_message_max.c_str();
     } else {
-      test_result = maximized.getName();
+      maximized.toLanguageTag(byteSink, status);
+
+      if (U_FAILURE(status)) {
+        json_object_object_add(
+            return_json,
+            "error",
+            json_object_new_string("toLanguageTag"));
+      }
+      test_result = name_string.c_str();
     }
   }
   else if (option_string == "minimize" || option_string == "minimizeFavorRegion") {
@@ -70,13 +86,27 @@ const string test_likely_subtags(json_object *json_in) {
     if (U_FAILURE(status)) {
       test_result = error_message_min.c_str();
     } else {
-      const char* min_name = displayLocale.getName();
-      test_result = min_name;
+      displayLocale.toLanguageTag(byteSink, status);
+      test_result = name_string.c_str();
+
+      if (U_FAILURE(status)) {
+        json_object_object_add(
+            return_json,
+            "error",
+            json_object_new_string("toLanguageTag"));
+      }
+
     }
   }
   else if (option_string == "minimizeFavorScript") {
     // Minimize with script preferred.
     bool favorScript = true;
+    json_object_object_add(return_json,
+                         "error",
+                           json_object_new_string("unsupported option"));
+    json_object_object_add(return_json,
+                         "error_type",
+                           json_object_new_string("unsupported"));
     json_object_object_add(return_json,
                          "unsupported",
                            json_object_new_string(option_string.c_str()));
@@ -88,8 +118,6 @@ const string test_likely_subtags(json_object *json_in) {
   }
   else {
     // An error in the call.
-    json_object *error_msg = json_object_new_object();
-
     json_object_object_add(
         return_json,
         "error",
@@ -101,20 +129,14 @@ const string test_likely_subtags(json_object *json_in) {
   }
 
   if (U_FAILURE(status)) {
-    json_object *error_msg = json_object_new_object();
-
     json_object_object_add(return_json,
                            "error",
                            json_object_new_string(test_result));
   } else {
-    // Replace "_" with "-" in the result to be consistent with expected results.
-    string test_result_as_string = test_result;
-    string test_result_updated =
-        std::regex_replace(test_result_as_string, std::regex("_"), "-");
-
+    // The output of the likely subtag operation.
     json_object_object_add(return_json,
                            "result",
-                           json_object_new_string(test_result_updated.c_str()));
+                           json_object_new_string(test_result));
   }
 
   return  json_object_to_json_string(return_json);
