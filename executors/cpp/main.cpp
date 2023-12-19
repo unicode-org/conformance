@@ -41,11 +41,12 @@ using std::string;
 // Test functions
 extern const string test_collator(json_object *json_in);
 extern const string test_langnames(json_object *json_in);
+extern const string test_numfmt(json_object *json_in);
 
 std::string supported_tests[6] = {
   "collation_short"
   // "decimal_fmt",
-  // "number_fmt",
+  "number_fmt",
   //"display_names",
   "lang_names",
   "language_display_name",
@@ -105,9 +106,9 @@ int main(int argc, const char** argv)
       if (test_type == "collation_short" ) {
         outputLine = test_collator(json_input);
       }
-      // else if (test_type == "number_fmt") {
-      //   outputLine = test_numfmt(json_input);
-      //   // }
+      else if (test_type == "number_fmt") {
+         outputLine = test_numfmt(json_input);
+      }
       else if (test_type == "lang_names") {
         outputLine = test_langnames(json_input);
       }
