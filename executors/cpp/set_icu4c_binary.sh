@@ -12,7 +12,6 @@ echo "ICU_PATH: $ICU_PATH";
 
 # Standard place to 
 export TMP="/tmp/icu/"
-echo "SETTING UP " $TMP
 
 # It may exist already - remove old stuff
 mkdir -p $TMP
@@ -23,7 +22,6 @@ cp $ICU_PATH $TMP
 ls -ltra
 
 pushd $TMP
-echo "NOW IN " $TMP
 
 # curl -L $ICU_PATH | tar xvfpz -
 tar xvfz *.tgz

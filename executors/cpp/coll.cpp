@@ -20,8 +20,11 @@
 
 #include <string.h>
 
+#include <unicode/locid.h>
 #include <unicode/utypes.h>
+#include <unicode/coll.h>
 #include <unicode/ucol.h>
+#include <unicode/unistr.h>
 #include <unicode/ustring.h>
 
 #include <json-c/json.h>
@@ -30,11 +33,17 @@ using std::cout;
 using std::endl;
 using std::string;
 
+using icu::Locale;
+using icu::UnicodeString;
+using icu::Collator;
+
 /**
  * test_collator  --  process JSON inputs, run comparator, return result
  */
 const string test_collator(json_object *json_in)  //
 {
+  UErrorCode status = U_ZERO_ERROR;
+
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
 
@@ -43,57 +52,55 @@ const string test_collator(json_object *json_in)  //
 
   string string1 = json_object_get_string(str1);
   string string2 = json_object_get_string(str2);
+  // cout << "s1 = " << string1 << " s2 = " << string2 << endl;
 
-  // Create a collator, possibly in the default locale
-  UCollator *coll;
-  UErrorCode status = U_ZERO_ERROR;
+  UnicodeString us1 = UnicodeString(string1.c_str()).unescape();
+  UnicodeString us2 = UnicodeString(string2.c_str()).unescape();
+
+  // Check unescaped versions.
+  char char_out1[1000] = "";
+  char char_out2[1000] = "";
+  int32_t chars_out = us1.extract(char_out1, 1000, nullptr, status);
+  chars_out = us2.extract(char_out2, 1000, nullptr, status);
+
+  // cout << "us1 = " << char_out1 << " us2 = " << char_out2 << endl;
 
   json_object *locale_obj = json_object_object_get(json_in, "locale");
-
+  const char *locale_string;
   if (locale_obj) {
-    const char *locale_string = json_object_get_string(locale_obj);
-    coll = ucol_open(locale_string, &status);
+    locale_string = json_object_get_string(locale_obj);
   } else {
-    const char *locale_string = nullptr;
-    coll = ucol_open(locale_string, &status);
+    locale_string = nullptr;
   }
+
 
   // Allow for different levels or types of comparison.
   json_object *compare_type = json_object_object_get(json_in, "compare_type");
   if (compare_type) {
     const char *comparison_type = json_object_get_string(compare_type);
-    cout << "COMPARISON TYPE = " << comparison_type << endl;
   }
 
-  // These are the actual strings to be compared.
-  char16_t source[100];
-  char16_t target[100];
-  char opt_source[100];
-  char opt_target[100];
-  strcpy(opt_source,string1.c_str());
-  strcpy(opt_target, string2.c_str());
-  u_unescape(opt_source, source, 100);
-  u_unescape(opt_target, target, 100);
-
+  // Handle some options
   json_object *ignore_obj = json_object_object_get(json_in, "ignorePunctuation");
-  if (ignore_obj) {
-    ucol_setAttribute(coll, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED,
-                      &status);
-  }
 
   const int32_t unspecified_length = -1;
   bool coll_result = true;
-  UCollationResult result = ucol_strcoll(
-      coll,
-      source, unspecified_length,
-      target, unspecified_length);
+
+  // Create a C++ collator and try it.
+  Collator *uni_coll = Collator::createInstance(Locale(locale_string), status);
+  if (ignore_obj) {
+    uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
+  }
+
+  int uni_result = uni_coll->compare(us1, us2);
+  // cout << "UNI_RESULT = " << uni_result << endl;
 
   // The json test output.
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  int64_t numeric_result = int64_t(result);
-  if (result == UCOL_GREATER) {
+  int64_t numeric_result = int64_t(uni_result);
+  if (uni_result == UCOL_GREATER) {
     coll_result = false;
 
     // Include data compared in the failing test
@@ -106,7 +113,6 @@ const string test_collator(json_object *json_in)  //
     json_object_object_add(
         return_json, "compare", json_object_new_int64(numeric_result));
   }
-  ucol_close(coll);
 
   json_object_object_add(
       return_json, "result", json_object_new_boolean(coll_result));
