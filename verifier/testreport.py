@@ -522,6 +522,68 @@ class TestReport:
                         'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode', ]
             for key in key_list:
                 try:
+                    locale = input_data.get('locale')
+                except:
+                    locale = None
+                if locale:
+                    if locale in results['locale']:
+                        results['locale'][locale].append(label)
+                    else:
+                        results['locale'][locale] = [label]
+
+                    options = input_data.get('options')
+                    if options:
+                        # Get each combo of key/value
+                        for key, value in options.items():
+                            if key not in results:
+                                results[key] = {}
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
+
+                # Try fields in language_names
+                for key in ['language_label', 'locale_label']:
+                    try:
+                        if input_data.get(key):
+                            value = input_data[key]
+                            if key not in results:
+                                results[key] = {}
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
+                    except:
+                        continue
+
+                # Try fields in likely_subtags
+                for key in ['option', 'locale']:
+                    try:
+                        if input_data.get(key):
+                            value = input_data[key]
+                            if key not in results:
+                                results[key] = {}
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
+                    except:
+                        continue
+
+                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
+                    try:
+                        if test.get(key):  # For collation results
+                            value = test[key]
+                            if key not in results:
+                                results[key] = {}
+                            if value in results[key]:
+                                results[key][value].append(label)
+                            else:
+                                results[key][value] = [label]
+                    except:
+                        continue
+
+                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
                     if test.get(key):  # For collation results
                         value = test[key]
                         if key not in results:
@@ -530,8 +592,6 @@ class TestReport:
                             results[key][value].append(label)
                         else:
                             results[key][value] = [label]
-                except:
-                    continue
 
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error pars, too.
@@ -544,21 +604,6 @@ class TestReport:
             if error_detail:
                 error_keys = error_detail.keys()  # ['options']
                 self.add_to_results_by_key(label, results, error_detail, test, error_keys)
-
-            # if input_data:
-            #     add_to_results_by_key(results, input_data, test, key_list)
-            #     for key in key_list:
-            #         try:
-            #             if (input_data.get(key)):  # For collation results
-            #                 value = test['input_data'][key]
-            #                 if key not in results:
-            #                     results[key] = {}
-            #                 if value in results[key]:
-            #                     results[key][value].append(label)
-            #                 else:
-            #                     results[key][value] = [label]
-            #         except:
-            #             continue
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
