@@ -23,7 +23,9 @@
 //#include "unicode/parseerr.h"
 #include "unicode/plurrule.h"
 #include "unicode/ucurr.h"
+
 #include "unicode/stringpiece.h"
+
 #include "unicode/unum.h"
 #include "unicode/unumberformatter.h"
 #include "unicode/uobject.h"
@@ -83,6 +85,7 @@ const string test_numfmt(json_object *json_in) {
   if (locale_label_obj) {
     locale_string = json_object_get_string(locale_label_obj);
   }
+
   const Locale displayLocale(locale_string.c_str());
 
   // Get options

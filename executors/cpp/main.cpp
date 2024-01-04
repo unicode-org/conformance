@@ -43,15 +43,12 @@ extern const string test_collator(json_object *json_in);
 extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
 extern const string test_numfmt(json_object *json_in);
-// extern const string test_langnames(json_object *json_in);
 
-std::string supported_tests[6] = {
+std::string supported_tests[4] = {
   "collation_short",
-  "decimal_fmt",
-  "number_fmt",
-  "display_names",
-  "language_display_name",
-  "likely_subtags"
+  "likely_subtags",
+  "lang_names",
+  "number_fmt"
 };
 
 
