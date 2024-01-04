@@ -933,8 +933,7 @@ def languageNameDescr(tests_json, verify_json):
             'source_version': version
         }
     }
-
-  return
+    return
 
 
 def insertNumberFmtDescr(tests_obj, verify_obj):
