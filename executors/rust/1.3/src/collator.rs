@@ -28,13 +28,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     let comparison = collator.compare(str1, str2);
 
-    let result = comparison.is_le();
-
-    // TODO: How to do this easier?
-    let mut result_string = true;
-    if !result {
-        result_string = false;
-    }
+    let result_string = comparison.is_le();
 
     let mut comparison_number: i16 = 0;
     if comparison == Ordering::Less {

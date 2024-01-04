@@ -592,8 +592,6 @@ class TestReport:
                             results[key][value].append(label)
                         else:
                             results[key][value] = [label]
-                except:
-                    continue
 
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error pars, too.
