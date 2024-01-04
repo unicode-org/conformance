@@ -1,7 +1,7 @@
 [package]
 name = "executor"
-
-version = "0.1.0"
+publish = false
+version = "0.0.0"
 edition = "2021"
 
 [dependencies]
@@ -13,14 +13,12 @@ serde = "1.0.171"
 serde_json = "1.0.100"
 rustc_version_runtime = "0.1.*"
 
-icu = {version="~1.4", features = ["serde", "icu_compactdecimal", "icu_displaynames"] }
-icu_testdata = {version="~1.4", features = ["icu_compactdecimal", "icu_displaynames"]}
-icu_provider = {version="~1.4", features=["macros"]}
-icu_datagen = { version = "~1.4", default-features = false }
+icu = { version = "~1.4", features = ["serde", "icu_compactdecimal", "icu_displaynames"] }
 
-fixed_decimal ="0.5.3"
-writeable ="0.5.2"
+fixed_decimal = "0.5.3"
+writeable = "0.5.2"
 
 [build-dependencies]
-cargo_metadata="0.18"
+cargo_metadata = "0.18"
+icu_datagen = { version = "~1.4", default-features = false }
     

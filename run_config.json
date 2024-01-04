@@ -10,7 +10,8 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
-        "lang_names"
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -26,7 +27,8 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
-        "lang_names"
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -42,7 +44,8 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
-        "lang_names"
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -58,7 +61,8 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
-        "lang_names"
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
