@@ -228,7 +228,7 @@ class Verifier:
                     if os.path.isfile(new_verify_plan.result_path):
                         self.verify_plans.append(new_verify_plan)
                     else:
-                        logging.warning('** No results for %s, %s, %s', executor, test_type, result_version)
+                        logging.debug('** No results for %s, %s, %s', executor, test_type, result_version)
 
     def verify_data_results(self):
         # For each pair of files in the test plan, compare with expected

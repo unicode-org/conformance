@@ -14,7 +14,7 @@
      "type": "array",
      "items": {
        "type": "object",
-       "additionalProperties": false,
+       "additionalProperties": true,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
@@ -144,6 +144,10 @@
                "description": "Should we group the outputs?",
                "enum": [false, true, "always", "auto", "min2"],
                "default": "auto"
+             },
+             "input_data": {
+               "type": "string",
+               "description": "Test data received"
              }
            },
            "digits": {

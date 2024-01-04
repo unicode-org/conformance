@@ -8,6 +8,10 @@
 #  - configure, build, install ICU (make install)
 #  - make sure "icu-config" (in the ICU installed bin directory) is on
 #     the path
+# export ICU4C= $location
+# export LD_LIBRARY_PATH=$ICU4C/lib:$LD_LIBRARY_PATH
+# export PATH=$ICU/bin:$PATH
+# export CPATH=$ICU/bin:$CPATH
 #  - do 'make' in this directory
 
 #### definitions

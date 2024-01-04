@@ -92,15 +92,18 @@ def main(args):
             failed_validations.append(result)
 
     # Create .json
-    summary_json = {
-        'validation_type': 'output of test executors',
-        'description': 'Validation of test execution outputs vs. schema',
-        'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
-        'validations': {
-            'failed': failed_validations,
-            'passed': passed_validations
+    try:
+        summary_json = {
+            'validation_type': 'output of test executors',
+            'description': 'Validation of test execution outputs vs. schema',
+            'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
+            'validations': {
+                'failed': failed_validations,
+                'passed': passed_validations
+            }
         }
-    }
+    except BaseException as error:
+        summary_json = {}
 
     try:
         summary_data = json.dumps(summary_json)
@@ -113,7 +116,7 @@ def main(args):
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.warning('Error: %s. Cannot save validation summary in file %s', err, output_filename)
+        logging.warning('Error: %s. Cannot save validation summary in file %s', error, output_filename)
 
 
     if schema_errors:

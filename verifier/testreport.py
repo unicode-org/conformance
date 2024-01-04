@@ -38,7 +38,7 @@ def dict_to_html(dict_data):
 
 def sort_dict_by_count(dict_data):
     return sorted(dict_data.items(),
-                  key=lambda item: item[1], reverse=True)
+                  key=lambda item: len(item[1]), reverse=True)
 
 
 class DiffSummary:
@@ -77,7 +77,7 @@ class TestReport:
         self.report = None
         self.simple_results = None
         self.failure_summaries = None
-        self.debug = 1
+        self.debug = 0
 
 
         self.verifier_obj = None
@@ -501,8 +501,9 @@ class TestReport:
                     key_new = str(key) + '.' + str(key2)
                     flat_items[key_new] = value2
 
+        # Sort in reverse order by length of item
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
-        return flat_combined_dict
+        return dict(sort_dict_by_count(flat_combined_dict))
 
     def characterize_failures_by_options(self, tests, result_type):
         # Looking at options
@@ -519,11 +520,15 @@ class TestReport:
                         'compare_type', 'test_description', 'unsupported_options', 'rules', 'test_description',
                         'warning'
                         # Number format
+                        'input_data',
                         'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode', ]
+            option_keys = ['notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode']
+
             for key in key_list:
                 try:
                     if test.get(key):  # For collation results
                         value = test[key]
+                        # TODO: Check for option_keys in input_data
                         if key not in results:
                             results[key] = {}
                         if value in results[key]:
@@ -545,30 +550,13 @@ class TestReport:
                 error_keys = error_detail.keys()  # ['options']
                 self.add_to_results_by_key(label, results, error_detail, test, error_keys)
 
-            # if input_data:
-            #     add_to_results_by_key(results, input_data, test, key_list)
-            #     for key in key_list:
-            #         try:
-            #             if (input_data.get(key)):  # For collation results
-            #                 value = test['input_data'][key]
-            #                 if key not in results:
-            #                     results[key] = {}
-            #                 if value in results[key]:
-            #                     results[key][value].append(label)
-            #                 else:
-            #                     results[key][value] = [label]
-            #         except:
-            #             continue
-
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
             # TODO: Find the largest intersections of these sets and sort by size
 
-        # This is not used!
-        combo_list = [(combo, len(results[combo])) for combo in results]
-        combo_list.sort(key=take_second, reverse=True)
+            pass
 
-        return dict(results)
+        return results
 
     # TODO: Use the following function to update lists.
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
@@ -688,12 +676,15 @@ class TestReport:
         return dict(results)
 
     def save_characterized_file(self, characterized_data, characterized_type):
-        json_data = json.dumps(characterized_data)
-        file_name = characterized_type + "_characterized.json"
-        character_file_path = os.path.join(self.report_directory, file_name)
-        file = open(character_file_path, mode='w', encoding='utf-8')
-        file.write(json_data)
-        file.close()
+        try:
+            json_data = json.dumps(characterized_data)
+            file_name = characterized_type + "_characterized.json"
+            character_file_path = os.path.join(self.report_directory, file_name)
+            file = open(character_file_path, mode='w', encoding='utf-8')
+            file.write(json_data)
+            file.close()
+        except BaseException as error:
+            logging.error("CANNOT WRITE CHARACTERIZE FILE FOR %s", characterized_type)
         return
 
     def create_html_diff_report(self):

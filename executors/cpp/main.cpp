@@ -44,12 +44,12 @@ extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
 extern const string test_numfmt(json_object *json_in);
 
-// extern const string test_numfmt(json_object *json_in);
-std::string supported_tests[6] = {
-  "collation_short"
-  "lang_names",
-  "likely_subtags"
+std::string supported_tests[5] = {
+  "collation_short",
   "number_fmt",
+  "display_names",
+  "language_names",
+  "likely_subtags"
 };
 
 
@@ -111,9 +111,6 @@ int main(int argc, const char** argv)
       else if (test_type == "lang_names") {
         outputLine = test_langnames(json_input);
       }
-      else if (test_type == "likely_subtags") {
-        // !!!       outputLine = test_likely_subtags(json_input);
-      }
       else {
         outputLine =  "# BAD TEST " + test_type;
         //       "{\"error\": \"unknown test type\"," +
@@ -121,8 +118,6 @@ int main(int argc, const char** argv)
         //       "\"unsupported_test:\"" + test_type + "}";
       }
 
-      // TODO: Instead of a string, get JSON output and stringify it.
-      // cout << "# GOT FROM TEST: " << outputLine << endl;
       cout << outputLine << endl;
     }
 

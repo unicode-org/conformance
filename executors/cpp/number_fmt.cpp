@@ -12,6 +12,7 @@
 #include "unicode/utypes.h"
 //#include "unicode/appendable.h"
 #include "unicode/bytestream.h"
+#include "unicode/compactdecimalformat.h"
 #include "unicode/currunit.h"
 #include "unicode/dcfmtsym.h"
 #include "unicode/fieldpos.h"
@@ -48,6 +49,10 @@ using std::endl;
 using std::string;
 
 using icu::number::NumberFormatter;
+using icu::number::Notation;
+using icu::number::Precision;
+using icu::MeasureUnit;
+
 using icu::number::LocalizedNumberFormatter;
 using icu::number::FormattedNumber;
 using icu::number::impl::UFormattedNumberData;
@@ -62,6 +67,10 @@ const string test_numfmt(json_object *json_in) {
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
 
+  // Other parts of the input.
+  json_object *options_obj = json_object_object_get(json_in, "options");
+  json_object *skeleton_obj = json_object_object_get(json_in, "skeleton");
+  json_object *pattern_obj = json_object_object_get(json_in, "pattern");
 
   // The locale for numbers
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
@@ -69,17 +78,79 @@ const string test_numfmt(json_object *json_in) {
   if (locale_label_obj) {
     locale_string = json_object_get_string(locale_label_obj);
   }
-  Locale displayLocale(locale_string.c_str());
+  const Locale displayLocale(locale_string.c_str());
 
-  std:: cout<< "Locale = " << locale_string << std::endl;
+  // Get options
+  json_object *notation_obj;
+  json_object *unit_obj;
+  json_object *style_obj;
+  json_object *currencyDisplay_obj;
+  json_object *roundingMode_obj;
+  json_object *compactDisplay_obj;
+  json_object *currency_obj;
+
+  string notation_string = "";
+  string unit_string = "";
+  string style_string = "";
+  string currency_string = "";
+  string roundingMode_string = "";
+  string compactDisplay_string = "";
+  string currencyDisplay_string = "";
+
+  MeasureUnit unit_setting= NoUnit::base();
+  Notation notation_setting= Notation::simple();
+
+  char16_t uCurrency[4];
+  if (options_obj) {
+    notation_obj = json_object_object_get(options_obj, "notation");
+    if (notation_obj) {
+      notation_string = json_object_get_string(notation_obj);
+    }
+    // TODO: Initialize notation_setting basedc on this string.
+
+    unit_obj = json_object_object_get(options_obj, "unit");
+    if (unit_obj) {
+      unit_string = json_object_get_string(unit_obj);
+      if (unit_string == "percent") {
+        unit_setting= NoUnit::percent();
+      }
+    }
+
+    style_obj = json_object_object_get(options_obj, "style");
+    if (style_obj) {
+      style_string = json_object_get_string(style_obj);
+    }
+
+    compactDisplay_obj = json_object_object_get(options_obj, "compactDisplay");
+    if (compactDisplay_obj) {
+      compactDisplay_string = json_object_get_string(compactDisplay_obj);
+      if (compactDisplay_string == "short") {
+        notation_setting = Notation::compactShort();
+      } else {
+        notation_setting = Notation::compactLong();
+      }
+    }
+
+    currencyDisplay_obj = json_object_object_get(options_obj, "currencyDisplay");
+    if (currencyDisplay_obj) {
+      currencyDisplay_string = json_object_get_string(currencyDisplay_obj);
+    }
+
+    currency_obj = json_object_object_get(options_obj, "currency");
+    if (currency_obj) {
+      currency_string = json_object_get_string(currency_obj);
+    }
+
+    roundingMode_obj = json_object_object_get(options_obj, "roundingMode");
+    if (roundingMode_obj) {
+      roundingMode_string = json_object_get_string(roundingMode_obj);
+    }
+  }
+
 
   // Additional parameters and values
   json_object *input_obj = json_object_object_get(json_in, "input");
   string input_string = json_object_get_string(input_obj);
-  json_object *options_obj = json_object_object_get(json_in, "options");
-  json_object *rounding_mode_obj = json_object_object_get(json_in, "roundingMode");
-  json_object *skeleton_obj = json_object_object_get(json_in, "skeleton");
-  json_object *pattern_obj = json_object_object_get(json_in, "pattern");
 
   // Start using these things
 
@@ -91,35 +162,59 @@ const string test_numfmt(json_object *json_in) {
 
   // Get the numeric value
   double input_double = std::stod(input_string);
-  std:: cout<< "num_double = " << input_double << std::endl;
 
-  // TEMPORARY - just return the input.
-  test_result = input_string;
+  LocalizedNumberFormatter nf;
+  if (notation_string == "scientific") {
+    nf = NumberFormatter::withLocale(displayLocale)
+         .notation(Notation::scientific())
+         .unit(unit_setting);
+  }
+  else  if (notation_string == "compact") {
+    // TODO !!! GENERALIZE
+    // Check for style
+      nf = NumberFormatter::withLocale(displayLocale)
+           .notation(notation_setting)
+           .unit(unit_setting);
+  }
+  else if (style_string == "currency") {
+    nf = NumberFormatter::withLocale(displayLocale)
+         .unit(CurrencyUnit(currency_string, status));
+  }
+  else if (style_string == "unit" && unit_string == "percent") {
+    cout << "# PERCENT" << endl;
+    nf = NumberFormatter::withLocale(displayLocale)
+         .unit(unit_setting);
+  }
+  else {
+    // Default
+    nf = NumberFormatter::withLocale(displayLocale);
+  }
 
-  // TODO!!!
-  //  SimpleNumberFormatter snf = SimpleNumberFormatter::forLocale(displayLocale, status);
-
-  LocalizedNumberFormatter nf = LocalizedNumberFormatter();  // (displayLocale);
-
-  FormattedNumber fnum = nf.formatDouble(input_double, status);
   if (U_FAILURE(status)) {
       test_result = error_message.c_str();
+      // TODO: report the error in creating the instance
+  }
+
+  UnicodeString number_result;
+  FormattedNumber fmt_number = nf.formatDouble(input_double, status);
+  number_result = fmt_number.toString(status);
+  if (U_FAILURE(status)) {
+      test_result = error_message.c_str();
+      // TODO: report the error
   }
 
   // Get the resulting value as a string
-  UnicodeString number_result =  fnum.toString(status);
   char test_result_string[1000] = "";
   int32_t chars_out = number_result.extract(test_result_string, 1000, nullptr, status);
   test_result = test_result_string;
 
   if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
-  }
-
-  if (U_FAILURE(status)) {
+    // Report a failure
+    test_result = error_message.c_str();
     json_object_object_add(return_json,
                            "error", json_object_new_string("langnames extract error"));
   } else {
+    // It worked!
     json_object_object_add(return_json,
                            "result",
                            json_object_new_string(test_result.c_str()));
