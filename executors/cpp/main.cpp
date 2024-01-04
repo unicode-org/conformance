@@ -43,10 +43,9 @@ extern const string test_collator(json_object *json_in);
 extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
 extern const string test_numfmt(json_object *json_in);
-extern const string test_langnames(json_object *json_in);
+// extern const string test_langnames(json_object *json_in);
 
-std::string supported_tests[] = {
-  "coll_shift_short",
+std::string supported_tests[6] = {
   "collation_short",
   "decimal_fmt",
   "number_fmt",
@@ -102,8 +101,7 @@ int main(int argc, const char** argv)
       json_object *test_type_obj = json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);
 
-      cout << "# !!! test_type = " << test_type << endl;
-      if (test_type == "collation_short") {
+      if (test_type == "collation_short" ) {
         outputLine = test_collator(json_input);
       }
       else if (test_type == "number_fmt") {
