@@ -64,16 +64,19 @@ class generateData():
     def processCollationTestData(self):
         # Get each kind of collation tests and create a unified data set
         json_test = {'test_type': 'collation_short',
-                     'tests':[]}
+                     'tests':[],
+                     'data_errors': []}
         json_verify = {'test_type': 'collation_short',
                        'verifications': []}
         insert_collation_header([json_test, json_verify])
+
+        data_error_list = []
 
         start_count = 0
 
         # Data from more complex tests in github's unicode-org/icu repository
         # icu4c/source/test/testdata/collationtest.txt
-        test_complex, verify_complex = generateCollTestData2(
+        test_complex, verify_complex, encode_errors = generateCollTestData2(
             'collationtest.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -85,8 +88,10 @@ class generateData():
         if test_complex:
             json_test['tests'].extend(test_complex)
 
+        data_error_list.extend(encode_errors)
+
         # Collation ignoring punctuation
-        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
+        test_ignorable, verify_ignorable, data_errors =  generateCollTestDataObjects(
             'CollationTest_SHIFTED_SHORT.txt',
             self.icu_version,
             ignorePunctuation=True,
@@ -94,9 +99,10 @@ class generateData():
 
         json_test['tests'].extend(test_ignorable)
         json_verify['verifications'].extend(verify_ignorable)
+        data_error_list.extend(data_errors)
 
         # Collation considering punctuation
-        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
+        test_nonignorable, verify_nonignorable, data_errors = generateCollTestDataObjects(
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -105,9 +111,14 @@ class generateData():
         # Resample as needed
         json_test['tests'].extend(test_nonignorable)
         json_test['tests'] = self.sample_tests(json_test['tests'])
+        data_error_list.extend(data_errors)
+
+        # Store data errors with the tests
+        json_test['data_errors'] = data_error_list
 
         json_verify['verifications'].extend(verify_nonignorable)
         json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
+        # TODO: Store data errors with the tests
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
@@ -119,7 +130,6 @@ class generateData():
         if rawdcmlfmttestdata:
             BOM = '\xef\xbb\xbf'
             if rawdcmlfmttestdata.startswith(BOM):
-                logging.info('Skip BOM')
                 rawdcmlfmttestdata = rawdcmlfmttestdata[3:]
 
         filename = 'numberpermutationtest.txt'
@@ -143,7 +153,7 @@ class generateData():
             json.dump(json_verify, num_fmt_verify_file, indent=1)
             num_fmt_verify_file.close()
 
-            logging.warning('NumberFormat Test (%s): %s tests created', self.icu_version, count)
+            logging.info('NumberFormat Test (%s): %s tests created', self.icu_version, count)
         return
 
     def processLangNameTestData(self):
@@ -321,7 +331,7 @@ def readFile(filename, version=''):
         with open(path, 'r', encoding='utf8') as testdata:
             return testdata.read()
     except BaseException as err:
-        logging.warning('** Cannot read file %s. Error = %s', path, err)
+        logging.warning('** READ: Error = %s', err)
         return None
 
 
@@ -481,7 +491,6 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
   expected_count = len(test_list) * len(NUMBERFORMAT_LOCALE_INDICES) * len(NUMBERS_TO_TEST) + count
   max_digits = computeMaxDigitsForCount(expected_count)
-  logging.info('  Expected count  of number fmt tests: %s', expected_count)
 
   for test_options in test_list:
     # The first three specify the formatting.
@@ -562,7 +571,6 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   verify_list = []
 
   expected = len(test_list) + count
-  logging.info('  expected count = %s', (len(test_list) -1))
   max_digits = computeMaxDigitsForCount(expected)
 
   for item in test_list[1:]:
@@ -685,7 +693,6 @@ def generateCollTestData2(filename,
         if is_test:
             test_description = is_test.group(1)
             rules = []
-            tests_for_test = []
             locale = ''
             attributes = []
             continue
@@ -714,7 +721,10 @@ def generateCollTestData2(filename,
             continue
 
         is_compare = compare_pattern.match(line_in)
+        compare_type = None
         if is_compare:
+            # Initialize string1 to the empty string.
+            string1 = ''
             compare_mode = True
             info = is_compare.group(1)
             while line_number < num_lines:
@@ -733,65 +743,58 @@ def generateCollTestData2(filename,
                 if is_comparison:
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
-                    # Note that this doesn't seem to handle \x encoding, howeveer.
-                    string2 = compare_string.encode().decode('unicode_escape')
+                    # Note that this doesn't seem to handle \x encoding, however.
                     compare_comment = is_comparison.group(3)
                     # Generate the test case
                     try:
-                        s = compare_string.encode()
-                        string2 = s.decode('unicode_escape')
-                        #string2 = compare_string.encode().decode('unicode_escape')
-                    except UnicodeEncodeError as err:
+                        string2 = compare_string.encode().decode('unicode_escape')
+                    except (BaseException, UnicodeEncodeError) as err:
                         logging.error('%s: line: %d. PROBLEM ENCODING', err, line_number)
                         continue
 
                     compare_comment = is_comparison.group(3)
 
-                    label = str(label_num).rjust(max_digits, '0')
-                    label_num += 1
+                label = str(label_num).rjust(max_digits, '0')
+                label_num += 1
+
+                # # If either string has unpaired surrogates, ignore the case and record it.
+                if not check_unpaired_surrogate_in_string(string1) and not check_unpaired_surrogate_in_string(string2):
                     test_case = {
                         'label': label,
                         's1': string1,
-                        'compare_type': compare_type,
-                        'test_description': test_description
+                        's2': string2,
                     }
-
-                    # If either string has unpaired surrogates, ignore the case, with a warning
-                    if check_unpaired_surrogate_in_string(string2):
-                        # String 1 is the previous, already checked
-                        try:
-                            #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
-                            #                file_name, line_number, string1, compare_string)
-                            encode_errors.append([line_number, compare_string])
-                        except UnicodeEncodeError as err:
-                            logging.error('!!! Line %s encoding error: %s', err)
-
-                        string2 = compare_string
-                        test_case['warning'] = 'unpaired surrogate in test case - not decoded'
-
-                    else:
-                        string2 = compare_string.encode().decode('unicode_escape')
-
-                    test_case['s2'] = string2
 
                     # Add info to the test case.
                     if locale:
                         test_case['locale'] = locale
-                    # Keep this for the next comparison test
-                    string1 = string2
+                    if compare_type:
+                        if type(compare_type) in [list, tuple]:
+                            test_case['compare_type'] = compare_type[0]
+                        else:
+                            test_case['compare_type'] = compare_type
+                    if test_description:
+                        test_case['test_description'] = test_description
                     if compare_comment:
                        test_case['compare_comment'] = compare_comment
                     if rules:
                         test_case['rules'] = '\n'.join(rules)
                     if attributes:
                         test_case['attributes'] = attributes
+
                     test_list.append(test_case)
+                    # We always expect True as the result
                     verify_list.append({
                         'label': label,
                         'verify': True
                     })
-                    # Just to record which ones belong to this test
-                    tests_for_test.append(test_case)
+                else:
+                    # Record the problem and skip
+                    encode_errors.append([line_number, line_in])
+                    pass
+
+                # Keep this for the next comparison test
+                string1 = string2
             continue
 
         is_attribute = attribute_test.match(line_in)
@@ -799,15 +802,16 @@ def generateCollTestData2(filename,
             attributes.append([is_attribute.group(1), is_attribute.group(2)])
             continue
     if encode_errors:
-        logging.warning('!! %s File %s has DATA ERRORS: %s',
+        logging.warning('!! %s File has %s ENCODING ERRORS: %s',
                         filename, len(encode_errors), encode_errors)
-    return test_list, verify_list
+    return test_list, verify_list, encode_errors
 
-
+high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
 def check_unpaired_surrogate_in_string(text):
     # Look for unmatched high/low surrogates in the text
-    high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
-    low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
+    #high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+    #low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
 
     match_high = high_surrogate_pattern.findall(text)
     match_low = low_surrogate_pattern.findall(text)
@@ -821,11 +825,11 @@ def check_unpaired_surrogate_in_string(text):
     if not match_high and match_low:
         return True
 
+    if len(match_high) != len(match_low):
+        return True
+
     # TODO: Check if each high match is immediately followed by a low match
     # Now, assume that they are paired
-    return False
-
-
 
     return False
 
@@ -856,7 +860,6 @@ def generateCollTestDataObjects(filename,
     index = 0
     line_number = 0
     for item in raw_testdata_list[1:]:
-
         line_number += 1
         if recommentline.match(item) or reblankline.match(item):
             continue
@@ -888,10 +891,10 @@ def generateCollTestDataObjects(filename,
 
     logging.info('Coll Test: %d lines processed', len(test_list))
     if data_errors:
-        logging.warning('!! %s File %s has DATA ERRORS: %s',
+        logging.warning('!! %s File has %s DATA ERRORS: %s',
                         filename, len(data_errors), data_errors)
 
-    return test_list, verify_list
+    return test_list, verify_list, data_errors
 
 
 def insert_collation_header(test_objs):
@@ -964,14 +967,11 @@ def main(args):
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
-    logger.info('+++ Generating .json files for icu_versions %s',
-                 new_args.icu_versions)
 
     for icu_version in new_args.icu_versions:
         data_generator = generateData(icu_version)
         data_generator.run_limit = new_args.run_limit
 
-        # TODO: Why doesn't logging.info produce output?
         logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                      icu_version)
 

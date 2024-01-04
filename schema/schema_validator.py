@@ -93,10 +93,10 @@ class ConformanceSchemaValidator():
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
                 if self.debug > 0:
-                    logging.debug('Checking test data %s, %s', test_type, icu_version)
+                    logging.info('Checking test data %s, %s', test_type, icu_version)
                 logging.info('Checking %s, %s', test_type, icu_version)
                 result_data =  self.check_test_data_schema(icu_version, test_type)
-                print(result_data)
+                logging.debug('test result data = %s', result_data)
                 msg = result_data['err_info']
                 if not result_data['data_file_name']:
                     # This is not an error but simple a test that wasn't run.
@@ -105,7 +105,7 @@ class ConformanceSchemaValidator():
                     logging.warning('VALIDATION FAILS: %s %s. MSG=%s',
                                     test_type, icu_version, result_data['err_info'])
                 else:
-                    logging.warning('VALIDATION WORKS: %s %s', test_type, icu_version)
+                    logging.info('VALIDATION WORKS: %s %s', test_type, icu_version)
                 all_results.append(result_data)
         return all_results
 
@@ -244,7 +244,7 @@ class ConformanceSchemaValidator():
                         logging.warning('VALIDATION FAILS: %s %s %s. MSG=%s',
                                         test_type, icu_version, executor, results['err_info'])
                     else:
-                        logging.warning('VALIDATION WORKS: %s %s %s', test_type, icu_version, executor)
+                        logging.info('VALIDATION WORKS: %s %s %s', test_type, icu_version, executor)
                     all_results.append(results)
         return all_results
 
@@ -266,7 +266,7 @@ def process_args(args):
     #   Directory for test result files
     # Get name of test and type
     if len(args) < 2:
-        print('you gotta give me something...')
+        logging.error('Not enough arguments provided')
         return
 
     base_folder = args[1]
@@ -327,10 +327,10 @@ def main(args):
     schema_validator.icu_versions = ['icu71', 'icu72', 'icu73', 'icu74']
     schema_validator.executors = ['node', 'rust', 'dart_web']
 
-    print('Checking test outputs')
+    logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
     for result in all_test_out_results:
-        print('  %s' % result)
+        logging.debug('  %s', result)
 
     # Check all schema files for correctness.
     schema_errors = schema_validator.check_schema_files()
@@ -342,16 +342,16 @@ def main(args):
     icu_versions = ['icu71', 'icu72', 'icu73', 'icu74']
     executor_list = ['node', 'rust', 'dart_web']
 
-    print('Checking generated data')
+    logging.info('Checking generated data')
     all_test_data_results = schema_validator.validate_test_data_with_schema()
     for result in all_test_data_results:
 
-        print('  %s' % result)
+        logging.debug('  %s', result)
 
-    print('Checking test outputs')
+    logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
     for result in all_test_out_results:
-        print('  %s' % result)
+        logging.debug('  %s', result)
     return
 
 if __name__ == "__main__":

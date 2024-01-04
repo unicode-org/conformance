@@ -10,6 +10,7 @@ from difflib import Differ
 from difflib import SequenceMatcher
 
 from datetime import datetime
+
 import glob
 import json
 import logging
@@ -77,6 +78,7 @@ class TestReport:
         self.simple_results = None
         self.failure_summaries = None
         self.debug = 1
+
 
         self.verifier_obj = None
 
@@ -349,22 +351,22 @@ class TestReport:
         #html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
         # Characterize successes, too.
-        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
+        pass_characterized = self.characterize_failures_by_options(self.passing_tests, 'pass')
         flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
         self.save_characterized_file(flat_combined_passing, "pass")
 
         # Get and save failures, errors, unsupported
-        error_characterized = self.characterize_failures_by_options(self.test_errors)
+        error_characterized = self.characterize_failures_by_options(self.test_errors, 'error')
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
         self.save_characterized_file(flat_combined_errors, "error")
 
-        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
+        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases, 'unsupported')
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
 
-        # TODO: SHhould we compute top 3-5 overlaps for each set?
+        # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
-        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
+        fail_characterized = self.characterize_failures_by_options(self.failing_tests, 'fail')
         fail_simple_diffs = self.check_simple_text_diffs()
         flat_combined_dict = self.flatten_and_combine(fail_characterized,
                                                       fail_simple_diffs)
@@ -490,6 +492,8 @@ class TestReport:
         # Flatten the dictionary.
         flat_items = {}
         for key, value in all_items.items():
+            if len(value) <= 0:
+                continue
             if type(value) == list:
                 flat_items[key] = value
             else:
@@ -500,21 +504,23 @@ class TestReport:
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
         return flat_combined_dict
 
-    def characterize_failures_by_options(self, failing_tests):
-        # User self.failing_tests, looking at options
-        results = {}
-        results['locale'] = {}  # Dictionary of labels for each locale
-        for test in failing_tests:
-            # Get input_data, if available
+    def characterize_failures_by_options(self, tests, result_type):
+        # Looking at options
+        results = defaultdict(list)
+        for test in tests:
             try:
                 label = test['label']
             except:
                 label = ''
-
-            input_data = test.get('input_data')
-
-            if input_data:
-                # Look at locale
+            key_list = ['locale', 'locale_label', 'option', 'options',
+                        'language_label',
+                        # Collation
+                        # 'ignorePunctuation', 'compare_result',
+                        'compare_type', 'test_description', 'unsupported_options', 'rules', 'test_description',
+                        'warning'
+                        # Number format
+                        'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode', ]
+            for key in key_list:
                 try:
                     locale = input_data.get('locale')
                 except:
@@ -586,27 +592,48 @@ class TestReport:
                             results[key][value].append(label)
                         else:
                             results[key][value] = [label]
-                for key in ['ignorePunctuation']:
-                    try:
-                        if (test.get('input_data') and test['input_data'].get(key)):  # For collation results
-                            value = test['input_data'][key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
-                    except:
-                        continue
+                except:
+                    continue
+
+            # Look at the input_data part of the test result
+            # TODO: Check the error_detail and error pars, too.
+            key_list = ['ignorePunctuation', 'options', 'unsupported_options', 'error_detail', 'compare_type', 'rules',
+                        'test_description', 'locale'
+                        ]
+            input_data = test.get('input_data')
+            self.add_to_results_by_key(label, results, input_data, test, key_list)
+            error_detail = test.get('error_detail')
+            if error_detail:
+                error_keys = error_detail.keys()  # ['options']
+                self.add_to_results_by_key(label, results, error_detail, test, error_keys)
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
-            # Sort these by number of items in each set.
             # TODO: Find the largest intersections of these sets and sort by size
-            combo_list = [(combo, len(results[combo])) for combo in results]
-            combo_list.sort(key=take_second, reverse=True)
+
+        # This is not used!
+        combo_list = [(combo, len(results[combo])) for combo in results]
+        combo_list.sort(key=take_second, reverse=True)
 
         return dict(results)
+
+    # TODO: Use the following function to update lists.
+    def add_to_results_by_key(self, label, results, input_data, test, key_list):
+        if input_data:
+            for key in key_list:
+                try:
+                    if (input_data.get(key)):  # For collation results
+                        value = test['input_data'][key]
+                        if key == 'rules':
+                            value = 'RULE'  # A special case to avoid over-characterization
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].append(label)
+                        else:
+                            results[key][value] = [label]
+                except:
+                    continue
 
     def check_simple_text_diffs(self):
         results = defaultdict(list)
@@ -774,9 +801,9 @@ class TestReport:
         if self.debug > 0:
             logging.info('--------- %s %s %d failures-----------',
                          self.exec, self.test_type, len(self.failing_tests))
-            logging.info('  SINGLE SUBSTITUTIONS: %s',
+            logging.debug('  SINGLE SUBSTITUTIONS: %s',
                          sort_dict_by_count(self.diff_summary.single_diffs))
-            logging.info('  PARAMETER DIFFERENCES: %s',
+            logging.debug('  PARAMETER DIFFERENCES: %s',
                          sort_dict_by_count(self.diff_summary.params_diff))
 
     def analyze_simple(self, test):
@@ -924,7 +951,7 @@ class SummaryReport:
             executor = ''
 
             icu_version = os.path.basename(os.path.dirname(dir_path))
-            test_results = {}
+            test_results = defaultdict(list)
             test_type = None
             try:
                 executor = test_environment['test_language']
@@ -979,8 +1006,8 @@ class SummaryReport:
                     self.type_summary[test_type].append(test_results)
 
             except BaseException as err:
-                print('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s' % (
-                    executor, test_type, err))
+                logging.error('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s',
+                    executor, test_type, err)
 
     def get_stats(self, entry):
         # Process items in a map to give HTML table value
@@ -1081,8 +1108,8 @@ class SummaryReport:
         html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
         if self.debug > 1:
-            print('HTML OUTPUT =\n%s' % html_output)
-            print('HTML OUTPUT FILEPATH =%s' % self.summary_html_path)
+            logging.debug('HTML OUTPUT =\n%s', html_output)
+            logging.debug('HTML OUTPUT FILEPATH =%s', self.summary_html_path)
         file.write(html_output)
         file.close()
 

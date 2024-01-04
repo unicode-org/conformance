@@ -5,28 +5,37 @@
 # Save the results
 set -e
 
+# Rotate log files
+logrotate -s logrotate.state logrotate.conf
+
+##########
+# Setup (generate) test data & expected values
+##########
+
+# Ensure that ICU4C binaries have been downloaded locally
+if [[ ! -d gh-cache ]]
+then
+  bash setup.sh
+fi
+
 # Enable seting the version of NodeJS
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
 
-#
-# Setup
-#
+##########
+# Regenerate test data and verify against schema
+##########
 
+# Clear old data
 export TEMP_DIR=TEMP_DATA
 rm -rf $TEMP_DIR
 
 # Clear out old data, then create new directory and copy test / verify data there
 mkdir -p $TEMP_DIR/testData
 
-#
-# Setup (generate) test data & expected values
-# 
-
-source_file=${1:-'run_config.json'}
-
 
 # Generates all new test data
+source_file=${1:-'run_config.json'}
 pushd testgen
 all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
 python3 testdata_gen.py  --icu_versions $all_icu_versions
@@ -41,7 +50,10 @@ python3 check_schemas.py $pwd
 python3 check_generated_data.py ../$TEMP_DIR/testData
 popd
 
-all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
+##########
+# Run tests using per-platform executors
+##########
+
 #
 # Run test data tests through all executors
 #
@@ -53,6 +65,15 @@ all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 #     cargo build --release
 #     popd
 # fi
+
+#
+# Run Dart executors in a custom way
+#
+
+# TODO(?): Figure out why datasets.py can't support running multiple CLI commands,
+# if that is the reason why Dart needs custom handling in this end-to-end script
+
+all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 
 if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
@@ -73,12 +94,17 @@ fi
 # Executes all tests on that new data in the new directory
 mkdir -p $TEMP_DIR/testOutput
 
+#
 # Invoke all tests on all platforms
+#
+
+# Change to directory of `testdriver` (which will be used to invoke each platform executor)
 pushd testdriver
 
 # Set to use NVM
 source "$HOME/.nvm/nvm.sh"
 
+# Invoke all tests
 jq -c '.[]' ../$source_file | while read i; do
     if jq -e 'has("prereq")' <<< $i > /dev/null
     then
@@ -89,16 +115,17 @@ jq -c '.[]' ../$source_file | while read i; do
     exec_command=$(jq -r -c '.run.exec' <<< $i)
     test_type=$(jq -r -c '.run.test_type | join(" ")'  <<< $i)
     per_execution=$(jq -r -c '.run.per_execution' <<< $i)
-    python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution
+    ignore=$(jq -r -c '.run.ignore' <<< $i)
+    python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution --ignore $ignore
     echo $?
 done
 
 # Done with test execution
 popd
 
-#
+##########
 # Run verifier
-#
+##########
 
 # Verify that test output matches schema.
 pushd schema
@@ -114,6 +141,10 @@ all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
 python3 verifier.py --file_base ../$TEMP_DIR --exec $all_execs --test_type $all_test_types
 
 popd
+
+##########
+# Finish and clean up
+##########
 
 #
 # Push testresults and test reports to Cloud Storge

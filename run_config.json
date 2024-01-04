@@ -1,6 +1,78 @@
 [
   {
     "prereq": {
+      "name": "Get ICU4C 71",
+      "version": "71.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-71_1-Ubuntu20.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu71",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "lang_names",
+        "likely_subtags",
+        "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "Get ICU4C 72",
+      "version": "72.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-72_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu72",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "lang_names",
+        "likely_subtags",
+        "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "Get ICU4C 73",
+      "version": "73.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-73_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu73",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "lang_names",
+        "likely_subtags",
+        "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "Get ICU4C 74",
+      "version": "74.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu74",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "lang_names",
+        "likely_subtags",
+        "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "nvm",
       "version": "20.1.0",
       "command": "nvm install 20.1.0;nvm use 20.1.0"
@@ -153,5 +225,20 @@
       ],
       "per_execution": 10000
     }
-  }  
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-73-shaded",
+      "version": "73",
+      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu73",
+      "exec": "icu4j",
+      "test_type": [
+        "collation_short"
+      ],
+      "per_execution": 10000
+    }
+  }
 ]

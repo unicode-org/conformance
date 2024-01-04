@@ -197,24 +197,19 @@ dependencies = [
 
 [[package]]
 name = "executor"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "cargo_metadata",
- "databake",
  "env_logger",
  "fixed_decimal",
  "icu",
  "icu_datagen",
- "icu_provider",
- "icu_testdata",
  "json",
  "log",
  "rustc_version_runtime",
  "serde",
  "serde_json",
- "substring",
  "writeable",
- "zerovec",
 ]
 
 [[package]]
@@ -748,33 +743,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9703f6713044d1c0a1335a6d78ffece4c9380582416ace6feeb608e84d279fc7"
 
 [[package]]
-name = "icu_testdata"
-version = "1.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "450f30cfb667892b510b3a050ad740e23625bfdfb6f73967baabfaeb4e7aa442"
-dependencies = [
- "icu_calendar",
- "icu_collator",
- "icu_collections",
- "icu_compactdecimal",
- "icu_datetime",
- "icu_decimal",
- "icu_displaynames",
- "icu_list",
- "icu_locid",
- "icu_locid_transform",
- "icu_normalizer",
- "icu_plurals",
- "icu_properties",
- "icu_provider",
- "icu_provider_adapters",
- "icu_segmenter",
- "icu_timezone",
- "zerotrie",
- "zerovec",
-]
-
-[[package]]
 name = "icu_timezone"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1128,15 +1096,6 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "substring"
-version = "1.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42ee6433ecef213b2e72f587ef64a2f5943e7cd16fbd82dbe8bc07486c534c86"
-dependencies = [
- "autocfg",
-]
 
 [[package]]
 name = "syn"

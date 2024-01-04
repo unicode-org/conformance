@@ -9,7 +9,7 @@ use icu::decimal::FixedDecimalFormatter;
 
 use icu::compactdecimal::CompactDecimalFormatter;
 
-use icu::locid::{extensions::unicode::key, locale, Locale};
+use icu::locid::{extensions::unicode::key, Locale};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -56,12 +56,10 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
-    let mut langid = if json_obj.get("locale").is_some() {
-        let locale_name = &json_obj["locale"].as_str().unwrap();
-        locale_name.parse::<Locale>().unwrap()
-    } else {
-        locale!("und")
-    };
+    let mut langid: Locale = json_obj
+        .get("locale")
+        .map(|locale_name| locale_name.as_str().unwrap().parse().unwrap())
+        .unwrap_or_default();
 
     let input = &json_obj["input"].as_str().unwrap();
 
@@ -216,10 +214,9 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     };
 
     // Result to stdout.
-    let json_result = json!({
+    Ok(json!({
         "label": label,
         "result": result_string,
         "actual_options": format!("{option_struct:?}, {options:?}"),
-    });
-    Ok(json_result)
+    }))
 }
