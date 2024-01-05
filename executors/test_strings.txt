@@ -93,15 +93,28 @@
 {"test_type": "collation_short", "label":"0001377","s1":"\\u0009?","s2":"\\u000a!","line":12,"ignorePunctuation":true}
 {"test_type": "collation_short", "label":"00008","s1":"ä","s2":"Ã¤","compare_type":"=","test_description":" simple CEs & expansions","rules":"&\\x01\n<<<\\u0300\n&9<\\x00\n&\\uA00A\\uA00B=\\uA002\n&\\uA00A\\uA00B\\u00050005=\\uA003"}
 
+# NUMBER FORMAT    
 {"test_type": "number_fmt", "label":"NUM_2345", "input": "23.45","locale":"it","options":{"maximumFractionDigits":3}}
 {"test_type": "number_fmt", "label":"NUM_2345", "input": "23.4567","locale":"fr","options":{"maximumFractionDigits":"1"}}
+
+{"test_type": "number_fmt", "label":"NUM_2345_scale", "input": "23.4567","locale":"fr","options":{"conformanceScale":"0.5", "maximumFractionDigits":"1"}}
+{"test_type": "number_fmt", "label":"NUM_2345_scale", "input": "23.4567","locale":"fr","options":{"conformanceScale":"7", "maximumFractionDigits":"1"}}
+
+
+_min    
+{"test_type": "number_fmt", "label":"permille_2345", "input": "23.4567","locale":"fr","options":{"maximumFractionDigits":"1", "unit": "permille"}}
 
 {"test_type": "number_fmt", "label": "0000", "locale": "es-MX", "skeleton": "compact-short percent unit-width-narrow", "input": "123456", "options": { "notation": "compact", "compactDisplay": "short"}}
 {"test_type": "number_fmt", "label": "0000", "locale": "en-GB", "skeleton": "compact-short percent unit-width-narrow", "input": "123456", "options": { "notation": "compact", "compactDisplay": "short"}}
 {"test_type": "number_fmt", "label": "0000", "locale": "bn", "skeleton": "compact-short percent unit-width-narrow", "input": "123456", "options": { "notation": "compact", "compactDisplay": "short"}}
 
 {"label": "7333", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}
+{"label": "7333_3min", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 3, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}
 
+{"label": "7333_sig", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumSignificantDigits": 4, "useGrouping": false}, "test_type": "number_fmt"}
+{"label": "7333_sig", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "minimumSignificantDigits": 2, "useGrouping": false}, "test_type": "number_fmt"}
+{"label": "7333_sig", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumSignificantDigits": 3, "maximumSignificantDigits": 5, "useGrouping": false}, "test_type": "number_fmt"}
+    
 {"label":"0598","locale":"es","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
             
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
@@ -116,6 +129,7 @@
 {"test_type": "number_fmt", "label":"2062_long","locale":"es-MX","skeleton":"currency/EUR unit-width-long .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"long","maximumFractionDigits":3,"minimumFractionDigits":3}}
 {"test_type": "number_fmt", "label": "0219", "locale": "zh-TW", "skeleton": "scientific/+ee/sign-always percent precision-integer", "input": "0", "options": {"notation": "scientific", "style": "unit", "unit": "percent", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}}
 
+{"test_type": "number_fmt", "label": "0292_furlong", "locale": "en-AU", "skeleton": "scientific/+ee/sign-always measure-unit/length-furlong precision-integer", "input": "91827.3645", "options": {"notation": "scientific", "style": "unit", "unit": "furlong", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}, "test_type": "number_fmt"}
 {"test_type": "number_fmt", "label": "0292_furlong", "locale": "zh-TW", "skeleton": "scientific/+ee/sign-always measure-unit/length-furlong precision-integer", "input": "91827.3645", "options": {"notation": "scientific", "style": "unit", "unit": "furlong", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}, "test_type": "number_fmt"} 
 # FOR TESTING REJECTION OF UNKNOWN TYPE
 {"test_type": "bogus_fmt", "label":"NUM_2345", "input": "23.45","locale":"it","options":{"maximumFractionDigits":3}}

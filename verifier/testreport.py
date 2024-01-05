@@ -544,6 +544,13 @@ class TestReport:
                         ]
             input_data = test.get('input_data')
             self.add_to_results_by_key(label, results, input_data, test, key_list)
+
+            # Special case for input_data / options.
+            special_key = 'options'
+            if input_data.get(special_key):
+                options = input_data[special_key]
+                self.add_to_results_by_key(label, results, options, test, options.keys())
+
             error_detail = test.get('error_detail')
             if error_detail:
                 error_keys = error_detail.keys()  # ['options']
@@ -563,7 +570,7 @@ class TestReport:
             for key in key_list:
                 try:
                     if (input_data.get(key)):  # For collation results
-                        value = test['input_data'][key]
+                        value = input_data.get(key)
                         if key == 'rules':
                             value = 'RULE'  # A special case to avoid over-characterization
                         if key not in results:
