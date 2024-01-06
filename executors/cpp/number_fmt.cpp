@@ -268,24 +268,20 @@ const string test_numfmt(json_object *json_in) {
   string unit_string = "";
   string unitDisplay_string = "";
   string style_string = "";
-  string currency_string = "";
-  string grouping_string = "";
-  string roundingMode_string = "";
   string compactDisplay_string = "";
-  string conformahceScale_string = "";
-  string currencyDisplay_string = "";
 
   // Defaults for settings.
+  CurrencyUnit currency_unit_setting = CurrencyUnit();
+  IntegerWidth integerWidth_setting = IntegerWidth::zeroFillTo(1);
   MeasureUnit unit_setting = NoUnit::base();
-  UNumberUnitWidth unit_width_setting =
-      UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
   Notation notation_setting = Notation::simple();
   Precision precision_setting = Precision::unlimited();
-  IntegerWidth integerWidth_setting = IntegerWidth::zeroFillTo(1);
   Scale scale_setting = Scale::none();
   UNumberSignDisplay signDisplay_setting = UNUM_SIGN_AUTO;
   UNumberFormatRoundingMode rounding_setting = UNUM_ROUND_HALFEVEN;
   UNumberGroupingStrategy grouping_setting = UNUM_GROUPING_AUTO;
+  UNumberUnitWidth unit_width_setting =
+      UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
 
   // Check all the options
   if (options_obj) {
@@ -339,7 +335,7 @@ const string test_numfmt(json_object *json_in) {
 
     currency_obj = json_object_object_get(options_obj, "currency");
     if (currency_obj) {
-      currency_string = json_object_get_string(currency_obj);
+      string currency_string = json_object_get_string(currency_obj);
       // Set the unit to a currency value
       unit_setting = CurrencyUnit(icu::StringPiece(currency_string), status);
     }
@@ -347,22 +343,23 @@ const string test_numfmt(json_object *json_in) {
     // TODO: make a function
     currencyDisplay_obj = json_object_object_get(options_obj, "currencyDisplay");
     if (currencyDisplay_obj) {
-      currencyDisplay_string = json_object_get_string(currencyDisplay_obj);
-      if (currencyDisplay_string == "narrowSymbol") {
-        UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
+      string currencyDisplay_string = json_object_get_string(currencyDisplay_obj);
+      unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
+     if (currencyDisplay_string == "narrowSymbol") {
+        unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
       }
       else if (currencyDisplay_string == "symbol") {
-        UNumberUnitWidth::UNUM_UNIT_WIDTH_SHORT;
+        unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_SHORT;
       }
       else if (currencyDisplay_string == "name") {
-        UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME;
+        unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME;
       }
     }
 
     // TODO: Make this a function rather than inline.
     roundingMode_obj = json_object_object_get(options_obj, "roundingMode");
     if (roundingMode_obj) {
-      roundingMode_string = json_object_get_string(roundingMode_obj);
+      string roundingMode_string = json_object_get_string(roundingMode_obj);
       if (roundingMode_string == "floor") {
         rounding_setting = UNUM_ROUND_FLOOR;
       } else if (roundingMode_string == "ceil") {
@@ -450,22 +447,21 @@ const string test_numfmt(json_object *json_in) {
     }
   }
 
-
-  if (style_string == "currency") {
-    // TODO: Generalize
-    nf = NumberFormatter::withLocale(displayLocale)
-         .notation(notation_setting)
-         .unit(CurrencyUnit(currency_string, status))
-         .precision(precision_setting)
-         .integerWidth(integerWidth_setting)
-         .grouping(grouping_setting)
-         .roundingMode(rounding_setting)
-         .scale(scale_setting)
-         .sign(signDisplay_setting)
-         .unit(unit_setting)
-         .unitWidth(unit_width_setting);
-  }
-  else {
+  // if (style_string == "currency") {
+  //   // TODO: Generalize
+  //   nf = NumberFormatter::withLocale(displayLocale)
+  //        .notation(notation_setting)
+  //        .precision(precision_setting)
+  //        .integerWidth(integerWidth_setting)
+  //        .grouping(grouping_setting)
+  //        .roundingMode(rounding_setting)
+  //        .scale(scale_setting)
+  //        .sign(signDisplay_setting)
+  //        .unit(unit_setting) // CurrencyUnit(currency_string, status))
+  //        .unitWidth(unit_width_setting);
+  // }
+  // else
+  {
     // Use settings to initialize the formatter
     nf = NumberFormatter::withLocale(displayLocale)
          .notation(notation_setting)
