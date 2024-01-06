@@ -94,12 +94,47 @@ double get_double_setting(string key_value_string) {
 
 }
 
-Precision set_fraction_digits(json_object* options_obj) {
-  Precision precision_setting = Precision::unlimited();
+// Get integer width settings
+IntegerWidth set_integerWidth(json_object* options_obj) {
+  IntegerWidth integerWidth_setting = IntegerWidth::zeroFillTo(1);
+  if (!options_obj) {
+    return integerWidth_setting;
+  }
+  string int_width_string;
+
+  json_object* integer_obj_min = json_object_object_get(
+      options_obj, "minimumIntegerDigits");
+  json_object* integer_obj_max = json_object_object_get(
+      options_obj, "maximumIntegerDigits");
+  if (integer_obj_min && integer_obj_max) {
+    int_width_string = json_object_get_string(integer_obj_min);
+    int32_t val_min32 = get_integer_setting(int_width_string);
+    int_width_string = json_object_get_string(integer_obj_max);
+    int32_t val_max32 = get_integer_setting(int_width_string);
+    integerWidth_setting = IntegerWidth::zeroFillTo(val_min32).truncateAt(val_max32);
+  }
+  else if (integer_obj_min && !integer_obj_max) {
+    int_width_string = json_object_get_string(integer_obj_min);
+    int32_t val_min32 = get_integer_setting(int_width_string);
+    int_width_string = json_object_get_string(integer_obj_min);
+    integerWidth_setting = IntegerWidth::zeroFillTo(val_min32);
+  }
+  else if (!integer_obj_min && integer_obj_max) {
+    int_width_string = json_object_get_string(integer_obj_max);
+    int32_t val_max32 = get_integer_setting(int_width_string);
+    integerWidth_setting = IntegerWidth::zeroFillTo(1).truncateAt(val_max32);
+  }
+  return integerWidth_setting;
+}
+
+// Get fraction and siginfication digits settings
+Precision set_precision_digits(json_object* options_obj, Precision previous_setting) {
+  Precision precision_setting = previous_setting;
   if (!options_obj) {
     return precision_setting;
   }
 
+  // First, consider fraction digits.
   json_object* precision_obj_max =
       json_object_object_get(options_obj, "maximumFractionDigits");
   json_object* precision_obj_min =
@@ -126,23 +161,13 @@ Precision set_fraction_digits(json_object* options_obj) {
   } else if (precision_obj_max && ! precision_obj_min) {
     precision_setting = Precision::maxFraction(val_max);
   }
-  return precision_setting;
-}
 
-Precision set_significant_digits(json_object* options_obj) {
-  Precision precision_setting = Precision::unlimited();
-  if (!options_obj) {
-    return precision_setting;
-  }
-
-  int16_t val_max = 0;
-  int16_t val_min = 0;
-  json_object* precision_obj_max =
+  // Now handle significant digits
+  precision_obj_max =
       json_object_object_get(options_obj, "maximumSignificantDigits");
-  json_object* precision_obj_min =
+  precision_obj_min =
       json_object_object_get(options_obj, "minimumSignificantDigits");
 
-  string precision_string;
   if (precision_obj_max) {
     precision_string = json_object_get_string(precision_obj_max);
     val_max = get_integer_setting(precision_string);
@@ -160,7 +185,8 @@ Precision set_significant_digits(json_object* options_obj) {
   } else if (precision_obj_max && ! precision_obj_min) {
     precision_setting = Precision::maxSignificantDigits(val_max);
   }
-  return Precision::unlimited();
+
+  return precision_setting;
 }
 
 UNumberSignDisplay set_sign_display(json_object* options_obj) {
@@ -311,7 +337,6 @@ const string test_numfmt(json_object *json_in) {
       }
     }
 
-
     currency_obj = json_object_object_get(options_obj, "currency");
     if (currency_obj) {
       currency_string = json_object_get_string(currency_obj);
@@ -319,6 +344,7 @@ const string test_numfmt(json_object *json_in) {
       unit_setting = CurrencyUnit(icu::StringPiece(currency_string), status);
     }
 
+    // TODO: make a function
     currencyDisplay_obj = json_object_object_get(options_obj, "currencyDisplay");
     if (currencyDisplay_obj) {
       currencyDisplay_string = json_object_get_string(currencyDisplay_obj);
@@ -357,6 +383,7 @@ const string test_numfmt(json_object *json_in) {
       //  UNUM_ROUND_UNNECESSARY , UNUM_ROUND_HALF_ODD , UNUM_ROUND_HALF_CEILING , UNUM_ROUND_HALF_FLOOR
     }
 
+    // TODO: make a function
     group_obj = json_object_object_get(options_obj, "useGrouping");
     if (group_obj) {
       string group_string = json_object_get_string(group_obj);
@@ -372,34 +399,11 @@ const string test_numfmt(json_object *json_in) {
       // TODO: FINISH - could be OFF, MIN2, AUTO, ON_ALIGNED, THOUSANDS
     }
 
-    precision_setting = set_fraction_digits(options_obj);
-    // TODO: What if already set?
-    precision_setting = set_significant_digits(options_obj);
-    int16_t val_max = 0;
-    int16_t val_min = 0;
+    // Need to avoid resetting when not options are specifierd.
+    precision_setting = set_precision_digits(options_obj, precision_setting);
 
-    // TODO: Make a function
     // Minimum integer digits
-    precision_obj_min = json_object_object_get(options_obj, "minimumIntegerDigits");
-    precision_obj_max = json_object_object_get(options_obj, "maximumIntegerDigits");
-    if (precision_obj_min && precision_obj_max) {
-      precision_string = json_object_get_string(precision_obj_min);
-      int32_t val_min32 = get_integer_setting(precision_string);
-      precision_string = json_object_get_string(precision_obj_max);
-      int32_t val_max32 = get_integer_setting(precision_string);
-      integerWidth_setting = IntegerWidth::zeroFillTo(val_min32).truncateAt(val_max32);
-    }
-    else if (precision_obj_min && !precision_obj_max) {
-      precision_string = json_object_get_string(precision_obj_min);
-      int32_t val_min32 = get_integer_setting(precision_string);
-      precision_string = json_object_get_string(precision_obj_min);
-      integerWidth_setting = IntegerWidth::zeroFillTo(val_min32);
-    }
-    else if (!precision_obj_min && precision_obj_max) {
-      precision_string = json_object_get_string(precision_obj_max);
-      int32_t val_max32 = get_integer_setting(precision_string);
-      integerWidth_setting = IntegerWidth::zeroFillTo(1).truncateAt(val_max32);
-    }
+    integerWidth_setting = set_integerWidth(options_obj);
 
     // TODO: Make a function
     json_object* scale_obj = json_object_object_get(options_obj, "conformanceScale");

@@ -365,7 +365,7 @@ def parseDcmlFmtTestData(rawtestdata):
 def mapFmtSkeletonToECMA402(options):
   ecma402_map = {
       "compact-short": {"notation": "compact",  "compactDisplay": "short"},
-      "scientific/+ee/sign-always": {"notation": "scientific"},
+      "scientific/+ee/sign-always": {"notation": "scientific", "conformanceExponent":"+ee", "conformanceSign": "always"},
       # Percent with word "percent":
       "percent": {"style": "unit", "unit": "percent"},  # "style": "percent",
       "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
