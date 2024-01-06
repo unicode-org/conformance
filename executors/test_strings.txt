@@ -100,8 +100,8 @@
 {"test_type": "number_fmt", "label":"NUM_2345_scale", "input": "23.4567","locale":"fr","options":{"conformanceScale":"0.5", "maximumFractionDigits":"1"}}
 {"test_type": "number_fmt", "label":"NUM_2345_scale", "input": "23.4567","locale":"fr","options":{"conformanceScale":"7", "maximumFractionDigits":"1"}}
 
+{"test_type": "number_fmt","label": "0379", "locale": "es-MX", "skeleton": "compact-short percent integer-width/##00", "input": "91827.3645", "options": {"notation": "compact", "compactDisplay": "short", "style": "unit", "unit": "percent", "maximumIntegerDigits": 4, "minimumIntegerDigits": 2, "maximumFractionDigits": 2}}
 
-_min    
 {"test_type": "number_fmt", "label":"permille_2345", "input": "23.4567","locale":"fr","options":{"maximumFractionDigits":"1", "unit": "permille"}}
 
 {"test_type": "number_fmt", "label": "0000", "locale": "es-MX", "skeleton": "compact-short percent unit-width-narrow", "input": "123456", "options": { "notation": "compact", "compactDisplay": "short"}}
@@ -109,7 +109,8 @@ _min
 {"test_type": "number_fmt", "label": "0000", "locale": "bn", "skeleton": "compact-short percent unit-width-narrow", "input": "123456", "options": { "notation": "compact", "compactDisplay": "short"}}
 
 {"label": "7333", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}
-{"label": "7333_3min", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 3, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}
+{"label": "7333_3min", "op": "format", "skeleton": "0.0", "input": "1.50", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 3, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}
+{"label": "7333_3min", "op": "format", "skeleton": "0.0", "input": "1.50", "options": {"roundingMode": "floor", "minimumIntegerDigits": 3, "minimumFractionDigits": 1, "maximumFractionDigits": 1, "useGrouping": false}, "test_type": "number_fmt"}    
 
 {"label": "7333_sig", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "maximumSignificantDigits": 4, "useGrouping": false}, "test_type": "number_fmt"}
 {"label": "7333_sig", "op": "format", "skeleton": "0.0", "input": "1.00", "options": {"roundingMode": "halfExpand", "minimumIntegerDigits": 1, "minimumFractionDigits": 1, "minimumSignificantDigits": 2, "useGrouping": false}, "test_type": "number_fmt"}
@@ -129,6 +130,8 @@ _min
 {"test_type": "number_fmt", "label":"2062_long","locale":"es-MX","skeleton":"currency/EUR unit-width-long .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"long","maximumFractionDigits":3,"minimumFractionDigits":3}}
 {"test_type": "number_fmt", "label": "0219", "locale": "zh-TW", "skeleton": "scientific/+ee/sign-always percent precision-integer", "input": "0", "options": {"notation": "scientific", "style": "unit", "unit": "percent", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}}
 
+{"test_type": "number_fmt","label": "0054", "locale": "es-MX", "skeleton": "scientific/+ee/sign-always percent unit-width-narrow", "input": "0", "options": {"notation": "scientific", "conformanceExponent": "+ee", "conformanceSign": "always", "style": "unit", "unit": "percent", "unitDisplay": "narrow", "currencyDisplay": "narrowSymbol", "maximumFractionDigits": 6}}
+        
 {"test_type": "number_fmt", "label": "0292_furlong", "locale": "en-AU", "skeleton": "scientific/+ee/sign-always measure-unit/length-furlong precision-integer", "input": "91827.3645", "options": {"notation": "scientific", "style": "unit", "unit": "furlong", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}, "test_type": "number_fmt"}
 {"test_type": "number_fmt", "label": "0292_furlong", "locale": "zh-TW", "skeleton": "scientific/+ee/sign-always measure-unit/length-furlong precision-integer", "input": "91827.3645", "options": {"notation": "scientific", "style": "unit", "unit": "furlong", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}, "test_type": "number_fmt"} 
 # FOR TESTING REJECTION OF UNKNOWN TYPE

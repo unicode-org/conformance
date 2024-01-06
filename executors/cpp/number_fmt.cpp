@@ -28,6 +28,7 @@
 
 #include "unicode/unum.h"
 #include "unicode/unumberformatter.h"
+// TODO: NEEDED? #include "unicode/unumberoptions.h"
 #include "unicode/uobject.h"
 
 #include "unicode/unistr.h"
@@ -52,6 +53,7 @@ using std::endl;
 using std::string;
 
 using icu::number::NumberFormatter;
+using icu::number::NumberFormatterSettings;
 using icu::number::Notation;
 using icu::number::Precision;
 using icu::number::IntegerWidth;
@@ -89,12 +91,113 @@ double get_double_setting(string key_value_string) {
     return_val = std::stod(num_string);
   }
   return return_val;
+
 }
 
-void set_fraction_digits() {
+Precision set_fraction_digits(json_object* options_obj) {
+  Precision precision_setting = Precision::unlimited();
+  if (!options_obj) {
+    return precision_setting;
+  }
+
+  json_object* precision_obj_max =
+      json_object_object_get(options_obj, "maximumFractionDigits");
+  json_object* precision_obj_min =
+      json_object_object_get(options_obj, "minimumFractionDigits");
+
+  string precision_string;
+
+  int16_t val_max = 0;
+  int16_t val_min = 0;
+  if (precision_obj_max) {
+    precision_string = json_object_get_string(precision_obj_max);
+    val_max = get_integer_setting(precision_string);
+  }
+  if (precision_obj_min) {
+    precision_string = json_object_get_string(precision_obj_min);
+    val_min = get_integer_setting(precision_string);
+  }
+  if (precision_obj_max && precision_obj_min) {
+    // Both are set
+    precision_setting = Precision::minMaxFraction(val_min, val_max);
+  }
+  else if (!precision_obj_max && precision_obj_min) {
+    precision_setting = Precision::minFraction(val_min);
+  } else if (precision_obj_max && ! precision_obj_min) {
+    precision_setting = Precision::maxFraction(val_max);
+  }
+  return precision_setting;
 }
 
-void set_significant_digits() {
+Precision set_significant_digits(json_object* options_obj) {
+  Precision precision_setting = Precision::unlimited();
+  if (!options_obj) {
+    return precision_setting;
+  }
+
+  int16_t val_max = 0;
+  int16_t val_min = 0;
+  json_object* precision_obj_max =
+      json_object_object_get(options_obj, "maximumSignificantDigits");
+  json_object* precision_obj_min =
+      json_object_object_get(options_obj, "minimumSignificantDigits");
+
+  string precision_string;
+  if (precision_obj_max) {
+    precision_string = json_object_get_string(precision_obj_max);
+    val_max = get_integer_setting(precision_string);
+  }
+  if (precision_obj_min) {
+    precision_string = json_object_get_string(precision_obj_min);
+    val_min = get_integer_setting(precision_string);
+  }
+  if (precision_obj_max && precision_obj_min) {
+    // Both are set
+    precision_setting = Precision::minMaxSignificantDigits(val_min, val_max);
+  }
+  else if (!precision_obj_max && precision_obj_min) {
+    precision_setting = Precision::minFraction(val_min);
+  } else if (precision_obj_max && ! precision_obj_min) {
+    precision_setting = Precision::maxSignificantDigits(val_max);
+  }
+  return Precision::unlimited();
+}
+
+UNumberSignDisplay set_sign_display(json_object* options_obj) {
+  UNumberSignDisplay signDisplay_setting = UNUM_SIGN_AUTO;
+
+  if (!options_obj) {
+    return signDisplay_setting;
+  }
+
+  json_object* signDisplay_obj =
+      json_object_object_get(options_obj, "signDisplay");
+  if (signDisplay_obj) {
+    string signDisplay_string = json_object_get_string(signDisplay_obj);
+
+    if (signDisplay_string == "exceptZero") {
+      signDisplay_setting = UNUM_SIGN_EXCEPT_ZERO;
+    }
+    else if (signDisplay_string == "always") {
+      signDisplay_setting = UNUM_SIGN_ALWAYS;
+    }
+    else if (signDisplay_string == "never") {
+      signDisplay_setting = UNUM_SIGN_NEVER;
+    }
+    else if (signDisplay_string == "negative") {
+      signDisplay_setting = UNUM_SIGN_NEGATIVE;
+    }
+    else if (signDisplay_string == "accounting") {
+      signDisplay_setting = UNUM_SIGN_ACCOUNTING;
+    }
+    else if (signDisplay_string == "accounting_exceptZero") {
+      signDisplay_setting = UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO;
+    }
+    else if (signDisplay_string == "accounting_negative") {
+      signDisplay_setting = UNUM_SIGN_ACCOUNTING_NEGATIVE;
+    }
+  }
+  return signDisplay_setting;
 }
 
 const string test_numfmt(json_object *json_in) {
@@ -124,9 +227,11 @@ const string test_numfmt(json_object *json_in) {
   json_object *unitDisplay_obj;
   json_object *style_obj;
   json_object *currencyDisplay_obj;
+  json_object *group_obj;
   json_object *precision_obj_min;
   json_object *precision_obj_max;
   json_object *min_integer_digits_obj;
+  json_object *max_integer_digits_obj;
   json_object *roundingMode_obj;
   json_object *compactDisplay_obj;
   json_object *currency_obj;
@@ -138,11 +243,11 @@ const string test_numfmt(json_object *json_in) {
   string unitDisplay_string = "";
   string style_string = "";
   string currency_string = "";
+  string grouping_string = "";
   string roundingMode_string = "";
   string compactDisplay_string = "";
   string conformahceScale_string = "";
   string currencyDisplay_string = "";
-  string signDisplay_string = "";
 
   // Defaults for settings.
   MeasureUnit unit_setting = NoUnit::base();
@@ -152,9 +257,14 @@ const string test_numfmt(json_object *json_in) {
   Precision precision_setting = Precision::unlimited();
   IntegerWidth integerWidth_setting = IntegerWidth::zeroFillTo(1);
   Scale scale_setting = Scale::none();
+  UNumberSignDisplay signDisplay_setting = UNUM_SIGN_AUTO;
+  UNumberFormatRoundingMode rounding_setting = UNUM_ROUND_HALFEVEN;
+  UNumberGroupingStrategy grouping_setting = UNUM_GROUPING_AUTO;
 
-  char16_t uCurrency[4];
+  // Check all the options
   if (options_obj) {
+    signDisplay_setting = set_sign_display(options_obj);
+
     notation_obj = json_object_object_get(options_obj, "notation");
     if (notation_obj) {
       notation_string = json_object_get_string(notation_obj);
@@ -223,68 +333,79 @@ const string test_numfmt(json_object *json_in) {
       }
     }
 
+    // TODO: Make this a function rather than inline.
     roundingMode_obj = json_object_object_get(options_obj, "roundingMode");
     if (roundingMode_obj) {
       roundingMode_string = json_object_get_string(roundingMode_obj);
+      if (roundingMode_string == "floor") {
+        rounding_setting = UNUM_ROUND_FLOOR;
+      } else if (roundingMode_string == "ceil") {
+        rounding_setting = UNUM_ROUND_CEILING;
+      } else if (roundingMode_string == "halfEven") {
+        rounding_setting = UNUM_ROUND_HALFEVEN;
+      } else if (roundingMode_string == "halfTrunc") {
+        rounding_setting = UNUM_ROUND_HALFDOWN;
+      } else if (roundingMode_string == "halfExpand") {
+        rounding_setting = UNUM_ROUND_HALFUP;
+      } else if (roundingMode_string == "trunc") {
+        rounding_setting = UNUM_ROUND_DOWN;
+      } else if (roundingMode_string == "expand") {
+        rounding_setting = UNUM_ROUND_UP;
+      }
+      // TODO: Finish this
+      //  UNUM_ROUND_HALFEVEN , UNUM_FOUND_HALFEVEN = UNUM_ROUND_HALFEVEN , UNUM_ROUND_HALFDOWN = UNUM_ROUND_HALFEVEN + 1 , UNUM_ROUND_HALFUP ,
+      //  UNUM_ROUND_UNNECESSARY , UNUM_ROUND_HALF_ODD , UNUM_ROUND_HALF_CEILING , UNUM_ROUND_HALF_FLOOR
     }
 
-    // Precision handling - significant digits, fraction digits, etc.
-    precision_obj_max = json_object_object_get(options_obj, "maximumFractionDigits");
-    precision_obj_min = json_object_object_get(options_obj, "minimumFractionDigits");
+    group_obj = json_object_object_get(options_obj, "useGrouping");
+    if (group_obj) {
+      string group_string = json_object_get_string(group_obj);
+      if (group_string == "false") {
+        grouping_setting = UNUM_GROUPING_OFF;
+      }
+      else if (group_string == "true") {
+        grouping_setting = UNUM_GROUPING_AUTO;
+      }
+      else if (group_string == "on_aligned") {
+        grouping_setting = UNUM_GROUPING_ON_ALIGNED;
+      }
+      // TODO: FINISH - could be OFF, MIN2, AUTO, ON_ALIGNED, THOUSANDS
+    }
+
+    precision_setting = set_fraction_digits(options_obj);
+    // TODO: What if already set?
+    precision_setting = set_significant_digits(options_obj);
     int16_t val_max = 0;
     int16_t val_min = 0;
-    if (precision_obj_max) {
-      precision_string = json_object_get_string(precision_obj_max);
-      val_max = get_integer_setting(precision_string);
-    }
-    if (precision_obj_min) {
-      precision_string = json_object_get_string(precision_obj_min);
-      val_min = get_integer_setting(precision_string);
-    }
-    if (precision_obj_max && precision_obj_min) {
-      // Both are set
-      precision_setting = Precision::minMaxFraction(val_min, val_max);
-    }
-    else if (!precision_obj_max && precision_obj_min) {
-      precision_setting = Precision::minFraction(val_min);
-    } else if (precision_obj_max && ! precision_obj_min) {
-      precision_setting = Precision::maxFraction(val_max);
-    }
 
-    // Set significant digits: TODO - simplify
-    precision_obj_max = json_object_object_get(options_obj, "maximumSignificantDigits");
-    precision_obj_min = json_object_object_get(options_obj, "minimumSignificantDigits");
-    if (precision_obj_max) {
-      precision_string = json_object_get_string(precision_obj_max);
-      val_max = get_integer_setting(precision_string);
-    }
-    if (precision_obj_min) {
-      precision_string = json_object_get_string(precision_obj_min);
-      val_min = get_integer_setting(precision_string);
-    }
-    if (precision_obj_max && precision_obj_min) {
-      // Both are set
-      precision_setting = Precision::minMaxSignificantDigits(val_min, val_max);
-    }
-    else if (!precision_obj_max && precision_obj_min) {
-      precision_setting = Precision::minFraction(val_min);
-    } else if (precision_obj_max && ! precision_obj_min) {
-      precision_setting = Precision::maxSignificantDigits(val_max);
-    }
-
+    // TODO: Make a function
     // Minimum integer digits
     precision_obj_min = json_object_object_get(options_obj, "minimumIntegerDigits");
-    if (precision_obj_min) {
+    precision_obj_max = json_object_object_get(options_obj, "maximumIntegerDigits");
+    if (precision_obj_min && precision_obj_max) {
       precision_string = json_object_get_string(precision_obj_min);
       int32_t val_min32 = get_integer_setting(precision_string);
-     integerWidth_setting = IntegerWidth::zeroFillTo(val_min32);
+      precision_string = json_object_get_string(precision_obj_max);
+      int32_t val_max32 = get_integer_setting(precision_string);
+      integerWidth_setting = IntegerWidth::zeroFillTo(val_min32).truncateAt(val_max32);
+    }
+    else if (precision_obj_min && !precision_obj_max) {
+      precision_string = json_object_get_string(precision_obj_min);
+      int32_t val_min32 = get_integer_setting(precision_string);
+      precision_string = json_object_get_string(precision_obj_min);
+      integerWidth_setting = IntegerWidth::zeroFillTo(val_min32);
+    }
+    else if (!precision_obj_min && precision_obj_max) {
+      precision_string = json_object_get_string(precision_obj_max);
+      int32_t val_max32 = get_integer_setting(precision_string);
+      integerWidth_setting = IntegerWidth::zeroFillTo(1).truncateAt(val_max32);
     }
 
+    // TODO: Make a function
     json_object* scale_obj = json_object_object_get(options_obj, "conformanceScale");
     if (scale_obj) {
       string scale_string = json_object_get_string(scale_obj);
       double scale_val = get_double_setting(scale_string);
-      cout << "#SCALE value =  " << scale_val << endl;
       scale_setting = Scale::byDouble(scale_val);
     }
     // Other settings...
@@ -309,7 +430,22 @@ const string test_numfmt(json_object *json_in) {
   LocalizedNumberFormatter nf;
   if (notation_string == "scientific") {
     notation_setting = Notation::scientific();
+    if (options_obj) {
+      json_object* conformanceExponent_obj =
+          json_object_object_get(options_obj, "conformanceExponent");
+      if (conformanceExponent_obj) {
+        // Check for the number of digits and sign
+        string confExp_string = json_object_get_string(conformanceExponent_obj);
+        // https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/unumberformatter_8h.html#a18092ae1533c9c260f01c9dbf25589c9
+        // TODO: Parse to find the number of values and the sign setting
+        if (confExp_string == "+ee") {
+          notation_setting = Notation::scientific().withMinExponentDigits(2)
+                             .withExponentSignDisplay(UNUM_SIGN_ALWAYS);
+        }
+      }
+    }
   }
+
 
   if (style_string == "currency") {
     // TODO: Generalize
@@ -318,7 +454,10 @@ const string test_numfmt(json_object *json_in) {
          .unit(CurrencyUnit(currency_string, status))
          .precision(precision_setting)
          .integerWidth(integerWidth_setting)
+         .grouping(grouping_setting)
+         .roundingMode(rounding_setting)
          .scale(scale_setting)
+         .sign(signDisplay_setting)
          .unit(unit_setting)
          .unitWidth(unit_width_setting);
   }
@@ -328,7 +467,10 @@ const string test_numfmt(json_object *json_in) {
          .notation(notation_setting)
          .precision(precision_setting)
          .integerWidth(integerWidth_setting)
+         .grouping(grouping_setting)
+         .roundingMode(rounding_setting)
          .scale(scale_setting)
+         .sign(signDisplay_setting)
          .unit(unit_setting)
          .unitWidth(unit_width_setting);
   }
