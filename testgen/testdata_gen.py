@@ -378,7 +378,9 @@ def mapFmtSkeletonToECMA402(options):
       ".000": {"maximumFractionDigits": 3, "minimumFractionDigits": 3},
 
       # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
-      ".##/@@@+": {"maximumFractionDigits": 2, "maximumSignificantDigits": 3,"roundingPriority": "morePrecision"},
+      ".##/@@@+": {"maximumFractionDigits": 2,
+                   "maximumSignificantDigits": 3,
+                   "roundingPriority": "morePrecision"},
       "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
       "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits":2},
