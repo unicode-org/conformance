@@ -148,12 +148,12 @@ Precision set_precision_digits(json_object* options_obj, Precision previous_sett
   int16_t val_max = 0;
   int16_t val_min = 0;
   if (precision_obj_max) {
-    precision_string = json_object_get_string(precision_obj_max);
-    val_max = get_integer_setting(precision_string);
+    val_max = get_integer_setting(
+        json_object_get_string(precision_obj_max));
   }
   if (precision_obj_min) {
-    precision_string = json_object_get_string(precision_obj_min);
-    val_min = get_integer_setting(precision_string);
+    val_min = get_integer_setting(
+        json_object_get_string(precision_obj_min));
   }
   if (precision_obj_max && precision_obj_min) {
     // Both are set
@@ -172,20 +172,20 @@ Precision set_precision_digits(json_object* options_obj, Precision previous_sett
       json_object_object_get(options_obj, "minimumSignificantDigits");
 
   if (precision_obj_max) {
-    precision_string = json_object_get_string(precision_obj_max);
-    val_max = get_integer_setting(precision_string);
+    val_max = get_integer_setting(
+        json_object_get_string(precision_obj_max));
   }
   if (precision_obj_min) {
-    precision_string = json_object_get_string(precision_obj_min);
-    val_min = get_integer_setting(precision_string);
+    val_min = get_integer_setting(
+        json_object_get_string(precision_obj_min));
   }
   if (precision_obj_max && precision_obj_min) {
     // Both are set
     precision_setting = Precision::minMaxSignificantDigits(val_min, val_max);
   }
   else if (!precision_obj_max && precision_obj_min) {
-    precision_setting = Precision::minFraction(val_min);
-  } else if (precision_obj_max && ! precision_obj_min) {
+    precision_setting = Precision::minSignificantDigits(val_min);
+  } else if (precision_obj_max && !precision_obj_min) {
     precision_setting = Precision::maxSignificantDigits(val_max);
   }
 
@@ -422,7 +422,6 @@ const string test_numfmt(json_object *json_in) {
     json_object* numbering_system_obj = json_object_object_get(options_obj, "numberingSystem");
     if (numbering_system_obj) {
       string numbering_system_string = json_object_get_string(numbering_system_obj);
-      cout << "# NUMBERING_SYSTEM = " << numbering_system_string << endl;
       numbering_system = NumberingSystem::createInstanceByName(numbering_system_string.c_str(), status);
     }
 
