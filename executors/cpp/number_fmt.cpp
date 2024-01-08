@@ -37,6 +37,7 @@
 
 #include "unicode/numfmt.h"
 #include "unicode/numberrangeformatter.h"
+#include "unicode/numsys.h"
 
 #include "util.h"
 #include <stdio.h>
@@ -51,6 +52,8 @@
 using std::cout;
 using std::endl;
 using std::string;
+
+using icu::NumberingSystem;
 
 using icu::number::NumberFormatter;
 using icu::number::NumberFormatterSettings;
@@ -279,9 +282,12 @@ const string test_numfmt(json_object *json_in) {
   Scale scale_setting = Scale::none();
   UNumberSignDisplay signDisplay_setting = UNUM_SIGN_AUTO;
   UNumberFormatRoundingMode rounding_setting = UNUM_ROUND_HALFEVEN;
+  UNumberDecimalSeparatorDisplay separator_setting = UNUM_DECIMAL_SEPARATOR_AUTO;
   UNumberGroupingStrategy grouping_setting = UNUM_GROUPING_AUTO;
   UNumberUnitWidth unit_width_setting =
       UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
+
+  NumberingSystem numbering_system_setting = createInstanceByName("latn", status);
 
   // Check all the options
   if (options_obj) {
@@ -410,6 +416,21 @@ const string test_numfmt(json_object *json_in) {
       scale_setting = Scale::byDouble(scale_val);
     }
     // Other settings...
+    //  UNumberDecimalSeparatorDisplay { UNUM_DECIMAL_SEPARATOR_AUTO , UNUM_DECIMAL_SEPARATOR_ALWAYS , UNUM_DECIMAL_SEPARATOR_COUNT }
+
+    // NumberFormatter::with().symbols(DecimalFormatSymbols(Locale("de_CH"), status))
+
+
+    // TODO: Handling decimal point
+    json_object* decimal_always_obj = json_object_object_get(options_obj, "conformanceDecimalAlways");
+    if (decimal_always_obj) {
+      string separator_string = json_object_get_string(
+          decimal_always_obj);
+      cout << "# DECIMAL ALWAYS = " << separator_string << endl;
+      if (separator_string == "true") {
+        separator_setting = UNUM_DECIMAL_SEPARATOR_ALWAYS;
+      }
+    }
   }
 
 
@@ -447,33 +468,18 @@ const string test_numfmt(json_object *json_in) {
     }
   }
 
-  // if (style_string == "currency") {
-  //   // TODO: Generalize
-  //   nf = NumberFormatter::withLocale(displayLocale)
-  //        .notation(notation_setting)
-  //        .precision(precision_setting)
-  //        .integerWidth(integerWidth_setting)
-  //        .grouping(grouping_setting)
-  //        .roundingMode(rounding_setting)
-  //        .scale(scale_setting)
-  //        .sign(signDisplay_setting)
-  //        .unit(unit_setting) // CurrencyUnit(currency_string, status))
-  //        .unitWidth(unit_width_setting);
-  // }
-  // else
-  {
-    // Use settings to initialize the formatter
-    nf = NumberFormatter::withLocale(displayLocale)
-         .notation(notation_setting)
-         .precision(precision_setting)
-         .integerWidth(integerWidth_setting)
-         .grouping(grouping_setting)
-         .roundingMode(rounding_setting)
-         .scale(scale_setting)
-         .sign(signDisplay_setting)
-         .unit(unit_setting)
-         .unitWidth(unit_width_setting);
-  }
+  // Use settings to initialize the formatter
+  nf = NumberFormatter::withLocale(displayLocale)
+       .notation(notation_setting)
+       .decimal(separator_setting)
+       .precision(precision_setting)
+       .integerWidth(integerWidth_setting)
+       .grouping(grouping_setting)
+       .roundingMode(rounding_setting)
+       .scale(scale_setting)
+       .sign(signDisplay_setting)
+       .unit(unit_setting)
+       .unitWidth(unit_width_setting);
 
   if (U_FAILURE(status)) {
       test_result = error_message.c_str();
@@ -505,6 +511,12 @@ const string test_numfmt(json_object *json_in) {
                            json_object_new_string(test_result.c_str()));
   }
 
+  // To see what was actually used.
+  UnicodeString u_skeleton_out = nf.toSkeleton(status);
+  chars_out = u_skeleton_out.extract(test_result_string, 1000, nullptr, status);
+  json_object_object_add(return_json,
+                         "actual_skeleton",
+                         json_object_new_string(test_result_string));
 
   string return_string = json_object_to_json_string(return_json);
   return return_string;
