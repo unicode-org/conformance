@@ -589,6 +589,7 @@ class TestReport:
         results['insert_digit'] = []
         results['insert_space'] = []
         results['delete_digit'] = []
+        results['delete_space'] = []
         results['replace_digit'] = []
         results['exponent_diff'] = []
         results['replace'] = []
@@ -630,12 +631,16 @@ class TestReport:
                     elif kind == "delete":
                         if old_val.isdigit():
                             results['delete_digit'].append(label)
+                        elif old_val.isspace():
+                            results['delete_space'].append(label)
                         else:
                             results['delete'].append(label)
 
                     elif kind == "insert":
                         if new_val.isdigit():
                             results['insert_digit'].append(label)
+                        elif old_val.isspace():
+                            results['insert_space'].append(label)
                         else:
                             results['insert'].append(label)
                     else:
