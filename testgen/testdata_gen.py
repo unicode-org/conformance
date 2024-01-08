@@ -159,6 +159,7 @@ class generateData():
     def processLangNameTestData(self):
         json_test = {'test_type': 'lang_names'}
         json_verify = {'test_type': 'lang_names'}
+
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -364,7 +365,7 @@ def parseDcmlFmtTestData(rawtestdata):
 def mapFmtSkeletonToECMA402(options):
   ecma402_map = {
       "compact-short": {"notation": "compact",  "compactDisplay": "short"},
-      "scientific/+ee/sign-always": {"notation": "scientific"},
+      "scientific/+ee/sign-always": {"notation": "scientific", "conformanceExponent":"+ee", "conformanceSign": "always"},
       # Percent with word "percent":
       "percent": {"style": "unit", "unit": "percent"},  # "style": "percent",
       "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
@@ -377,7 +378,9 @@ def mapFmtSkeletonToECMA402(options):
       ".000": {"maximumFractionDigits": 3, "minimumFractionDigits": 3},
 
       # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
-      ".##/@@@+": {"maximumFractionDigits": 2, "maximumSignificantDigits": 3,"roundingPriority": "morePrecision"},
+      ".##/@@@+": {"maximumFractionDigits": 2,
+                   "maximumSignificantDigits": 3,
+                   "roundingPriority": "morePrecision"},
       "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
       "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits":2},
@@ -550,6 +553,10 @@ def resolveOptions(raw_options, skeleton_list):
         ('style' not in resolved or resolved['style'] != 'currency')):
         resolved['maximumFractionDigits'] = 6
 
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' in resolved and resolved['notation'] == 'compact')):
+        resolved['maximumFractionDigits'] = 2
+
     if skeleton_list and 'percent' in skeleton_list:
         resolved['style'] = 'unit'
         resolved['unit'] = 'percent'
@@ -581,7 +588,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
+      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
@@ -775,6 +782,7 @@ def generateCollTestData2(filename,
                             test_case['compare_type'] = compare_type
                     if test_description:
                         test_case['test_description'] = test_description
+
                     if compare_comment:
                        test_case['compare_comment'] = compare_comment
                     if rules:
@@ -784,6 +792,7 @@ def generateCollTestData2(filename,
 
                     test_list.append(test_case)
                     # We always expect True as the result
+
                     verify_list.append({
                         'label': label,
                         'verify': True
@@ -926,10 +935,6 @@ def languageNameDescr(tests_json, verify_json):
             'source_version': version
         }
     }
-
-    verify_json = {'test_type': test_id,
-                   'Test scenario': test_id
-                   }
     return
 
 
