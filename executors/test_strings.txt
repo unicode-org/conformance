@@ -133,6 +133,9 @@
 
 {"test_type": "number_fmt","label": "0054", "locale": "es-MX", "skeleton": "scientific/+ee/sign-always percent unit-width-narrow", "input": "0", "options": {"notation": "scientific", "conformanceExponent": "+ee", "conformanceSign": "always", "style": "unit", "unit": "percent", "unitDisplay": "narrow", "currencyDisplay": "narrowSymbol", "maximumFractionDigits": 6}}
 
+{"test_type": "number_fmt", "label": "0543", "locale": "bn-BD", "skeleton": "compact-short percent latin", "input": "0", "options": {"notation": "compact", "compactDisplay": "short", "style": "unit", "unit": "percent", "numberingSystem": "latn", "maximumFractionDigits": 2}}
+{"test_type": "number_fmt", "label": "0543", "locale": "ar-EG", "skeleton": "compact-short percent latin", "input": "1234.5678", "options": {"notation": "compact", "compactDisplay": "short", "style": "unit", "unit": "percent", "numberingSystem": "arab", "maximumFractionDigits": 2}}    
+    
 {"test_type": "number_fmt", "label": "0648", "locale": "es-MX", "skeleton": "compact-short percent decimal-always", "input": "0", "options": {"notation": "compact", "compactDisplay": "short", "style": "unit", "unit": "percent", "conformanceDecimalAlways": true, "maximumFractionDigits": 2}}
             
 {"test_type": "number_fmt", "label": "0292_furlong", "locale": "en-AU", "skeleton": "scientific/+ee/sign-always measure-unit/length-furlong precision-integer", "input": "91827.3645", "options": {"notation": "scientific", "style": "unit", "unit": "furlong", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}, "test_type": "number_fmt"}

@@ -287,7 +287,7 @@ const string test_numfmt(json_object *json_in) {
   UNumberUnitWidth unit_width_setting =
       UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
 
-  NumberingSystem numbering_system_setting = createInstanceByName("latn", status);
+  NumberingSystem* numbering_system = NumberingSystem::createInstance(displayLocale, status);
 
   // Check all the options
   if (options_obj) {
@@ -408,25 +408,29 @@ const string test_numfmt(json_object *json_in) {
     // Minimum integer digits
     integerWidth_setting = set_integerWidth(options_obj);
 
-    // TODO: Make a function
+    // Check on scaling the value
     json_object* scale_obj = json_object_object_get(options_obj, "conformanceScale");
     if (scale_obj) {
       string scale_string = json_object_get_string(scale_obj);
       double scale_val = get_double_setting(scale_string);
       scale_setting = Scale::byDouble(scale_val);
     }
-    // Other settings...
-    //  UNumberDecimalSeparatorDisplay { UNUM_DECIMAL_SEPARATOR_AUTO , UNUM_DECIMAL_SEPARATOR_ALWAYS , UNUM_DECIMAL_SEPARATOR_COUNT }
 
+    // Other settings...
     // NumberFormatter::with().symbols(DecimalFormatSymbols(Locale("de_CH"), status))
 
+    json_object* numbering_system_obj = json_object_object_get(options_obj, "numberingSystem");
+    if (numbering_system_obj) {
+      string numbering_system_string = json_object_get_string(numbering_system_obj);
+      cout << "# NUMBERING_SYSTEM = " << numbering_system_string << endl;
+      numbering_system = NumberingSystem::createInstanceByName(numbering_system_string.c_str(), status);
+    }
 
-    // TODO: Handling decimal point
+    // Handling decimal point
     json_object* decimal_always_obj = json_object_object_get(options_obj, "conformanceDecimalAlways");
     if (decimal_always_obj) {
       string separator_string = json_object_get_string(
           decimal_always_obj);
-      cout << "# DECIMAL ALWAYS = " << separator_string << endl;
       if (separator_string == "true") {
         separator_setting = UNUM_DECIMAL_SEPARATOR_ALWAYS;
       }
@@ -475,6 +479,7 @@ const string test_numfmt(json_object *json_in) {
        .precision(precision_setting)
        .integerWidth(integerWidth_setting)
        .grouping(grouping_setting)
+       .adoptSymbols(numbering_system)
        .roundingMode(rounding_setting)
        .scale(scale_setting)
        .sign(signDisplay_setting)
