@@ -581,9 +581,11 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   # Transforming patterns to skeltons
   pattern_to_skeleton = {
       '0.0000E0': 'scientific .0000/@',
-      '00': 'integer-width/##00',
-      '@@@': '@@@',
-      '@@###': '@@###',
+      '00': 'integer-width/##00 group-off',
+      # '0.00': '.##/@@@',  # TODO: Fix this skeleton
+      '@@@': '@@@ group-off',
+      '@@###': '@@### group-off',
+      '#': '@ group-off',
       '@@@@E0': 'scientific/+e .0000/@@+',
       '0.0##@E0': 'scientific/+e .##/@@+',
       '0005': 'integer-width/0000 precision-increment/0005'

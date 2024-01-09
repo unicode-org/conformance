@@ -599,7 +599,7 @@ class TestReport:
 
             # Special case for input_data / options.
             special_key = 'options'
-            if input_data.get(special_key):
+            if input_data and input_data.get(special_key):
                 options = input_data[special_key]
                 self.add_to_results_by_key(label, results, options, test, options.keys())
 
