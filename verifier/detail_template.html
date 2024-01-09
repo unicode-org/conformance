@@ -511,9 +511,9 @@ table th {
     function clearSelectedItems(the_button, test_class) {
       // TODO: Clear all the check boxes for this test_class.
       const test_data = test_results[test_class];
-    for (const box in test_data.check_boxes) {
-        box.checked = false;
-    }
+      test_data.check_boxes.forEach((box) => {
+         box.checked = false;
+      });
 
     }
 
@@ -579,7 +579,7 @@ table th {
               <div bp="2">
                 <p>Filtered count = <span id='selectedCount_fail' name='selectedCount' class='fail'>0</span>
                   <button id="showSelected" onclick="showSelectedItems(this, 'fail');">Update display</button>
-                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+                  <button id="clearSelected_fail" onclick="clearSelectedItems(this, 'fail');">Clear</button>
 
                   <div id='fail_characterized'>
                   </div>
@@ -605,7 +605,7 @@ table th {
               <div bp="3">
                 <p>Filtered count = <span id='selectedCount_error' name='selectedCount' class='error'>0</span>
                   <button id="showSelected_errors" onclick="showSelectedItems(this, 'error');">Update display</button>
-                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+                  <button id="clearSelected_error" onclick="clearSelectedItems(this, 'error');">Clear</button>
 
                 </p>
                 <div id='errors_characterized'>
@@ -631,7 +631,7 @@ table th {
               <div bp="3">
                 <p>Filtered count = <span id='selectedCount_unsupported' name='selectedCount' class='unsupported'>0</span>
                   <button id="showSelected_unsupported" onclick="showSelectedItems(this, 'unsupported');">Update display</button>
-                  <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
+                  <button id="clearSelected_unsupported" onclick="clearSelectedItems(this, 'unsupported');">Clear</button>
                 </p>
                 <div id='unsupported_characterized'>
                 </div>

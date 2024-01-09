@@ -54,6 +54,10 @@
            "description": "string representation of the number to be formatted",
            "type": "string"
          },
+         "op": {
+           "description": "operation on the data, e.g., 'format",
+           "type": "string"
+         },
          "options": {
            "description": "Formatting paramters for the number",
            "type": "object",
