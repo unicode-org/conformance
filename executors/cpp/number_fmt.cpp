@@ -232,7 +232,7 @@ UNumberSignDisplay set_sign_display(json_object* options_obj) {
 const string test_numfmt(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
-  // Locale information
+  // label information
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
 
@@ -249,6 +249,15 @@ const string test_numfmt(json_object *json_in) {
   }
 
   const Locale displayLocale(locale_string.c_str());
+
+  // Try using the skeleton to create the formatter
+  json_object *skelecton_obj = json_object_object_get(json_in, "skeleton");
+  UnicodeString unicode_skeleton_string;
+  string skeleton_string;
+  if (skeleton_obj) {
+    skeleton_string = json_object_get_string(skeleton_obj);
+    unicode_skeleton_string = skeleton_string.c_str();
+  }
 
   // Get options
   json_object *notation_obj;
@@ -278,7 +287,7 @@ const string test_numfmt(json_object *json_in) {
   IntegerWidth integerWidth_setting = IntegerWidth::zeroFillTo(1);
   MeasureUnit unit_setting = NoUnit::base();
   Notation notation_setting = Notation::simple();
-  Precision precision_setting = Precision::unlimited();
+  Precision precision_setting = Precision::integer();  // TODO?  = Precision::unlimited();
   Scale scale_setting = Scale::none();
   UNumberSignDisplay signDisplay_setting = UNUM_SIGN_AUTO;
   UNumberFormatRoundingMode rounding_setting = UNUM_ROUND_HALFEVEN;
@@ -471,6 +480,12 @@ const string test_numfmt(json_object *json_in) {
     }
   }
 
+  if (skeleton_obj) {
+    cout << "# SKELETON " << skeleton_string << endl;
+    cout << "# LOCALE " << locale_string << endl;
+    nf = NumberFormatter::forSkeleton(unicode_skeleton_string, status).locale(displayLocale);
+  }
+  else {
   // Use settings to initialize the formatter
   nf = NumberFormatter::withLocale(displayLocale)
        .notation(notation_setting)
@@ -484,6 +499,7 @@ const string test_numfmt(json_object *json_in) {
        .sign(signDisplay_setting)
        .unit(unit_setting)
        .unitWidth(unit_width_setting);
+  }
 
   if (U_FAILURE(status)) {
       test_result = error_message.c_str();
