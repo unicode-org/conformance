@@ -66,13 +66,11 @@ class ConformanceSchemaValidator():
         except json.decoder.JSONDecodeError as err:
             logging.error('Bad JSON data: %s', ddata_file_path)
             logging.error('  Error is %s', err)
-            return False, err
+            return Falsbe, err
 
         # Now check this!
         try:
             validate(data_to_check, schema)
-            logging.info('This test output file validates: %s, %s:',
-                         data_file_path, schema_file_path)
             return True, None
         except ValidationError as err:
             logging.error('ValidationError for test output %s and schema %s',
@@ -92,9 +90,6 @@ class ConformanceSchemaValidator():
         all_results = []
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
-                if self.debug > 0:
-                    logging.info('Checking test data %s, %s', test_type, icu_version)
-                logging.info('Checking %s, %s', test_type, icu_version)
                 result_data =  self.check_test_data_schema(icu_version, test_type)
                 logging.debug('test result data = %s', result_data)
                 msg = result_data['err_info']
@@ -111,7 +106,7 @@ class ConformanceSchemaValidator():
 
     def check_test_data_schema(self, icu_version, test_type):
         # Check the generated test data for structure agains the schema
-        logging.info('Validating %s with icu version %s', test_type, icu_version)
+        logging.info('Validating %s with %s', test_type, icu_version)
 
         # Check test output vs. the test data schema
         schema_verify_file = os.path.join( self.schema_base, test_type, 'test_schema.json')
@@ -150,7 +145,7 @@ class ConformanceSchemaValidator():
 
     def check_test_output_schema(self, icu_version, test_type, executor):
         # Check the output of the tests for structure against the schema
-        logging.info('Validating %s with icu version %s', test_type, icu_version)
+        logging.info('Validating test output: %s %s %s', executor , test_type, icu_version)
 
         # Check test output vs. the schema
         schema_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['schema_file']
@@ -177,9 +172,7 @@ class ConformanceSchemaValidator():
         result, err_msg = self.validate_json_file(schema_verify_file, test_result_file)
         results['result'] = result
         results['err_info'] = err_msg
-        if result:
-            logging.info('Result data %s validated with %s, ICU %s', test_type, executor, icu_version)
-        else:
+        if not result:
             logging.error('Result data %s FAILED with %s ICU %s: %s', test_type, executor, icu_version, err_msg)
 
         return results
@@ -235,7 +228,6 @@ class ConformanceSchemaValidator():
         for executor in self.executors:
             for icu_version in self.icu_versions:
                 for test_type in self.test_types:
-                    logging.info('Checking %s, %s, %s', test_type, icu_version, executor)
                     results = self.check_test_output_schema(icu_version, test_type, executor)
                     if not results['data_file_name']:
                         # This is not an error but simple a test that wasn't run.
@@ -243,8 +235,6 @@ class ConformanceSchemaValidator():
                     if not results['result']:
                         logging.warning('VALIDATION FAILS: %s %s %s. MSG=%s',
                                         test_type, icu_version, executor, results['err_info'])
-                    else:
-                        logging.info('VALIDATION WORKS: %s %s %s', test_type, icu_version, executor)
                     all_results.append(results)
         return all_results
 
