@@ -94,6 +94,9 @@ table th {
   </style>
 
   <script type="text/javascript">
+    // Global for the test_type.
+    const test_type = "$test_type";
+    
     // Stores info from the json data fetched asynchronously.
     let test_results = {
         'pass': {
@@ -250,7 +253,7 @@ table th {
         const output = [...selected_count_items].filter(elem => elem.className == class_name);
         const newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
 
-        // TODO: Get the characterized data from the correct set of items
+        // Get the characterized data from the correct set of items
         if (newSize == 0) {
             // Turn on all the check boxes in this group
             for (let index in test_data.check_boxes) {
@@ -334,7 +337,7 @@ table th {
           } else {
           output = item[key];
           }
-          html.push('<td>' + output +'</td>');
+              html.push('<td onclick="captureInputDataOnClick(this);">' + output +'</td>');
           }
           }
           html.push("</tr>");
@@ -509,15 +512,27 @@ table th {
     }
 
     function clearSelectedItems(the_button, test_class) {
-      // TODO: Clear all the check boxes for this test_class.
+      // Clear all the check boxes for this test_class.
       const test_data = test_results[test_class];
       test_data.check_boxes.forEach((box) => {
-         box.checked = false;
+          box.checked = false;
+          const div_for_checkbox = box.parentElement;
+          div_for_checkbox.attributeStyleMap.clear();
       });
-
     }
 
-
+    function captureInputDataOnClick(element) {
+        const text = element.innerHTML;
+        let output = '';
+        if (text[0] == '{') {
+            output = '{"test_type": "' + test_type + '", ' + text.substring(1);
+        } else {
+            output = text;
+        }
+        // alert(output);
+        // Copy to clipboard.
+        navigator.clipboard.writeText(output);
+    }
 
 </script>
   </head>
