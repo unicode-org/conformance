@@ -66,7 +66,7 @@ class ConformanceSchemaValidator():
         except json.decoder.JSONDecodeError as err:
             logging.error('Bad JSON data: %s', ddata_file_path)
             logging.error('  Error is %s', err)
-            return Falsbe, err
+            return False, err
 
         # Now check this!
         try:
