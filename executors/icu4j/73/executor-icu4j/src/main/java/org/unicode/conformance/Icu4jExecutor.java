@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.collator.CollatorTester;
+import org.unicode.conformance.testtype.langnames.LangNamesTester;
 
 /**
  * Hello world!
@@ -111,7 +112,9 @@ public class Icu4jExecutor {
             String testTypeStr = testTypeOpt.get();
             ITestType testType;
             if (testTypeStr.equals("collation_short")) {
-                testType = new CollatorTester();
+                testType = CollatorTester.INSTANCE;
+            } else if (testTypeStr.equals("lang_names")) {
+                testType = LangNamesTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,String> response =
                     parsedInputPersistentMap

@@ -476,10 +476,10 @@ class TestReport:
         failure_json_path = os.path.join(self.report_directory, "failure_parameters.json")
         try:
             file = open(failure_json_path, mode='w', encoding='utf-8')
-            file.write(json.dumps(fail_characterized))
+            file.write(json.dumps(flat_combined_dict))
             file.close()
         except Exception as err:
-            logging.warning('!! %s: Cannot write fail_characterized data', err)
+            logging.warning('!! %s: Cannot write %s fail_characterized data', failure_json_path, err)
 
         return html_output
 
@@ -495,10 +495,12 @@ class TestReport:
                 continue
             if type(value) == list:
                 flat_items[key] = value
+            elif type(value) == set:
+                flat_items[key] = sorted(value)
             else:
                 for key2, value2 in value.items():
                     key_new = str(key) + '.' + str(key2)
-                    flat_items[key_new] = value2
+                    flat_items[key_new] = sorted(value2)
 
         # Sort in reverse order by length of item
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
@@ -530,9 +532,9 @@ class TestReport:
                     locale = None
                 if locale:
                     if locale in results['locale']:
-                        results['locale'][locale].append(label)
+                        results['locale'][locale].add(label)
                     else:
-                        results['locale'][locale] = [label]
+                        results['locale'][locale] = set([label])
 
                     options = input_data.get('options')
                     if options:
@@ -541,9 +543,9 @@ class TestReport:
                             if key not in results:
                                 results[key] = {}
                             if value in results[key]:
-                                results[key][value].append(label)
+                                results[key][value].add(label)
                             else:
-                                results[key][value] = [label]
+                                results[key][value] = set(label)
 
                 # Try fields in language_names
                 for key in ['language_label', 'locale_label']:
@@ -553,9 +555,9 @@ class TestReport:
                             if key not in results:
                                 results[key] = {}
                             if value in results[key]:
-                                results[key][value].append(label)
+                                results[key][value].add(label)
                             else:
-                                results[key][value] = [label]
+                                results[key][value] = set(label)
                     except:
                         continue
 
@@ -567,9 +569,9 @@ class TestReport:
                             if key not in results:
                                 results[key] = {}
                             if value in results[key]:
-                                results[key][value].append(label)
+                                results[key][value].add(label)
                             else:
-                                results[key][value] = [label]
+                                results[key][value] = set(label)
                     except:
                         continue
 
@@ -580,22 +582,12 @@ class TestReport:
                             if key not in results:
                                 results[key] = {}
                             if value in results[key]:
-                                results[key][value].append(label)
+                                results[key][value].add(label)
                             else:
-                                results[key][value] = [label]
+                                results[key][value] = set(label)
                     except:
                         continue
 
-                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
-                    if test.get(key):  # For collation results
-                        value = test[key]
-                        # TODO: Check for option_keys in input_data
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].append(label)
-                        else:
-                            results[key][value] = [label]
 
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error pars, too.
@@ -607,7 +599,7 @@ class TestReport:
 
             # Special case for input_data / options.
             special_key = 'options'
-            if input_data.get(special_key):
+            if input_data and input_data.get(special_key):
                 options = input_data[special_key]
                 self.add_to_results_by_key(label, results, options, test, options.keys())
 
@@ -636,24 +628,25 @@ class TestReport:
                         if key not in results:
                             results[key] = {}
                         if value in results[key]:
-                            results[key][value].append(label)
+                            results[key][value].add(label)
                         else:
-                            results[key][value] = [label]
+                            results[key][value] = set()
+                            results[key][value].add(label)
                 except:
                     continue
 
     def check_simple_text_diffs(self):
         results = defaultdict(list)
-        results['insert'] = []
-        results['delete'] = []
-        results['insert_digit'] = []
-        results['insert_space'] = []
-        results['delete_digit'] = []
-        results['delete_space'] = []
-        results['replace_digit'] = []
-        results['exponent_diff'] = []
-        results['replace'] = []
-        results['parens'] = []  # Substitions of brackets for parens, etc.
+        results['insert'] = set()
+        results['delete'] = set()
+        results['insert_digit'] = set()
+        results['insert_space'] = set()
+        results['delete_digit'] = set()
+        results['delete_space'] = set()
+        results['replace_digit'] = set()
+        results['exponent_diff'] = set()
+        results['replace'] = set()
+        results['parens'] = set()  # Substitions of brackets for parens, etc.
 
         for fail in self.failing_tests:
             label = fail['label']
@@ -685,24 +678,24 @@ class TestReport:
                     new_val = actual[diff[1]:diff[2]]
                     if kind == 'replace':
                         if old_val.isdigit() and new_val.isdigit():
-                            results['replace_digit'].append(label)
+                            results['replace_digit'].add(label)
                         else:
-                            results['replace'].append(label)
+                            results['replace'].add(label)
                     elif kind == "delete":
                         if old_val.isdigit():
-                            results['delete_digit'].append(label)
+                            results['delete_digit'].add(label)
                         elif old_val.isspace():
-                            results['delete_space'].append(label)
+                            results['delete_space'].add(label)
                         else:
-                            results['delete'].append(label)
+                            results['delete'].add(label)
 
                     elif kind == "insert":
                         if new_val.isdigit():
-                            results['insert_digit'].append(label)
+                            results['insert_digit'].add(label)
                         elif old_val.isspace():
-                            results['insert_space'].append(label)
+                            results['insert_space'].add(label)
                         else:
-                            results['insert'].append(label)
+                            results['insert'].add(label)
                     else:
                         pass
 
@@ -721,25 +714,25 @@ class TestReport:
                         for x in changes:
                             if x[0] == '+':
                                 if x[2] in [' ', '\u00a0', '\u202f', '\u3000']:
-                                    results['insert_space'].append(label)
+                                    results['insert_space'].add(label)
 
                                 elif x[2] in ['+', '0', '+0']:
-                                    results['exponent_diff'].append(label)
+                                    results['exponent_diff'].add(label)
                                 else:
-                                    results['insert'].append(label)
+                                    results['insert'].add(label)
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
-                                    results['exponent_diff'].append(label)
+                                    results['exponent_diff'].add(label)
 
-                # Check for substitued types of parentheses, brackets, brackes
+                # Check for substtituted types of parentheses, brackets, brackes
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].append(label)
+                        results['parens'].add(label)
                 elif '(' in expected and '[' in actual:
                     actual_parens = actual.replace('[', '(').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].append(label)
+                        results['parens'].add(label)
             except KeyError:
                 # a non-string result
                 continue
@@ -755,7 +748,7 @@ class TestReport:
             file.write(json_data)
             file.close()
         except BaseException as error:
-            logging.error("CANNOT WRITE CHARACTERIZE FILE FOR %s", characterized_type)
+            logging.error("CANNOT WRITE CHARACTERIZE FILE FOR %s at ", characterized_type, character_file_path)
         return
 
     def create_html_diff_report(self):
