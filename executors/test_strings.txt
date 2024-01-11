@@ -44,23 +44,23 @@
 {"test_type": "collation_short", "label":"00008","s1":"ä","s2":"Ã¤","compare_type":"=","test_description":" simple CEs & expansions","rules":"&\\x01\n<<<\\u0300\n&9<\\x00\n&\\uA00A\\uA00B=\\uA002\n&\\uA00A\\uA00B\\u00050005=\\uA003"}
 
 =======
-{"test_type": "display_names", "label": "01", "language_label": "en", "locale_label": "af"}
-{"test_type": "display_names", "label": "01", "language_label": "", "locale_label": "fr"}
-{"test_type": "display_names", "label": "01", "language_label": "de", "locale_label": "fr"}
-{"test_type": "display_names", "label": "02", "language_label": "fr", "locale_label": "de"}
-{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "ja"}
-{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "pt-PT"}
-{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "zh-CN"}
-{"test_type": "display_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "es"}
-{"test_type": "display_names", "label": "LANG_af_NA", "language_label": "en", "locale_label": "af_NA"}
-{"label":"188691","language_label":"zh_MO","locale_label":"en_150","test_type":"language_display_name"}
-{"label":"188691","language_label":"zh-TW","locale_label":"en","test_type":"language_display_name"}
-{"label":"188691","language_label":"zh","locale_label":"en","test_type":"language_display_name"}
-{"label":"zh zh","language_label":"zh","locale_label":"zh","test_type":"language_display_name"}
-{"label":"en zh","language_label":"en","locale_label":"zh-CN","test_type":"language_display_name"}
-{"label":"188691","language_label":"zh-CN","locale_label":"en","test_type":"language_display_name"}
+{"test_type": "lang_names", "label": "01", "language_label": "en", "locale_label": "af"}
+{"test_type": "lang_names", "label": "01", "language_label": "", "locale_label": "fr"}
+{"test_type": "lang_names", "label": "01", "language_label": "de", "locale_label": "fr"}
+{"test_type": "lang_names", "label": "02", "language_label": "fr", "locale_label": "de"}
+{"test_type": "lang_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "ja"}
+{"test_type": "lang_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "pt-PT"}
+{"test_type": "lang_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "zh-CN"}
+{"test_type": "lang_names", "label": "LANG_ABC", "language_label": "en", "locale_label": "es"}
+{"test_type": "lang_names", "label": "LANG_af_NA", "language_label": "en", "locale_label": "af_NA"}
+{"label":"188691","language_label":"zh_MO","locale_label":"en_150","test_type":"lang_names"}
+{"label":"188691","language_label":"zh-TW","locale_label":"en","test_type":"lang_names"}
+{"label":"188691","language_label":"zh","locale_label":"en","test_type":"lang_names"}
+{"label":"zh zh","language_label":"zh","locale_label":"zh","test_type":"lang_names"}
+{"label":"en zh","language_label":"en","locale_label":"zh-CN","test_type":"lang_names"}
+{"label":"188691","language_label":"zh-CN","locale_label":"en","test_type":"lang_names"}
 
-{"label":"zh en-150","language_label":"zh","locale_label":"en_150","test_type":"language_display_name"}
+{"label":"zh en-150","language_label":"zh","locale_label":"en_150","test_type":"lang_names"}
 
 # COLLATION
 {"test_type": "coll_shift_short", "label": "COLL_ABC1", "string1": "de", "string2" : "da"}

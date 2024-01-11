@@ -19,7 +19,7 @@
       "description":" Obsolete tag to be removed and replaced with test Type"
     },
     "tests": {
-      "description": "list of N test for collation each of type collation_short",
+      "description": "list of N tests for collation each of type collation_short",
       "type": ["array", "null"],
       "items": {
         "type": "object",
