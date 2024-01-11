@@ -555,7 +555,8 @@ def resolveOptions(raw_options, skeleton_list):
 
     if ('maximumFractionDigits' not in resolved and
         ('notation' in resolved and resolved['notation'] == 'compact')):
-        resolved['maximumFractionDigits'] = 2
+        pass
+        # NOT NECESSARY resolved['maximumFractionDigits'] = 2
 
     if skeleton_list and 'percent' in skeleton_list:
         resolved['style'] = 'unit'
@@ -577,6 +578,19 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   all_tests_list = []
   verify_list = []
 
+  # Transforming patterns to skeltons
+  pattern_to_skeleton = {
+      '0.0000E0': 'scientific .0000/@',
+      '00': 'integer-width/##00 group-off',
+      # '0.00': '.##/@@@',  # TODO: Fix this skeleton
+      '@@@': '@@@ group-off',
+      '@@###': '@@### group-off',
+      '#': '@ group-off',
+      '@@@@E0': 'scientific/+e .0000/@@+',
+      '0.0##@E0': 'scientific/+e .##/@@+',
+      '0005': 'integer-width/0000 precision-increment/0005'
+      }
+
   expected = len(test_list) + count
   max_digits = computeMaxDigitsForCount(expected)
 
@@ -588,7 +602,18 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'op': 'format', 'skeleton': pattern , 'input': test_input, 'options': {} }
+
+      # TODO!!: Look up the patterns to make skeletons
+      if pattern in pattern_to_skeleton:
+          skeleton = pattern_to_skeleton[pattern]
+      else:
+          skeleton = None
+
+      if skeleton:
+          entry = {'label': label, 'op': 'format', 'pattern': pattern, 'skeleton': skeleton , 'input': test_input, 'options': {} }
+      else:
+      # Unknown skeleton
+          entry = {'label': label, 'op': 'format', 'pattern': pattern, 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
