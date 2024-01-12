@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.collator.CollatorTester;
 import org.unicode.conformance.testtype.langnames.LangNamesTester;
+import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
 
 /**
  * Hello world!
@@ -115,6 +116,8 @@ public class Icu4jExecutor {
                 testType = CollatorTester.INSTANCE;
             } else if (testTypeStr.equals("lang_names")) {
                 testType = LangNamesTester.INSTANCE;
+            } else if (testTypeStr.equals("likely_subtags")) {
+                testType = LikelySubtagsTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,String> response =
                     parsedInputPersistentMap
