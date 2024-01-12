@@ -251,7 +251,8 @@
       "icu_version": "icu73",
       "exec": "icu4j",
       "test_type": [
-        "lang_names"
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
