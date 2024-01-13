@@ -350,22 +350,22 @@ class TestReport:
         #html_map['failure_table_lines'] = '\n'.join(fail_lines)
 
         # Characterize successes, too.
-        pass_characterized = self.characterize_failures_by_options(self.passing_tests, 'pass')
+        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
         flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
         self.save_characterized_file(flat_combined_passing, "pass")
 
         # Get and save failures, errors, unsupported
-        error_characterized = self.characterize_failures_by_options(self.test_errors, 'error')
+        error_characterized = self.characterize_failures_by_options(self.test_errors)
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
         self.save_characterized_file(flat_combined_errors, "error")
 
-        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases, 'unsupported')
+        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
 
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
-        fail_characterized = self.characterize_failures_by_options(self.failing_tests, 'fail')
+        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
         fail_simple_diffs = self.check_simple_text_diffs()
         flat_combined_dict = self.flatten_and_combine(fail_characterized,
                                                       fail_simple_diffs)
@@ -506,10 +506,12 @@ class TestReport:
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
         return dict(sort_dict_by_count(flat_combined_dict))
 
-    def characterize_failures_by_options(self, tests, result_type):
-        # Looking at options
-        results = defaultdict(list)
-        for test in tests:
+    def characterize_failures_by_options(self, failing_tests):
+        # User self.failing_tests, looking at options
+        results = defaultdict(lambda : defaultdict(list))
+        results['locale'] = {}  # Dictionary of labels for each locale
+        for test in failing_tests:
+            # Get input_data, if available
             try:
                 label = test['label']
             except:
@@ -588,11 +590,18 @@ class TestReport:
                     except:
                         continue
 
-
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error pars, too.
-            key_list = ['ignorePunctuation', 'options', 'unsupported_options', 'error_detail', 'compare_type', 'rules',
-                        'test_description', 'locale'
+            key_list = [
+                        'compare_type',
+                        'error_detail',
+                        'ignorePunctuation',
+                        'language_label',
+                        'locale',
+                        'options',
+                        'rules',
+                        'test_description',
+                        'unsupported_options',
                         ]
             input_data = test.get('input_data')
             self.add_to_results_by_key(label, results, input_data, test, key_list)
@@ -959,7 +968,7 @@ class SummaryReport:
             executor = ''
 
             icu_version = os.path.basename(os.path.dirname(dir_path))
-            test_results = defaultdict(list)
+            results = defaultdict(lambda : defaultdict(list))
             test_type = None
             try:
                 executor = test_environment['test_language']

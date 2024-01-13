@@ -38,7 +38,7 @@ class ConformanceSchemaValidator():
 
     def validate_json_file(self, schema_file_path, data_file_path):
         # Returns  True, None if data is validated against the schema
-        # returns  Falee, error_string if there's a problem
+        # returns  False, error_string if there's a problem
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:

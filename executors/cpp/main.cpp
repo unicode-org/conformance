@@ -79,7 +79,7 @@ int main(int argc, const char** argv)
       // TODO: get from the array of supported tests
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
-      for (int index = 0; index < 5; index ++) {
+      for (int index = 0; index < 4; index ++) {
         json_object_array_add(test_array,
                               json_object_new_string(supported_tests[index].c_str()));
       }

@@ -192,7 +192,7 @@ rl.on('line', function (line) {
 
         if ('error' in outputLine) {
           // To get the attention of the driver
-          console.log("#!! ERROR in NODE call: " + JSON.stringify(outputLine));
+          console.log("#!! ERROR in DART_WEB: " + test_type + ": " + JSON.stringify(outputLine));
         }
 
         // Send result to stdout for verification
