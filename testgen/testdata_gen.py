@@ -5,6 +5,7 @@ import json
 import logging
 import logging.config
 import math
+import multiprocessing as mp
 import os
 import re
 import requests
@@ -198,7 +199,7 @@ class generateData():
         if not (recommentline.match(item) or reblankline.match(item)):
           test_data = parseLanguageNameData(item)
           if test_data == None:
-            logging.warning('  LanguageNames (%s): Line \'%s\' not recognized as valid test data entry', self.icu_version, item)
+            logging.debug('  LanguageNames (%s): Line \'%s\' not recognized as valid test data entry', self.icu_version, item)
             continue
           else:
             label = str(count).rjust(max_digits, '0')
@@ -358,7 +359,7 @@ def parseDcmlFmtTestData(rawtestdata):
       logging.warning('** parseDcmlFmtTestData: %s', error)
   if not test_match:
       logging.warning('No test match with rawtestdata = %s', rawtestdata)
-
+      return None, None, None, None
   return test_match.group(1), test_match.group(2), test_match.group(3), test_match.group(4)
 
 
@@ -597,9 +598,13 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       # Ignore parse for now.
-      if item[0:5] == "parse":
-          continue
+      if item == '' or item[0:5] == "parse":
+        continue
+
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
+      if pattern == None:
+          continue
+
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
 
@@ -1014,30 +1019,55 @@ def setupArgs():
     return new_args
 
 
+def generate_versioned_data_parallel(icu_versions, args):
+    num_processors = mp.cpu_count()
+    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(icu_versions))
+
+    version_data = []
+    for icu_version in icu_versions:
+        version_data.append(
+            {
+                'icu_version': icu_version,
+                'args': args
+            }
+        )
+
+    processor_pool = mp.Pool(num_processors)
+    with processor_pool as p:
+        result = p.map(generate_versioned_data, version_data)
+
+    return result
+
+def generate_versioned_data(version_info):
+    new_args = version_info['args']
+    icu_version = version_info['icu_version']
+    data_generator = generateData(icu_version)
+    data_generator.run_limit = new_args.run_limit
+
+    logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
+                 icu_version)
+
+    data_generator.processNumberFmtTestData()
+
+    # This is slow
+    data_generator.processCollationTestData()
+
+    data_generator.processLikelySubtagsData()
+
+    # This is slow
+    data_generator.processLangNameTestData()
+
+    logging.info('++++ Data generation for %s is complete.', icu_version)
+
+
 def main(args):
     new_args = setupArgs()
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
 
-    for icu_version in new_args.icu_versions:
-        data_generator = generateData(icu_version)
-        data_generator.run_limit = new_args.run_limit
-
-        logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
-                     icu_version)
-
-        data_generator.processNumberFmtTestData()
-
-        # This is slow
-        data_generator.processCollationTestData()
-
-        data_generator.processLikelySubtagsData()
-
-        # This is slow
-        data_generator.processLangNameTestData()
-
-        logger.info('++++ Data generation for %s is complete.', icu_version)
+    # Generate version data in parallel if possible
+    generate_versioned_data_parallel(new_args.icu_versions, new_args)
 
 
 if __name__ == '__main__':
