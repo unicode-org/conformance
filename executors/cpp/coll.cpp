@@ -112,6 +112,7 @@ const string test_collator(json_object *json_in) {
   // Allow for different levels or types of comparison.
   json_object *compare_type = json_object_object_get(json_in, "compare_type");
   if (compare_type) {
+    // TODO: Apply this in tests.
     const char *comparison_type = json_object_get_string(compare_type);
   }
 
@@ -162,8 +163,10 @@ const string test_collator(json_object *json_in) {
   else {
     // Not a rule-based collator.
     if (locale_string == "") {
+      // Uses default locale.
       uni_coll = Collator::createInstance(status);
     } else {
+      // Use either "und" or specified locale.
       uni_coll = Collator::createInstance(Locale(locale_string), status);
     }
 
