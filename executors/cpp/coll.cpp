@@ -112,6 +112,7 @@ const string test_collator(json_object *json_in) {
   // Allow for different levels or types of comparison.
   json_object *compare_type = json_object_object_get(json_in, "compare_type");
   if (compare_type) {
+    // TODO: Apply this in tests.
     const char *comparison_type = json_object_get_string(compare_type);
   }
 
@@ -135,8 +136,7 @@ const string test_collator(json_object *json_in) {
   if (rules_string != "") {
     char uni_rules_out[1000] = "";
     int32_t rule_chars_out = uni_rules.extract(uni_rules_out, 1000, nullptr, status);
-    cout << "# RULES string: " << rules_string << endl;
-    // !!! rb_coll = new RuleBasedCollator(uni_rules, strength_type, status);
+
     rb_coll = new RuleBasedCollator(uni_rules, status);
     if (U_FAILURE(status)) {
       test_result = error_message.c_str();
@@ -148,7 +148,6 @@ const string test_collator(json_object *json_in) {
       no_error = false;
     }
 
-    // cout << "# Calling rb_coll compare" << endl;
     uni_result = rb_coll->compare(us1, us2, status);
     if (U_FAILURE(status)) {
       test_result = error_message.c_str();
@@ -164,6 +163,7 @@ const string test_collator(json_object *json_in) {
   else {
     // Not a rule-based collator.
     if (locale_string == "") {
+
       uni_coll = Collator::createInstance(status);
     } else {
       cout << "# Locale set to " << locale_string <<  endl;
@@ -179,8 +179,6 @@ const string test_collator(json_object *json_in) {
     }
 
     if (strength_obj) {
-      // !!!
-      cout << "#   Collator strength = " << strength_string << endl;
       uni_coll->setStrength(strength_type);
     }
 
