@@ -46,12 +46,20 @@
            "description": "language tag for formatting the output",
            "type": "string"
          },
+         "pattern": {
+           "description": "Pattern-style description of parameters. May be used to create a skeleton.",
+           "type": "string"
+         },
          "skeleton": {
-           "description": "Skeleton-style description of parameters. Informational only. ",
+           "description": "Skeleton-style description of parameters. ",
            "type": "string"
          },
          "input": {
            "description": "string representation of the number to be formatted",
+           "type": "string"
+         },
+         "op": {
+           "description": "operation on the data, e.g., 'format",
            "type": "string"
          },
          "options": {

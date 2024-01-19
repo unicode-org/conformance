@@ -40,18 +40,19 @@ using std::string;
 
 // Test functions
 extern const string test_collator(json_object *json_in);
+extern const string test_langnames(json_object *json_in);
+extern const string test_likely_subtags(json_object *json_in);
 extern const string test_numfmt(json_object *json_in);
 
-std::string supported_tests[5] = {
-  "coll_shift_short",
-  "decimal_fmt",
-  "number_fmt",
-  "display_names",
-  "language_display_name"
+std::string supported_tests[4] = {
+  "collation_short",
+  "likely_subtags",
+  "lang_names",
+  "number_fmt"
 };
 
 
-std::string cppVersion = "executorCpp1.0";
+std::string cppVersion = "1.0";
 
 /**
  * Main   --  process command line, call tests or return data
@@ -61,9 +62,6 @@ std::string cppVersion = "executorCpp1.0";
  */
 int main(int argc, const char** argv)
 {
-
-  // cout << "# JSON-C Version: " << json_c_version() << endl;
-
   for (std::string line; std::getline(cin, line);) {
     if (line == "#EXIT") {
       return 0;
@@ -75,13 +73,13 @@ int main(int argc, const char** argv)
       json_object_object_add(version, "icuVersion",
                              json_object_new_string(U_ICU_VERSION));
       json_object_object_add(version, "platformVersion",
-                             json_object_new_string(cppVersion.c_str()));
+                             json_object_new_string(U_ICU_VERSION));
       cout << json_object_to_json_string(version) << endl;
     } else if (line == "#TESTS") {
       // TODO: get from the array of supported tests
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
-      for (int index = 0; index < 5; index ++) {
+      for (int index = 0; index < 4; index ++) {
         json_object_array_add(test_array,
                               json_object_new_string(supported_tests[index].c_str()));
       }
@@ -93,26 +91,32 @@ int main(int argc, const char** argv)
       // Parse the JSON data.
       // Get the test type and call the test function.
 
-      std::string outputLine = "# BAD TEST ";
-      // !!! cout << "# input line: " << line << endl;
+      std::string outputLine;
 
       struct json_object *json_input;
       json_input = json_tokener_parse(line.c_str());
       json_object *test_type_obj = json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);
 
-      if (test_type == "coll_shift_short" ) {
+      if (test_type == "collation_short" ) {
         outputLine = test_collator(json_input);
       }
-      else if (test_type == "number_fmt" ) {
-        cout << "# !!! test_type = " << test_type << endl;
-        outputLine = test_numfmt(json_input);
-      } else {
-        std::string outputLine = "# BAD TEST " + test_type;
+      else if (test_type == "number_fmt") {
+         outputLine = test_numfmt(json_input);
+      }
+      else if (test_type == "likely_subtags") {
+        outputLine = test_likely_subtags(json_input);
+      }
+      else if (test_type == "lang_names") {
+        outputLine = test_langnames(json_input);
+      }
+      else {
+        outputLine =  "# BAD TEST " + test_type;
+        //       "{\"error\": \"unknown test type\"," +
+        //       "\"test_type\":" +  test_type + "," +
+        //       "\"unsupported_test:\"" + test_type + "}";
       }
 
-      // TODO: Instead of a string, get JSON output and stringify it.
-      // cout << "# GOT FROM TEST: " << outputLine << endl;
       cout << outputLine << endl;
     }
 

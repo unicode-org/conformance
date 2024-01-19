@@ -17,22 +17,21 @@
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
 
 mod collator;
+mod decimalfmt;
+mod displaynames;
 mod langnames;
 mod likelysubtags;
 mod numberfmt;
 
-use serde_json::{json, Value};
-
-use std::collections::HashMap;
-
-use std::env;
-use std::io::{self};
-
-// Test modules for each type
 use collator::run_collation_test;
 use langnames::run_language_name_test;
 use likelysubtags::run_likelysubtags_test;
 use numberfmt::run_numberformat_test;
+
+use serde_json::{json, Value};
+use std::collections::HashMap;
+use std::env;
+use std::io;
 
 // Read from stdin, call functions to get json, output the result.
 fn main() -> io::Result<()> {
@@ -75,19 +74,12 @@ fn main() -> io::Result<()> {
         }
 
         if buffer.starts_with("#VERSION") {
-            // Get data version information from PackageMetadata
-            // https://crates.io/crates/rustc_version_runtime
-            // https://github.com/serde-rs/json
-
-            let icu_version = icu_datagen::DatagenProvider::LATEST_TESTED_ICUEXPORT_TAG;
-            let cldr_version = icu_datagen::DatagenProvider::LATEST_TESTED_CLDR_TAG;
-
             let json_result = json!(
             {
                 "platform": "ICU4X",
                 "platformVersion": std::env!("CONFORMANCE_ICU4X_VERSION"),
-                "icuVersion": icu_version,
-                "cldrVersion": cldr_version,
+                "icuVersion": std::env!("CONFORMANCE_ICU_VERSION"),
+                "cldrVersion": std::env!("CONFORMANCE_CLDR_VERSION"),
             });
             println!("{}", json_result);
         } else {

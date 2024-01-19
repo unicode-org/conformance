@@ -72,13 +72,13 @@ class Verifier:
             file_time = os.path.getmtime(self.result_path)
             self.result_timestamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
         except BaseException as err:
-            print('    *** Cannot open results file %s:\n        %s' % (self.result_path, err))
+            logging.error('    *** Cannot open results file %s:\n        %s', self.result_path, err)
             return None
 
         try:
             self.verify_data_file = open(self.verify_path, encoding='utf-8', mode='r')
         except BaseException as err:
-            print('    **!!* %s: Cannot open verify file %s' % (err, self.verify_path))
+            logging.error('    **!!* %s: Cannot open verify file %s', err, self.verify_path)
             return None
 
         # Create report directory if needed
@@ -90,19 +90,24 @@ class Verifier:
             sys.stderr.write('    !!! Cannot create directory %s for report file %s' %
                              (report_dir, self.report_path))
             sys.stderr.write('   !!! Error = %s' % err)
+
+            logging.error('    !!! Cannot create directory %s for report file %s',
+                             report_dir, self.report_path)
+            logging.error('   !!! Error = %s', err)
+            
             return None
 
         try:
             self.report_file = open(self.report_path, encoding='utf-8', mode='w')
         except BaseException as err:
-            print('*** Cannot open file %s: Error = %s' % (self.report_path, err))
+            logging.error('*** Cannot open file %s: Error = %s', self.report_path, err)
             return None
 
         # Get the input file to explain test failures
         try:
             self.testdata_file = open(self.testdata_path, encoding='utf-8', mode='r')
         except BaseException as err:
-            print('*** Cannot open testdata file %s: Error = %s' % (self.testdata_path, err))
+            logging.error('*** Cannot open testdata file %s: Error = %s', self.testdata_path, err)
             return None
 
         # Initialize values for this case.
@@ -115,8 +120,8 @@ class Verifier:
         # Initialize commandline arguments
         verify_info = VerifyArgs(args)
         if self.debug > 1:
-            print('!!! ARGS = %s' % args)
-            print('VERIFY INFO: %s' % verify_info)
+            logging.debug('!!! ARGS = %s', args)
+            logging.debug('VERIFY INFO: %s', verify_info)
         self.set_verify_args(verify_info.getOptions())
 
     def set_verify_args(self, arg_options):
@@ -128,7 +133,7 @@ class Verifier:
 
         self.file_base = arg_options.file_base
         if self.debug > 1:
-            print('TEST TYPES = %s' % self.test_types)
+            logging.debug('TEST TYPES = %s', self.test_types)
 
         if not arg_options.summary_only:
             self.setup_verify_plans()
@@ -152,7 +157,7 @@ class Verifier:
 
                 # TODO: Run for each test_type!
                 if test_type not in ddt_data.testDatasets:
-                    print('**** WARNING: test_type %s not in testDatasets' %
+                    logging.warning('**** WARNING: test_type %s not in testDatasets',
                           test_type)
                     raise ValueError('No test dataset found for test type >%s<' %
                                      self.test_type)
@@ -223,7 +228,7 @@ class Verifier:
                     if os.path.isfile(new_verify_plan.result_path):
                         self.verify_plans.append(new_verify_plan)
                     else:
-                        logging.warning('** No results for %s, %s, %s', executor, test_type, result_version)
+                        logging.debug('** No results for %s, %s, %s', executor, test_type, result_version)
 
     def verify_data_results(self):
         # For each pair of files in the test plan, compare with expected
@@ -243,14 +248,14 @@ class Verifier:
 
             self.test_type = vplan.test_type
 
-            print('VERIFY %s: %s %s' % (vplan.exec, self.test_type, vplan.result_path))
+            logging.info('VERIFY %s: %s %s', vplan.exec, self.test_type, vplan.result_path)
             if not self.open_verify_files():
                 continue
             self.compare_test_to_expected()
 
             # Save the results
             if not self.report.save_report():
-                print('!!! Could not save report for (%s, %s)',
+                logging.error('!!! Could not save report for (%s, %s)',
                       vplan.test_type, self.exec)
             else:
                 self.report.create_html_report()
@@ -259,13 +264,14 @@ class Verifier:
             self.report.summarize_failures()
 
             if self.debug > 0:
-                print('\nTEST RESULTS in %s for %s. %d tests found' % (
-                    self.exec, vplan.test_type, len(self.results)))
+                logging.debug('\nTEST RESULTS in %s for %s. %d tests found', 
+                    self.exec, vplan.test_type, len(self.results))
                 try:
                     logging.info('     Platform: %s', self.resultData["platform"])
                     logging.info('     %d Errors running tests', self.report.error_count)
                 except BaseException as err:
                     sys.stderr.write('### Missing fields %s, Error = %s' % (self.resultData, err))
+                    logging.error('### Missing fields %s, Error = %s', self.resultData, err)
 
             # Experimental
             # TODO: Finish difference analysis
@@ -278,10 +284,11 @@ class Verifier:
             self.results = self.resultData['tests']
         except BaseException as err:
             sys.stderr.write('Cannot load %s result data: %s' % (self.result_path, err))
+            logging.error('Cannot load %s result data: %s',  self.result_path, err)
             return None
 
         if self.debug >= 1:
-            print('^^^ Result file has %d entries' % (len(self.results)))
+            logging.debug('^^^ Result file has %d entries', len(self.results))
         self.result_file.close()
 
         try:
@@ -315,10 +322,11 @@ class Verifier:
         except BaseException as err:
             sys.stderr.write('!!! Cannot sort test results by label: %s' % err)
             sys.stderr.flush()
+            logging.error('!!! Cannot sort test results by label: %s', err)
 
         if 'platform_error' in self.resultData:
-            print('PLATFORM ERROR: %s' % self.resultData['platform error'])
-            print('No verify done!!!')
+            logging.error('PLATFORM ERROR: %s', self.resultData['platform error'])
+            logging.error('No verify done!!!')
             return None
 
     def compare_test_to_expected(self):
@@ -343,10 +351,11 @@ class Verifier:
         self.report.test_type = self.test_type
         if not self.verifyExpected:
             sys.stderr.write('No expected data in %s' % self.verify_path)
+            logging.error('No expected data in %s', self.verify_path)
             return None
 
         if not self.results:
-            print('*$*$*$*$* self.results = %s' % self.results)
+            logging.error('*$*$*$*$* self.results = %s', self.results)
             return None
 
         # Loop over all results found, comparing with the expected result.
@@ -357,10 +366,10 @@ class Verifier:
 
         for test in self.results:
             if not test:
-                print('@@@@@ no test string: %s of %s' % (test, len(self.results)))
+                logging.debug('@@@@@ no test string: %s of %s', test, len(self.results))
 
             if index % 10000 == 0:
-                print('  progress = %d / %s' % (index, total_results), end='\r')
+                logging.debug('  progress = %d / %s', index, total_results)
 
             # The input to the test
             try:
@@ -386,7 +395,7 @@ class Verifier:
             verification_data = self.find_expected_with_label(test_label)
 
             if verification_data is None:
-                print('*** Cannot find verify data with label %s' % test_label)
+                logging.warning('*** Cannot find verify data with label %s', test_label)
                 self.report.record_missing_verify_data(test)
                 # Bail on this test
                 continue
@@ -396,9 +405,9 @@ class Verifier:
             except:
                 expected_result = 'UNKNOWN'
             if self.debug > 1:
-                print('VVVVV: %s actual %s, expected %s' % (
+                logging.debug('VVVVV: %s actual %s, expected %s',
                     (actual_result == expected_result),
-                    actual_result, expected_result))
+                    actual_result, expected_result)
             # Remember details about the test
             test['input_data'] = test_data
             test['expected'] = expected_result
@@ -409,7 +418,6 @@ class Verifier:
 
             index += 1
 
-        print('')
         return
 
     def find_expected_with_label(self, test_label):
@@ -422,8 +430,8 @@ class Verifier:
         try:
             return self.verifyExpectedDict[test_label]
         except BaseException as err:
-            print('----- find_expected_with_label %s' % err)
-            print('  No expected item with test_label = %s' % test_label)
+            logging.error('----- find_expected_with_label %s', err)
+            logging.error('  No expected item with test_label = %s', test_label)
         return True
 
     def find_testdata_with_label(self, test_label):
@@ -435,9 +443,9 @@ class Verifier:
         try:
             return self.testdataDict[test_label]
         except BaseException as err:
-            print('----- findTestdataWithLabel %s' % err)
-            print('  No test data item with test_label = %s' % test_label)
-            print('  SUGGESTION: Check if test results are synced with test data!')
+            logging.error('----- findTestdataWithLabel %s', err)
+            logging.error('  No test data item with test_label = %s', test_label)
+            logging.error('  SUGGESTION: Check if test results are synced with test data!')
 
         return True
 
@@ -449,7 +457,7 @@ class Verifier:
     def setup_paths(self, executor, testfile, verify_file):
         base_dir = self.file_base
         if self.debug > 1:
-            print('&&& FILE BASE = %s' % base_dir)
+            logging.deubg('&&& FILE BASE = %s', base_dir)
             # Check on the path defined here
             test_output_dir = 'testOutput'
             self.resultPath = os.path.join(
@@ -459,9 +467,9 @@ class Verifier:
             self.reportPath = os.path.join(
                 base_dir, 'testReports', executor, testfile)
         if self.debug > 0:
-            print('RESULT PATH = %s' % self.resultPath)
-            print('VERIFY PATH = %s' % self.verifyPath)
-            print('TESTDATA PATH = %s' % self.testdata_path)
+            logging.debug('RESULT PATH = %s', self.resultPath)
+            logging.debug('VERIFY PATH = %s', self.verifyPath)
+            logging.debug('TESTDATA PATH = %s', self.testdata_path)
 
     # Create HTML summary files
     def create_summary_reports(self):
@@ -478,7 +486,7 @@ class Verifier:
         # And make the output HTML results
         result = summary_report.create_summary_html()
         if not result:
-            print('!!!!!! SUMMARY HTML fails')
+            logging.error('!!!!!! SUMMARY HTML fails')
 
     def schema_results(self):
         # Locate the files in schema, testData, and testOutput
@@ -589,10 +597,10 @@ class Tester:
             executor, 'display_names.json', 'display_names_verify.json')
 
     def print_result(self):
-        print('\n  Test Report for %s' % self.title)
+        logging.info('\n  Test Report for %s', self.title)
         test_report = self.verifier.report
         report_data = test_report.create_report()
-        print('  Report: %s' % report_data)
+        logging.info('  Report: %s', report_data)
 
 
 # Test basic verifier functions
@@ -622,13 +630,13 @@ def main(args):
 
     if not verifier.options.summary_only:
         # Run the tests on the provided parameters.
-        print('Verifier starting on %d verify cases' % (len(verifier.verify_plans)))
+        logging.info('Verifier starting on %d verify cases', len(verifier.verify_plans))
         verifier.verify_data_results()
-        print('Verifier completed %d data reports' % (len(verifier.verify_plans)))
+        logging.info('Verifier completed %d data reports', len(verifier.verify_plans))
 
     # TODO: Should this be optional?
     verifier.create_summary_reports()
-    print('Verifier completed summary report')
+    logging.info('Verifier completed summary report')
 
 
 if __name__ == '__main__':
