@@ -5,6 +5,7 @@ import json
 import logging
 import logging.config
 import math
+import multiprocessing as mp
 import os
 import re
 import requests
@@ -34,10 +35,9 @@ class generateData():
 
     def saveJsonFile(self, filename, data, indent=None):
       output_path = os.path.join(self.icu_version, filename)
-      output_file = open(output_path, 'w')
+      output_file = open(output_path, 'w', encoding='UTF-8')
       json.dump(data, output_file, indent=indent)
       output_file.close()
-
 
     def getTestDataFromGitHub(self, datafile_name, version):
         # Path for fetching test data from ICU repository
@@ -149,7 +149,8 @@ class generateData():
             self.saveJsonFile('num_fmt_test_file.json', json_test)
 
             output_path = os.path.join(self.icu_version, 'num_fmt_verify_file.json')
-            num_fmt_verify_file = open(output_path, 'w')
+            # TODO: Change these saves to use saveJsonFile with output_path ??
+            num_fmt_verify_file = open(output_path, 'w', encoding='UTF-8')
             json.dump(json_verify, num_fmt_verify_file, indent=1)
             num_fmt_verify_file.close()
 
@@ -170,13 +171,13 @@ class generateData():
         # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(rawlangnametestdata, json_test, json_verify)
         output_path = os.path.join(self.icu_version, 'lang_name_test_file.json')
-        lang_name_test_file = open(output_path, 'w')
+        lang_name_test_file = open(output_path, 'w', encoding='UTF-8')
         json.dump(json_test, lang_name_test_file, indent=1)
         lang_name_test_file.close()
 
 
         output_path = os.path.join(self.icu_version, 'lang_name_verify_file.json')
-        lang_name_verify_file = open(output_path, 'w')
+        lang_name_verify_file = open(output_path, 'w', encoding='UTF-8')
         json.dump(json_verify, lang_name_verify_file, indent=1)
         lang_name_verify_file.close()
 
@@ -198,7 +199,7 @@ class generateData():
         if not (recommentline.match(item) or reblankline.match(item)):
           test_data = parseLanguageNameData(item)
           if test_data == None:
-            logging.warning('  LanguageNames (%s): Line \'%s\' not recognized as valid test data entry', self.icu_version, item)
+            logging.debug('  LanguageNames (%s): Line \'%s\' not recognized as valid test data entry', self.icu_version, item)
             continue
           else:
             label = str(count).rjust(max_digits, '0')
@@ -329,7 +330,7 @@ def readFile(filename, version=''):
     if version:
         path = os.path.join(version, filename)
     try:
-        with open(path, 'r', encoding='utf8') as testdata:
+        with open(path, 'r', encoding='utf-8') as testdata:
             return testdata.read()
     except BaseException as err:
         logging.warning('** READ: Error = %s', err)
@@ -358,7 +359,7 @@ def parseDcmlFmtTestData(rawtestdata):
       logging.warning('** parseDcmlFmtTestData: %s', error)
   if not test_match:
       logging.warning('No test match with rawtestdata = %s', rawtestdata)
-
+      return None, None, None, None
   return test_match.group(1), test_match.group(2), test_match.group(3), test_match.group(4)
 
 
@@ -597,9 +598,13 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       # Ignore parse for now.
-      if item[0:5] == "parse":
-          continue
+      if item == '' or item[0:5] == "parse":
+        continue
+
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
+      if pattern == None:
+          continue
+
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
 
@@ -679,13 +684,14 @@ def generateCollTestData2(filename,
     test_line = re.compile('^\*\* test:(.*)')
     rule_header_pattern = re.compile('^@ rules')
     rule_pattern = re.compile('^&.*')
-
+    strength_pattern = re.compile('% strength=(\S)')
     compare_pattern = re.compile('^\* compare(.*)')
 
     comparison_pattern = re.compile('(\S+)\s+(\S+)\s*(\#?.*)')  # compare operator followed by string
 
     attribute_test = re.compile('^\% (\S+)\s*=\s*(\S+)')
     rules = ''
+    strength = None
 
     # Ignore comment lines
     string1 = ''
@@ -713,20 +719,28 @@ def generateCollTestData2(filename,
             continue
 
         if root_locale.match(line_in):
+            # Reset the parameters for collation
             locale = 'und'
+            rules = []
+            locale = ''
+            attributes = []
+            strength = None
             continue
+
         locale_match = locale_string.match(line_in)
         if locale_match:
+            # Reset the parameters for collation
             locale = locale_match.group(1)
+            rules = []
+            locale = ''
+            attributes = []
+            strength = None
             continue
 
         # Find "** test" section
         is_test =  test_line.match(line_in)
         if is_test:
             test_description = is_test.group(1)
-            rules = []
-            locale = ''
-            attributes = []
             continue
 
         # Handle rules, to be applied in subsequent tests
@@ -734,6 +748,12 @@ def generateCollTestData2(filename,
         if is_rules:
             # Read rule lines until  a "*" line is found
             rules = []
+            locale = 'und'
+            rules = []
+            locale = ''
+            attributes = []
+            strength = None
+
             # Skip comment and empty lines
             while line_number < num_lines:
                 if line_number >= num_lines:
@@ -751,6 +771,10 @@ def generateCollTestData2(filename,
                 rules.append(line_in.strip())
                 line_number += 1
             continue
+
+        is_strength = strength_pattern.match(line_in)
+        if is_strength:
+            strength = is_strength.group(1)
 
         is_compare = compare_pattern.match(line_in)
         compare_type = None
@@ -811,9 +835,12 @@ def generateCollTestData2(filename,
                     if compare_comment:
                        test_case['compare_comment'] = compare_comment
                     if rules:
-                        test_case['rules'] = '\n'.join(rules)
+                        test_case['rules'] = ''.join(rules)
                     if attributes:
                         test_case['attributes'] = attributes
+
+                    if strength:
+                        test_case['strength'] = strength
 
                     test_list.append(test_case)
                     # We always expect True as the result
@@ -992,30 +1019,55 @@ def setupArgs():
     return new_args
 
 
+def generate_versioned_data_parallel(icu_versions, args):
+    num_processors = mp.cpu_count()
+    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(icu_versions))
+
+    version_data = []
+    for icu_version in icu_versions:
+        version_data.append(
+            {
+                'icu_version': icu_version,
+                'args': args
+            }
+        )
+
+    processor_pool = mp.Pool(num_processors)
+    with processor_pool as p:
+        result = p.map(generate_versioned_data, version_data)
+
+    return result
+
+def generate_versioned_data(version_info):
+    new_args = version_info['args']
+    icu_version = version_info['icu_version']
+    data_generator = generateData(icu_version)
+    data_generator.run_limit = new_args.run_limit
+
+    logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
+                 icu_version)
+
+    data_generator.processNumberFmtTestData()
+
+    # This is slow
+    data_generator.processCollationTestData()
+
+    data_generator.processLikelySubtagsData()
+
+    # This is slow
+    data_generator.processLangNameTestData()
+
+    logging.info('++++ Data generation for %s is complete.', icu_version)
+
+
 def main(args):
     new_args = setupArgs()
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
 
-    for icu_version in new_args.icu_versions:
-        data_generator = generateData(icu_version)
-        data_generator.run_limit = new_args.run_limit
-
-        logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
-                     icu_version)
-
-        data_generator.processNumberFmtTestData()
-
-        # This is slow
-        data_generator.processCollationTestData()
-
-        data_generator.processLikelySubtagsData()
-
-        # This is slow
-        data_generator.processLangNameTestData()
-
-        logger.info('++++ Data generation for %s is complete.', icu_version)
+    # Generate version data in parallel if possible
+    generate_versioned_data_parallel(new_args.icu_versions, new_args)
 
 
 if __name__ == '__main__':

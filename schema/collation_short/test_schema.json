@@ -53,6 +53,10 @@
             "description": "Optional method for comparing strings",
             "type": "string"
           },
+          "strength": {
+            "description": "Strength of comparison: primary, secondary, ... identical",
+            "type": "string"
+          },
           "test_description": {
             "description": "Option field telling about this particular test",
             "type": "string"

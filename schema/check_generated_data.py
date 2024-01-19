@@ -8,6 +8,7 @@ import json
 
 import logging
 import logging.config
+import multiprocessing as mp
 import os.path
 import sys
 
@@ -45,6 +46,7 @@ def main(args):
     logging.debug('test types = %s', ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
+
     # Todo: use setters to initialize validator
     validator.schema_base = '.'
     validator.test_data_base = test_data_path
