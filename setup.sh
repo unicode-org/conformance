@@ -19,5 +19,6 @@ then
     wget https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-Ubuntu22.04-x64.tgz
     wget https://github.com/unicode-org/icu/releases/download/release-73-1/icu4c-73_1-Ubuntu22.04-x64.tgz
     wget https://github.com/unicode-org/icu/releases/download/release-74-1/icu4c-74_1-Ubuntu22.04-x64.tgz
+    wget https://github.com/unicode-org/icu/releases/download/release-74-2/icu4c-74_2-Ubuntu22.04-x64.tgz
     popd
 fi
