@@ -25,8 +25,6 @@ class VerifyPlan:
         self.verifyExpectedDict = {}
 
         self.report_path = report_path
-        self.report_directory = os.path.dirname(report_path)
-        self.report_version = report_version
 
         self.report = None
         self.report_file = None
@@ -39,6 +37,9 @@ class VerifyPlan:
 
         # The generated data
         self.report_json = None
+
+        # Same as executor unless overridden
+        self.library_name = None
 
     def read_verify_files(self):
         # Get test data, verify data, and results for this verify plan.
@@ -119,6 +120,12 @@ class VerifyPlan:
 
     def set_exec(self, executor):
         self.exec = executor
+        # Manual adjustment
+        if self.exec == 'rust':
+            self.library_name = 'ICU4X'
+        else:
+            self.library_name = self.exec
+
 
     def set_test_type(self, test_type):
         self.test_type = test_type

@@ -2,7 +2,6 @@
 
 import datetime
 import glob
-import json
 import logging
 import logging.config
 import multiprocessing as mp
@@ -10,9 +9,8 @@ import os
 import shutil
 import sys
 
-from testreport import TestReport
 from testreport import SummaryReport
-
+from testreport import TestReport
 from verify_plan import VerifyPlan
 
 sys.path.append('../testdriver')
@@ -29,19 +27,12 @@ class Verifier:
         self.options = None
 
         # TODO: Clean up unused vars.
-        self.testdataDict = None
-        self.verifyExpectedDict = None
-        self.verifyExpected = None
         self.test_type = None
-        self.testData = None
-        self.test_types = None
         self.input_file_names = None
         self.file_base = None
         self.testdata_file = None
-        self.expected = None
         self.report_file = None
         self.report_file_name = 'testReports'
-        self.reportPath = None
         self.resultPath = None
         self.results = None
 
@@ -49,7 +40,6 @@ class Verifier:
         self.verifyData = None
         self.verifyPath = None
 
-        self.resultData = None
         self.exec = None
         self.testdata_path = None
         self.debug = 0  # Different levels
@@ -115,7 +105,6 @@ class Verifier:
 
         # Initialize values for this case.
         self.results = None
-        self.expected = None
         return True  # Indicates that data
 
     def set_verify_args(self, args):
@@ -149,7 +138,6 @@ class Verifier:
         for executor in executor_list:
             for test_type in test_list:
 
-                # TODO: Run for each test_type!
                 if test_type not in ddt_data.testDatasets:
                     logging.warning('**** WARNING: test_type %s not in testDatasets',
                           test_type)
@@ -232,60 +220,13 @@ class Verifier:
                         logging.debug('** No results for %s, %s, %s',
                                       executor, test_type, result_version)
 
-    def verify_data_results(self):
-        # For each pair of files in the test plan, compare with expected
-        # Create report directory if needed
-
-        for vplan in self.verify_plans:
-            self.testdata_path = vplan.testdata_path
-            self.report = vplan.report
-            self.exec = vplan.exec
-            # GET FROM DATA
-            if vplan.exec == 'rust':
-                vplan.library_name = 'ICU4X'
-            else:
-                vplan.library_name = vplan.exec
-            self.library_name = vplan.library_name
-
-            self.test_type = vplan.test_type
-            self.verify_one_plan(vplan)
-        return
-
-            # # Temporary
-            # logging.info('VERIFY %s: %s %s', vplan.exec, self.test_type, vplan.result_path)
-            # if not self.open_verify_files(vplan):
-            #     continue
-            # vplan.results = None
-            # vplan.compare_test_to_expected()
-
-            # # Save the results
-            # this_report = vplan.report
-            # if not this_report.save_report():
-            #     logging.error('!!! Could not save report for (%s, %s)',
-            #           vplan.test_type, vplan.exec)
-            # else:
-            #     this_report.create_html_report()
-
-            # # Do more analysis on the failures
-            # this_report.summarize_failures()
-
-            # if self.debug > 0:
-            #     logging.debug('\nTEST RESULTS in %s for %s. %d tests found',
-            #         vplan.exec, vplan.test_type, len(self.results))
-            #     try:
-            #         logging.info('     Platform: %s', self.resultData["platform"])
-            #         logging.info('     %d Errors running tests', selfthis_report.error_count)
-            #     except BaseException as err:
-            #         sys.stderr.write('### Missing fields %s, Error = %s' % (self.resultData, err))
-            #         logging.error('### Missing fields %s, Error = %s', self.resultData, err)
-
-    # New version - complete this!
+    # Verify plans in parallel
     def parallel_verify_data_results(self):
         num_processors = mp.cpu_count()
         verify_plans = self.verify_plans
-        logging.info('JSON validation: %s processors for %s plans' % num_processors, len(verify_plans))
+        logging.info('JSON validation: %s processors for %s plans',
+                     num_processors, len(verify_plans))
 
-        # How to get all the results
         processor_pool = mp.Pool(num_processors)
         with processor_pool as p:
             result = p.map(self.verify_one_plan, verify_plans)
@@ -316,67 +257,12 @@ class Verifier:
             vplan.report.create_html_report()
 
         # Do more analysis on the failures
-        self.report.summarize_failures()
+        vplan.report.summarize_failures()
 
         logging.debug('\nTEST RESULTS in %s for %s. %d tests found',
-                          self.exec, vplan.test_type, len(vplan.test_results))
+                          vplan.exec, vplan.test_type, len(vplan.test_results))
 
         return result
-
-    def get_results_and_verify_data(self, verify_plan):
-        ## TODO!!! Remove this when verify plan is working.
-        # Get the JSON data for results and add to the verify_plan
-        try:
-            verify_plan.resultData = json.loads(verify_plan.result_file.read())
-            # self.resultData = verify_plan.resultData
-            verify_plan.results = verify_plan.resultData['tests']
-            self.results = verify_plan.results
-        except BaseException as err:
-            sys.stderr.write('Cannot load %s result data: %s' % (self.result_path, err))
-            logging.error('Cannot load %s result data: %s',  self.result_path, err)
-            return None
-
-        logging.debug('^^^ Result file has %d entries', len(self.results))
-        verify_plan.result_file.close()
-
-        try:
-            self.verifyData = json.loads(verify_plan.verify_data_file.read())
-            #self.verifyExpected = self.verifyData['verifications']
-        except BaseException as err:
-            sys.stderr.write('Cannot load %s verify data: %s' % (verify_plan.verify_path, err))
-            return None
-        verify_plan.verify_data_file.close()
-
-        # Create dictionary of expected with labels as keys
-        verify_plan.verifyExpectedDict = {}
-        for item in self.verifyExpected:
-            self.verifyExpectedDict[item['label']] = item
-        self.verifyExpectedDict = verify_plan.verifyExpectedDict  ## ?? Needed
-
-        # Build dictionary of input data with labels as keys
-        try:
-            verify_plan.testdata = json.loads(verify_plan.testdata_file.read())
-        except BaseException as err:
-            sys.stderr.write('!!!!!!!!!!!!! Cannot load %s test input data: %s' % (self.testdata_path, err))
-            return None
-        verify_plan.testdata_file.close()
-
-        verify_plan.testdataDict = {}
-        for item in self.testdata['tests']:
-            verify_plan.testdataDict[item['label']] = item
-
-        # Sort results and verify data by the label
-        try:
-            self.results.sort(key=lambda x: x['label'])
-        except BaseException as err:
-            sys.stderr.write('!!! Cannot sort test results by label: %s' % err)
-            sys.stderr.flush()
-            logging.error('!!! Cannot sort test results by label: %s', err)
-
-        if 'platform_error' in self.resultData:
-            logging.error('PLATFORM ERROR: %s', self.resultData['platform error'])
-            logging.error('No verify done!!!')
-            return None
 
     def analyze_failures(self):
         # Analyze the test failures for types of mistakes, missing data, etc.?
@@ -393,8 +279,7 @@ class Verifier:
                 base_dir, test_output_dir, executor, testfile)
             self.verifyPath = os.path.join(
                 base_dir, 'testData', verify_file)
-            self.reportPath = os.path.join(
-                base_dir, 'testReports', executor, testfile)
+
         if self.debug > 0:
             logging.debug('RESULT PATH = %s', self.resultPath)
             logging.debug('VERIFY PATH = %s', self.verifyPath)
@@ -540,9 +425,8 @@ def main(args):
         logging.info('Verifier starting on %d verify cases',
                      len(verifier.verify_plans))
 
-        # To be replaced by parallel version.
-        # verifier.parallel_verify_data_results()
-        verifier.verify_data_results()
+        # Use multiprocessing on verification
+        verifier.parallel_verify_data_results()
 
         logging.info('Verifier completed %d data reports',
                      len(verifier.verify_plans))
