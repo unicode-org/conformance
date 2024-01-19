@@ -291,9 +291,7 @@ class ExecutorInfo():
       logging.error('versionForCldr error = %s', err)
       return {'path': lang}  # Nothing found
 
-  def has(self, exec) :
-    logging.debug('HAS %s in %s', exec, (self.systems.keys()))
-
+  def has(self, exec):
     try:
       return exec in self.systems
     except KeyError:

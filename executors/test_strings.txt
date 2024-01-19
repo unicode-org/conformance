@@ -43,7 +43,10 @@
 {"test_type": "collation_short", "label":"0001377","s1":"\\u0009?","s2":"\\u000a!","line":12,"ignorePunctuation":true}
 {"test_type": "collation_short", "label":"00008","s1":"ä","s2":"Ã¤","compare_type":"=","test_description":" simple CEs & expansions","rules":"&\\x01\n<<<\\u0300\n&9<\\x00\n&\\uA00A\\uA00B=\\uA002\n&\\uA00A\\uA00B\\u00050005=\\uA003"}
 
-=======
+{"test_type": "collation_short", "label": "0011232", "s1": "<a", "s2": "<A", "line": 9867, "ignorePunctuation": true}
+{"test_type": "collation_short", "label": "0011232_Aa", "s1": "<A", "s2": "<a", "line": 9867, "ignorePunctuation": true}
+{"test_type": "collation_short", "label": "0011232_aA", "s1": "a", "s2": "A", "line": 9867, "ignorePunctuation": true}        
+
 {"test_type": "lang_names", "label": "01", "language_label": "en", "locale_label": "af"}
 {"test_type": "lang_names", "label": "01", "language_label": "", "locale_label": "fr"}
 {"test_type": "lang_names", "label": "01", "language_label": "de", "locale_label": "fr"}
@@ -120,7 +123,6 @@
             
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"9182734567890","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}    
->>>>>>> 8eca805e8c4cd69552153c7137eeea111144d528
 
 
 {"label":"0598","locale":"zh-TW","skeleton":"compact-short percent sign-accounting-except-zero","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","signDisplay":"exceptZero","currencySign":"accounting"}, "test_type": "number_fmt"}
@@ -131,6 +133,8 @@
 {"test_type": "number_fmt", "label":"2062_long","locale":"es-MX","skeleton":"currency/EUR unit-width-long .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"long","maximumFractionDigits":3,"minimumFractionDigits":3}}
 {"test_type": "number_fmt", "label": "0219", "locale": "zh-TW", "skeleton": "scientific/+ee/sign-always percent precision-integer", "input": "0", "options": {"notation": "scientific", "style": "unit", "unit": "percent", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}}
 
+    {"test_type": "number_fmt", "label": "0219", "locale": "zh-TW", "skeleton": "scientific/+ee/sign-always", "input": "1234.01", "options": {"notation": "scientific", "style": "unit", "unit": "percent", "maximumFractionDigits": 0, "minimumFractionDigits": 0, "roundingType": "fractionDigits"}}
+    
 {"test_type": "number_fmt","label": "0054", "locale": "es-MX", "skeleton": "scientific/+ee/sign-always percent unit-width-narrow", "input": "0", "options": {"notation": "scientific", "conformanceExponent": "+ee", "conformanceSign": "always", "style": "unit", "unit": "percent", "unitDisplay": "narrow", "currencyDisplay": "narrowSymbol", "maximumFractionDigits": 6}}
 
 // Check significant digits
@@ -154,9 +158,31 @@
 {"test_type": "number_fmt", "label":"0648-no-max-fraction","locale":"es-MX","skeleton":"compact-short percent decimal-always","input":"0","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","conformanceDecimalAlways":true}}
 {"test_type": "number_fmt", "label":"0649","locale":"es-MX","skeleton":"compact-short percent decimal-always","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","conformanceDecimalAlways":true,"maximumFractionDigits":2}}
 {"test_type": "number_fmt", "label":"0649","locale":"es-MX","skeleton":"compact-short percent decimal-always","input":"91827.3645","options":{"notation":"compact","compactDisplay":"short","style":"unit","unit":"percent","conformanceDecimalAlways":true}}
+
 {"test_type": "number_fmt", "label":"5913","op":"format", "locale": "en", "skeleton":".00","input":"123456789","options":{"roundingMode":"halfEven","minimumIntegerDigits":1,"maximumFractionDigits":0,"useGrouping":false}}
 {"test_type": "number_fmt", "label":"5913","op":"format", "locale":"es-MX", "skeleton":"percent .##/@@@+","input":"123456789.9876543210","options":{"roundingMode":"halfEven","minimumIntegerDigits":1,"maximumFractionDigits":0,"useGrouping":false}}
 
+{"test_type": "number_fmt", "label":"5913","op":"format", "locale": "en", "skeleton":".0","input":"123456789","options":{"roundingMode":"halfEven","minimumIntegerDigits":1,"maximumFractionDigits":0,"useGrouping":false}}
+{"test_type": "number_fmt", "label":"5913","op":"format", "locale":"es-MX", "skeleton":"percent .##/@@@+","input":"123456789.9876543210","options":{"roundingMode":"halfEven","minimumIntegerDigits":1,"maximumFractionDigits":0,"useGrouping":false}}
+
+// Skeletons
+{"test_type": "number_fmt", "label":"s1", "pattern": "0.0000E0", "skeleton": "scientific/+e .0000/@+", "input": "1234.01", "options":{}}}
+{"test_type": "number_fmt", "label":"s2", "locale": "en", "skeleton": "integer-width/##00 ./@+", "input":"1.91", "options":{}}}
+{"test_type": "number_fmt", "label":"s", "pattern":"#.#", "skeleton": ".#/@@+", "input":"12.3456", "options":{}}
+{"test_type": "number_fmt", "label":"s", "pattern":"@@@", "skeleton": "@@@", "input":"12.3456", "options":{}}       
+{"test_type": "number_fmt", "label":"s", "pattern":"@@@", "skeleton": "@@@ group-off", "input":"123456", "options":{}}
+{"test_type": "number_fmt", "label":"s", "pattern":"@@@", "skeleton": "@@@ group-off", "input":"0.00123456", "options":{}}    
+
+{"test_type": "number_fmt", "label":"s", "pattern":"@@###", "skeleton": "@@### group-off", "input":"123456000", "options":{}}    
+{"test_type": "number_fmt", "label":"s", "pattern":"@@###", "skeleton": "@@### group-off", "input":".00123456000", "options":{}}    
+{"test_type": "number_fmt", "label":"s", "pattern":"@@###", "skeleton": "@@### group-off", "input":".00123", "options":{}}    
+
+{"test_type": "number_fmt", "label":"s", "pattern":"@@@@E0", "skeleton": "scientific/+e .0000/@@+", "input":".00123", "options":{}}    
+{"test_type": "number_fmt", "label":"s", "pattern":"0.0##E0", "skeleton": "scientific/+e .##/@@+ integer-width/*000", "input":".00123e110", "options":{}}    
+
+{"test_type": "number_fmt", "label":"LONG", "pattern":"#", "skeleton": "@+ group-off", "input":"10000000000000000000000000000000000000000000000000001", "options":{}}    
+10000000000000000000000000000000000000000000000000001
+10000000000000000000000000000000000000000000000000000    
 
 # LOCALE_INFO
 {"test_type":"likely_subtags", "option":"maximize", "locale":"en", "label":"en_max"}

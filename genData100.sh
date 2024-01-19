@@ -25,7 +25,6 @@ then
   bash setup.sh
 fi
 
-export TEMP_DIR=TEMP_DATA
 export TEST_LIMIT=100
 
 export TEMP_DIR=TEMP_DATA_100

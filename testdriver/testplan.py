@@ -486,14 +486,12 @@ class TestPlan:
                 logging.error('CANNOT parse JSON from file %s: %s', self.inputFilePath, error)
                 return None
         except FileNotFoundError as err:
-            logging.info('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
+            logging.debug('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
             return None
 
         try:
             self.testScenario = self.jsonData['Test scenario']  # e.g., decimal_fmt
         except KeyError as error:
-            logging.warning('*** Cannot get testScenario from  %s. Err = %s',
-                            self.inputFilePath, error)
             self.testScenario = self.test_type
 
         self.tests = self.jsonData['tests']
