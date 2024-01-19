@@ -7,6 +7,8 @@ import json
 import logging
 import logging.config
 
+import multiprocessing as mp
+
 import os
 import subprocess
 import sys
@@ -98,6 +100,19 @@ class TestDriver:
         for plan in self.test_plans:
             plan.run_plan()
 
+    def run_one(self, plan):
+        print("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
+        plan.run_plan()
+    def run_plans_parallel(self):
+        # Testing 15-Jan-2024
+        num_processors = mp.cpu_count()
+        print('There are %s processors for %s plans' % (num_processors, len(self.test_plans)))
+
+        processor_pool = mp.Pool(num_processors)
+        with processor_pool as p:
+            p.map(self.run_one, self.test_plans)
+
+
 
 # Run the test with command line arguments
 def main(args):
@@ -105,7 +120,8 @@ def main(args):
     # print('ARGS = %s' % (args))
     driver.parse_args(args[1:])
 
-    driver.run_plans()
+    # driver.run_plans()
+    driver.run_plans_parallel()
 
     #               if len(args)> 2:
     # Set limit on number to run

@@ -5,9 +5,9 @@ from datetime import datetime
 import glob
 import json
 
-
 import logging
 import logging.config
+import multiprocessing as mp
 import os.path
 import sys
 
@@ -59,6 +59,16 @@ class ValidateSchema():
 
         return output_filename
 
+def parallel_validate_schema(validator, file_names):
+        num_processors = mp.cpu_count()
+        logging.info('Schema valiation: %s processors for %s plans' , num_processors, len(file_names))
+
+        processor_pool = mp.Pool(num_processors)
+        # How to get all the results
+        with processor_pool as p:
+            result = p.map(validator.validate_schema_file, file_names)
+        return result
+
 def main(args):
     logger = logging.Logger("TEST SCHEMAS LOGGER")
     logger.setLevel(logging.INFO)
@@ -79,22 +89,26 @@ def main(args):
 
     # An array of information to be reported on the main DDT page
     validation_status = []
-
+    schema_file_paths = []
     for test_type in ALL_TEST_TYPES:
         schema_test_base = os.path.join(schema_base, test_type)
         schema_test_json_files = os.path.join(schema_test_base, '*.json')
         schema_file_names = glob.glob(schema_test_json_files)
-        for schema_file in schema_file_names:
-            result, err, file_path = validator.validate_schema_file(schema_file)
-            validation_status.append({"test_type": test_type,
-                                      "schema_path": schema_file,
-                                      "result": result,
-                                      "error_info": str(err)
-                                      })
-            if not result:
-                schema_errors.append([schema_file, result, err, file_path])
-                logging.error('Bad Schema at %s', schema_file)
-            schema_count += 1
+        schema_file_paths.extend(schema_file_names)
+    results = parallel_validate_schema(validator, schema_file_paths)
+
+    for outcome in results:
+        result, err, file_path = outcome[0], outcome[1], outcome[2]
+        schema_file = os.path.basename(file_path)
+        validation_status.append({"test_type": test_type,
+                                  "schema_path": file_path,
+                                  "result": result,
+                                  "error_info": str(err)
+                                  })
+        if not result:
+            schema_errors.append([schema_file, result, err, file_path])
+            logging.error('Bad Schema at %s', schema_file)
+        schema_count += 1
 
     ok = val_schema.save_schema_validation_summary(validation_status)
 
@@ -109,6 +123,6 @@ def main(args):
         exit(0)
 
 
-    # TODO: Add validation results to test data with validation.
+    # Add validation results to test data with validation.
 if __name__ == "__main__":
     main(sys.argv)

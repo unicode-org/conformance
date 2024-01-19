@@ -136,7 +136,7 @@ const string test_collator(json_object *json_in) {
   if (rules_string != "") {
     char uni_rules_out[1000] = "";
     int32_t rule_chars_out = uni_rules.extract(uni_rules_out, 1000, nullptr, status);
-    // !!! rb_coll = new RuleBasedCollator(uni_rules, strength_type, status);
+
     rb_coll = new RuleBasedCollator(uni_rules, status);
     if (U_FAILURE(status)) {
       test_result = error_message.c_str();
@@ -163,10 +163,10 @@ const string test_collator(json_object *json_in) {
   else {
     // Not a rule-based collator.
     if (locale_string == "") {
-      // Uses default locale.
+
       uni_coll = Collator::createInstance(status);
     } else {
-      // Use either "und" or specified locale.
+      cout << "# Locale set to " << locale_string <<  endl;
       uni_coll = Collator::createInstance(Locale(locale_string), status);
     }
 

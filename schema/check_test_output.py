@@ -78,7 +78,7 @@ def main(args):
     schema_count = 0
 
     all_results = validator.validate_test_output_with_schema()
-    logging.debug('  %d results for generated test data', len(all_results))
+    logging.info('  %d results for test output', len(all_results))
 
     schema_errors = 0
     failed_validations = []
@@ -105,6 +105,7 @@ def main(args):
     except BaseException as error:
         summary_json = {}
 
+    # Create outputs from these results.
     try:
         summary_data = json.dumps(summary_json)
     except TypeError as err :
