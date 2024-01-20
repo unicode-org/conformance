@@ -3,6 +3,8 @@ package org.unicode.conformance.testtype.numberformatter;
 import io.lacuna.bifurcan.Set;
 
 public class RoundingIncrementUtil {
+
+  public static int DEFAULT = 1;
   private static final Set<Integer> validVals = Set.of(
       1,
       2,

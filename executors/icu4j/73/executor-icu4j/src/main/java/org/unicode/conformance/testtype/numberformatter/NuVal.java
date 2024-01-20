@@ -1,6 +1,7 @@
 package org.unicode.conformance.testtype.numberformatter;
 
 public enum NuVal {
+  NONE,  // a fake value to use as default
   adlm,
   ahom,
   arab,
@@ -66,5 +67,15 @@ public enum NuVal {
   tirh,
   vaii,
   wara,
-  wcho
+  wcho;
+
+  public static NuVal DEFAULT = NONE;
+
+  public static NuVal getFromString(String s) {
+    try {
+      return NuVal.valueOf(s);
+    } catch (Exception e) {
+      return DEFAULT;
+    }
+  }
 }

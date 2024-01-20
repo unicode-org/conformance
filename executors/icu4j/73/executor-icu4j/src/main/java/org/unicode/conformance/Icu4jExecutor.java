@@ -99,20 +99,20 @@ public class Icu4jExecutor {
 
     public static String getTestCaseResponse(String inputLine) throws Exception {
 
-        io.lacuna.bifurcan.Map<String,String> parsedInputPersistentMap =
+        io.lacuna.bifurcan.Map<String,Object> parsedInputPersistentMap =
             ExecutorUtils.parseInputLine(inputLine);
 
-        Optional<String> testTypeOpt = parsedInputPersistentMap.get("test_type");
+        Optional<Object> testTypeOpt = parsedInputPersistentMap.get("test_type");
 
         if (!testTypeOpt.isPresent()) {
-            io.lacuna.bifurcan.IMap<String,String> response =
+            io.lacuna.bifurcan.IMap<String,Object> response =
                 parsedInputPersistentMap
                     .put("error", "Error in input")
                     .put("error_msg", "Error in input found in executor before execution");
 
             return ExecutorUtils.formatAsJson(response);
         } else {
-            String testTypeStr = testTypeOpt.get();
+            String testTypeStr = (String) testTypeOpt.get();
             ITestType testType;
             if (testTypeStr.equals("collation_short")) {
                 testType = CollatorTester.INSTANCE;
@@ -123,7 +123,7 @@ public class Icu4jExecutor {
             } else if (testTypeStr.equals("number_fmt")) {
                 testType = NumberFormatterTester.INSTANCE;
             } else {
-                io.lacuna.bifurcan.IMap<String,String> response =
+                io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap
                         .put("error", "Error in input")
                         .put("error_msg", "Error in input found in executor before execution");

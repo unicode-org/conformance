@@ -2,7 +2,6 @@ package org.unicode.conformance.testtype.numberformatter;
 
 import com.ibm.icu.number.FormattedNumber;
 import com.ibm.icu.number.NumberFormatter;
-import com.ibm.icu.text.NumberingSystem;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.Map;
 import java.math.BigDecimal;
@@ -17,18 +16,18 @@ public class NumberFormatterTester implements ITestType {
   public static NumberFormatterTester INSTANCE = new NumberFormatterTester();
 
   @Override
-  public ITestTypeInputJson inputMapToJson(Map<String, String> inputMapData) {
+  public ITestTypeInputJson inputMapToJson(Map<String, Object> inputMapData) {
     NumberFormatterInputJson result = new NumberFormatterInputJson();
 
-    result.label = inputMapData.get("label", null);
-    result.input = inputMapData.get("input", null);
-    result.locale = inputMapData.get("locale", null);
-    result.pattern = inputMapData.get("pattern", null);
-    result.skeleton = inputMapData.get("skeleton", null);
-    result.op = inputMapData.get("op", null);
+    result.label = (String) inputMapData.get("label", null);
+    result.input = (String) inputMapData.get("input", null);
+    result.locale = (String) inputMapData.get("locale", null);
+    result.pattern = (String) inputMapData.get("pattern", null);
+    result.skeleton = (String) inputMapData.get("skeleton", null);
+    result.op = (String) inputMapData.get("op", null);
 
-    String optionsStr = inputMapData.get("options", null);
-    java.util.Map<String,String> parsedOptionsMap = ExecutorUtils.stringMapFromString(optionsStr);
+    java.util.Map<String,Object> parsedOptionsMap =
+        (java.util.Map<String,Object>) inputMapData.get("options", null);
     java.util.Map<NumberFormatterTestOptionKey, Object> options =
         new HashMap<>();
     options.put(
@@ -40,66 +39,66 @@ public class NumberFormatterTester implements ITestType {
     options.put(
         NumberFormatterTestOptionKey.compactDisplay,
         CompactDisplayVal.getFromString(
-            parsedOptionsMap.get("compactDisplay")));
+            (String) parsedOptionsMap.get("compactDisplay")));
     options.put(
         NumberFormatterTestOptionKey.currencySign,
         parsedOptionsMap.get("currencySign"));
     options.put(
         NumberFormatterTestOptionKey.signDisplay,
-        SignDisplayVal.valueOf(
-            parsedOptionsMap.get("signDisplay")));
+        SignDisplayVal.getFromString(
+            (String) parsedOptionsMap.get("signDisplay")));
     options.put(
         NumberFormatterTestOptionKey.style,
-        StyleVal.valueOf(
-            parsedOptionsMap.get("style")));
+        StyleVal.getFromString(
+            (String) parsedOptionsMap.get("style")));
     options.put(
         NumberFormatterTestOptionKey.unit,
         parsedOptionsMap.get("unit"));
     options.put(
         NumberFormatterTestOptionKey.unitDisplay,
         UnitDisplayVal.getFromString(
-            parsedOptionsMap.get("unitDisplay")));
+            (String) parsedOptionsMap.get("unitDisplay")));
     options.put(
         NumberFormatterTestOptionKey.currency,
         parsedOptionsMap.get("currency"));
     options.put(
         NumberFormatterTestOptionKey.currencyDisplay,
-        CurrencyDisplayVal.valueOf(
-            parsedOptionsMap.get("currencyDisplay")));
+        CurrencyDisplayVal.getFromString(
+            (String) parsedOptionsMap.get("currencyDisplay")));
     options.put(
         NumberFormatterTestOptionKey.minimumFractionDigits,
         Integer.parseInt(
-            parsedOptionsMap.get("minimumFractionDigits")));
+            (String) parsedOptionsMap.getOrDefault("minimumFractionDigits", "-1")));
     options.put(
         NumberFormatterTestOptionKey.maximumFractionDigits,
         Integer.parseInt(
-            parsedOptionsMap.get("maximumFractionDigits")));
+            (String) parsedOptionsMap.getOrDefault("maximumFractionDigits", "-1")));
     options.put(
         NumberFormatterTestOptionKey.minimumIntegerDigits,
         Integer.parseInt(
-            parsedOptionsMap.get("minimumIntegerDigits")));
+            (String) parsedOptionsMap.getOrDefault("minimumIntegerDigits", "-1")));
     options.put(
         NumberFormatterTestOptionKey.minimumSignificantDigits,
         Integer.parseInt(
-            parsedOptionsMap.get("minimumSignificantDigits")));
+            (String) parsedOptionsMap.getOrDefault("minimumSignificantDigits", "-1")));
     options.put(
         NumberFormatterTestOptionKey.maximumSignificantDigits,
         Integer.parseInt(
-            parsedOptionsMap.get("maximumSignificantDigits")));
+            (String) parsedOptionsMap.getOrDefault("maximumSignificantDigits", "-1")));
     options.put(
         NumberFormatterTestOptionKey.nu,
-        NuVal.valueOf(
-            parsedOptionsMap.get("nu")));
+        NuVal.getFromString(
+            (String) parsedOptionsMap.get("nu")));
     options.put(
         NumberFormatterTestOptionKey.roundingPriority,
-        RoundingPriorityVal.valueOf(
-            parsedOptionsMap.get("roundingPriority")));
+        RoundingPriorityVal.getFromString(
+            (String) parsedOptionsMap.get("roundingPriority")));
     options.put(
         NumberFormatterTestOptionKey.roundingMode,
-        RoundingModeVal.valueOf(
-            parsedOptionsMap.get("roundingMode")));
+        RoundingModeVal.getFromString(
+            (String) parsedOptionsMap.get("roundingMode")));
     int roundingIncrement =
-        Integer.parseInt(parsedOptionsMap.get("roundingIncrement"));
+        Integer.parseInt((String) parsedOptionsMap.getOrDefault("roundingIncrement", Integer.toString(RoundingIncrementUtil.DEFAULT)));
     assert RoundingIncrementUtil.isValidVal(roundingIncrement);
     options.put(
         NumberFormatterTestOptionKey.roundingIncrement,
@@ -107,12 +106,12 @@ public class NumberFormatterTester implements ITestType {
     );
     options.put(
         NumberFormatterTestOptionKey.trailingZeroDisplay,
-        TrailingZeroDispalyVal.valueOf(
-            parsedOptionsMap.get("trailingZeroDisplay")));
+        TrailingZeroDispalyVal.getFromString(
+            (String) parsedOptionsMap.get("trailingZeroDisplay")));
     options.put(
         NumberFormatterTestOptionKey.useGrouping,
         UseGroupingVal.getFromString(
-            parsedOptionsMap.get("useGrouping")));
+            (String) parsedOptionsMap.get("useGrouping")));
     result.options = options;
 
     return result;

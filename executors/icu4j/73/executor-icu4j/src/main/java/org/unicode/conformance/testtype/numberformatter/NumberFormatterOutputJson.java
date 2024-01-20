@@ -4,9 +4,9 @@ import java.util.Map;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
 
 public class NumberFormatterOutputJson implements ITestTypeOutputJson {
-  String label;
+  public String label;
 
-  String result;
+  public String result;
 
   public String error;
 

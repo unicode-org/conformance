@@ -19,30 +19,30 @@ public class CollatorTester implements ITestType {
   //
 
   @Override
-  public ITestTypeInputJson inputMapToJson(Map<String, String> inputMapData) {
+  public ITestTypeInputJson inputMapToJson(Map<String, Object> inputMapData) {
     CollatorInputJson result = new CollatorInputJson();
-    result.test_type = inputMapData.get("test_type", null);
-    result.label = inputMapData.get("label", null);
+    result.test_type = (String) inputMapData.get("test_type", null);
+    result.label = (String) inputMapData.get("label", null);
 
     // TODO: clean up after schema validation gets turned on at runtime
-    result.s1 = inputMapData.get("s1", null);
+    result.s1 = (String) inputMapData.get("s1", null);
     if (result.s1 == null) {
-      result.s1 = inputMapData.get("string1", null);
+      result.s1 = (String) inputMapData.get("string1", null);
     }
 
     // TODO: clean up after schema validation gets turned on at runtime
-    result.s2 = inputMapData.get("s2", null);
+    result.s2 = (String) inputMapData.get("s2", null);
     if (result.s2 == null) {
-      result.s2 = inputMapData.get("string2", null);
+      result.s2 = (String) inputMapData.get("string2", null);
     }
 
-    result.locale = inputMapData.get("locale", null);
+    result.locale = (String) inputMapData.get("locale", null);
 
     boolean ignorePunctuation = false;
-    Optional<String> ignorePunctuationStr = inputMapData.get("ignorePunctuation");
+    Optional<Object> ignorePunctuationStr = inputMapData.get("ignorePunctuation");
     try {
       if (ignorePunctuationStr.isPresent()) {
-        ignorePunctuation = Boolean.parseBoolean(ignorePunctuationStr.get());
+        ignorePunctuation = Boolean.parseBoolean((String) ignorePunctuationStr.get());
       }
     } catch (Exception e) {
       // do nothing, default is false
@@ -50,32 +50,32 @@ public class CollatorTester implements ITestType {
     result.ignorePunctuation = ignorePunctuation;
 
     int line = 0;
-    Optional<String> lineStr = inputMapData.get("line");
+    Optional<Object> lineStr = inputMapData.get("line");
     try {
       if (lineStr.isPresent()) {
-        line = Integer.parseInt(lineStr.get());
+        line = Integer.parseInt((String) lineStr.get());
       }
     } catch (Exception e) {
       // do nothing, default is 0
     }
     result.line = line;
 
-    result.compare_type = inputMapData.get("compare_type", null);
-    result.test_description = inputMapData.get("test_description", null);
+    result.compare_type = (String) inputMapData.get("compare_type", null);
+    result.test_description = (String) inputMapData.get("test_description", null);
 
     // TODO: implement this correctly recursively (either using APIs or else DIY)
     String[] attrs;
-    Optional<String> attrsString = inputMapData.get("attributes");
+    Optional<Object> attrsString = inputMapData.get("attributes");
     if (attrsString.isPresent()) {
-      attrs = new String[]{ attrsString.get() };
+      attrs = new String[]{ (String) attrsString.get() };
     } else {
       attrs = new String[]{};
     }
     result.attributes = attrs;
 
-    result.rules = inputMapData.get("rules", null);
-    result.compare_comment = inputMapData.get("compare_comment", null);
-    result.warning = inputMapData.get("warning", null);
+    result.rules = (String) inputMapData.get("rules", null);
+    result.compare_comment = (String) inputMapData.get("compare_comment", null);
+    result.warning = (String) inputMapData.get("warning", null);
 
     return result;
   }

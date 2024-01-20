@@ -4,14 +4,14 @@ import org.unicode.conformance.ExecutorUtils;
 
 public interface ITestType {
 
-  default io.lacuna.bifurcan.Map<String,String> parseInput(String inputLine) {
+  default io.lacuna.bifurcan.Map<String,Object> parseInput(String inputLine) {
     return ExecutorUtils.parseInputLine(inputLine);
   }
 
-  ITestTypeInputJson inputMapToJson(io.lacuna.bifurcan.Map<String,String> inputMapData);
+  ITestTypeInputJson inputMapToJson(io.lacuna.bifurcan.Map<String,Object> inputMapData);
 
   default ITestTypeInputJson parseInputJson(String inputLine) {
-    io.lacuna.bifurcan.Map<String,String> inputMapData =
+    io.lacuna.bifurcan.Map<String,Object> inputMapData =
         parseInput(inputLine);
       ITestTypeInputJson inputJson = inputMapToJson(inputMapData);
 
@@ -23,17 +23,17 @@ public interface ITestType {
   String formatOutputJson(ITestTypeOutputJson outputJson);
 
   default ITestTypeOutputJson getStructuredOutputFromInputStr(String inputLine) {
-    io.lacuna.bifurcan.Map<String,String> inputMapData = parseInput(inputLine);
+    io.lacuna.bifurcan.Map<String,Object> inputMapData = parseInput(inputLine);
     return getStructuredOutputFromInput(inputMapData);
   }
 
-  default ITestTypeOutputJson getStructuredOutputFromInput(io.lacuna.bifurcan.Map<String,String> inputMapData) {
+  default ITestTypeOutputJson getStructuredOutputFromInput(io.lacuna.bifurcan.Map<String,Object> inputMapData) {
     ITestTypeInputJson inputJson = inputMapToJson(inputMapData);
     ITestTypeOutputJson outputJson = execute(inputJson);
     return outputJson;
   }
 
-  default String getFinalOutputFromInput(io.lacuna.bifurcan.Map<String,String> inputMapData) throws Exception {
+  default String getFinalOutputFromInput(io.lacuna.bifurcan.Map<String,Object> inputMapData) throws Exception {
     ITestTypeOutputJson outputJson = getStructuredOutputFromInput(inputMapData);
     String formattedOutput = formatOutputJson(outputJson);
     return formattedOutput;

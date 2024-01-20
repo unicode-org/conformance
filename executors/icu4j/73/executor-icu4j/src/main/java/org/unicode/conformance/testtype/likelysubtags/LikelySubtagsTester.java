@@ -12,14 +12,14 @@ public class LikelySubtagsTester implements ITestType {
   public static LikelySubtagsTester INSTANCE = new LikelySubtagsTester();
 
   @Override
-  public ITestTypeInputJson inputMapToJson(Map<String, String> inputMapData) {
+  public ITestTypeInputJson inputMapToJson(Map<String, Object> inputMapData) {
     LikelySubtagsInputJson result = new LikelySubtagsInputJson();
 
-    result.test_type = inputMapData.get("test_type", null);
-    result.label = inputMapData.get("label", null);
-    result.locale = inputMapData.get("locale", null);
+    result.test_type = (String) inputMapData.get("test_type", null);
+    result.label = (String) inputMapData.get("label", null);
+    result.locale = (String) inputMapData.get("locale", null);
     result.option = LikelySubtagsTestOption.valueOf(
-        inputMapData.get("option", null)
+        (String) inputMapData.get("option", null)
     );
 
     return result;

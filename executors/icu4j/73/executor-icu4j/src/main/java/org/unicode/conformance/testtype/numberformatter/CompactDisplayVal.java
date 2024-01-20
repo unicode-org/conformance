@@ -9,6 +9,8 @@ public enum CompactDisplayVal {
   SHORT,
   LONG;
 
+  public static CompactDisplayVal DEFAULT = SHORT;
+
   /**
    * Convenience static constructor for this class's enums that automatically
    * uppercases the input string, because the values must be uppercased because
@@ -17,7 +19,11 @@ public enum CompactDisplayVal {
    * @return
    */
   public static CompactDisplayVal getFromString(String s) {
-    return CompactDisplayVal.valueOf(s.toUpperCase());
+    try {
+      return CompactDisplayVal.valueOf(s.toUpperCase());
+    } catch (Exception e) {
+      return DEFAULT;
+    }
   }
 
   public String toString() {

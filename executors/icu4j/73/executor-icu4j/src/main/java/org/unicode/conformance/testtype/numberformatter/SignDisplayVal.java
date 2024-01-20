@@ -5,5 +5,15 @@ public enum SignDisplayVal {
   always,
   exceptZero,
   negative,
-  never
+  never;
+
+  public static SignDisplayVal DEFAULT = auto;
+
+  public static SignDisplayVal getFromString(String s) {
+    try {
+      return SignDisplayVal.valueOf(s);
+    } catch (Exception e){
+      return DEFAULT;
+    }
+  }
 }

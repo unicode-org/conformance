@@ -6,9 +6,12 @@ package org.unicode.conformance.testtype.numberformatter;
  * Instead, the uppercase versions `SHORT`, `LONG`, etc. are used.
  */
 public enum UnitDisplayVal {
+  NONE, // a fake value to use as default
   LONG,
   SHORT,
   NARROW;
+
+  public static UnitDisplayVal DEFAULT = NONE;
 
   /**
    * Convenience static constructor for this class's enums that automatically
@@ -18,7 +21,11 @@ public enum UnitDisplayVal {
    * @return
    */
   public static UnitDisplayVal getFromString(String s) {
-    return UnitDisplayVal.valueOf(s.toUpperCase());
+    try {
+      return UnitDisplayVal.valueOf(s.toUpperCase());
+    } catch (Exception e) {
+      return DEFAULT;
+    }
   }
 
   public String toString() {

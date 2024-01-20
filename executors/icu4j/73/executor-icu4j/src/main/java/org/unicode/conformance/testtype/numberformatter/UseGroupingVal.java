@@ -12,6 +12,8 @@ public enum UseGroupingVal {
   AUTO,
   MIN2;
 
+  public static UseGroupingVal DEFAULT = AUTO;
+
   /**
    * Convenience static constructor for this class's enums that automatically
    * uppercases the input string, because the values must be uppercased because
@@ -19,8 +21,12 @@ public enum UseGroupingVal {
    * @param s
    * @return
    */
-  public static CompactDisplayVal getFromString(String s) {
-    return CompactDisplayVal.valueOf(s.toUpperCase());
+  public static UseGroupingVal getFromString(String s) {
+    try {
+      return UseGroupingVal.valueOf(s.toUpperCase());
+    } catch (Exception e) {
+      return DEFAULT;
+    }
   }
 
   public String toString() {

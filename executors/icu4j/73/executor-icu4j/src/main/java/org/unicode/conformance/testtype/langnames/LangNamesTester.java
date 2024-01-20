@@ -14,14 +14,14 @@ public class LangNamesTester implements ITestType {
   public static LangNamesTester INSTANCE = new LangNamesTester();
 
   @Override
-  public ITestTypeInputJson inputMapToJson(Map<String, String> inputMapData) {
+  public ITestTypeInputJson inputMapToJson(Map<String, Object> inputMapData) {
     LangNamesInputJson result = new LangNamesInputJson();
 
-    result.test_type = inputMapData.get("test_type", null);
-    result.label = inputMapData.get("label", null);
+    result.test_type = (String) inputMapData.get("test_type", null);
+    result.label = (String) inputMapData.get("label", null);
 
-    result.language_label = inputMapData.get("language_label", null);
-    result.locale_label = inputMapData.get("locale_label", null);
+    result.language_label = (String) inputMapData.get("language_label", null);
+    result.locale_label = (String) inputMapData.get("locale_label", null);
 
     return result;
   }
