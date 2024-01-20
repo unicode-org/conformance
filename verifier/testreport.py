@@ -2,6 +2,7 @@
 
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
+from compare_template import compareTemplate
 
 from collections import defaultdict
 
@@ -991,6 +992,7 @@ class SummaryReport:
                     'error_count': int(test_json['test_error_count']),
                     'unsupported_count': len(test_json['unsupported']),
                     'missing_verify_count': len(test_json['missing_verify_data']),
+                    'result_dir_path': dir_path,
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
                     'version': platform,
@@ -1148,3 +1150,74 @@ class SummaryReport:
         # Update summary HTML page with data on latest verification
         # TODO: keep history of changes
         return
+
+
+class CompareReport():
+    # Set up page for comparing results for a given test type,
+    # across different platforms, platform versions, and icu data versions
+    def __init__(self, file_base, test_type):
+        self.file_base = file_base
+        self.test_type = test_type
+        self.report_dir_name = 'testReports'
+        self.output_name = 'compare_%s.html' % test_type
+
+        self.compare_html_path = os.path.join(file_base,
+                                              self.report_dir_name,
+                                              self.output_name)
+
+        self.templates = compareTemplate()
+        self.html_map = {
+            'test_type': test_type
+        }
+
+        # More standard items for an instance
+
+    def get_json_files(self):
+        # For each executor directory in testReports,
+        #  Get each json report file
+        report_dir_base = os.path.join(self.file_base, self.report_dir_name)
+        version_join = os.path.join(report_dir_base, '*', '*')
+        self.version_directories = glob.glob(version_join)
+
+        test_type_raw_join = os.path.join(version_join, self.test_type)
+        raw_reports = glob.glob(test_type_raw_join)
+        self.raw_reports = raw_reports
+        self.raw_reports.sort()
+
+        logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
+
+        # TODO: Get the values for these to add to template
+        self.html_map['data_dirs'] = self.raw_reports
+
+        # for each, get the platform, version, and icu_version
+        test_names = []
+        # Include the names parts [3] .. [-3]
+        for dir in self.raw_reports:
+          parts = dir.split('/')
+          test_id = ' '.join(parts[3:-1])
+          test_names.append(test_id)
+        self.html_map['test_names'] = test_names
+
+        # Classes of test results
+        self.status_list = ['pass', 'fail', 'error', 'unsupported']
+
+        return self.raw_reports
+
+    def create_report(self):
+        # Get the template & instantiate for the test type
+        html_template = self.templates.reportOutline()
+
+        # Fill in with the test info and set check boxes
+        html_output = html_template.safe_substitute(self.html_map)
+
+        # write the html file
+        try:
+            file = open(self.compare_html_path, mode='w', encoding='utf-8')
+            file.write(html_output)
+            file.close()
+            return True
+        except BaseException as err:
+            sys.stderr.write(
+                '!!!!!!! CANNOT WRITE SUMMARY_HTML REPORT at %s\n    Error = %s' % (
+                    self.compare_html_path, err))
+            return None

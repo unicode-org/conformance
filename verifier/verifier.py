@@ -11,6 +11,7 @@ import sys
 
 from testreport import TestReport
 from testreport import SummaryReport
+from testreport import CompareReport
 
 sys.path.append('../testdriver')
 import datasets as ddt_data
@@ -488,6 +489,16 @@ class Verifier:
         if not result:
             logging.error('!!!!!! SUMMARY HTML fails')
 
+        # Create compare html for each test type
+        for test_type in self.test_types:
+            logging.info('Creating compare for %s', test_type)
+            compare_report = CompareReport(self.file_base, test_type)
+            # TODO!!!! Finish
+
+            json_files = compare_report.get_json_files()
+
+            compare_report.create_report()
+            
     def schema_results(self):
         # Locate the files in schema, testData, and testOutput
         schema_validation_name = 'schema_validation_summary.json'
