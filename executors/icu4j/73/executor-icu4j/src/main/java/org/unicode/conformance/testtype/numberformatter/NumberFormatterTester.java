@@ -1,7 +1,9 @@
 package org.unicode.conformance.testtype.numberformatter;
 
 import com.ibm.icu.number.FormattedNumber;
+import com.ibm.icu.number.LocalizedNumberFormatter;
 import com.ibm.icu.number.NumberFormatter;
+import com.ibm.icu.util.Currency;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.Map;
 import java.math.BigDecimal;
@@ -144,10 +146,20 @@ public class NumberFormatterTester implements ITestType {
 
   public String getFormattedNumber(NumberFormatterInputJson input) {
     BigDecimal inputVal = new BigDecimal(input.input);
-    FormattedNumber fn =
-        NumberFormatter.forSkeleton(input.skeleton)
-            .locale(new ULocale(input.input))
-            .format(inputVal);
+
+    LocalizedNumberFormatter nf;
+    if (input.skeleton.isEmpty()) {
+      nf = NumberFormatter.withLocale(ULocale.forLanguageTag(input.input));
+    } else {
+      nf = NumberFormatter.forSkeleton(input.skeleton)
+          .locale(ULocale.forLanguageTag(input.input));
+    }
+
+    if (input.options.get("style") == StyleVal.currency && input.options.get("currency") != null) {
+      nf = nf.unit(Currency.getInstance((String) input.options.get("currency")));
+    }
+
+    FormattedNumber fn = nf.format(inputVal);
     return fn.toString();
   }
 }
