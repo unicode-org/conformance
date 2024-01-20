@@ -16,8 +16,7 @@ public class ExecutorUtils {
   }
 
   public static io.lacuna.bifurcan.Map<String,String> parseInputLine(String inputLine) {
-    TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
-    Map<String,String> parsedInputJavaMap = ExecutorUtils.GSON.fromJson(inputLine, mapType);
+    Map<String,String> parsedInputJavaMap = stringMapFromString(inputLine);
 
     io.lacuna.bifurcan.Map<String,String> parsedInputPersistentMap =
         io.lacuna.bifurcan.Map.from(parsedInputJavaMap);
@@ -32,6 +31,13 @@ public class ExecutorUtils {
       jMap.put(entry.key(), entry.value());
     }
     return GSON.toJson(jMap);
+  }
+
+  public static Map<String,String> stringMapFromString(String s) {
+    TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
+    Map<String,String> parsedInputJavaMap = ExecutorUtils.GSON.fromJson(s, mapType);
+
+    return parsedInputJavaMap;
   }
 
 }

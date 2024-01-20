@@ -2,7 +2,9 @@ package org.unicode.conformance.testtype.numberformatter;
 
 public enum NumberFormatterTestOptionKey {
   notation,
+  numberingSystem,
   compactDisplay,
+  currencySign,
   signDisplay,
   style,
   unit,

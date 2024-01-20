@@ -7,7 +7,7 @@ public class NumberFormatterOutputJson implements ITestTypeOutputJson {
   String label;
 
   String result;
-  
+
   public String error;
 
   public String error_message;

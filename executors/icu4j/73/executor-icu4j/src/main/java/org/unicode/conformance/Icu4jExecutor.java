@@ -2,6 +2,7 @@ package org.unicode.conformance;
 
 import com.google.gson.reflect.TypeToken;
 import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
+import com.ibm.icu.number.NumberFormatter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +13,7 @@ import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.collator.CollatorTester;
 import org.unicode.conformance.testtype.langnames.LangNamesTester;
 import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
+import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 
 /**
  * Hello world!
@@ -118,6 +120,8 @@ public class Icu4jExecutor {
                 testType = LangNamesTester.INSTANCE;
             } else if (testTypeStr.equals("likely_subtags")) {
                 testType = LikelySubtagsTester.INSTANCE;
+            } else if (testTypeStr.equals("number_fmt")) {
+                testType = NumberFormatterTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,String> response =
                     parsedInputPersistentMap
