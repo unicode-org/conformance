@@ -212,7 +212,7 @@ class TestReport:
         # Fill in the important fields.
         report['title'] = self.title
         # Fix up the version if we can.
-        if self.platform_info['icuVersion'] == 'unknown':
+        if self.platform and self.platform_info.has('icuVersion') and self.platform_info['icuVersion'] == 'unknown':
             try:
                 platform = self.platform_info['platform']
                 platform_version = self.platform_info['platformVersion']
