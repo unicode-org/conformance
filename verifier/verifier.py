@@ -134,7 +134,7 @@ class Verifier:
             executor_list = self.options.exec
             test_list = self.options.test_type
 
-        # Generate a pla for each executor, test_type, and icu_version
+        # Generate a plan for each executor, test_type, and icu_version
         for executor in executor_list:
             for test_type in test_list:
 
