@@ -69,24 +69,19 @@ public class NumberFormatterTester implements ITestType {
             (String) parsedOptionsMap.get("currencyDisplay")));
     options.put(
         NumberFormatterTestOptionKey.minimumFractionDigits,
-        Integer.parseInt(
-            (String) parsedOptionsMap.getOrDefault("minimumFractionDigits", "-1")));
+        parsedOptionsMap.getOrDefault("minimumFractionDigits", -1));
     options.put(
         NumberFormatterTestOptionKey.maximumFractionDigits,
-        Integer.parseInt(
-            (String) parsedOptionsMap.getOrDefault("maximumFractionDigits", "-1")));
+        parsedOptionsMap.getOrDefault("maximumFractionDigits", -1));
     options.put(
         NumberFormatterTestOptionKey.minimumIntegerDigits,
-        Integer.parseInt(
-            (String) parsedOptionsMap.getOrDefault("minimumIntegerDigits", "-1")));
+        parsedOptionsMap.getOrDefault("minimumIntegerDigits", -1));
     options.put(
         NumberFormatterTestOptionKey.minimumSignificantDigits,
-        Integer.parseInt(
-            (String) parsedOptionsMap.getOrDefault("minimumSignificantDigits", "-1")));
+        parsedOptionsMap.getOrDefault("minimumSignificantDigits", -1));
     options.put(
         NumberFormatterTestOptionKey.maximumSignificantDigits,
-        Integer.parseInt(
-            (String) parsedOptionsMap.getOrDefault("maximumSignificantDigits", "-1")));
+        parsedOptionsMap.getOrDefault("maximumSignificantDigits", -1));
     options.put(
         NumberFormatterTestOptionKey.nu,
         NuVal.getFromString(
@@ -100,7 +95,7 @@ public class NumberFormatterTester implements ITestType {
         RoundingModeVal.getFromString(
             (String) parsedOptionsMap.get("roundingMode")));
     int roundingIncrement =
-        Integer.parseInt((String) parsedOptionsMap.getOrDefault("roundingIncrement", Integer.toString(RoundingIncrementUtil.DEFAULT)));
+        (int) parsedOptionsMap.getOrDefault("roundingIncrement", RoundingIncrementUtil.DEFAULT);
     assert RoundingIncrementUtil.isValidVal(roundingIncrement);
     options.put(
         NumberFormatterTestOptionKey.roundingIncrement,
