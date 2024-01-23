@@ -296,7 +296,8 @@ const string test_numfmt(json_object *json_in) {
   UNumberUnitWidth unit_width_setting =
       UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
 
-  NumberingSystem* numbering_system = NumberingSystem::createInstance(displayLocale, status);
+  NumberingSystem* numbering_system =
+      NumberingSystem::createInstance(displayLocale, status);
 
   // Check all the options
   if (options_obj) {
@@ -428,14 +429,17 @@ const string test_numfmt(json_object *json_in) {
     // Other settings...
     // NumberFormatter::with().symbols(DecimalFormatSymbols(Locale("de_CH"), status))
 
-    json_object* numbering_system_obj = json_object_object_get(options_obj, "numberingSystem");
+    json_object* numbering_system_obj = json_object_object_get(options_obj,
+                                                               "numberingSystem");
     if (numbering_system_obj) {
       string numbering_system_string = json_object_get_string(numbering_system_obj);
-      numbering_system = NumberingSystem::createInstanceByName(numbering_system_string.c_str(), status);
+      numbering_system = NumberingSystem::createInstanceByName(
+          numbering_system_string.c_str(), status);
     }
 
     // Handling decimal point
-    json_object* decimal_always_obj = json_object_object_get(options_obj, "conformanceDecimalAlways");
+    json_object* decimal_always_obj =
+        json_object_object_get(options_obj, "conformanceDecimalAlways");
     if (decimal_always_obj) {
       string separator_string = json_object_get_string(
           decimal_always_obj);
@@ -455,6 +459,10 @@ const string test_numfmt(json_object *json_in) {
   // JSON for the results
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
+
+  int32_t chars_out;  // Results of extracting characters from Unicode string
+  bool no_error = true;
+  char test_result_string[1000] = "";
 
   string test_result;
 
@@ -481,9 +489,9 @@ const string test_numfmt(json_object *json_in) {
   }
 
   if (skeleton_obj) {
-    cout << "# SKELETON " << skeleton_string << endl;
-    cout << "# LOCALE " << locale_string << endl;
-    nf = NumberFormatter::forSkeleton(unicode_skeleton_string, status).locale(displayLocale);
+    // If present, use the skeleton
+    nf = NumberFormatter::forSkeleton(
+        unicode_skeleton_string, status).locale(displayLocale);
   }
   else {
   // Use settings to initialize the formatter
@@ -503,34 +511,47 @@ const string test_numfmt(json_object *json_in) {
 
   if (U_FAILURE(status)) {
       test_result = error_message.c_str();
-      // TODO: report the error in creating the instance
+      const char* error_name = u_errorName(status);
+      json_object_object_add(return_json,
+                           "error", json_object_new_string("error in constructor"));
+      json_object_object_add(return_json,
+                             "error_detail", json_object_new_string(error_name));
+      no_error = false;
   }
 
-  UnicodeString number_result;
-  FormattedNumber fmt_number = nf.formatDouble(input_double, status);
-  number_result = fmt_number.toString(status);
-  if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
-      // TODO: report the error
+  if (no_error) {
+    UnicodeString number_result;
+    // Use formatDecimal, passing the string instead of a double.
+    FormattedNumber fmt_number = nf.formatDecimal(input_string, status);
+    number_result = fmt_number.toString(status);
+    if (U_FAILURE(status)) {
+      const char* error_name = u_errorName(status);
+      json_object_object_add(return_json,
+                           "error", json_object_new_string("error in toString"));
+      json_object_object_add(return_json,
+                             "error_detail", json_object_new_string(error_name));
+      no_error = false;
+    }
+
+    // Get the resulting value as a string
+    chars_out = number_result.extract(test_result_string, 1000, nullptr, status);
+    test_result = test_result_string;
+
+    if (U_FAILURE(status)) {
+      // Report a failure
+      const char* error_name = u_errorName(status);
+      json_object_object_add(
+          return_json, "error", json_object_new_string("error in string extract"));
+      json_object_object_add(
+          return_json, "error_detail", json_object_new_string(error_name));
+      no_error = false;
+    } else {
+      // It worked!
+      json_object_object_add(return_json,
+                             "result",
+                             json_object_new_string(test_result.c_str()));
+    }
   }
-
-  // Get the resulting value as a string
-  char test_result_string[1000] = "";
-  int32_t chars_out = number_result.extract(test_result_string, 1000, nullptr, status);
-  test_result = test_result_string;
-
-  if (U_FAILURE(status)) {
-    // Report a failure
-    test_result = error_message.c_str();
-    json_object_object_add(return_json,
-                           "error", json_object_new_string("langnames extract error"));
-  } else {
-    // It worked!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result.c_str()));
-  }
-
   // To see what was actually used.
   UnicodeString u_skeleton_out = nf.toSkeleton(status);
   chars_out = u_skeleton_out.extract(test_result_string, 1000, nullptr, status);
