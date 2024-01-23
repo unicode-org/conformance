@@ -1187,7 +1187,9 @@ class CompareReport():
         logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
 
         # TODO: Get the values for these to add to template
-        self.html_map['data_dirs'] = self.raw_reports
+        common_path = os.path.commonpath(self.raw_reports)
+        data_dirs = [x.replace(common_path, '.') for x in self.raw_reports]
+        self.html_map['data_dirs'] = data_dirs
 
         # for each, get the platform, version, and icu_version
         test_names = []
@@ -1215,9 +1217,11 @@ class CompareReport():
             file = open(self.compare_html_path, mode='w', encoding='utf-8')
             file.write(html_output)
             file.close()
-            return True
+
         except BaseException as err:
             sys.stderr.write(
                 '!!!!!!! CANNOT WRITE SUMMARY_HTML REPORT at %s\n    Error = %s' % (
                     self.compare_html_path, err))
             return None
+
+        return True

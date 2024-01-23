@@ -498,7 +498,7 @@ class Verifier:
             json_files = compare_report.get_json_files()
 
             compare_report.create_report()
-            
+
     def schema_results(self):
         # Locate the files in schema, testData, and testOutput
         schema_validation_name = 'schema_validation_summary.json'

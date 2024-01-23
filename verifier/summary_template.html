@@ -255,11 +255,10 @@
                   td = tr.insertCell();
                   td.innerHTML = details.join('');
                 }
-                // Set the compare link
-                const compare_link_text =
-        "compare_template.html?data_dirs=" + "'" + compare_list.join('|') + "'" +
-        "&names=" + "'" + test_names.join('|') + "'";
-                test_type_td.innerHTML = "<a href=\'" + compare_link_text + "'" + ">" + test_type + "</a>";
+                // Set the compare link for this test type.
+                const compare_link_text =  "compare_" + test_type + ".html";
+                test_type_td.innerHTML = "<a href=\'" + compare_link_text + "'" +
+                    " target='_blank'>" + test_type + "</a>";
                                                 
         
               }
