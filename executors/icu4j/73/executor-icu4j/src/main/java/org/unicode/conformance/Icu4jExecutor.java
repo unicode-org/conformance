@@ -2,6 +2,7 @@ package org.unicode.conformance;
 
 import com.google.gson.reflect.TypeToken;
 import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
+import com.ibm.icu.number.NumberFormatter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,9 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.unicode.conformance.testtype.ITestType;
+import org.unicode.conformance.testtype.ITestTypeOutputJson;
 import org.unicode.conformance.testtype.collator.CollatorTester;
 import org.unicode.conformance.testtype.langnames.LangNamesTester;
 import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
+import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 
 /**
  * Hello world!
@@ -97,20 +100,20 @@ public class Icu4jExecutor {
 
     public static String getTestCaseResponse(String inputLine) throws Exception {
 
-        io.lacuna.bifurcan.Map<String,String> parsedInputPersistentMap =
+        io.lacuna.bifurcan.Map<String,Object> parsedInputPersistentMap =
             ExecutorUtils.parseInputLine(inputLine);
 
-        Optional<String> testTypeOpt = parsedInputPersistentMap.get("test_type");
+        Optional<Object> testTypeOpt = parsedInputPersistentMap.get("test_type");
 
         if (!testTypeOpt.isPresent()) {
-            io.lacuna.bifurcan.IMap<String,String> response =
+            io.lacuna.bifurcan.IMap<String,Object> response =
                 parsedInputPersistentMap
                     .put("error", "Error in input")
                     .put("error_msg", "Error in input found in executor before execution");
 
             return ExecutorUtils.formatAsJson(response);
         } else {
-            String testTypeStr = testTypeOpt.get();
+            String testTypeStr = (String) testTypeOpt.get();
             ITestType testType;
             if (testTypeStr.equals("collation_short")) {
                 testType = CollatorTester.INSTANCE;
@@ -118,8 +121,10 @@ public class Icu4jExecutor {
                 testType = LangNamesTester.INSTANCE;
             } else if (testTypeStr.equals("likely_subtags")) {
                 testType = LikelySubtagsTester.INSTANCE;
+            } else if (testTypeStr.equals("number_fmt")) {
+                testType = NumberFormatterTester.INSTANCE;
             } else {
-                io.lacuna.bifurcan.IMap<String,String> response =
+                io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap
                         .put("error", "Error in input")
                         .put("error_msg", "Error in input found in executor before execution");
@@ -127,7 +132,17 @@ public class Icu4jExecutor {
                 return ExecutorUtils.formatAsJson(response);
             }
 
-            return testType.getFinalOutputFromInput(parsedInputPersistentMap);
+            try {
+                return testType.getFinalOutputFromInput(parsedInputPersistentMap);
+            } catch (Exception e) {
+                ITestTypeOutputJson defaultOutput = testType.getDefaultOutputJson();
+                return ExecutorUtils.formatAsJson(
+                    testType.convertOutputToMap(defaultOutput)
+                        .put("label", parsedInputPersistentMap.get("label", null))
+                        .put("error", "Error in input")
+                        .put("error_msg", "Error in handling test case: " + e.getMessage())
+                );
+            }
         }
     }
 
