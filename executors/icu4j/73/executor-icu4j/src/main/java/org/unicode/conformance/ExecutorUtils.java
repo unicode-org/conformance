@@ -15,23 +15,29 @@ public class ExecutorUtils {
     System.out.println(responseString);
   }
 
-  public static io.lacuna.bifurcan.Map<String,String> parseInputLine(String inputLine) {
-    TypeToken<Map<String, String>> mapType = new TypeToken<Map<String, String>>(){};
-    Map<String,String> parsedInputJavaMap = ExecutorUtils.GSON.fromJson(inputLine, mapType);
+  public static io.lacuna.bifurcan.Map<String,Object> parseInputLine(String inputLine) {
+    Map<String,Object> parsedInputJavaMap = stringMapFromString(inputLine);
 
-    io.lacuna.bifurcan.Map<String,String> parsedInputPersistentMap =
+    io.lacuna.bifurcan.Map<String,Object> parsedInputPersistentMap =
         io.lacuna.bifurcan.Map.from(parsedInputJavaMap);
 
     return parsedInputPersistentMap;
   }
 
-  public static String formatAsJson(io.lacuna.bifurcan.IMap<String,String> mapData) {
-    java.util.Map<String,String> jMap = new HashMap<>();
-    for (Iterator<IEntry<String, String>> it = mapData.stream().iterator(); it.hasNext(); ) {
-      IEntry<String, String> entry = it.next();
+  public static String formatAsJson(io.lacuna.bifurcan.IMap<String,Object> mapData) {
+    java.util.Map<String,Object> jMap = new HashMap<>();
+    for (Iterator<IEntry<String, Object>> it = mapData.stream().iterator(); it.hasNext(); ) {
+      IEntry<String, Object> entry = it.next();
       jMap.put(entry.key(), entry.value());
     }
     return GSON.toJson(jMap);
+  }
+
+  public static Map<String,Object> stringMapFromString(String s) {
+    TypeToken<Map<String, Object>> mapType = new TypeToken<Map<String, Object>>(){};
+    Map<String,Object> parsedInputJavaMap = ExecutorUtils.GSON.fromJson(s, mapType);
+
+    return parsedInputJavaMap;
   }
 
 }
