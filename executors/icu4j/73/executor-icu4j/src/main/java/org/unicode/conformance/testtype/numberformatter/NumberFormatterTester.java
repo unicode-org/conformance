@@ -5,6 +5,7 @@ import com.ibm.icu.number.LocalizedNumberFormatter;
 import com.ibm.icu.number.NumberFormatter;
 import com.ibm.icu.util.Currency;
 import com.ibm.icu.util.ULocale;
+import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -132,6 +133,19 @@ public class NumberFormatterTester implements ITestType {
 
     // If we get here, it's a pass/fail result (supported options and no runtime errors/exceptions)
     return output;
+  }
+
+  @Override
+  public ITestTypeOutputJson getDefaultOutputJson() {
+    return new NumberFormatterOutputJson();
+  }
+
+  @Override
+  public IMap<String, Object> convertOutputToMap(ITestTypeOutputJson outputJson) {
+    NumberFormatterOutputJson output = (NumberFormatterOutputJson) outputJson;
+    return new io.lacuna.bifurcan.Map<String,Object>()
+        .put("label", output.label)
+        .put("result", output.result);
   }
 
   @Override

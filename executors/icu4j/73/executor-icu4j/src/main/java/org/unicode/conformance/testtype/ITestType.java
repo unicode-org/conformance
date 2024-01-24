@@ -20,6 +20,10 @@ public interface ITestType {
 
   ITestTypeOutputJson execute(ITestTypeInputJson inputJson);
 
+  ITestTypeOutputJson getDefaultOutputJson();
+
+  io.lacuna.bifurcan.IMap<String,Object> convertOutputToMap(ITestTypeOutputJson outputJson);
+
   String formatOutputJson(ITestTypeOutputJson outputJson);
 
   default ITestTypeOutputJson getStructuredOutputFromInputStr(String inputLine) {

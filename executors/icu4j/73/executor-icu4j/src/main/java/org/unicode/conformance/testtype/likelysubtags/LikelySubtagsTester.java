@@ -1,6 +1,7 @@
 package org.unicode.conformance.testtype.likelysubtags;
 
 import com.ibm.icu.util.ULocale;
+import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
@@ -43,6 +44,21 @@ public class LikelySubtagsTester implements ITestType {
 
     // If we get here, it's a pass/fail result (supported options and no runtime errors/exceptions)
     return output;
+  }
+
+  @Override
+  public ITestTypeOutputJson getDefaultOutputJson() {
+    return new LikelySubtagsOutputJson();
+  }
+
+  @Override
+  public IMap<String, Object> convertOutputToMap(ITestTypeOutputJson outputJson) {
+    LikelySubtagsOutputJson output = (LikelySubtagsOutputJson) outputJson;
+    return new io.lacuna.bifurcan.Map<String,Object>()
+        .put("label", output.label)
+        .put("locale", output.locale)
+        .put("result", output.result)
+        .put("option", output.option);
   }
 
   @Override

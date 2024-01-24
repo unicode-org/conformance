@@ -3,6 +3,7 @@ package org.unicode.conformance.testtype.collator;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.util.ULocale;
+import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
 import java.util.Optional;
 import org.unicode.conformance.ExecutorUtils;
@@ -85,7 +86,7 @@ public class CollatorTester implements ITestType {
     CollatorInputJson input = (CollatorInputJson) inputJson;
 
     // partially construct output
-    CollatorOutputJson output = new CollatorOutputJson();
+    CollatorOutputJson output = (CollatorOutputJson) getDefaultOutputJson();
     output.label = input.label;
     output.s1 = input.s1;
     output.s2 = input.s2;
@@ -124,6 +125,25 @@ public class CollatorTester implements ITestType {
     // If we get here, it's a pass/fail result (supported options and no runtime errors/exceptions)
     return output;
   }
+
+  @Override
+  public ITestTypeOutputJson getDefaultOutputJson() {
+    CollatorOutputJson output = new CollatorOutputJson();
+    output.result = false;
+
+    return output;
+  }
+
+  @Override
+  public IMap<String, Object> convertOutputToMap(ITestTypeOutputJson outputJson) {
+    CollatorOutputJson output = (CollatorOutputJson) outputJson;
+    return new io.lacuna.bifurcan.Map<String,Object>()
+        .put("label", output.label)
+        .put("result", output.result)
+        .put("s1", output.s1)
+        .put("s2", output.s2);
+  }
+
   @Override
   public String formatOutputJson(ITestTypeOutputJson outputJson) {
     return ExecutorUtils.GSON.toJson((CollatorOutputJson) outputJson);

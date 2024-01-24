@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.unicode.conformance.testtype.ITestType;
+import org.unicode.conformance.testtype.ITestTypeOutputJson;
 import org.unicode.conformance.testtype.collator.CollatorTester;
 import org.unicode.conformance.testtype.langnames.LangNamesTester;
 import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
@@ -131,7 +132,17 @@ public class Icu4jExecutor {
                 return ExecutorUtils.formatAsJson(response);
             }
 
-            return testType.getFinalOutputFromInput(parsedInputPersistentMap);
+            try {
+                return testType.getFinalOutputFromInput(parsedInputPersistentMap);
+            } catch (Exception e) {
+                ITestTypeOutputJson defaultOutput = testType.getDefaultOutputJson();
+                return ExecutorUtils.formatAsJson(
+                    testType.convertOutputToMap(defaultOutput)
+                        .put("label", parsedInputPersistentMap.get("label", null))
+                        .put("error", "Error in input")
+                        .put("error_msg", "Error in handling test case: " + e.getMessage())
+                );
+            }
         }
     }
 
