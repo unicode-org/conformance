@@ -157,13 +157,18 @@ public class NumberFormatterTester implements ITestType {
     BigDecimal inputVal = new BigDecimal(input.input);
 
     LocalizedNumberFormatter nf;
-    if (input.skeleton.isEmpty()) {
-      nf = NumberFormatter.withLocale(ULocale.forLanguageTag(input.input));
-    } else {
+    ULocale locale = ULocale.forLanguageTag(input.locale);
+
+    // If there is a skeleton, that's all we need. Apply it and return the result
+    if (!input.skeleton.isEmpty()) {
       nf = NumberFormatter.forSkeleton(input.skeleton)
-          .locale(ULocale.forLanguageTag(input.input));
+          .locale(locale);
+      return nf.format(inputVal).toString();
     }
 
+    // Otherwise (=> no skeleton), set all the options on the formatter
+
+    nf = NumberFormatter.withLocale(locale);
     if (input.options.get("style") == StyleVal.currency && input.options.get("currency") != null) {
       nf = nf.unit(Currency.getInstance((String) input.options.get("currency")));
     }

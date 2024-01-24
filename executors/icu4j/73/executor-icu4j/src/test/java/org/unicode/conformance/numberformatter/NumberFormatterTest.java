@@ -11,7 +11,7 @@ public class NumberFormatterTest {
   @Test
   public void testSkeleton() {
     String testInput =
-        "{\"test_type\": \"number_fmt\", \"label\":\"s\", \"pattern\":\"@@@\", \"skeleton\": \"@@@ group-off\", \"input\":\"123456\", \"options\":{}}";
+        "{\"test_type\": \"number_fmt\", \"label\":\"s\", \"pattern\":\"@@@\", \"skeleton\": \"@@@ group-off\", \"input\":\"123456\", \"options\":{}, \"locale\":\"und\"}";
 
     NumberFormatterOutputJson output =
         (NumberFormatterOutputJson) NumberFormatterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
@@ -22,7 +22,7 @@ public class NumberFormatterTest {
   @Test
   public void testDebug1() {
     String testInput =
-        "{ \"label\": \"0146\", \"locale\": \"es-MX\", \"skeleton\": \"compact-short currency/EUR precision-integer\", \"input\": \"-0.22222\", \"options\": { \"notation\": \"compact\", \"compactDisplay\": \"short\", \"style\": \"currency\", \"currencyDisplay\": \"symbol\", \"currency\": \"EUR\", \"maximumFractionDigits\": 0, \"minimumFractionDigits\": 0, \"roundingType\": \"fractionDigits\" }, \"test_type\": \"number_fmt\" }";
+        "{ \"label\": \"0146\", \"locale\": \"und\", \"skeleton\": \"compact-short currency/EUR precision-integer\", \"input\": \"-0.22222\", \"options\": { \"notation\": \"compact\", \"compactDisplay\": \"short\", \"style\": \"currency\", \"currencyDisplay\": \"symbol\", \"currency\": \"EUR\", \"maximumFractionDigits\": 0, \"minimumFractionDigits\": 0, \"roundingType\": \"fractionDigits\" }, \"test_type\": \"number_fmt\" }";
 
     NumberFormatterOutputJson output =
         (NumberFormatterOutputJson) NumberFormatterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
