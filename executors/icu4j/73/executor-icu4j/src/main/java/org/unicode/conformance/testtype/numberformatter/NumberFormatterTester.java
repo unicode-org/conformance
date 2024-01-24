@@ -109,7 +109,7 @@ public class NumberFormatterTester implements ITestType {
     options.put(
         NumberFormatterTestOptionKey.useGrouping,
         UseGroupingVal.getFromString(
-            (String) parsedOptionsMap.get("useGrouping")));
+            "" + parsedOptionsMap.get("useGrouping")));
     result.options = options;
 
     return result;
