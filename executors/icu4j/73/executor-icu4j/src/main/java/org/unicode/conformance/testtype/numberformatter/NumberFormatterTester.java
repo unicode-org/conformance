@@ -157,10 +157,16 @@ public class NumberFormatterTester implements ITestType {
     BigDecimal inputVal = new BigDecimal(input.input);
 
     LocalizedNumberFormatter nf;
-    ULocale locale = ULocale.forLanguageTag(input.locale);
 
-    // If there is a skeleton, that's all we need. Apply it and return the result
-    if (!input.skeleton.isEmpty()) {
+    ULocale locale = ULocale.ROOT;
+    if (input.locale == null) {
+      locale = ULocale.ROOT;
+    } else {
+      locale = ULocale.forLanguageTag(input.locale);
+    }
+
+    // Return early with a result f there is a skeleton, since that's all we need for configs.
+    if (input.skeleton != null && !input.skeleton.isEmpty()) {
       nf = NumberFormatter.forSkeleton(input.skeleton)
           .locale(locale);
       return nf.format(inputVal).toString();

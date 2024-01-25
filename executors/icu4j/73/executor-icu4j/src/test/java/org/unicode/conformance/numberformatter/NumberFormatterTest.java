@@ -30,4 +30,15 @@ public class NumberFormatterTest {
     assertEquals("-€ 0", output.result);
   }
 
+  @Test
+  public void testDebug2() {
+    String testInput =
+        "{\"label\":\"6497\",\"op\":\"format\",\"pattern\":\"0.0\",\"input\":\"-0.19\",\"options\":{\"roundingMode\":\"expand\",\"minimumIntegerDigits\":1,\"minimumFractionDigits\":1,\"maximumFractionDigits\":1,\"useGrouping\":false}}";
+
+    NumberFormatterOutputJson output =
+        (NumberFormatterOutputJson) NumberFormatterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertEquals("-0.19", output.result);
+  }
+
 }
