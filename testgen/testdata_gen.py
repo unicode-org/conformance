@@ -22,6 +22,28 @@ NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
 NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
 
 
+# Utility function
+
+# Determines how many digits are kept in the hash_id field.
+hash_mod = 10 ** 8
+
+def create_hash_ignoring_label(json_data_in):
+    # Create an N digit hash value for the json item, ignoring
+    # the label key, if present
+    # Adds the hash tag to json_data_in
+    # This is used to create common identifiers for tests across different ICU
+    # data versions. This supports comparison of data between icu versions.
+    label = None
+    new_json = json_data_in
+    if 'label' in new_json:
+        label = new_json['label']
+        new_json.pop('label')
+    hash_result = hash(str(new_json)) % hash_mod
+    json_data_in['hash_id'] = hash_result
+    # And put the label back!
+    json_data_in['label'] = label
+    return hash_result
+
 class generateData():
     def __init__(self, icu_version):
         self.icu_version = icu_version
@@ -204,6 +226,7 @@ class generateData():
           else:
             label = str(count).rjust(max_digits, '0')
             test_json = {'label': label, 'language_label': test_data[0], 'locale_label': test_data[1]}
+            create_hash_ignoring_label(test_json)
             jtests.append(test_json)
             jverify.append({'label': label, 'verify': test_data[2]})
             count += 1
@@ -304,6 +327,8 @@ class generateData():
             verify = {'label': label,
                       'verify': remove_favor_region
                       }
+            create_hash_ignoring_label(test_favor_region)
+
             test_list.append(test_favor_region)
             verify_list.append(verify)
             count += 1
@@ -534,6 +559,7 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
         # include these options in the entry
         entry = entry | {'options': resolved_options_dict}
 
+        create_hash_ignoring_label(entry)
         all_tests_list.append(entry)  # All the tests in JSON form
         count += 1
   logging.info('  generateNumberFmtTestDataObjects gives %d tests',
@@ -634,6 +660,7 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
 
       entry['options'] |= resolved_options_dict  # ??? json_part
 
+      create_hash_ignoring_label(entry)
       all_tests_list.append(entry)
       verify_list.append({'label': label,
                           'verify': expected})
@@ -842,6 +869,7 @@ def generateCollTestData2(filename,
                     if strength:
                         test_case['strength'] = strength
 
+                    create_hash_ignoring_label(test_case)
                     test_list.append(test_case)
                     # We always expect True as the result
 
@@ -942,6 +970,8 @@ def generateCollTestDataObjects(filename,
         new_test = {'label': label, 's1': prev, 's2': next, 'line': line_number}
         if ignorePunctuation:
             new_test['ignorePunctuation'] = True
+
+        create_hash_ignoring_label(new_test)
         test_list.append(new_test)
 
         verify_list.append({'label': label, 'verify': True})

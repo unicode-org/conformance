@@ -109,26 +109,27 @@
         return all_promises;
     }
 
-      function setOfLabels(test_list) {
+      function setOfIdentifiers(test_list) {
           let result = new Set();
           for (let test of test_list) {
-              result.add(test['label']);
+              let input_data = test['input_data'];
+              result.add(input_data['hash_id']);
           }
           return result;
       }
 
     function reloadHeatMap(result1, result2) {
-        // Compute intersections of data labels
+        // Compute intersections of test identifiers
         // Redo the heat map.
         heat_map_data = [];
       for (let state1 of states) {
-          let label_set1 = setOfLabels(result1[state1]);
+          let id_set1 = setOfIdentifiers(result1[state1]);
 
           for (let state2 of states) {
-              let label_set2 = setOfLabels(result2[state2]);
+              let id_set2 = setOfIdentifiers(result2[state2]);
 
               let inter_set =
-                new Set([...label_set1].filter((x) => label_set2.has(x)));
+                new Set([...id_set1].filter((x) => id_set2.has(x)));
               let data_item = {x:state1, y:state2, heat:inter_set.size}
               heat_map_data.push(data_item);
 
@@ -153,11 +154,11 @@
             rb.name = rb_name;
             rb.value = data_dir;
 
-            let label = document.createElement("label");
-            label.appendChild(document.createTextNode(name));
+            let html_label = document.createElement("label");
+            html_label.appendChild(document.createTextNode(name));
 
-            div.appendChild(label);
-            label.appendChild(rb);
+            div.appendChild(html_label);
+            html_label.appendChild(rb);
         }
     }
 
@@ -201,8 +202,9 @@
                   .fill(function () {
                       return anychart.color.darken(this.sourceColor, 0.25);
                   });
-              // hide the labels
-              chart.labels(false);
+
+              // TODO: decide on this hide the item labels
+              chart.labels(true);
               // customize the axes
               chart.xAxis().stroke(null);
               chart.yAxis().stroke(null);
@@ -218,10 +220,10 @@
                   })
                   .format(function () {
                       return (
-                          '<span style="color: #CECECE">Day: </span>' +
+                          '<span style="color: #CECECE">Test 1: </span>' +
                               this.x +
                               "<br/>" +
-                              '<span style="color: #CECECE">Time: </span>' +
+                              '<span style="color: #CECECE">Test 2:: </span>' +
                               this.y
                       );
                   });
