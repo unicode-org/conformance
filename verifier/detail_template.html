@@ -224,11 +224,41 @@ table th {
         const test_data = test_results[box_class];
         test_data.selected_set = null;
 
-        // TODO: Finish this
+        // TODO: Update to handle tristate
+        let excluded_set = new Set();  // Remove these after the loop.
         let characterized_labels = test_data.box_labels;
         for (let check_box of test_data.check_boxes) {
+
             // For each checkbox
-            if (check_box.checked) {
+      if (check_box.attributes.array_labels) {
+      // This is a tristate item.
+      const which_state = check_box.value;
+      
+      // Choose the value depending on the status of the control
+      const labels_string = check_box.attributes.array_labels.value;
+      const str_len = labels_string.length;
+      const labels = labels_string.split(",");
+      const newSet = new Set(labels);
+      if (which_state == cross_mark) {
+      for (let label of labels) {
+      excluded_set.add(label);
+      }
+      continue;
+      }
+      if (which_state == question_mark) {
+      continue;
+      }
+      if (! test_data.selected_set) {
+      // Start the set of selected items.
+      test_data.selected_set = newSet;
+      } else {
+      // Update by intersection with this set.
+      test_data.selected_set =
+      new Set([...test_data.selected_set].filter((x) => newSet.has(x)));
+      }
+      }
+            else if (check_box.checked) {
+               // A checked box.
                 const labels_string = check_box.value;
                 const str_len = labels_string.length;
                 const labels = labels_string.split(",");
@@ -243,7 +273,12 @@ table th {
                 }
             }
         }
-        // Do something with the selected set.
+
+      // Remove any excluded values.
+      excluded_set.forEach((label) => {
+        test_data.selected_set.delete(label);
+      });
+      // Do something with the selected set.
         // Get id of the correct count item.
         const class_name = box_class;  // get from a parent.
         const element_name = 'selectedCount';
@@ -395,10 +430,13 @@ table th {
         }
 
         /* set up areas for error and unsupported detail */
-        create_checkbox_area('pass');
-        create_checkbox_area('fail');
-        create_checkbox_area('error');
-        create_checkbox_area('unsupported');
+        create_checkbox_area('pass', make_characterized_box);
+//        create_checkbox_area('fail', make_characterized_box);
+        create_checkbox_area('error', make_characterized_box);
+        create_checkbox_area('unsupported', make_characterized_box);
+
+        // Starting with the tristate control
+        create_checkbox_area('fail', create_tristate_area);
     }
 
       function fill_pagination(pagination_container_name,
@@ -425,7 +463,80 @@ table th {
           });
       }
 
-    function create_checkbox_area(data_class) {
+      
+    // -----------------------
+
+      const question_mark = '\u2753';
+      const check_mark = '\u2705';
+      const cross_mark = '\u274C';
+
+      function create_tristate_area(
+        id, dict_values, data_class, characterization, count, container) {
+      // Make a tristate control for the items in this data class 
+      // Reference:  https://jsfiddle.net/wf_bitplan_com/941std72/8/
+      // Creates this, storing the result in the data_class
+      // <input title="this is a tri-state button: &#x2753;,&#x2705;,&#x274C;" type="button" onclick="tristate1(this)" value="&#x2753;" />
+
+        let box = document.createElement("INPUT");
+        box.setAttribute("type", "button");
+        box.setAttribute("id", id);
+        box.setAttribute("name", id);
+        box.setAttribute("array_labels", [...dict_values]);
+
+        box.setAttribute("value", "\u2753");
+
+        // Changes the status of this control.
+        box.setAttribute("onclick", "tristate1(this);");
+
+        box.className = data_class;
+        let box_label = document.createElement("label");
+        box_label.htmlFor = id;
+        const text = " " + count + ":" + characterization;
+        box_label.appendChild(document.createTextNode(text));
+
+        let box_div = document.createElement("div");
+        box_div.setAttribute("id", "div_" + id);
+        box_div.appendChild(box);
+        box_div.appendChild(box_label);
+        box_div.appendChild(document.createElement('br'));
+
+        if (container) {
+            container.appendChild(box_div);
+        }
+        return box;      
+      }
+
+      function tristate1(control) {
+        // Question, Check, Cross
+        // Get the next state of the control.
+        tristate(control, question_mark, check_mark, cross_mark);
+
+        // Handle the new state of the tristate or check box.
+        checkboxChanged(control);
+      }
+
+      /**
+       *  loops thru the given 3 values for the given control
+       */
+      function tristate(control, value1, value2, value3) {
+      switch (control.value.charAt(0)) {
+      case value1:
+      control.value = value2;
+      break;
+      case value2:
+      control.value = value3;
+      break;
+      case value3:
+      control.value = value1;
+      break;
+      default:
+      // display the current value if it's unexpected
+      alert(control.value);
+      }
+    }      
+
+    // -----------------------
+      function create_checkbox_area(data_class, make_widget_function) {
           /* Given a set of labels and named characteristics, create a set of checkboxes with
              labels for selecting a subset of items. Put this in the proper div.
              Create "Other" category for any non-categorized tests.
@@ -456,7 +567,7 @@ table th {
                 }
             }
             if (count > 0) {
-                const new_box = make_characterized_box(
+                const new_box = make_widget_function(
                     id, dict_values, data_class, characterization,
                     count, container);
             test_info.box_labels.push(characterization);
@@ -467,7 +578,7 @@ table th {
             // Create an item for non-categorized results.
             const characterization = "others";
             let id = div_name + "_" + characterization;
-            const new_box = make_characterized_box(
+            const new_box = make_widget_function(
                 id, leftover_labels, data_class, characterization,
                 leftover_labels.size, container);
 

@@ -64,6 +64,7 @@ class Verifier:
             vplan.result_file = open(vplan.result_path, encoding='utf-8', mode='r')
             file_time = os.path.getmtime(vplan.result_path)
             vplan.result_time_stamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
+            vplan.report.timestamp = vplan.result_time_stamp
         except BaseException as err:
             logging.error('    *** Cannot open results file %s:\n        %s', vplan.result_path, err)
             return None
