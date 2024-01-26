@@ -37,8 +37,8 @@ public class LikelySubtagsTester implements ITestType {
     try {
       output.result = getLikelySubtagString(input);
     } catch (Exception e) {
-      output.error = "error running test";
       output.error = e.getMessage();
+      output.error_message = e.getMessage();
       return output;
     }
 
