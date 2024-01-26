@@ -622,15 +622,19 @@ table th {
         return box;
     }
 
-    function clearSelectedItems(the_button, test_class) {
+      function clearSelectedItems(the_button, test_class) {
       // Clear all the check boxes for this test_class.
       const test_data = test_results[test_class];
       test_data.check_boxes.forEach((box) => {
+      if (box.attributes.array_labels) {
+          box.value = question_mark;
+      } else {
           box.checked = false;
-          const div_for_checkbox = box.parentElement;
+      }
+      const div_for_checkbox = box.parentElement;
           div_for_checkbox.attributeStyleMap.clear();
       });
-    }
+      }
 
     function captureInputDataOnClick(element) {
         const text = element.innerHTML;
