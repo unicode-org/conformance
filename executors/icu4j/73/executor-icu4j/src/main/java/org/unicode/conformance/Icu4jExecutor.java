@@ -109,7 +109,7 @@ public class Icu4jExecutor {
             io.lacuna.bifurcan.IMap<String,Object> response =
                 parsedInputPersistentMap
                     .put("error", "Error in input")
-                    .put("error_msg", "Error in input found in executor before execution");
+                    .put("error_message", "Error in input found in executor before execution");
 
             return ExecutorUtils.formatAsJson(response);
         } else {
@@ -127,7 +127,7 @@ public class Icu4jExecutor {
                 io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap
                         .put("error", "Error in input")
-                        .put("error_msg", "Error in input found in executor before execution");
+                        .put("error_message", "Error in input found in executor before execution");
 
                 return ExecutorUtils.formatAsJson(response);
             }
@@ -139,8 +139,8 @@ public class Icu4jExecutor {
                 return ExecutorUtils.formatAsJson(
                     testType.convertOutputToMap(defaultOutput)
                         .put("label", parsedInputPersistentMap.get("label", null))
-                        .put("error", "Error in input")
-                        .put("error_msg", "Error in handling test case: " + e.getMessage())
+                        .put("error", "Error in input" + e.getMessage())
+                        .put("error_message", "Error in handling test case: " + e.getMessage())
                 );
             }
         }

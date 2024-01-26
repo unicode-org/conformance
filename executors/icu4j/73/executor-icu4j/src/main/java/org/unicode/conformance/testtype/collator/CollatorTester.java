@@ -117,8 +117,8 @@ public class CollatorTester implements ITestType {
         output.result = true;
       }
     } catch (Exception e) {
-      output.error = "error running test";
       output.error = e.getMessage();
+      output.error_message = e.getMessage();
       return output;
     }
 
