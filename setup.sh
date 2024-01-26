@@ -14,11 +14,56 @@ fi
 if [[ ! -d gh-cache ]]
 then
     mkdir -p gh-cache
-    pushd gh-cache
-    wget https://github.com/unicode-org/icu/releases/download/release-71-1/icu4c-71_1-Ubuntu20.04-x64.tgz
-    wget https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-Ubuntu22.04-x64.tgz
-    wget https://github.com/unicode-org/icu/releases/download/release-73-1/icu4c-73_1-Ubuntu22.04-x64.tgz
-    wget https://github.com/unicode-org/icu/releases/download/release-74-1/icu4c-74_1-Ubuntu22.04-x64.tgz
-    wget https://github.com/unicode-org/icu/releases/download/release-74-2/icu4c-74_2-Ubuntu22.04-x64.tgz
-    popd
+
 fi
+
+
+function download_71_1() {
+  if [[ ! -f icu4c-71_1-Ubuntu20.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-71-1/icu4c-71_1-Ubuntu20.04-x64.tgz
+  fi
+}
+
+
+function download_72_1() {
+  if [[ ! -f icu4c-72_1-Ubuntu22.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-Ubuntu22.04-x64.tgz
+  fi
+}
+
+
+function download_73_1() {
+  if [[ ! -f icu4c-73_1-Ubuntu22.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-73-1/icu4c-73_1-Ubuntu22.04-x64.tgz
+  fi
+}
+
+
+function download_74_1() {
+  if [[ ! -f icu4c-74_1-Ubuntu22.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-74-1/icu4c-74_1-Ubuntu22.04-x64.tgz
+  fi
+}
+
+
+function download_74_2() {
+  if [[ ! -f icu4c-74_2-Ubuntu22.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-74-2/icu4c-74_2-Ubuntu22.04-x64.tgz
+  fi
+}
+
+
+ pushd gh-cache
+    
+ download_71_1
+ download_72_1
+ download_73_1
+ download_74_1
+ download_74_2
+ 
+ popd
