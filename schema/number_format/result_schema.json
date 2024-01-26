@@ -189,8 +189,12 @@
            "type": "string",
            "description": "what when wrong"
          },
+         "error_message": {
+           "type": "string",
+           "description": "More detail about the error"
+         },
          "error_detail": {
-           "description": "More about the failure",
+           "description": "Even more about the failure",
            "type": ["object", "string"],
            "properties": {
              "unsupported_options": {

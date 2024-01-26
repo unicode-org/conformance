@@ -91,6 +91,10 @@
            "description": "what went wrong",
            "type": ["null", "string"]
          },
+         "error_message": {
+           "type": "string",
+           "description": "More detail about the error"
+         },
          "error_type": {
            "type": "string",
            "description": "additional error info"
@@ -105,7 +109,7 @@
            "type": "string"
          },
          "error_detail": {
-           "description": "more information about an error",
+           "description": "Even more information about an error",
            "type": "object",
            "additionalProperties": true,
            "properties": {
