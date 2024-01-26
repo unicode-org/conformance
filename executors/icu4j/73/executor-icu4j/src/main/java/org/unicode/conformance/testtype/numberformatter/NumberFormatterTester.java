@@ -1,13 +1,26 @@
 package org.unicode.conformance.testtype.numberformatter;
 
 import com.ibm.icu.number.FormattedNumber;
+import com.ibm.icu.number.FractionPrecision;
+import com.ibm.icu.number.IntegerWidth;
 import com.ibm.icu.number.LocalizedNumberFormatter;
+import com.ibm.icu.number.Notation;
 import com.ibm.icu.number.NumberFormatter;
+import com.ibm.icu.number.NumberFormatter.GroupingStrategy;
+import com.ibm.icu.number.NumberFormatter.RoundingPriority;
+import com.ibm.icu.number.NumberFormatter.SignDisplay;
+import com.ibm.icu.number.NumberFormatter.TrailingZeroDisplay;
+import com.ibm.icu.number.NumberFormatter.UnitWidth;
+import com.ibm.icu.number.Precision;
+import com.ibm.icu.text.NumberingSystem;
 import com.ibm.icu.util.Currency;
+import com.ibm.icu.util.MeasureUnit;
+import com.ibm.icu.util.NoUnit;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
@@ -159,9 +172,7 @@ public class NumberFormatterTester implements ITestType {
     LocalizedNumberFormatter nf;
 
     ULocale locale = ULocale.ROOT;
-    if (input.locale == null) {
-      locale = ULocale.ROOT;
-    } else {
+    if (input.locale != null) {
       locale = ULocale.forLanguageTag(input.locale);
     }
 
@@ -175,8 +186,271 @@ public class NumberFormatterTester implements ITestType {
     // Otherwise (=> no skeleton), set all the options on the formatter
 
     nf = NumberFormatter.withLocale(locale);
-    if (input.options.get("style") == StyleVal.currency && input.options.get("currency") != null) {
-      nf = nf.unit(Currency.getInstance((String) input.options.get("currency")));
+
+    String styleStr = null;
+    if (input.options.containsKey(NumberFormatterTestOptionKey.style)) {
+      styleStr = ((StyleVal) input.options.get(NumberFormatterTestOptionKey.style)).name();
+    }
+    StyleVal style = StyleVal.getFromString(styleStr);
+
+    if (style == StyleVal.currency) {
+      String currency = (String) input.options.get(NumberFormatterTestOptionKey.currency);
+      nf = nf.unit(Currency.getInstance(currency));
+
+      // TODO: determine if & how to utilize currency display options ("currency symbol name styles")
+      // CurrencyDisplayVal currencyDisplay =
+      //     (CurrencyDisplayVal) input.options.get(NumberFormatterTestOptionKey.currencyDisplay);
+    } else if (style == StyleVal.unit) {
+      String unitStr = (String) input.options.get(NumberFormatterTestOptionKey.unit);
+      MeasureUnit unit = MeasureUnit.forIdentifier(unitStr);
+      nf = nf.unit(unit);
+
+      UnitDisplayVal unitDisplay =
+          (UnitDisplayVal) input.options.get(NumberFormatterTestOptionKey.unitDisplay);
+      switch (unitDisplay) {
+        case NONE:
+          break;
+        case LONG:
+          nf = nf.unitWidth(UnitWidth.FULL_NAME);
+          break;
+        case SHORT:
+          nf = nf.unitWidth(UnitWidth.SHORT);
+          break;
+        case NARROW:
+          nf = nf.unitWidth(UnitWidth.NARROW);
+          break;
+      }
+    } else if (style == StyleVal.percent) {
+      nf = nf.unit(NoUnit.PERCENT);
+    } else {
+      assert style == StyleVal.decimal || style == StyleVal.NONE;
+    }
+
+    if (input.options.containsKey(NumberFormatterTestOptionKey.notation)) {
+      String notationStr = (String) input.options.get(NumberFormatterTestOptionKey.notation);
+      if (notationStr != null) {
+        switch (notationStr) {
+          case "compact":
+            CompactDisplayVal compactDisplay = (CompactDisplayVal) input.options.get(
+                NumberFormatterTestOptionKey.compactDisplay);
+            switch (compactDisplay) {
+              case LONG:
+                nf = nf.notation(Notation.compactLong());
+                break;
+              case SHORT:
+                nf = nf.notation(Notation.compactShort());
+                break;
+            }
+            break;
+          case "engineering":
+            nf = nf.notation(Notation.engineering());
+            break;
+          case "scientific":
+            nf = nf.notation(Notation.scientific());
+            break;
+          case "simple":
+            nf = nf.notation(Notation.simple());
+            break;
+        }
+      }
+    }
+    if (input.options.containsKey(NumberFormatterTestOptionKey.signDisplay)) {
+      SignDisplayVal signDisplay =
+          (SignDisplayVal) input.options.get(NumberFormatterTestOptionKey.signDisplay);
+      switch (signDisplay) {
+        case auto:
+          nf = nf.sign(SignDisplay.AUTO);
+          break;
+        case never:
+          nf = nf.sign(SignDisplay.NEVER);
+          break;
+        case always:
+          nf = nf.sign(SignDisplay.ALWAYS);
+          break;
+        case exceptZero:
+          nf = nf.sign(SignDisplay.EXCEPT_ZERO);
+          break;
+        case negative:
+          nf = nf.sign(SignDisplay.NEGATIVE);
+          break;
+      }
+    }
+    if (input.options.containsKey(NumberFormatterTestOptionKey.minimumIntegerDigits)) {
+      IntegerWidth width = IntegerWidth.zeroFillTo(0);
+      if (input.options.containsKey(NumberFormatterTestOptionKey.minimumIntegerDigits)) {
+        Number minIntDigits =
+            (Number) input.options.get(NumberFormatterTestOptionKey.minimumIntegerDigits);
+        width = IntegerWidth.zeroFillTo(minIntDigits.intValue());
+      }
+      nf = nf.integerWidth(width);
+    }
+    if (input.options.containsKey(NumberFormatterTestOptionKey.minimumFractionDigits)
+        || input.options.containsKey(NumberFormatterTestOptionKey.maximumFractionDigits)) {
+      // parse fraction digits (min / max)
+      Precision precision = null;
+      FractionPrecision fractionPrecision = null;
+      Number minDigits = null;
+      Number maxDigits = null;
+      if (input.options.containsKey(NumberFormatterTestOptionKey.minimumFractionDigits)) {
+        minDigits =
+            (Number) input.options.get(NumberFormatterTestOptionKey.minimumFractionDigits);
+      }
+      if (input.options.containsKey(NumberFormatterTestOptionKey.maximumFractionDigits)) {
+        maxDigits =
+            (Number) input.options.get(NumberFormatterTestOptionKey.maximumFractionDigits);
+      }
+
+      // handle fraction digits
+      if (minDigits != null && maxDigits != null) {
+        fractionPrecision = Precision.minMaxFraction(minDigits.intValue(), maxDigits.intValue());
+      } else if (minDigits != null) {
+        fractionPrecision = Precision.minFraction(minDigits.intValue());
+      } else if (maxDigits != null) {
+        fractionPrecision = Precision.maxFraction(maxDigits.intValue());
+      }
+
+      // parse significant digits (min / max / rounding priority)
+      Number sigFigMinDigits = null;
+      Number sigFigMaxDigits = null;
+      RoundingPriority priority = null;
+      if (fractionPrecision != null
+          && input.options.containsKey(NumberFormatterTestOptionKey.minimumSignificantDigits)
+          && input.options.containsKey(NumberFormatterTestOptionKey.maximumSignificantDigits)
+          && input.options.containsKey(NumberFormatterTestOptionKey.roundingPriority)) {
+
+        if (input.options.containsKey(NumberFormatterTestOptionKey.minimumSignificantDigits)) {
+          sigFigMinDigits =
+              (Number) input.options.get(NumberFormatterTestOptionKey.minimumSignificantDigits);
+        }
+        if (input.options.containsKey(NumberFormatterTestOptionKey.maximumSignificantDigits)) {
+          sigFigMaxDigits =
+              (Number) input.options.get(NumberFormatterTestOptionKey.maximumSignificantDigits);
+        }
+        RoundingPriorityVal roundingPriorityVal =
+            (RoundingPriorityVal) input.options.get(
+                NumberFormatterTestOptionKey.roundingPriority);
+        switch (roundingPriorityVal) {
+          case NONE:
+            // This assumes that `auto` is the default value
+          case auto:
+            // TODO: how to handle?
+            break;
+          case morePrecision:
+            priority = RoundingPriority.STRICT;
+            break;
+          case lessPrecision:
+            priority = RoundingPriority.RELAXED;
+            break;
+        }
+      }
+
+      // handle significant digits
+      if (fractionPrecision != null && sigFigMinDigits != null && sigFigMaxDigits != null
+          && priority != null) {
+        precision = fractionPrecision.withSignificantDigits(
+            minDigits.intValue(), maxDigits.intValue(), priority
+        );
+      } else {
+        precision = fractionPrecision;
+      }
+
+      if (precision == null
+          && input.options.containsKey(NumberFormatterTestOptionKey.roundingIncrement)) {
+        int roundingIncrement =
+            (int) input.options.get(NumberFormatterTestOptionKey.roundingIncrement);
+        precision = Precision.increment(new BigDecimal(roundingIncrement));
+      }
+
+      if (precision != null
+          && input.options.containsKey(NumberFormatterTestOptionKey.trailingZeroDisplay)) {
+        TrailingZeroDispalyVal trailingZeroDisplayVal =
+            (TrailingZeroDispalyVal) input.options.get(
+                NumberFormatterTestOptionKey.trailingZeroDisplay);
+        TrailingZeroDisplay trailingZeroDisplay = null;
+        switch (trailingZeroDisplayVal) {
+          case auto:
+          case NONE:
+          default:
+            trailingZeroDisplay = TrailingZeroDisplay.AUTO;
+            break;
+          case stringIfInteger:
+            trailingZeroDisplay = TrailingZeroDisplay.HIDE_IF_WHOLE;
+            break;
+        }
+
+        precision.trailingZeroDisplay(trailingZeroDisplay);
+      }
+
+      if (precision != null) {
+        nf = nf.precision(precision);
+      }
+    }
+    if (input.options.containsKey(NumberFormatterTestOptionKey.nu)) {
+      NuVal nu = (NuVal) input.options.get(NumberFormatterTestOptionKey.nu);
+      NumberingSystem numberingSystem = NumberingSystem.getInstanceByName(nu.name());
+      nf = nf.symbols(numberingSystem);
+    }
+    if (input.options.containsKey(NumberFormatterTestOptionKey.roundingMode)) {
+      RoundingModeVal roundingModeVal =
+          (RoundingModeVal) input.options.get(NumberFormatterTestOptionKey.roundingMode);
+      RoundingMode roundingMode = null;
+      switch (roundingModeVal) {
+        case ceil:
+          roundingMode = RoundingMode.CEILING;
+          break;
+        case floor:
+          roundingMode = RoundingMode.FLOOR;
+          break;
+        case expand:
+          roundingMode = RoundingMode.UP;
+          break;
+        case trunc:
+          roundingMode = RoundingMode.DOWN;
+          break;
+        case halfCeil:
+          // TODO: support?
+          break;
+        case halfFloor:
+          // TODO: support?
+          break;
+        case halfExpand:
+          roundingMode = RoundingMode.HALF_UP;
+          break;
+        case halfTrunc:
+          roundingMode = RoundingMode.HALF_DOWN;
+          break;
+        case halfEven:
+          roundingMode = RoundingMode.HALF_EVEN;
+        case NONE: // default = halfEven
+        default:
+          break;
+        case unnecessary:
+          break;
+      }
+      if (roundingMode != null) {
+        nf = nf.roundingMode(roundingMode);
+      }
+    }
+    if (input.options.containsKey(NumberFormatterTestOptionKey.useGrouping)) {
+      UseGroupingVal groupingVal =
+          (UseGroupingVal) input.options.get(NumberFormatterTestOptionKey.useGrouping);
+      GroupingStrategy groupingStrategy = null;
+      switch (groupingVal) {
+        case FALSE:
+          groupingStrategy = GroupingStrategy.OFF;
+          break;
+        case ALWAYS:
+          groupingStrategy = GroupingStrategy.ON_ALIGNED;
+          break;
+        case AUTO:
+        case TRUE:
+          groupingStrategy = GroupingStrategy.AUTO;
+          break;
+        case MIN2:
+          groupingStrategy = GroupingStrategy.MIN2;
+          break;
+      }
+      nf = nf.grouping(groupingStrategy);
     }
 
     FormattedNumber fn = nf.format(inputVal);

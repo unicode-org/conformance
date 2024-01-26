@@ -38,7 +38,7 @@ public class NumberFormatterTest {
     NumberFormatterOutputJson output =
         (NumberFormatterOutputJson) NumberFormatterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
-    assertEquals("-0.19", output.result);
+    assertEquals("-0.2", output.result);
   }
 
 }
