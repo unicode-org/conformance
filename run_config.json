@@ -55,9 +55,9 @@
   },
   {
     "prereq": {
-      "name": "Get ICU4C 74",
-      "version": "74.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_1-Ubuntu22.04-x64.tgz"
+      "name": "Get ICU4C 74.2",
+      "version": "74.2",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_2-Ubuntu22.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu74",
@@ -90,9 +90,9 @@
   },
   {
     "prereq": {
-      "name": "nvm",
+      "name": "nvm 21.6.0, icu74.1",
       "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "command": "nvm install 21.6.0;nvm use 21.6.0"
     },
     "run": {
       "icu_version": "icu74",
