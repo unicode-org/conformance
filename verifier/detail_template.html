@@ -429,14 +429,11 @@ table th {
 
         }
 
-        /* set up areas for error and unsupported detail */
-        create_checkbox_area('pass', make_characterized_box);
-//        create_checkbox_area('fail', make_characterized_box);
-        create_checkbox_area('error', make_characterized_box);
-        create_checkbox_area('unsupported', make_characterized_box);
-
-        // Starting with the tristate control
+        // Tristate controls for each characterization.
+        create_checkbox_area('pass', create_tristate_area);
         create_checkbox_area('fail', create_tristate_area);
+        create_checkbox_area('eerror', create_tristate_area);
+        create_checkbox_area('unsupported', create_tristate_area);
     }
 
       function fill_pagination(pagination_container_name,
