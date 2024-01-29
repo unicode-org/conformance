@@ -23,8 +23,6 @@ ls -ltra
 
 pushd $TMP
 
-# curl -L $ICU_PATH | tar xvfpz -
-
 tar xvfz *.tgz
 rm *.tgz
 
