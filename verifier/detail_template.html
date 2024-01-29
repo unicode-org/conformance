@@ -233,6 +233,16 @@ table th {
         // Start with all the tests, intersecting or removing data as needed.
         test_data.selected_set = new Set(test_data.all_labels);
 
+        const selected_count_items = document.getElementsByName('selectedCount');
+        
+        // Update the number of results size
+        let newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
+        const output = [...selected_count_items].filter(elem => elem.className == class_name);
+        if (output) {
+            // Set the current count of items
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
+
         let excluded_set = new Set();  // Remove these label after the loop.
         
         // For each widget, if active, update the state of the selected and exclued sets
@@ -263,12 +273,7 @@ table th {
         });
 
         // Get update the count item in the UI
-
-        const selected_count_items = document.getElementsByName('selectedCount');
-        
-        // Update the number of results size
-        const newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
-        const output = [...selected_count_items].filter(elem => elem.className == class_name);
+        newSize = test_data.selected_set.size;
         if (output) {
             // Set the current count of items
             output[0].innerHTML = output[0].innerText = newSize;
@@ -504,6 +509,8 @@ table th {
         */
         const test_info = test_results[data_class];
 
+        const selected_count_items = document.getElementsByName('selectedCount');
+        
         let leftover_labels = new Set();
         const json = test_info.json;
         for (const item of json) {
@@ -512,6 +519,13 @@ table th {
             leftover_labels.add(label);
         }
 
+        // Update the number of results size
+        const newSize = test_info.all_labels.size;
+        const output = [...selected_count_items].filter(elem => elem.className == data_class);
+        if (output) {
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
+        
         let div_name = data_class + '_characterized';
         let container = document.getElementById(div_name);
         for (const characterization in test_info.characterized) {
@@ -563,11 +577,22 @@ table th {
     function clearSelectedItems(the_button, test_class) {
         // Clear all the check boxes for this test_class.
         const test_data = test_results[test_class];
-        test_data.check_boxes.forEach((box) => {
-            box.value = question_mark;
+        test_data.check_boxes.forEach((widget) => {
+            widget.value = question_mark;
+            const div_for_checkbox = widget.parentElement;
+            div_for_checkbox.attributeStyleMap.clear();
         });
-        const div_for_checkbox = box.parentElement;
-        div_for_checkbox.attributeStyleMap.clear();
+
+        
+        // reset the number of results size
+        const selected_count_items = document.getElementsByName('selectedCount');
+        const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
+
+        const output = [...selected_count_items].filter(elem => elem.className == test_class);
+        if (output) {
+            // Set the current count of items
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
     }
 
     // For getting contents of output into json string for testing
@@ -616,7 +641,7 @@ table th {
             <summary class="pass">Passing tests characterized</summary>
             <div bp="grid">
               <div bp="3">
-                <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>0</span>
+                <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>unknown</span>
                   <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">Update display</button>
                   <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
                 </p>
