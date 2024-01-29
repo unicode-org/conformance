@@ -118,10 +118,6 @@ const string test_collator(json_object *json_in) {
 
   // Handle some options
   json_object *ignore_obj = json_object_object_get(json_in, "ignorePunctuation");
-  if (ignore_obj) {
-    ucol_setAttribute(coll, UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED,
-                      &status);
-  }
 
   const int32_t unspecified_length = -1;
   bool coll_result = true;
