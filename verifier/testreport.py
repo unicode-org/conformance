@@ -730,7 +730,7 @@ class TestReport:
                                 if x[2] in ['+', '0', '+0']:
                                     results['exponent_diff'].add(label)
 
-                # Check for substtituted types of parentheses, brackets, brackes
+                # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
