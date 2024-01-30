@@ -512,6 +512,8 @@ class TestReport:
         results['locale'] = {}  # Dictionary of labels for each locale
         for test in failing_tests:
             # Get input_data, if available
+            input_data = test.get('input_data')
+
             try:
                 label = test['label']
             except:
@@ -533,10 +535,9 @@ class TestReport:
                 except:
                     locale = None
                 if locale:
-                    if locale in results['locale']:
-                        results['locale'][locale].add(label)
-                    else:
-                        results['locale'][locale] = set([label])
+                    if locale not in results['locale']:
+                        results['locale'][locale] = set()
+                    results['locale'][locale].add(label)
 
                     options = input_data.get('options')
                     if options:
@@ -544,10 +545,9 @@ class TestReport:
                         for key, value in options.items():
                             if key not in results:
                                 results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
+                            if value not in results[key]:
+                                results[key][value] = set()
+                            results[key][value].add(label)
 
                 # Try fields in language_names
                 for key in ['language_label', 'locale_label']:
@@ -557,9 +557,8 @@ class TestReport:
                             if key not in results:
                                 results[key] = {}
                             if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
+                                results[key][value] = set()
+                            results[key][value].add(label)
                     except:
                         continue
 
@@ -570,10 +569,9 @@ class TestReport:
                             value = input_data[key]
                             if key not in results:
                                 results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
+                            if value not in results[key]:
+                                results[key][value] = set()
+                            results[key][value].add(label)
                     except:
                         continue
 
@@ -583,15 +581,14 @@ class TestReport:
                             value = test[key]
                             if key not in results:
                                 results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
+                            if value not in results[key]:
+                                results[key][value] = set()
+                            results[key][value] = set(label)
                     except:
                         continue
 
             # Look at the input_data part of the test result
-            # TODO: Check the error_detail and error pars, too.
+            # TODO: Check the error_detail and error parts, too.
             key_list = [
                         'compare_type',
                         'error_detail',
@@ -603,7 +600,7 @@ class TestReport:
                         'test_description',
                         'unsupported_options',
                         ]
-            input_data = test.get('input_data')
+
             self.add_to_results_by_key(label, results, input_data, test, key_list)
 
             # Special case for input_data / options.
