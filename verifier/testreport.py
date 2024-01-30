@@ -81,7 +81,6 @@ class TestReport:
 
         self.verifier_obj = None
 
-
         self.timestamp = None
         self.results = None
         self.verify = None
@@ -512,6 +511,8 @@ class TestReport:
         results['locale'] = {}  # Dictionary of labels for each locale
         for test in failing_tests:
             # Get input_data, if available
+            input_data = test.get('input_data')
+
             try:
                 label = test['label']
             except:
@@ -533,65 +534,60 @@ class TestReport:
                 except:
                     locale = None
                 if locale:
-                    if locale in results['locale']:
-                        results['locale'][locale].add(label)
-                    else:
-                        results['locale'][locale] = set([label])
+                    if locale not in results['locale']:
+                        results['locale'][locale] = set()
+                    results['locale'][locale].add(label)
 
                     options = input_data.get('options')
                     if options:
                         # Get each combo of key/value
-                        for key, value in options.items():
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
+                        for k, value in options.items():
+                            if k not in results:
+                                results[k] = {}
+                            if value not in results[k]:
+                                results[k][value] = set()
+                            results[k][value].add(label)
 
-                # Try fields in language_names
-                for key in ['language_label', 'locale_label']:
-                    try:
-                        if input_data.get(key):
-                            value = input_data[key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
-                    except:
-                        continue
+            # Try fields in language_names
+            for key in ['language_label', 'locale_label']:
+                try:
+                    if input_data.get(key):
+                        value = input_data[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                except:
+                    continue
 
-                # Try fields in likely_subtags
-                for key in ['option', 'locale']:
-                    try:
-                        if input_data.get(key):
-                            value = input_data[key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
-                    except:
-                        continue
+            # Try fields in likely_subtags
+            for key in ['option', 'locale']:
+                try:
+                    if input_data.get(key):
+                        value = input_data[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                except:
+                    continue
 
-                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
-                    try:
-                        if test.get(key):  # For collation results
-                            value = test[key]
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].add(label)
-                            else:
-                                results[key][value] = set(label)
-                    except:
-                        continue
+            for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
+                try:
+                    if test.get(key):  # For collation results
+                        value = test[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value] = set(label)
+                except:
+                    continue
 
             # Look at the input_data part of the test result
-            # TODO: Check the error_detail and error pars, too.
+            # TODO: Check the error_detail and error parts, too.
             key_list = [
                         'compare_type',
                         'error_detail',
@@ -603,7 +599,7 @@ class TestReport:
                         'test_description',
                         'unsupported_options',
                         ]
-            input_data = test.get('input_data')
+
             self.add_to_results_by_key(label, results, input_data, test, key_list)
 
             # Special case for input_data / options.
@@ -630,7 +626,7 @@ class TestReport:
         if input_data:
             for key in key_list:
                 try:
-                    if (input_data.get(key)):  # For collation results
+                    if input_data.get(key):  # For collation results
                         value = input_data.get(key)
                         if key == 'rules':
                             value = 'RULE'  # A special case to avoid over-characterization
@@ -733,7 +729,7 @@ class TestReport:
                                 if x[2] in ['+', '0', '+0']:
                                     results['exponent_diff'].add(label)
 
-                # Check for substtituted types of parentheses, brackets, brackes
+                # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
@@ -757,7 +753,8 @@ class TestReport:
             file.write(json_data)
             file.close()
         except BaseException as error:
-            logging.error("CANNOT WRITE CHARACTERIZE FILE FOR %s at ", characterized_type, character_file_path)
+            logging.error("%s: CANNOT WRITE CHARACTERIZE FILE FOR %s at ",
+                          error, characterized_type, character_file_path)
         return
 
     def create_html_diff_report(self):
@@ -819,9 +816,9 @@ class TestReport:
             logging.info('--------- %s %s %d failures-----------',
                          self.exec, self.test_type, len(self.failing_tests))
             logging.debug('  SINGLE SUBSTITUTIONS: %s',
-                         sort_dict_by_count(self.diff_summary.single_diffs))
+                          sort_dict_by_count(self.diff_summary.single_diffs))
             logging.debug('  PARAMETER DIFFERENCES: %s',
-                         sort_dict_by_count(self.diff_summary.params_diff))
+                          sort_dict_by_count(self.diff_summary.params_diff))
 
     def analyze_simple(self, test):
         # This depends on test_type
@@ -968,21 +965,21 @@ class SummaryReport:
             executor = ''
 
             icu_version = os.path.basename(os.path.dirname(dir_path))
-            results = defaultdict(lambda : defaultdict(list))
+            results = defaultdict(lambda: defaultdict(list))
             test_type = None
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
                 if 'cldr_version' in platform:
-                    cldrVersion = platform['cldrVersion']
+                    cldr_version = platform['cldrVersion']
                 else:
-                    cldrVersion = 'unspecified'
+                    cldr_version = 'unspecified'
 
                 test_results = {
                     'exec': executor,
                     'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
                     'exec_icu_version': platform['icuVersion'],
-                    'exec_cldr_version': cldrVersion,
+                    'exec_cldr_version': cldr_version,
                     'test_type': test_type,
                     'date_time': test_environment['datetime'],
                     'test_count': int(test_environment['test_count']),
@@ -1008,7 +1005,7 @@ class SummaryReport:
             try:
                 # Categorize by executor and test_type
                 # TODO: Add detail of version, too
-                test_version_info =  test_results['version']
+                test_version_info = test_results['version']
                 slot = '%s_%s' % (executor, test_version_info['platformVersion'])
                 if executor not in self.exec_summary:
                     # TESTING
@@ -1024,19 +1021,7 @@ class SummaryReport:
 
             except BaseException as err:
                 logging.error('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s',
-                    executor, test_type, err)
-
-    def get_stats(self, entry):
-        # Process items in a map to give HTML table value
-        out_list = [
-            'Test count: %s' % '{:,}'.format(entry['test_count']),
-            'Succeeded: %s' % '{:,}'.format(entry['pass_count']),
-            'Failed: %s' % '{:,}'.format(entry['fail_count']),
-            'Unsupported: %s' % '{:,}'.format(entry['error_count']),
-            'Missing verify: %s' % '{:,}'.format(entry['missing_verify_count']),
-            '<a href="%s"  target="_blank">Details</a>' % entry['html_file_name']
-        ]
-        return '    \n<br>'.join(out_list) + '</a>'
+                              executor, test_type, err)
 
     def create_summary_html(self):
         # Generate HTML page containing this information
@@ -1101,7 +1086,7 @@ class SummaryReport:
                                 {'report_detail': icu_version_and_link})
                         except BaseException as err:
                             logging.error('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s. Error = %s',
-                                          test, executor, row_items, index, error)
+                                          test, executor, row_items, index, err)
                 index += 1
 
             data_rows.append(self.line_template.safe_substitute(

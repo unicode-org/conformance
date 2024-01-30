@@ -51,7 +51,7 @@ class VerifyPlan:
                 file_time = os.path.getmtime(self.result_path)
                 self.result_time_stamp = datetime.datetime.fromtimestamp(
                     file_time).strftime('%Y-%m-%d %H:%M')
-
+                self.report.timestamp = self.result_time_stamp
                 self.resultData = json.loads(result_file.read())
                 self.test_results = self.resultData['tests']
         except BaseException as err:
