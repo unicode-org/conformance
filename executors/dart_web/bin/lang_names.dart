@@ -25,13 +25,13 @@ String testLangNames(String jsonEncoded) {
     final displayNames = Intl(locale: locale).displayNames(options);
     final resultLocale = displayNames.ofLanguage(Locale.parse(languageLabel));
 
-    outputLine['result'] = resultLocale;
     outputLine['label'] = json['label'];
+    outputLine['result'] = resultLocale;
   } catch (error) {
     outputLine.addAll({
       'error': error.toString(),
       'label': json['label'],
-      'locale_label': locale,
+      'locale_label': locale.toLanguageTag(),
       'language_label': languageLabel,
       'test_type': 'display_names',
       'error_type': 'unsupported',
