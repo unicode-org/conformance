@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Data-driven tests",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scenario", "testType", "tests"],
+  "properties": {
+    "scenario": {
+      "type": "string",
+      "description": "Identifier for the tests in the file."
+    },
+    "description": {
+      "type": "string",
+      "description": "Information about the test scenario."
+    },
+    "testType": {
+      "type": "string",
+      "enum": ["syntax"],
+      "description": "A tag for the executor to decide how to run the test."
+    },
+    "tests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/test" },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "locale", "pattern"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Identifier for the test."
+        },
+        "description": {
+          "type": "string",
+          "description": "Information about the test."
+        },
+        "locale": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/arg" }
+        },
+        "verify": {
+          "type": "string"
+        }
+      }
+    },
+    "arg": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "datetime"]
+        },
+        "value": {}
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "datetime"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "number"
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
