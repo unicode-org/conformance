@@ -2,11 +2,14 @@
 import glob
 import json
 import logging
+import logging.config
 from string import Template
 import sys
 
 class reportTemplate():
     def __init__(self):
+        logging.config.fileConfig("../logging.conf")
+
         # Read the template data
         detail_template = ''
         filename = 'detail_template.html'

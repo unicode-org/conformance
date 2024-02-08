@@ -19,7 +19,7 @@
       "description":" Obsolete tag to be removed and replaced with test Type"
     },
     "tests": {
-      "description": "list of N test for collation each of type collation_short",
+      "description": "list of N tests for collation each of type collation_short",
       "type": ["array", "null"],
       "items": {
         "type": "object",
@@ -53,6 +53,10 @@
             "description": "Optional method for comparing strings",
             "type": "string"
           },
+          "strength": {
+            "description": "Strength of comparison: primary, secondary, ... identical",
+            "type": "string"
+          },
           "test_description": {
             "description": "Option field telling about this particular test",
             "type": "string"
@@ -79,6 +83,12 @@
           "s1",
           "s2"
         ]
+      }
+    },
+    "data_errors": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "array"
       }
     }
   }

@@ -20,6 +20,7 @@
 #      faster but not hermetically isolated
 
 import argparse
+import logging
 import sys
 
 class DdtOptions():
@@ -140,6 +141,8 @@ def setCommonArgs(parser):
 
   parser.add_argument('--debug_level', default=None)
 
+  parser.add_argument('--ignore', default=None)
+
 def argsTestData():
   tests = [
       ['--test_type', 'collation_short'],
@@ -155,7 +158,7 @@ def argsTestData():
       ['--exec', 'node'],
       ['--exec node rust /bin/mytest'],
       '--exec node --test_type decimal_fmt --icu 71 --cldr 40'.split(),
-      ['--exec', 'python py/exec.py'],
+      ['--exec', 'python3 py/exec.py'],
       '--test_random 1234'.split(),
       ['--exec', '--custom_testfile', 'testData/customtest1.json',
        'testData/customtest2.json',
@@ -170,12 +173,12 @@ def main(args):
   tests = argsTestData()
   for test in tests:
     try:
-      print('Args = %s' % test)
+      logging.debug('Args = %s' % test)
 
       result = argparse.parse(test)
-      print('  OPTIONS = %s' % argparse.options)
+      logging.debug('  OPTIONS = %s' % argparse.options)
     except BaseException as err:
-      print(' ERROR: %s ' % err)
+      logging.error(' ERROR: %s ' % err)
 
 if __name__ == "__main__":
     main(sys.argv)

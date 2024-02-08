@@ -25,33 +25,34 @@ does not depend on the results of previous tests or stored states.
 
 ## Protocol for communication with testDriver
 
-The testDriver program initiates an executor with a command line such as "nodejs
-executor.js". TestDriver then sends information to the stdin of the running
+The testDriver program initiates an executor with a command line such as `nodejs
+executor.js`. TestDriver then sends information to the stdin of the running
 executor program. These instructions are defined below.
 
 A text executor accepts three kinds of input via the standard input (stdin):
-* #VERSION: a command that requesting information about the executor’s
+* `#VERSION` - a command that requesting information about the executor’s
   configuration and version. This should be in JSON format. For example:
   `{"cldrVersion":"41.0.0","icuVersion":"icu4x/2022-08-17/71.x","platform":"rust","platformVersion":"1.62.1"}'
-
 * JSON-formatted information on each test to be performed
-* #EXIT command - stop the execution and terminate the instance
+* `#EXIT` - a command to stop the execution and terminate the instance
 
 Empty lines should be ignored by the executor.
 
 Output from an executor is strictly given through its STDOUT, not via
-files. Returned values should be in JSON format.
+files. 
+
+Returned values should be in JSON format.
 
 ### Errors and exceptions
 Exceptions and errors may sometimes occur in the execution. An executor may return errors in two ways:
-* The executor should return JSON data indicating all relevant parameters such
+
+1. The executor should return JSON data indicating all relevant parameters such
   as "label".
 
-  * When a error occurs, the executor will include a JSON key "error" with the
+    * When an error occurs, the executor will include a JSON key "error" with the
     value describing the error condition.
 
-
-* An executor may also return a line beginning with "#" or "!", followed by a
+2. An executor may also return a line beginning with `#` or `!`, followed by a
   warning or error message that should can be logged to stderr in the output of
   testDriver.
 
@@ -65,7 +66,7 @@ framework under the testDriver.
 Executors accept and parse data from stdin, implementing the protocol described
 above.
 
-* NodeJS: The file executor.js creates objects from classes of the [ECMAScript
+* NodeJS: The file `executor.js` creates objects from classes of the [ECMAScript
   Intl
   object]https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl). Routines
   implement the following types of tests

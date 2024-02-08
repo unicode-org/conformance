@@ -10,9 +10,11 @@ from difflib import Differ
 from difflib import SequenceMatcher
 
 from datetime import datetime
+
 import glob
 import json
 import logging
+import logging.config
 import os
 from string import Template
 import sys
@@ -36,7 +38,7 @@ def dict_to_html(dict_data):
 
 def sort_dict_by_count(dict_data):
     return sorted(dict_data.items(),
-                  key=lambda item: item[1], reverse=True)
+                  key=lambda item: len(item[1]), reverse=True)
 
 
 class DiffSummary:
@@ -45,6 +47,8 @@ class DiffSummary:
         self.single_diff_count = 0
 
         self.params_diff = {}
+
+        logging.config.fileConfig("../logging.conf")
 
     def add_diff(self, num_diffs, diff_list, last_diff):
         # Record single character differences
@@ -73,7 +77,7 @@ class TestReport:
         self.report = None
         self.simple_results = None
         self.failure_summaries = None
-        self.debug = 1
+        self.debug = 0
 
         self.verifier_obj = None
 
@@ -125,6 +129,8 @@ class TestReport:
         self.test_error_detail_template = templates.test_error_detail_template
 
         self.test_unsupported_template = templates.test_unsupported_template
+
+        logging.config.fileConfig("../logging.conf")
 
     def set_title(self, executor, result_version, test_type):
         self.title = 'Test %s executed on %s with data %s' % (test_type, executor, result_version)
@@ -205,7 +211,7 @@ class TestReport:
         # Fill in the important fields.
         report['title'] = self.title
         # Fix up the version if we can.
-        if self.platform_info['icuVersion'] == 'unknown':
+        if self.platform and self.platform_info.has('icuVersion') and self.platform_info['icuVersion'] == 'unknown':
             try:
                 platform = self.platform_info['platform']
                 platform_version = self.platform_info['platformVersion']
@@ -356,7 +362,7 @@ class TestReport:
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
 
-        # TODO: SHhould we compute top 3-5 overlaps for each set?
+        # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
         fail_characterized = self.characterize_failures_by_options(self.failing_tests)
         fail_simple_diffs = self.check_simple_text_diffs()
@@ -469,10 +475,10 @@ class TestReport:
         failure_json_path = os.path.join(self.report_directory, "failure_parameters.json")
         try:
             file = open(failure_json_path, mode='w', encoding='utf-8')
-            file.write(json.dumps(fail_characterized))
+            file.write(json.dumps(flat_combined_dict))
             file.close()
         except Exception as err:
-            logging.warning('!! %s: Cannot write fail_characterized data', err)
+            logging.warning('!! %s: Cannot write %s fail_characterized data', failure_json_path, err)
 
         return html_output
 
@@ -484,126 +490,168 @@ class TestReport:
         # Flatten the dictionary.
         flat_items = {}
         for key, value in all_items.items():
+            if len(value) <= 0:
+                continue
             if type(value) == list:
                 flat_items[key] = value
+            elif type(value) == set:
+                flat_items[key] = sorted(value)
             else:
                 for key2, value2 in value.items():
                     key_new = str(key) + '.' + str(key2)
-                    flat_items[key_new] = value2
+                    flat_items[key_new] = sorted(value2)
 
+        # Sort in reverse order by length of item
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
-        return flat_combined_dict
+        return dict(sort_dict_by_count(flat_combined_dict))
 
     def characterize_failures_by_options(self, failing_tests):
         # User self.failing_tests, looking at options
-        results = {}
+        results = defaultdict(lambda : defaultdict(list))
         results['locale'] = {}  # Dictionary of labels for each locale
         for test in failing_tests:
             # Get input_data, if available
+            input_data = test.get('input_data')
+
             try:
                 label = test['label']
             except:
                 label = ''
+            key_list = ['locale', 'locale_label', 'option', 'options',
+                        'language_label',
+                        # Collation
+                        # 'ignorePunctuation', 'compare_result',
+                        'compare_type', 'test_description', 'unsupported_options', 'rules', 'test_description',
+                        'warning'
+                        # Number format
+                        'input_data',
+                        'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode', ]
+            option_keys = ['notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode']
 
-            input_data = test.get('input_data')
-
-            if input_data:
-                # Look at locale
+            for key in key_list:
                 try:
                     locale = input_data.get('locale')
                 except:
                     locale = None
                 if locale:
-                    if locale in results['locale']:
-                        results['locale'][locale].append(label)
-                    else:
-                        results['locale'][locale] = [label]
+                    if locale not in results['locale']:
+                        results['locale'][locale] = set()
+                    results['locale'][locale].add(label)
 
                     options = input_data.get('options')
                     if options:
                         # Get each combo of key/value
-                        for key, value in options.items():
-                            if key not in results:
-                                results[key] = {}
-                            if value in results[key]:
-                                results[key][value].append(label)
-                            else:
-                                results[key][value] = [label]
+                        for k, value in options.items():
+                            if k not in results:
+                                results[k] = {}
+                            if value not in results[k]:
+                                results[k][value] = set()
+                            results[k][value].add(label)
 
-                # Try fields in language_names
-                for key in ['language_label', 'locale_label']:
-                    try:
-                        if input_data.get(key):
-                            value = input_data[key]
-                            if key not in results:
-                                results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
-                    except:
-                        continue
+            # Try fields in language_names
+            for key in ['language_label', 'locale_label']:
+                try:
+                    if input_data.get(key):
+                        value = input_data[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                except:
+                    continue
 
-                # Try fields in likely_subtags
-                for key in ['option', 'locale']:
-                    try:
-                        if input_data.get(key):
-                            value = input_data[key]
-                            if key not in results:
-                                results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
-                    except:
-                        continue
+            # Try fields in likely_subtags
+            for key in ['option', 'locale']:
+                try:
+                    if input_data.get(key):
+                        value = input_data[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                except:
+                    continue
 
-                for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
-                    try:
-                        if test.get(key):  # For collation results
-                            value = test[key]
-                            if key not in results:
-                                results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
-                    except:
-                        continue
+            for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
+                try:
+                    if test.get(key):  # For collation results
+                        value = test[key]
+                        if key not in results:
+                            results[key] = {}
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value] = set(label)
+                except:
+                    continue
 
-                for key in ['ignorePunctuation']:
-                    try:
-                        if (test.get('input_data') and test['input_data'].get(key)):  # For collation results
-                            value = test['input_data'][key]
-                            if key not in results:
-                                results[key] = {}
-                                if value in results[key]:
-                                    results[key][value].append(label)
-                                else:
-                                    results[key][value] = [label]
-                    except:
-                        continue
+            # Look at the input_data part of the test result
+            # TODO: Check the error_detail and error parts, too.
+            key_list = [
+                        'compare_type',
+                        'error_detail',
+                        'ignorePunctuation',
+                        'language_label',
+                        'locale',
+                        'options',
+                        'rules',
+                        'test_description',
+                        'unsupported_options',
+                        ]
+
+            self.add_to_results_by_key(label, results, input_data, test, key_list)
+
+            # Special case for input_data / options.
+            special_key = 'options'
+            if input_data and input_data.get(special_key):
+                options = input_data[special_key]
+                self.add_to_results_by_key(label, results, options, test, options.keys())
+
+            error_detail = test.get('error_detail')
+            if error_detail:
+                error_keys = error_detail.keys()  # ['options']
+                self.add_to_results_by_key(label, results, error_detail, test, error_keys)
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
-            # Sort these by number of items in each set.
             # TODO: Find the largest intersections of these sets and sort by size
-            combo_list = [(combo, len(results[combo])) for combo in results]
-            combo_list.sort(key=take_second, reverse=True)
 
-        return dict(results)
+            pass
+
+        return results
+
+    # TODO: Use the following function to update lists.
+    def add_to_results_by_key(self, label, results, input_data, test, key_list):
+        if input_data:
+            for key in key_list:
+                try:
+                    if input_data.get(key):  # For collation results
+                        value = input_data.get(key)
+                        if key == 'rules':
+                            value = 'RULE'  # A special case to avoid over-characterization
+                        if key not in results:
+                            results[key] = {}
+                        if value in results[key]:
+                            results[key][value].add(label)
+                        else:
+                            results[key][value] = set()
+                            results[key][value].add(label)
+                except:
+                    continue
 
     def check_simple_text_diffs(self):
         results = defaultdict(list)
-        results['insert'] = []
-        results['delete'] = []
-        results['insert_digit'] = []
-        results['insert_space'] = []
-        results['delete_digit'] = []
-        results['replace_digit'] = []
-        results['exponent_diff'] = []
-        results['replace'] = []
-        results['parens'] = []  # Substitions of brackets for parens, etc.
+        results['insert'] = set()
+        results['delete'] = set()
+        results['insert_digit'] = set()
+        results['insert_space'] = set()
+        results['delete_digit'] = set()
+        results['delete_space'] = set()
+        results['replace_digit'] = set()
+        results['exponent_diff'] = set()
+        results['replace'] = set()
+        results['parens'] = set()  # Substitions of brackets for parens, etc.
 
         for fail in self.failing_tests:
             label = fail['label']
@@ -635,20 +683,24 @@ class TestReport:
                     new_val = actual[diff[1]:diff[2]]
                     if kind == 'replace':
                         if old_val.isdigit() and new_val.isdigit():
-                            results['replace_digit'].append(label)
+                            results['replace_digit'].add(label)
                         else:
-                            results['replace'].append(label)
+                            results['replace'].add(label)
                     elif kind == "delete":
                         if old_val.isdigit():
-                            results['delete_digit'].append(label)
+                            results['delete_digit'].add(label)
+                        elif old_val.isspace():
+                            results['delete_space'].add(label)
                         else:
-                            results['delete'].append(label)
+                            results['delete'].add(label)
 
                     elif kind == "insert":
                         if new_val.isdigit():
-                            results['insert_digit'].append(label)
+                            results['insert_digit'].add(label)
+                        elif old_val.isspace():
+                            results['insert_space'].add(label)
                         else:
-                            results['insert'].append(label)
+                            results['insert'].add(label)
                     else:
                         pass
 
@@ -667,25 +719,25 @@ class TestReport:
                         for x in changes:
                             if x[0] == '+':
                                 if x[2] in [' ', '\u00a0', '\u202f', '\u3000']:
-                                    results['insert_space'].append(label)
+                                    results['insert_space'].add(label)
 
                                 elif x[2] in ['+', '0', '+0']:
-                                    results['exponent_diff'].append(label)
+                                    results['exponent_diff'].add(label)
                                 else:
-                                    results['insert'].append(label)
+                                    results['insert'].add(label)
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
-                                    results['exponent_diff'].append(label)
+                                    results['exponent_diff'].add(label)
 
-                # Check for substitued types of parentheses, brackets, brackes
+                # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].append(label)
+                        results['parens'].add(label)
                 elif '(' in expected and '[' in actual:
                     actual_parens = actual.replace('[', '(').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].append(label)
+                        results['parens'].add(label)
             except KeyError:
                 # a non-string result
                 continue
@@ -693,12 +745,16 @@ class TestReport:
         return dict(results)
 
     def save_characterized_file(self, characterized_data, characterized_type):
-        json_data = json.dumps(characterized_data)
-        file_name = characterized_type + "_characterized.json"
-        character_file_path = os.path.join(self.report_directory, file_name)
-        file = open(character_file_path, mode='w', encoding='utf-8')
-        file.write(json_data)
-        file.close()
+        try:
+            json_data = json.dumps(characterized_data)
+            file_name = characterized_type + "_characterized.json"
+            character_file_path = os.path.join(self.report_directory, file_name)
+            file = open(character_file_path, mode='w', encoding='utf-8')
+            file.write(json_data)
+            file.close()
+        except BaseException as error:
+            logging.error("%s: CANNOT WRITE CHARACTERIZE FILE FOR %s at ",
+                          error, characterized_type, character_file_path)
         return
 
     def create_html_diff_report(self):
@@ -759,10 +815,10 @@ class TestReport:
         if self.debug > 0:
             logging.info('--------- %s %s %d failures-----------',
                          self.exec, self.test_type, len(self.failing_tests))
-            logging.info('  SINGLE SUBSTITUTIONS: %s',
-                         sort_dict_by_count(self.diff_summary.single_diffs))
-            logging.info('  PARAMETER DIFFERENCES: %s',
-                         sort_dict_by_count(self.diff_summary.params_diff))
+            logging.debug('  SINGLE SUBSTITUTIONS: %s',
+                          sort_dict_by_count(self.diff_summary.single_diffs))
+            logging.debug('  PARAMETER DIFFERENCES: %s',
+                          sort_dict_by_count(self.diff_summary.params_diff))
 
     def analyze_simple(self, test):
         # This depends on test_type
@@ -862,6 +918,8 @@ class SummaryReport:
             '<td>$report_detail</td>'
         )
 
+        logging.config.fileConfig("../logging.conf")
+
     def get_json_files(self):
         # For each executor directory in testReports,
         #  Get each json report file
@@ -907,21 +965,21 @@ class SummaryReport:
             executor = ''
 
             icu_version = os.path.basename(os.path.dirname(dir_path))
-            test_results = {}
+            results = defaultdict(lambda: defaultdict(list))
             test_type = None
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
                 if 'cldr_version' in platform:
-                    cldrVersion = platform['cldrVersion']
+                    cldr_version = platform['cldrVersion']
                 else:
-                    cldrVersion = 'unspecified'
+                    cldr_version = 'unspecified'
 
                 test_results = {
                     'exec': executor,
                     'exec_version': '%s_%s\n%s' % (executor, platform['platformVersion'], icu_version),
                     'exec_icu_version': platform['icuVersion'],
-                    'exec_cldr_version': cldrVersion,
+                    'exec_cldr_version': cldr_version,
                     'test_type': test_type,
                     'date_time': test_environment['datetime'],
                     'test_count': int(test_environment['test_count']),
@@ -933,7 +991,8 @@ class SummaryReport:
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
                     'version': platform,
-                    'icu_version': icu_version
+                    'icu_version': icu_version,
+                    'platform_version': '%s %s' % (platform['platform'], platform['platformVersion'])
                 }
             except BaseException as err:
                 logging.error('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
@@ -946,7 +1005,7 @@ class SummaryReport:
             try:
                 # Categorize by executor and test_type
                 # TODO: Add detail of version, too
-                test_version_info =  test_results['version']
+                test_version_info = test_results['version']
                 slot = '%s_%s' % (executor, test_version_info['platformVersion'])
                 if executor not in self.exec_summary:
                     # TESTING
@@ -961,20 +1020,8 @@ class SummaryReport:
                     self.type_summary[test_type].append(test_results)
 
             except BaseException as err:
-                print('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s' % (
-                    executor, test_type, err))
-
-    def get_stats(self, entry):
-        # Process items in a map to give HTML table value
-        out_list = [
-            'Test count: %s' % '{:,}'.format(entry['test_count']),
-            'Succeeded: %s' % '{:,}'.format(entry['pass_count']),
-            'Failed: %s' % '{:,}'.format(entry['fail_count']),
-            'Unsupported: %s' % '{:,}'.format(entry['error_count']),
-            'Missing verify: %s' % '{:,}'.format(entry['missing_verify_count']),
-            '<a href="%s"  target="_blank">Details</a>' % entry['html_file_name']
-        ]
-        return '    \n<br>'.join(out_list) + '</a>'
+                logging.error('SUMMARIZE REPORTS in exec_summary %s, %s. Error: %s',
+                              executor, test_type, err)
 
     def create_summary_html(self):
         # Generate HTML page containing this information
@@ -995,14 +1042,20 @@ class SummaryReport:
 
         # Set of executors
         exec_set = set()
+        platform_version_list = set()
         for executor in self.exec_summary:
             exec_set.add(executor)
+            version = self.exec_summary[executor][0]['version']
+            platform_version_list.add(
+                '%s %s' % (version['platform'], version['platformVersion']))
 
         exec_list = sorted(list(exec_set))
+        platform_version_list = sorted(platform_version_list)
         # Build the table header
+
         header_list = ['<th>Test type</th>']
-        for executor in exec_list:
-            header_vals = {'header_data': executor}
+        for platform in platform_version_list:
+            header_vals = {'header_data': platform}
             header_list.append(self.header_item_template.safe_substitute(header_vals))
 
         html_map['exec_header_line'] = self.line_template.safe_substitute(
@@ -1019,12 +1072,12 @@ class SummaryReport:
                 row_items.append('<td>NOT TESTED</td>')
 
             index = 1
-            for executor in exec_list:
+            for platform_version in platform_version_list:
                 # Generate a TD element with the test data
                 for entry in self.type_summary[test]:
                     exec_version = entry['exec_version'].split('\n')[0]
                     # TODO: icu_version = entry['exec_version'].split('\n')[1]
-                    if entry['test_type'] == test and exec_version == executor:
+                    if entry['test_type'] == test and entry['platform_version'] == platform_version:
                         try:
                             # TODO: Add ICU version and detail link
                             link_info = '<a href="%s" target="_blank">Details</a>' % entry['html_file_name']
@@ -1032,9 +1085,8 @@ class SummaryReport:
                             row_items[index] = self.entry_template.safe_substitute(
                                 {'report_detail': icu_version_and_link})
                         except BaseException as err:
-                            print('!!!!! Error = %s' % err)
-                            print('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s' %
-                                  (test, executor, row_items, index))
+                            logging.error('&&& TEST: %s, EXEC: %s, row_items: %s, index: %s. Error = %s',
+                                          test, executor, row_items, index, err)
                 index += 1
 
             data_rows.append(self.line_template.safe_substitute(
@@ -1058,8 +1110,8 @@ class SummaryReport:
         html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
         if self.debug > 1:
-            print('HTML OUTPUT =\n%s' % html_output)
-            print('HTML OUTPUT FILEPATH =%s' % self.summary_html_path)
+            logging.debug('HTML OUTPUT =\n%s', html_output)
+            logging.debug('HTML OUTPUT FILEPATH =%s', self.summary_html_path)
         file.write(html_output)
         file.close()
 

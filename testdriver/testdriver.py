@@ -5,6 +5,10 @@
 from datetime import datetime
 import json
 import logging
+import logging.config
+
+import multiprocessing as mp
+
 import os
 import subprocess
 import sys
@@ -24,6 +28,9 @@ class TestDriver:
         self.icuVersion = None
         self.test_plans = []
         self.debug = False
+
+        logging.config.fileConfig("../logging.conf")
+
         return
 
     def set_args(self, arg_options):
@@ -48,8 +55,7 @@ class TestDriver:
                         # Run a non-specified executor. Compatibility of versions
                         # between test data and the executor should be done the text executor
                         # program itself.
-                        if self.debug:
-                            logging.info('!!! **** CUSTOM EXEC = %s', executor)
+                        logging.error('No executable command configured for executor platform: %s', executor)
                         exec_command = {'path': executor}
                     else:
                         # Set details for execution from ExecutorInfo
@@ -57,6 +63,7 @@ class TestDriver:
                         exec_command = ddt_data.allExecutors.versionForCldr(
                             executor, resolved_cldr_version)
                         # The command needs to be something else!
+
                     new_plan = TestPlan(exec_command, test_type)
                     new_plan.set_options(arg_options)
                     new_plan.test_lang = executor.split()[0]
@@ -67,7 +74,8 @@ class TestDriver:
                     except KeyError as err:
                         logging.warning('!!! %s: No test data filename for %s', err, test_type)
 
-                    self.test_plans.append(new_plan)
+                    if not new_plan.ignore:
+                        self.test_plans.append(new_plan)
 
     def parse_args(self, args):
         # TODO: handle arguments for:
@@ -92,6 +100,19 @@ class TestDriver:
         for plan in self.test_plans:
             plan.run_plan()
 
+    def run_one(self, plan):
+        print("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
+        plan.run_plan()
+    def run_plans_parallel(self):
+        # Testing 15-Jan-2024
+        num_processors = mp.cpu_count()
+        print('There are %s processors for %s plans' % (num_processors, len(self.test_plans)))
+
+        processor_pool = mp.Pool(num_processors)
+        with processor_pool as p:
+            p.map(self.run_one, self.test_plans)
+
+
 
 # Run the test with command line arguments
 def main(args):
@@ -99,7 +120,8 @@ def main(args):
     # print('ARGS = %s' % (args))
     driver.parse_args(args[1:])
 
-    driver.run_plans()
+    # driver.run_plans()
+    driver.run_plans_parallel()
 
     #               if len(args)> 2:
     # Set limit on number to run

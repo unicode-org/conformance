@@ -2,25 +2,19 @@
  * Executor provides tests for NumberFormat and DecimalFormat.
  */
 
-use fixed_decimal::CompactDecimal;
-use fixed_decimal::FixedDecimal;
-// TODO: use fixed_decimal::ScientificDecimal;
+use serde_json::{json, Value};
+use writeable::Writeable;
 
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
 
-use icu_compactdecimal::CompactDecimalFormatter;
+use fixed_decimal::FixedDecimal;
 
 use icu::locid::{locale, Locale};
 use icu_provider::DataLocale;
 
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-
 use std::panic;
 use std::str::FromStr;
-
-use writeable::Writeable;
 
 // Support options - update when ICU4X adds support
 static _SUPPORTED_OPTIONS: [&str; 6] = [
@@ -29,34 +23,14 @@ static _SUPPORTED_OPTIONS: [&str; 6] = [
     "maximumIntegerDigits",
     "minimumFractionDigits",
     "maximumFractionDigits",
-    "roundingMode",
+    "RoundingMode",
 ];
-
-#[derive(Deserialize, Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-struct NumberFormatOptions {
-    compact_display: Option<String>,
-    currency_display: Option<String>,
-    currency_sign: Option<String>,
-    maximum_fraction_digits: Option<u8>,
-    maximum_integer_digits: Option<u8>,
-    maximum_significant_digits: Option<u8>,
-    minimum_fraction_digits: Option<u8>,
-    minimum_integer_digits: Option<u8>,
-    minimum_significant_digits: Option<u8>,
-    notation: Option<String>,
-    rounding_mode: Option<String>,
-    sign_display: Option<String>,
-    style: Option<String>,
-    unit: Option<String>,
-    unit_display: Option<String>,
-    use_grouping: Option<bool>,
-}
 
 // Runs decimal and number formatting given patterns or skeletons.
 pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let provider = icu_testdata::unstable();
 
+    // TODO: Handle errors of missing JSON fields
     let label = &json_obj["label"].as_str().unwrap();
 
     // Default locale if not specified.
@@ -70,57 +44,37 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let input = &json_obj["input"].as_str().unwrap();
 
-    // If there are unsupported values, return
+    // TODO: Get the options from JSON. If there are unsupported values, return
     // "unsupported" rather than an error.
     let options = &json_obj["options"]; // This will be an array.
 
-    let mut _unsupported_options: Vec<&str> = Vec::new();
+    let mut unsupported_options: Vec<&str> = Vec::new();
+    // If any option is not yet supported,
+    for (option, _setting) in options.as_object().unwrap() {
+        if !SUPPORTED_OPTIONS.contains(&option.as_str()) {
+            unsupported_options.push(&option);
+        }
+    }
+    if unsupported_options.len() > 0 {
+        let json_result = json!({
+            "label": label,
+            "unsupported": label,
+            "unsupported_options": unsupported_options
+        });
+        return Ok(json_result);
+    }
 
-    // If any option is not yet supported, should we report as UNSUPPORTED?
-    let option_struct: NumberFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
-    let mut is_compact = false;
-    let mut compact_type = "";
-    let mut _is_scientific = false;
-    let mut _rounding_mode = "";
-    let mut style = "";
-    let mut unit = "";
-    if option_struct.notation == Some(String::from("compact")) {
-        is_compact = true;
-    }
-    if option_struct.compact_display.is_some() {
-        compact_type = &option_struct.compact_display.as_ref().unwrap();
-    }
-    if option_struct.notation == Some(String::from("scientific")) {
-        _is_scientific = true;
-    }
-    if option_struct.style.is_some() {
-        style = &option_struct.style.as_ref().unwrap();
-    }
-    if option_struct.unit.is_some() {
-        unit = &option_struct.unit.as_ref().unwrap();
-    }
-    if option_struct.rounding_mode.is_some() {
-        _rounding_mode = &option_struct.rounding_mode.as_ref().unwrap();
-    }
     let mut options: options::FixedDecimalFormatterOptions = Default::default();
     // TODO: Use options to call operations including pad and trunc with rounding.
 
+    // Iterator over options, applying the
+
     // !! A test. More options to consider!
-    options.grouping_strategy = options::GroupingStrategy::Auto;
+    options.grouping_strategy = options::GroupingStrategy::Min2;
 
-    // --------------------------------------------------------------------------------
-
-    // UNSUPPORTED THINGS.
-    // This will change with new additions to ICU4X.
-    if style == "unit" || style == "currency" || unit == "percent" {
-        return Ok(json!({
-            "label": label,
-            "error_detail": {"style": style, "unit": unit},
-            "unsupported": "unit or style not implemented",
-            "error_type": "unsupported",
-        }));
-    }
-    // --------------------------------------------------------------------------------
+    // Can this fail with invalid options?
+    let fdf = FixedDecimalFormatter::try_new_unstable(&provider, &data_locale, options)
+        .expect("Data should load successfully");
 
     // Returns error if parsing the number string fails.
     let result_string = if is_compact {
@@ -181,8 +135,6 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     // Result to stdout.
     let json_result = json!({
         "label": label,
-        "result": result_string,
-        "actual_options": format!("{option_struct:?}, {options:?}"),
-    });
+        "result": result_string.write_to_string()});
     Ok(json_result)
 }

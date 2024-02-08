@@ -32,7 +32,7 @@
      }
    },
    "tests": {
-     "description": "list of N tests for likely subtags",
+     "description": "list of N tests for language names",
      "type": "array",
      "items": {
        "type": "object",

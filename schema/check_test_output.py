@@ -8,6 +8,7 @@ import json
 
 
 import logging
+import logging.config
 import os.path
 import sys
 
@@ -17,13 +18,15 @@ from schema_files import SCHEMA_FILE_MAP
 from schema_files import ALL_TEST_TYPES
 
 def main(args):
+    logging.config.fileConfig("../logging.conf")
+
     if len(args) <= 1:
         logging.error('Please specify the path to the test output directory')
         exit(1)
     else:
         test_output_path = args[1]
 
-    print('TEST OUTPUT PATH = %s' % test_output_path)
+    logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
     logger.setLevel(logging.INFO)
@@ -58,8 +61,8 @@ def main(args):
             icu_version_set.add(os.path.basename(dir))
 
     icu_versions = sorted(list(icu_version_set))
-    print('ICU directories = %s' % icu_versions)
-    print('test types = %s' % ALL_TEST_TYPES)
+    logging.debug('ICU directories = %s', icu_versions)
+    logging.debug('test types = %s', ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
@@ -75,49 +78,56 @@ def main(args):
     schema_count = 0
 
     all_results = validator.validate_test_output_with_schema()
-    print('  %d results for generated test data' % (len(all_results)))
+    logging.info('  %d results for test output', len(all_results))
 
     schema_errors = 0
     failed_validations = []
     passed_validations = []
     schema_count = len(all_results)
     for result in all_results:
-        print(result)
+        logging.debug(result)
         if result['result']:
             passed_validations.append(result)
         else:
             failed_validations.append(result)
 
     # Create .json
-    summary_json = {
-        'validation_type': 'output of test executors',
-        'description': 'Validation of test execution outputs vs. schema',
-        'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
-        'validations': {
-            'failed': failed_validations,
-            'passed': passed_validations
+    try:
+        summary_json = {
+            'validation_type': 'output of test executors',
+            'description': 'Validation of test execution outputs vs. schema',
+            'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
+            'validations': {
+                'failed': failed_validations,
+                'passed': passed_validations
+            }
         }
-    }
+    except BaseException as error:
+        summary_json = {}
 
-    summary_data = json.dumps(summary_json)
-
+    # Create outputs from these results.
+    try:
+        summary_data = json.dumps(summary_json)
+    except TypeError as err :
+        logging.error('Error: %s\n  Cannot dump JSON for %s: ',
+                      err, summary_json)
     try:
         output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
         file_out = open(output_filename, mode='w', encoding='utf-8')
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.warning('Error: %s. Cannot save validation summary in file %s', err, output_filename)
+        logging.warning('Error: %s. Cannot save validation summary in file %s', error, output_filename)
 
 
     if schema_errors:
-        print('Test data file files: %d fail out of %d:' % (
-            len(schema_errors, schema_count)))
+        logging.error('Test data file files: %d fail out of %d:', 
+            len(schema_errors, schema_count))
         for failure in schema_errors:
-            print('  %s' % failure)
+            logging.error('  %s', failure)
         exit(1)
     else:
-        print("All %d test output files match with schema" % schema_count)
+        logging.info("All %d test output files match with schema", schema_count)
         exit(0)
 
 if __name__ == "__main__":

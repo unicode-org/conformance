@@ -3,7 +3,9 @@
 import argparse
 import json
 import logging
+import logging.config
 import math
+import multiprocessing as mp
 import os
 import re
 import requests
@@ -26,15 +28,16 @@ class generateData():
         # If set, this is the maximum number of tests generated for each.
         self.run_limit = None
 
+        logging.config.fileConfig("../logging.conf")
+
     def setVersion(self, selected_version):
         self.icu_version = selected_version
 
     def saveJsonFile(self, filename, data, indent=None):
       output_path = os.path.join(self.icu_version, filename)
-      output_file = open(output_path, 'w')
+      output_file = open(output_path, 'w', encoding='UTF-8')
       json.dump(data, output_file, indent=indent)
       output_file.close()
-
 
     def getTestDataFromGitHub(self, datafile_name, version):
         # Path for fetching test data from ICU repository
@@ -61,16 +64,19 @@ class generateData():
     def processCollationTestData(self):
         # Get each kind of collation tests and create a unified data set
         json_test = {'test_type': 'collation_short',
-                     'tests':[]}
+                     'tests':[],
+                     'data_errors': []}
         json_verify = {'test_type': 'collation_short',
                        'verifications': []}
         insert_collation_header([json_test, json_verify])
+
+        data_error_list = []
 
         start_count = 0
 
         # Data from more complex tests in github's unicode-org/icu repository
         # icu4c/source/test/testdata/collationtest.txt
-        test_complex, verify_complex = generateCollTestData2(
+        test_complex, verify_complex, encode_errors = generateCollTestData2(
             'collationtest.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -82,8 +88,10 @@ class generateData():
         if test_complex:
             json_test['tests'].extend(test_complex)
 
+        data_error_list.extend(encode_errors)
+
         # Collation ignoring punctuation
-        test_ignorable, verify_ignorable =  generateCollTestDataObjects(
+        test_ignorable, verify_ignorable, data_errors =  generateCollTestDataObjects(
             'CollationTest_SHIFTED_SHORT.txt',
             self.icu_version,
             ignorePunctuation=True,
@@ -91,9 +99,10 @@ class generateData():
 
         json_test['tests'].extend(test_ignorable)
         json_verify['verifications'].extend(verify_ignorable)
+        data_error_list.extend(data_errors)
 
         # Collation considering punctuation
-        test_nonignorable, verify_nonignorable = generateCollTestDataObjects(
+        test_nonignorable, verify_nonignorable, data_errors = generateCollTestDataObjects(
             'CollationTest_NON_IGNORABLE_SHORT.txt',
             self.icu_version,
             ignorePunctuation=False,
@@ -102,9 +111,14 @@ class generateData():
         # Resample as needed
         json_test['tests'].extend(test_nonignorable)
         json_test['tests'] = self.sample_tests(json_test['tests'])
+        data_error_list.extend(data_errors)
+
+        # Store data errors with the tests
+        json_test['data_errors'] = data_error_list
 
         json_verify['verifications'].extend(verify_nonignorable)
         json_verify['verifications'] = self.sample_tests(json_verify['verifications'])
+        # TODO: Store data errors with the tests
 
         # And write the files
         self.saveJsonFile('collation_test.json', json_test)
@@ -116,7 +130,6 @@ class generateData():
         if rawdcmlfmttestdata:
             BOM = '\xef\xbb\xbf'
             if rawdcmlfmttestdata.startswith(BOM):
-                logging.info('Skip BOM')
                 rawdcmlfmttestdata = rawdcmlfmttestdata[3:]
 
         filename = 'numberpermutationtest.txt'
@@ -136,16 +149,18 @@ class generateData():
             self.saveJsonFile('num_fmt_test_file.json', json_test)
 
             output_path = os.path.join(self.icu_version, 'num_fmt_verify_file.json')
-            num_fmt_verify_file = open(output_path, 'w')
+            # TODO: Change these saves to use saveJsonFile with output_path ??
+            num_fmt_verify_file = open(output_path, 'w', encoding='UTF-8')
             json.dump(json_verify, num_fmt_verify_file, indent=1)
             num_fmt_verify_file.close()
 
-            logging.warning('NumberFormat Test (%s): %s tests created', self.icu_version, count)
+            logging.info('NumberFormat Test (%s): %s tests created', self.icu_version, count)
         return
 
     def processLangNameTestData(self):
         json_test = {'test_type': 'lang_names'}
         json_verify = {'test_type': 'lang_names'}
+
         languageNameDescr(json_test, json_verify)
         filename = 'languageNameTable.txt'
         rawlangnametestdata = readFile(filename, self.icu_version)
@@ -156,13 +171,13 @@ class generateData():
         # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(rawlangnametestdata, json_test, json_verify)
         output_path = os.path.join(self.icu_version, 'lang_name_test_file.json')
-        lang_name_test_file = open(output_path, 'w')
+        lang_name_test_file = open(output_path, 'w', encoding='UTF-8')
         json.dump(json_test, lang_name_test_file, indent=1)
         lang_name_test_file.close()
 
 
         output_path = os.path.join(self.icu_version, 'lang_name_verify_file.json')
-        lang_name_verify_file = open(output_path, 'w')
+        lang_name_verify_file = open(output_path, 'w', encoding='UTF-8')
         json.dump(json_verify, lang_name_verify_file, indent=1)
         lang_name_verify_file.close()
 
@@ -184,7 +199,7 @@ class generateData():
         if not (recommentline.match(item) or reblankline.match(item)):
           test_data = parseLanguageNameData(item)
           if test_data == None:
-            logging.warning('  LanguageNames (%s): Line \'%s\' not recognized as valid test data entry', self.icu_version, item)
+            logging.debug('  LanguageNames (%s): Line \'%s\' not recognized as valid test data entry', self.icu_version, item)
             continue
           else:
             label = str(count).rjust(max_digits, '0')
@@ -315,10 +330,10 @@ def readFile(filename, version=''):
     if version:
         path = os.path.join(version, filename)
     try:
-        with open(path, 'r', encoding='utf8') as testdata:
+        with open(path, 'r', encoding='utf-8') as testdata:
             return testdata.read()
     except BaseException as err:
-        logging.warning('** Cannot read file %s. Error = %s', path, err)
+        logging.warning('** READ: Error = %s', err)
         return None
 
 
@@ -344,14 +359,14 @@ def parseDcmlFmtTestData(rawtestdata):
       logging.warning('** parseDcmlFmtTestData: %s', error)
   if not test_match:
       logging.warning('No test match with rawtestdata = %s', rawtestdata)
-
+      return None, None, None, None
   return test_match.group(1), test_match.group(2), test_match.group(3), test_match.group(4)
 
 
 def mapFmtSkeletonToECMA402(options):
   ecma402_map = {
       "compact-short": {"notation": "compact",  "compactDisplay": "short"},
-      "scientific/+ee/sign-always": {"notation": "scientific"},
+      "scientific/+ee/sign-always": {"notation": "scientific", "conformanceExponent":"+ee", "conformanceSign": "always"},
       # Percent with word "percent":
       "percent": {"style": "unit", "unit": "percent"},  # "style": "percent",
       "currency/EUR": {"style": "currency", "currencyDisplay": "symbol",  "currency": "EUR"},
@@ -364,7 +379,9 @@ def mapFmtSkeletonToECMA402(options):
       ".000": {"maximumFractionDigits": 3, "minimumFractionDigits": 3},
 
       # Use maximumFractionDigits: 2, maximumSignificantDigits: 3, roundingPriority: "morePrecision"
-      ".##/@@@+": {"maximumFractionDigits": 2, "maximumSignificantDigits": 3,"roundingPriority": "morePrecision"},
+      ".##/@@@+": {"maximumFractionDigits": 2,
+                   "maximumSignificantDigits": 3,
+                   "roundingPriority": "morePrecision"},
       "@@": {"maximumSignificantDigits": 2, "minimumSignificantDigits": 2},
       "rounding-mode-floor": {"roundingMode": "floor"},
       "integer-width/##00": {"maximumIntegerDigits": 4, "minimumIntegerDigits":2},
@@ -402,6 +419,10 @@ def mapFmtSkeletonToECMA402(options):
     if o != 'scale/0.5' and o != 'decimal-always':
       option_detail = ecma402_map[o]
       options_dict = options_dict | option_detail
+    if o[0:5] == "scale":
+        options_dict = options_dict | {"conformanceScale": o[6:]}
+    if o == "decimal-always":
+        options_dict = options_dict | {"conformanceDecimalAlways": True}
 
    # TODO: resolve some combinations of entries that are in conflict
   return  options_dict
@@ -474,7 +495,6 @@ def generateNumberFmtTestDataObjects(rawtestdata, count=0):
 
   expected_count = len(test_list) * len(NUMBERFORMAT_LOCALE_INDICES) * len(NUMBERS_TO_TEST) + count
   max_digits = computeMaxDigitsForCount(expected_count)
-  logging.info('  Expected count  of number fmt tests: %s', expected_count)
 
   for test_options in test_list:
     # The first three specify the formatting.
@@ -534,6 +554,11 @@ def resolveOptions(raw_options, skeleton_list):
         ('style' not in resolved or resolved['style'] != 'currency')):
         resolved['maximumFractionDigits'] = 6
 
+    if ('maximumFractionDigits' not in resolved and
+        ('notation' in resolved and resolved['notation'] == 'compact')):
+        pass
+        # NOT NECESSARY resolved['maximumFractionDigits'] = 2
+
     if skeleton_list and 'percent' in skeleton_list:
         resolved['style'] = 'unit'
         resolved['unit'] = 'percent'
@@ -554,19 +579,46 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
   all_tests_list = []
   verify_list = []
 
+  # Transforming patterns to skeltons
+  pattern_to_skeleton = {
+      '0.0000E0': 'scientific .0000/@',
+      '00': 'integer-width/##00 group-off',
+      # '0.00': '.##/@@@',  # TODO: Fix this skeleton
+      '@@@': '@@@ group-off',
+      '@@###': '@@### group-off',
+      '#': '@ group-off',
+      '@@@@E0': 'scientific/+e .0000/@@+',
+      '0.0##@E0': 'scientific/+e .##/@@+',
+      '0005': 'integer-width/0000 precision-increment/0005'
+      }
+
   expected = len(test_list) + count
-  logging.info('  expected count = %s', (len(test_list) -1))
   max_digits = computeMaxDigitsForCount(expected)
 
   for item in test_list[1:]:
     if not (recommentline.match(item) or reblankline.match(item)):
       # Ignore parse for now.
-      if item[0:5] == "parse":
-          continue
+      if item == '' or item[0:5] == "parse":
+        continue
+
       pattern, round_mode, test_input, expected = parseDcmlFmtTestData(item)
+      if pattern == None:
+          continue
+
       rounding_mode = mapRoundingToECMA402(round_mode)
       label = str(count).rjust(max_digits, '0')
-      entry = {'label': label, 'skeleton': pattern , 'input': test_input, 'options': {} }
+
+      # TODO!!: Look up the patterns to make skeletons
+      if pattern in pattern_to_skeleton:
+          skeleton = pattern_to_skeleton[pattern]
+      else:
+          skeleton = None
+
+      if skeleton:
+          entry = {'label': label, 'op': 'format', 'pattern': pattern, 'skeleton': skeleton , 'input': test_input, 'options': {} }
+      else:
+      # Unknown skeleton
+          entry = {'label': label, 'op': 'format', 'pattern': pattern, 'input': test_input, 'options': {} }
 
       json_part = mapFmtSkeletonToECMA402([pattern])
 
@@ -632,13 +684,14 @@ def generateCollTestData2(filename,
     test_line = re.compile('^\*\* test:(.*)')
     rule_header_pattern = re.compile('^@ rules')
     rule_pattern = re.compile('^&.*')
-
+    strength_pattern = re.compile('% strength=(\S)')
     compare_pattern = re.compile('^\* compare(.*)')
 
     comparison_pattern = re.compile('(\S+)\s+(\S+)\s*(\#?.*)')  # compare operator followed by string
 
     attribute_test = re.compile('^\% (\S+)\s*=\s*(\S+)')
     rules = ''
+    strength = None
 
     # Ignore comment lines
     string1 = ''
@@ -666,21 +719,28 @@ def generateCollTestData2(filename,
             continue
 
         if root_locale.match(line_in):
+            # Reset the parameters for collation
             locale = 'und'
+            rules = []
+            locale = ''
+            attributes = []
+            strength = None
             continue
+
         locale_match = locale_string.match(line_in)
         if locale_match:
+            # Reset the parameters for collation
             locale = locale_match.group(1)
+            rules = []
+            locale = ''
+            attributes = []
+            strength = None
             continue
 
         # Find "** test" section
         is_test =  test_line.match(line_in)
         if is_test:
             test_description = is_test.group(1)
-            rules = []
-            tests_for_test = []
-            locale = ''
-            attributes = []
             continue
 
         # Handle rules, to be applied in subsequent tests
@@ -688,6 +748,12 @@ def generateCollTestData2(filename,
         if is_rules:
             # Read rule lines until  a "*" line is found
             rules = []
+            locale = 'und'
+            rules = []
+            locale = ''
+            attributes = []
+            strength = None
+
             # Skip comment and empty lines
             while line_number < num_lines:
                 if line_number >= num_lines:
@@ -698,12 +764,23 @@ def generateCollTestData2(filename,
                     continue
                 if line_in[0] == '*':
                     break
+                # Remove any comments in the line preceded by '#'
+                comment_start = line_in.find('#')
+                if comment_start >= 0:
+                    line_in = line_in[0:comment_start]
                 rules.append(line_in.strip())
                 line_number += 1
             continue
 
+        is_strength = strength_pattern.match(line_in)
+        if is_strength:
+            strength = is_strength.group(1)
+
         is_compare = compare_pattern.match(line_in)
+        compare_type = None
         if is_compare:
+            # Initialize string1 to the empty string.
+            string1 = ''
             compare_mode = True
             info = is_compare.group(1)
             while line_number < num_lines:
@@ -722,64 +799,63 @@ def generateCollTestData2(filename,
                 if is_comparison:
                     compare_type = is_comparison.group(1)
                     compare_string = is_comparison.group(2)
-                    # Note that this doesn't seem to handle \x encoding, howeveer.
+                    # Note that this doesn't seem to handle \x encoding, however.
+                    compare_comment = is_comparison.group(3)
+                    # Generate the test case
                     try:
-                        s = compare_string.encode()
-                        string2 = s.decode('unicode_escape')
-                        #string2 = compare_string.encode().decode('unicode_escape')
-                    except UnicodeEncodeError as err:
+                        string2 = compare_string.encode().decode('unicode_escape')
+                    except (BaseException, UnicodeEncodeError) as err:
                         logging.error('%s: line: %d. PROBLEM ENCODING', err, line_number)
                         continue
 
                     compare_comment = is_comparison.group(3)
 
-                    label = str(label_num).rjust(max_digits, '0')
-                    label_num += 1
+                label = str(label_num).rjust(max_digits, '0')
+                label_num += 1
+
+                # # If either string has unpaired surrogates, ignore the case and record it.
+                if not check_unpaired_surrogate_in_string(string1) and not check_unpaired_surrogate_in_string(string2):
                     test_case = {
                         'label': label,
                         's1': string1,
-                        'compare_type': compare_type,
-                        'test_description': test_description
+                        's2': string2,
                     }
 
-                    # If either string has unpaired surrogates, ignore the case, with a warning
-                    if check_unpaired_surrogate_in_string(string2):
-                        # String 1 is the previous, already checked
-                        try:
-                            #logging.warning('!!! generateCollTestData2: file%s: Unmatched surrogate ignored in line %s: s1: %s, s2: %s',
-                            #                file_name, line_number, string1, compare_string)
-                            encode_errors.append([line_number, compare_string])
-                        except UnicodeEncodeError as err:
-                            logging.error('!!! Line %s encoding error: %s', err)
-
-                        string2 = compare_string
-                        test_case['warning'] = 'unpaired surrogate in test case - not decoded'
-
-                    else:
-                        string2 = compare_string.encode().decode('unicode_escape')
-
-                    test_case['s2'] = string2
-
-                    # Generate the test case
-                    label = str(label_num).rjust(max_digits, '0')
-                    label_num += 1
+                    # Add info to the test case.
                     if locale:
                         test_case['locale'] = locale
-                    # Keep this for the next comparison test
-                    string1 = string2
+                    if compare_type:
+                        if type(compare_type) in [list, tuple]:
+                            test_case['compare_type'] = compare_type[0]
+                        else:
+                            test_case['compare_type'] = compare_type
+                    if test_description:
+                        test_case['test_description'] = test_description
+
                     if compare_comment:
                        test_case['compare_comment'] = compare_comment
                     if rules:
-                        test_case['rules'] = '\n'.join(rules)
+                        test_case['rules'] = ''.join(rules)
                     if attributes:
                         test_case['attributes'] = attributes
+
+                    if strength:
+                        test_case['strength'] = strength
+
                     test_list.append(test_case)
+                    # We always expect True as the result
+
                     verify_list.append({
                         'label': label,
                         'verify': True
                     })
-                    # Just to record which ones belong to this test
-                    tests_for_test.append(test_case)
+                else:
+                    # Record the problem and skip
+                    encode_errors.append([line_number, line_in])
+                    pass
+
+                # Keep this for the next comparison test
+                string1 = string2
             continue
 
         is_attribute = attribute_test.match(line_in)
@@ -787,15 +863,16 @@ def generateCollTestData2(filename,
             attributes.append([is_attribute.group(1), is_attribute.group(2)])
             continue
     if encode_errors:
-        logging.warning('!! %s File %s has DATA ERRORS: %s',
+        logging.warning('!! %s File has %s ENCODING ERRORS: %s',
                         filename, len(encode_errors), encode_errors)
-    return test_list, verify_list
+    return test_list, verify_list, encode_errors
 
-
+high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
 def check_unpaired_surrogate_in_string(text):
     # Look for unmatched high/low surrogates in the text
-    high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
-    low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
+    #high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
+    #low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
 
     match_high = high_surrogate_pattern.findall(text)
     match_low = low_surrogate_pattern.findall(text)
@@ -809,11 +886,11 @@ def check_unpaired_surrogate_in_string(text):
     if not match_high and match_low:
         return True
 
+    if len(match_high) != len(match_low):
+        return True
+
     # TODO: Check if each high match is immediately followed by a low match
     # Now, assume that they are paired
-    return False
-
-
 
     return False
 
@@ -844,7 +921,6 @@ def generateCollTestDataObjects(filename,
     index = 0
     line_number = 0
     for item in raw_testdata_list[1:]:
-
         line_number += 1
         if recommentline.match(item) or reblankline.match(item):
             continue
@@ -876,10 +952,10 @@ def generateCollTestDataObjects(filename,
 
     logging.info('Coll Test: %d lines processed', len(test_list))
     if data_errors:
-        logging.warning('!! %s File %s has DATA ERRORS: %s',
+        logging.warning('!! %s File has %s DATA ERRORS: %s',
                         filename, len(data_errors), data_errors)
 
-    return test_list, verify_list
+    return test_list, verify_list, data_errors
 
 
 def insert_collation_header(test_objs):
@@ -911,10 +987,6 @@ def languageNameDescr(tests_json, verify_json):
             'source_version': version
         }
     }
-
-    verify_json = {'test_type': test_id,
-                   'Test scenario': test_id
-                   }
     return
 
 
@@ -947,33 +1019,55 @@ def setupArgs():
     return new_args
 
 
+def generate_versioned_data_parallel(icu_versions, args):
+    num_processors = mp.cpu_count()
+    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(icu_versions))
+
+    version_data = []
+    for icu_version in icu_versions:
+        version_data.append(
+            {
+                'icu_version': icu_version,
+                'args': args
+            }
+        )
+
+    processor_pool = mp.Pool(num_processors)
+    with processor_pool as p:
+        result = p.map(generate_versioned_data, version_data)
+
+    return result
+
+def generate_versioned_data(version_info):
+    new_args = version_info['args']
+    icu_version = version_info['icu_version']
+    data_generator = generateData(icu_version)
+    data_generator.run_limit = new_args.run_limit
+
+    logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
+                 icu_version)
+
+    data_generator.processNumberFmtTestData()
+
+    # This is slow
+    data_generator.processCollationTestData()
+
+    data_generator.processLikelySubtagsData()
+
+    # This is slow
+    data_generator.processLangNameTestData()
+
+    logging.info('++++ Data generation for %s is complete.', icu_version)
+
+
 def main(args):
     new_args = setupArgs()
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
-    logger.info('+++ Generating .json files for icu_versions %s',
-                 new_args.icu_versions)
 
-    for icu_version in new_args.icu_versions:
-        data_generator = generateData(icu_version)
-        data_generator.run_limit = new_args.run_limit
-
-        # TODO: Why doesn't logging.info produce output?
-        logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
-                     icu_version)
-
-        # This is slow
-        data_generator.processCollationTestData()
-
-        data_generator.processLikelySubtagsData()
-
-        data_generator.processNumberFmtTestData()
-
-        # This is slow
-        data_generator.processLangNameTestData()
-
-        logger.info('++++ Data generation for %s is complete.', icu_version)
+    # Generate version data in parallel if possible
+    generate_versioned_data_parallel(new_args.icu_versions, new_args)
 
 
 if __name__ == '__main__':
