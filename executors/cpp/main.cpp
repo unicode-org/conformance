@@ -40,12 +40,14 @@ using std::string;
 
 // Test functions
 extern const string test_collator(json_object *json_in);
+extern const string test_datetime_fmt(json_object *json_in);
 extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
 extern const string test_numfmt(json_object *json_in);
 
-std::string supported_tests[4] = {
+std::string supported_tests[5] = {
   "collation_short",
+  "datetime_fmt",
   "likely_subtags",
   "lang_names",
   "number_fmt"
@@ -100,6 +102,9 @@ int main(int argc, const char** argv)
 
       if (test_type == "collation_short" ) {
         outputLine = test_collator(json_input);
+      }
+      else if (test_type == "datetime_fmt") {
+         outputLine = test_datetime_fmt(json_input);
       }
       else if (test_type == "number_fmt") {
          outputLine = test_numfmt(json_input);

@@ -217,3 +217,29 @@
 
 
 {"test_type": "number_fmt", "label":"2062","locale":"es-MX","skeleton":"currency/EUR unit-width-narrow .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"narrow","maximumFractionDigits":3,"minimumFractionDigits":3}}
+
+{"test_type": "datetime_fmt", "label":"abcd", "input_millis": "0.0"}
+
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "1000000.0"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "2020-03-02"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "03/02/2020"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "03/02/2020"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_string": "2020-03-02"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_string": "2020-03-02"}    
+    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_millis": "0.0"}
+
+#  formats of weekday in two Portuguese locales
+{"test_type": "datetime_fmt", "label":"pt E","locale":"pt", "datetime_skeleton":"E MMMMdjmmYYYY", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"pt-PT E","locale":"pt-PT", "datetime_skeleton":"E MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt EE","locale":"pt", "datetime_skeleton":"EE MMdYYYY", "input_millis": "0.0"} 
+{"test_type": "datetime_fmt", "label":"pt-PT EE","locale":"pt-PT", "datetime_skeleton":"EE MMdYYYY", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"pt EEE","locale":"pt", "datetime_skeleton":"EEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt-PT EEE","locale":"pt-PT", "datetime_skeleton":"EEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt EEEE","locale":"pt", "datetime_skeleton":"EEEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt-PT EEEEE","locale":"pt-PT", "datetime_skeleton":"EEEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt EEEEE","locale":"pt", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt-PT EEEEE","locale":"pt-PT", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"} 
+
+
