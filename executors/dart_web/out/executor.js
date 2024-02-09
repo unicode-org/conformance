@@ -22,6 +22,8 @@ let numberformatter = require('./numberformat.js')
 
 let likely_subtags = require('./likely_subtags.js')
 
+let lang_names = require('./lang_names.js');
+
 const { dartVersion } = require('./version.js')
 
 /**
@@ -183,6 +185,8 @@ rl.on('line', function (line) {
           outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput > 0, process.version);
         } else if (test_type == "likely_subtags") {
           outputLine = likely_subtags.testLikelySubtags(parsedJson);
+        } else if (test_type == "language_display_name" || test_type == "lang_names") {
+          outputLine = lang_names.testLangNames(parsedJson);
         } else {
           outputLine = {
             'error': 'unknown test type', 'testId': testId,

@@ -83,6 +83,7 @@
       "test_type": [
         "collation_short",
         "number_fmt",
+        "lang_names",
         "likely_subtags"
       ],
       "per_execution": 10000
