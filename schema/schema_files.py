@@ -1,6 +1,7 @@
 # Points to file names for each supported JSON files.
 
 ALL_TEST_TYPES = ['collation_short',
+                  'datetime_fmt',
                   'number_format',
                   'language_names',
                   'likely_subtags']
@@ -31,6 +32,21 @@ SCHEMA_FILE_MAP = {
         }
     },
 
+    "datetime_fmt": {
+        "test_data": {
+            "schema_file": "datetime_fmt/test_schema.json",
+            'prod_file': 'datetime_test_file.json'
+        },
+        "verify_data": {
+            "schema_file": "datetime_fmt/verify_schema.json",
+            'prod_file': 'pass.json'
+        },
+        "result_data": {
+            "schema_file": "datetime_fmt/result_schema.json",
+            "prod_file": 'datetime_test_file.json'
+        }
+    },
+
     "number_format": {
         "test_data": {
             "schema_file": "number_format/test_schema.json",
@@ -45,6 +61,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": 'num_fmt_test_file.json'
         }
     },
+
     "number_fmt": {
         "test_data": {
             "schema_file": "number_format/test_schema.json",

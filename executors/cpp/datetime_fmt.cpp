@@ -101,13 +101,16 @@ const string test_datetime_fmt(json_object *json_in) {
 
     UnicodeString date_ustring(input_date_string.c_str());
 
-    cout << "# Calling parse" << endl;
-    testDateTime = df->parse(date_ustring, status);
+    UnicodeString parse_skeleton = "YYYY-MM-DD HH:mm:ss";
+    DateFormat* dparser = DateFormat::createInstanceForSkeleton(parse_skeleton,
+                                               displayLocale,
+                                               status);
+    cout << "# Calling parse with: " << input_date_string << endl;
+    testDateTime = dparser->parse(date_ustring, status);
     if (U_FAILURE(status)) {
-      // TODO: Return error.
-      cout << "df->parse failure" << endl;
+      cout << "df->parse failure: " << u_errorName(status) << endl;
+      // TODO: Return error in the json.
     }
-    cout << "Called parse" << endl;
   }
 
   // The output of the formatting
