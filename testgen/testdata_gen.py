@@ -318,6 +318,28 @@ class generateData():
         logging.info('Likely Subtags Test (%s): %d lines processed', self.icu_version, count)
         return
 
+    def processDateTimeTestData(self):
+        # Get each kind of datetime tests and create a unified data set
+        test_name = 'datetime_fmt'
+        json_test = {'test_type': test_name,
+                     'tests':[],
+                     'data_errors': []}
+        json_verify = {'test_type': test_name,
+                       'verifications': []}
+        self.insert_datetime_header([json_test, json_verify], test_name)
+
+        data_error_list = []
+
+        start_count = 0
+        # And write the files
+
+        self.saveJsonFile(test_name + '_test.json', json_test, 2)
+        self.saveJsonFile(test_name + '_verify.json', json_verify, 2)
+
+    def insert_datetime_header(self, test_objs, test_name):
+        for obj in test_objs:
+            obj['Test scenario'] = test_name
+            obj['description'] =  'Formatted date time strings created with passed in parameters'
 
 # Utility functions
 def computeMaxDigitsForCount(count):
@@ -1046,6 +1068,8 @@ def generate_versioned_data(version_info):
 
     logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                  icu_version)
+
+    data_generator.processDateTimeTestData()
 
     data_generator.processNumberFmtTestData()
 
