@@ -9,7 +9,7 @@ import multiprocessing as mp
 import os
 import re
 import requests
-import sys
+from enum import StrEnum
 
 reblankline = re.compile('^\s*$')
 
@@ -20,6 +20,13 @@ NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
 # Which locales are selected for this testing.
 # This selects es-MX, zh-TW, bn-BD
 NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
+
+
+class TestType(StrEnum):
+    NUMBER_FMT = 'number_fmt'
+    COLLATION_SHORT = 'collation_short'
+    LANG_NAMES = 'lang_names'
+    LIKELY_SUBTAGS = 'likely_subtags'
 
 
 class generateData():
@@ -1013,18 +1020,20 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 def setupArgs():
     parser = argparse.ArgumentParser(prog='testdata_gen')
     parser.add_argument('--icu_versions', nargs='*', default=[])
+    all_test_types = [t.value for t in TestType]
+    parser.add_argument('--test_types', nargs='*', choices=all_test_types, default=all_test_types)
     # -1 is no limit
     parser.add_argument('--run_limit', nargs='?', type=int, default=-1)
     new_args = parser.parse_args()
     return new_args
 
 
-def generate_versioned_data_parallel(icu_versions, args):
+def generate_versioned_data_parallel(args):
     num_processors = mp.cpu_count()
-    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(icu_versions))
+    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(args.icu_versions))
 
     version_data = []
-    for icu_version in icu_versions:
+    for icu_version in args.icu_versions:
         version_data.append(
             {
                 'icu_version': icu_version,
@@ -1047,28 +1056,35 @@ def generate_versioned_data(version_info):
     logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
                  icu_version)
 
-    data_generator.processNumberFmtTestData()
+    if len(new_args.test_types) < len(TestType):
+        logging.info('(Only generating %s)', ', '.join(new_args.test_types))
 
-    # This is slow
-    data_generator.processCollationTestData()
+    if TestType.NUMBER_FMT in new_args.test_types:
+        data_generator.processNumberFmtTestData()
 
-    data_generator.processLikelySubtagsData()
+    if TestType.COLLATION_SHORT in new_args.test_types:
+        # This is slow
+        data_generator.processCollationTestData()
 
-    # This is slow
-    data_generator.processLangNameTestData()
+    if TestType.LIKELY_SUBTAGS in new_args.test_types:
+        data_generator.processLikelySubtagsData()
+
+    if TestType.LANG_NAMES in new_args.test_types:
+        # This is slow
+        data_generator.processLangNameTestData()
 
     logging.info('++++ Data generation for %s is complete.', icu_version)
 
 
-def main(args):
+def main():
     new_args = setupArgs()
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
 
     # Generate version data in parallel if possible
-    generate_versioned_data_parallel(new_args.icu_versions, new_args)
+    generate_versioned_data_parallel(new_args)
 
 
 if __name__ == '__main__':
-  main(sys.argv)
+  main()
