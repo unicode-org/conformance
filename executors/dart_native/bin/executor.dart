@@ -8,15 +8,11 @@ import 'package:intl4x/intl4x.dart';
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
     'coll_shift_short',
-    'decimal_fmt',
-    'number_fmt',
-    'display_names',
-    'language_display_name',
   ],
 };
 
 enum TestTypes {
-  coll_shift_short,
+  collation_short,
   decimal_fmt,
   datetime_fmt,
   display_names,
@@ -44,10 +40,10 @@ void main() {
         }
 
         var testType = TestTypes.values
-            .firstWhere((element) => element.name == decoded['test_type']);
+            .firstWhere((type) => type.name == decoded['test_type']);
         Object result;
         switch (testType) {
-          case TestTypes.coll_shift_short:
+          case TestTypes.collation_short:
             result = testCollator(decoded);
             break;
           case TestTypes.decimal_fmt:
@@ -85,7 +81,7 @@ void printVersion() {
   var version = Platform.version;
   var parsedVersion = version.substring(0, version.indexOf(' '));
   var versionInfo = {
-    'icuVersion': '71.1',
+    'icuVersion': '73',
     'platform': 'Dart',
     'platformVersion': parsedVersion,
   };
