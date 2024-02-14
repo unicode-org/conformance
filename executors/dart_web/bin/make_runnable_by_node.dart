@@ -28,8 +28,8 @@ Future<void> main(List<String> args) async {
       argNames: ['encoded'],
     ),
   };
-  for (var name in names.entries) {
-    await prepare(name.key, name.value);
+  for (final MapEntry(key: name, value: function) in names.entries) {
+    await prepare(name, function);
   }
 
   setVersionFile();

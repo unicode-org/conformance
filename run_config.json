@@ -90,7 +90,6 @@
     }
   },
   {
-    "prereq": {},
     "run": {
       "icu_version": "icu73",
       "exec": "dart_native",
