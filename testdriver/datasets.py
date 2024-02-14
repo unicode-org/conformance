@@ -249,6 +249,7 @@ ICUVersionMap = {
     'icu4x': ICU4XVersionMap,
     'rust': ICU4XVersionMap,
     'dart_web': NodeICUVersionMap,
+    'dart_native': ICU4XVersionMap,
     }
 
 # Executor programs organized by langs and version

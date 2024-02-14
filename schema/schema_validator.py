@@ -444,7 +444,7 @@ def main(args):
     schema_validator.test_data_base = os.path.split(base_folders[0])[0]
     schema_validator.test_output_base =  os.path.split(os.path.split(result_folders[0])[0])[0]
     schema_validator.icu_versions = ['icu71', 'icu72', 'icu73', 'icu74']
-    schema_validator.executors = ['node', 'rust', 'dart_web']
+    schema_validator.executors = ['node', 'rust', 'dart_web', 'dart_native']
 
     logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
@@ -459,7 +459,7 @@ def main(args):
         logging.info('All schemas are valid: %s', schema_errors)
 
     icu_versions = ['icu71', 'icu72', 'icu73', 'icu74']
-    executor_list = ['node', 'rust', 'dart_web']
+    executor_list = ['node', 'rust', 'dart_web', 'dart_native']
 
     logging.info('Checking generated data')
     all_test_data_results = schema_validator.validate_test_data_with_schema()
