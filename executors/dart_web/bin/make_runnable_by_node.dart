@@ -23,6 +23,10 @@ Future<void> main(List<String> args) async {
       name: 'testLikelySubtags',
       argNames: ['encoded'],
     ),
+    'lang_names': ExportFunction(
+      name: 'testLangNames',
+      argNames: ['encoded'],
+    ),
   };
   for (var name in names.entries) {
     await prepare(name.key, name.value);
