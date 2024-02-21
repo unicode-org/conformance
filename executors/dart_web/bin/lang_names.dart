@@ -25,7 +25,6 @@ String testLangNames(String jsonEncoded) {
         'error_type': 'unsupported',
         'error_detail': 'locale_label',
         'error_retry': false // Do not repeat
-
     });
     return jsonEncode(outputLine);
   }

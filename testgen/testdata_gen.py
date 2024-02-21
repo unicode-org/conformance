@@ -203,9 +203,7 @@ class generateData():
             continue
           else:
             label = str(count).rjust(max_digits, '0')
-            # Change locale to use '-' instead of underscore
-            test_json = {'label': label, 'language_label': test_data[0].replace('_', '-'),
-                         'locale_label': test_data[1].replace('_', '-')}
+            test_json = {'label': label, 'language_label': test_data[0], 'locale_label': test_data[1]}
             jtests.append(test_json)
             jverify.append({'label': label, 'verify': test_data[2]})
             count += 1
