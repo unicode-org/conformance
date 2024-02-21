@@ -23,9 +23,13 @@ Future<void> main(List<String> args) async {
       name: 'testLikelySubtags',
       argNames: ['encoded'],
     ),
-  };
-  for (var name in names.entries) {
-    await prepare(name.key, name.value);
+    'lang_names': ExportFunction(
+      name: 'testLangNames',
+      argNames: ['encoded'],
+    ),
+ };
+  for (final MapEntry(key: name, value: function) in names.entries) {
+    await prepare(name, function);
   }
 
   setVersionFile();
