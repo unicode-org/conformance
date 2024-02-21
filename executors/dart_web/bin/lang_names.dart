@@ -28,7 +28,7 @@ String testLangNames(String jsonEncoded) {
 
     });
     return jsonEncode(outputLine);
-  },
+  }
 
   final languageLabel =
   (json['language_label'] as String).replaceAll('_', '-');
@@ -45,7 +45,7 @@ String testLangNames(String jsonEncoded) {
   } catch (error) {
     outputLine.addAll({
         //      'error': error.toString() + " language_label:" + languageLabel,
-        'error': 'something went wrong: ', + error.toString(),
+        'error': 'something went wrong: ' + error.toString(),
         'label': json['label'],
         'locale_label': locale.toLanguageTag(),
         'language_label': languageLabel,
