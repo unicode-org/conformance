@@ -79,7 +79,6 @@ class generateData():
         test_complex, verify_complex, encode_errors = generateCollTestData2(
             'collationtest.txt',
             self.icu_version,
-            ignorePunctuation=False,
             start_count=len(json_test['tests']))
 
         if verify_complex:
@@ -657,23 +656,17 @@ def stringifyCode(cp):
     return teststring
 
 
-def generateCollTestData2(filename,
-                          icu_version,
-                          ignorePunctuation,
-                          start_count=0):
+def generateCollTestData2(filename, icu_version, start_count=0):
     # Read raw data from complex test file, e.g., collation_test.txt
-    test_list, verify_list = None, None
-
     label_num = start_count
-
-    encode_errors = []
 
     test_list = []
     verify_list = []
+    encode_errors = []
 
     rawcolltestdata = readFile(filename, icu_version)
     if not rawcolltestdata:
-        return test_list, verify_list
+        return test_list, verify_list, encode_errors
 
     raw_testdata_list = rawcolltestdata.splitlines()
     max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximate
@@ -894,15 +887,16 @@ def check_unpaired_surrogate_in_string(text):
 
     return False
 
-def generateCollTestDataObjects(filename,
-                                icu_version,
-                                ignorePunctuation,
-                                start_count=0):
+def generateCollTestDataObjects(filename, icu_version, ignorePunctuation, start_count=0):
+    test_list = []
+    verify_list = []
+    data_errors = []  # Items with malformed Unicode
+
     # Read raw data
     rawcolltestdata = readFile(filename, icu_version)
 
     if not rawcolltestdata:
-        return None, None
+        return test_list, verify_list, data_errors
 
     raw_testdata_list = rawcolltestdata.splitlines()
 
@@ -910,12 +904,9 @@ def generateCollTestDataObjects(filename,
     # Adds field for ignoring punctuation as needed.
     recommentline = re.compile('^\s*#')
 
-    test_list = []
-    verify_list = []
 
     max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximately correct
     count = start_count
-    data_errors = []  # Items with malformed Unicode
 
     prev = None
     index = 0
