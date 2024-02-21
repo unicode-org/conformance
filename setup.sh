@@ -18,13 +18,14 @@ fi
 
 # ensure that the Python `enum` module is installed
 # Github Actions uses Python 3.11 as of Feb 2024
-check_enum_cmd = "python3 -c 'import pkgutil
-if pkgutil.find_loader(\"enum\"):
-    print(\"The enum module is already installed\")
+python3 -c 'import pkgutil
+if pkgutil.find_loader("enum"):
+    print("The enum module is already installed")
 else:
+    print("The enum module is not installed yet")
     sys.exit(1)
-'"
-`$check_enum_cmd` || error_code=$?
+'
+error_code=$?
 if [[ $error_code -ne 0 ]]
 then
     sudo apt-get install python3-enum34
