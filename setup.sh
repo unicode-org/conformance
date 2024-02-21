@@ -17,7 +17,7 @@ then
 fi
 
 # ensure that the Python `enum` module is installed
-# Github Actions uses Python 3.11 as of Feb 2024
+# Github Actions uses Python 3.10 as of Feb 2024
 python3 -c 'import pkgutil
 if pkgutil.find_loader("enum"):
     print("The enum module is already installed")
