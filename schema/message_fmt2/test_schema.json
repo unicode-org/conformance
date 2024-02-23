@@ -1,26 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Data-driven tests",
+  "title": "MessageFormat2 data-driven tests",
+  "description": "This documents the format of message_fmt2 test data for execution.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["scenario", "testType", "tests"],
+  "required": [
+    "test_type",
+    "tests"
+  ],
   "properties": {
-    "scenario": {
-      "type": "string",
-      "description": "Identifier for the tests in the file."
-    },
-    "description": {
-      "type": "string",
-      "description": "Information about the test scenario."
-    },
-    "testType": {
-      "type": "string",
-      "enum": ["syntax"],
-      "description": "A tag for the executor to decide how to run the test."
+    "test_type": {
+      "const": "message_fmt2"
     },
     "tests": {
       "type": "array",
-      "items": { "$ref": "#/$defs/test" },
+      "items": {
+        "$ref": "#/$defs/test"
+      },
       "minItems": 1
     }
   },
@@ -28,15 +24,29 @@
     "test": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["label", "locale", "pattern"],
+      "required": [
+        "label",
+        "test_description",
+        "test_subtype",
+        "locale",
+        "pattern"
+      ],
       "properties": {
         "label": {
           "type": "string",
           "description": "Identifier for the test."
         },
-        "description": {
+        "test_description": {
           "type": "string",
           "description": "Information about the test."
+        },
+        "test_subtype": {
+          "description": "A tag for the executor to decide how to run the test.",
+          "enum": [
+            "syntax",
+            "selector",
+            "formatter"
+          ]
         },
         "locale": {
           "type": "string"
@@ -44,33 +54,38 @@
         "pattern": {
           "type": "string"
         },
-        "inputs": {
+        "args": {
           "type": "array",
-          "items": { "$ref": "#/$defs/arg" }
-        },
-        "verify": {
-          "type": "string"
+          "items": {
+            "$ref": "#/$defs/arg"
+          }
         }
       }
     },
     "arg": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "value"],
+      "required": [
+        "argType",
+        "value"
+      ],
       "properties": {
         "name": {
           "type": "string"
         },
-        "type": {
-          "type": "string",
-          "enum": ["string", "number", "datetime"]
+        "argType": {
+          "enum": [
+            "string",
+            "number",
+            "datetime"
+          ]
         },
         "value": {}
       },
       "anyOf": [
         {
           "properties": {
-            "type": {
+            "argType": {
               "const": "string"
             },
             "value": {
@@ -80,7 +95,7 @@
         },
         {
           "properties": {
-            "type": {
+            "argType": {
               "const": "datetime"
             },
             "value": {
@@ -90,7 +105,7 @@
         },
         {
           "properties": {
-            "type": {
+            "argType": {
               "const": "number"
             },
             "value": {

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MessageFormat2 data-driven tests",
+  "description": "This documents the format of message_fmt2 data to verify the test output against.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "test_type",
+    "verifications"
+  ],
+  "properties": {
+    "test_type": {
+      "const": "message_fmt2"
+    },
+    "verifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/verification"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "verify"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Identifier for the test."
+        },
+        "verify": {
+          "type": "string",
+          "description": "Expected result."
+        }
+      }
+    }
+  }
+}
