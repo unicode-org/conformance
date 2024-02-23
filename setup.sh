@@ -14,7 +14,21 @@ fi
 if [[ ! -d gh-cache ]]
 then
     mkdir -p gh-cache
+fi
 
+# ensure that the Python `enum` module is installed
+# Github Actions uses Python 3.10 as of Feb 2024
+python3 -c 'import pkgutil
+if pkgutil.find_loader("enum"):
+    print("The enum module is already installed")
+else:
+    print("The enum module is not installed yet")
+    sys.exit(1)
+'
+error_code=$?
+if [[ $error_code -ne 0 ]]
+then
+    sudo apt-get install python3-enum34
 fi
 
 
