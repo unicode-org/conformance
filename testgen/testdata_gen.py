@@ -9,7 +9,7 @@ import multiprocessing as mp
 import os
 import re
 import requests
-from enum import StrEnum
+from enum import Enum
 
 reblankline = re.compile('^\s*$')
 
@@ -22,7 +22,7 @@ NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
 NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
 
 
-class TestType(StrEnum):
+class TestType(str, Enum):
     NUMBER_FMT = 'number_fmt'
     COLLATION_SHORT = 'collation_short'
     LANG_NAMES = 'lang_names'
@@ -1047,6 +1047,7 @@ def generate_versioned_data_parallel(args):
 
     return result
 
+
 def generate_versioned_data(version_info):
     new_args = version_info['args']
     icu_version = version_info['icu_version']
@@ -1087,4 +1088,4 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+    main()
