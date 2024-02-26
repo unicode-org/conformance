@@ -22,8 +22,8 @@ enum TestTypes {
 
 void main() {
   stdin.listen((event) {
-    var lines = utf8.decode(event);
-    for (var line in lines.split('\n')) {
+    final lines = utf8.decode(event);
+    for (final line in lines.split('\n')) {
       if (line == '#EXIT') {
         exit(0);
       } else if (line == '#VERSION') {
@@ -39,7 +39,7 @@ void main() {
           rethrow;
         }
 
-        var testType = TestTypes.values
+        final testType = TestTypes.values
             .firstWhere((type) => type.name == decoded['test_type']);
         Object result;
         switch (testType) {
@@ -60,7 +60,7 @@ void main() {
             throw UnsupportedError('');
         }
 
-        var outputLine = {'label': decoded['label'], 'result': result};
+        final outputLine = {'label': decoded['label'], 'result': result};
         print(json.encode(outputLine));
       }
     }
@@ -68,19 +68,16 @@ void main() {
 }
 
 bool testCollator(Map<String, dynamic> decoded) {
-  var compared =
-      Intl().collation(CollationOptions(ignorePunctuation: true)).compare(
-            decoded['string1'],
-            decoded['string2'],
-          );
-  var result = compared <= 0 ? true : false;
-  return result;
+  final collation = Intl(locale: Locale(language: 'en'))
+      .collation(CollationOptions(ignorePunctuation: true));
+  final compared = collation.compare(decoded['string1'], decoded['string2']);
+  return compared <= 0;
 }
 
 void printVersion() {
-  var version = Platform.version;
-  var parsedVersion = version.substring(0, version.indexOf(' '));
-  var versionInfo = {
+  final version = Platform.version;
+  final parsedVersion = version.substring(0, version.indexOf(' '));
+  final versionInfo = {
     'icuVersion': '73',
     'platform': 'Dart',
     'platformVersion': parsedVersion,
