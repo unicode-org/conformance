@@ -7,6 +7,7 @@
 .idea
 
 executors/rust/target/
+executors/cpp/executor
 **/__pycache__/
 DDT_DATA/testOutput*/*
 DDT_DATA/testReports*/*
