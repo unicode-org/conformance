@@ -593,6 +593,7 @@ class TestReport:
                         'error_detail',
                         'ignorePunctuation',
                         'language_label',
+                        'locale_label',
                         'locale',
                         'options',
                         'rules',
