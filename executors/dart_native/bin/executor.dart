@@ -21,56 +21,56 @@ enum TestTypes {
 }
 
 void main() {
-  stdin.listen((event) {
-    final lines = utf8.decode(event);
-    for (final line in lines.split('\n')) {
-      if (line == '#EXIT') {
-        exit(0);
-      } else if (line == '#VERSION') {
-        printVersion();
-      } else if (line == '#TESTS') {
-        print(json.encode(supportedTests));
-      } else {
-        Map<String, dynamic> decoded;
-        try {
-          decoded = json.decode(line);
-        } catch (e) {
-          print('ERROR $line');
-          rethrow;
-        }
-
-        final testType = TestTypes.values
-            .firstWhere((type) => type.name == decoded['test_type']);
-        Object result;
-        switch (testType) {
-          case TestTypes.collation_short:
-            result = testCollator(decoded);
-            break;
-          case TestTypes.decimal_fmt:
-          // TODO: Handle this case.
-          case TestTypes.datetime_fmt:
-          // TODO: Handle this case.
-          case TestTypes.display_names:
-          // TODO: Handle this case.
-          case TestTypes.lang_names:
-          // TODO: Handle this case.
-          case TestTypes.number_fmt:
-          // TODO: Handle this case.
-          default:
-            throw UnsupportedError('');
-        }
-
-        final outputLine = {'label': decoded['label'], 'result': result};
-        print(json.encode(outputLine));
-      }
+  while (true) {
+    final line = stdin.readLineSync();
+    if (line == null) {
+      exit(0);
     }
-  });
+    if (line == '#EXIT') {
+      exit(0);
+    } else if (line == '#VERSION') {
+      printVersion();
+    } else if (line == '#TESTS') {
+      print(json.encode(supportedTests));
+    } else {
+      Map<String, dynamic> decoded;
+      try {
+        decoded = json.decode(line);
+      } catch (e) {
+        throw 'ERRORSTART $line ERROREND';
+      }
+
+      final testType = TestTypes.values
+          .firstWhere((type) => type.name == decoded['test_type']);
+      Object result;
+      switch (testType) {
+        case TestTypes.collation_short:
+          result = testCollator(decoded);
+          break;
+        case TestTypes.decimal_fmt:
+        // TODO: Handle this case.
+        case TestTypes.datetime_fmt:
+        // TODO: Handle this case.
+        case TestTypes.display_names:
+        // TODO: Handle this case.
+        case TestTypes.lang_names:
+        // TODO: Handle this case.
+        case TestTypes.number_fmt:
+        // TODO: Handle this case.
+        default:
+          throw UnsupportedError('');
+      }
+
+      final outputLine = {'label': decoded['label'], 'result': result};
+      print(json.encode(outputLine));
+    }
+  }
 }
 
 bool testCollator(Map<String, dynamic> decoded) {
   final collation = Intl(locale: Locale(language: 'en'))
       .collation(CollationOptions(ignorePunctuation: true));
-  final compared = collation.compare(decoded['string1'], decoded['string2']);
+  final compared = collation.compare(decoded['s1'], decoded['s2']);
   return compared <= 0;
 }
 
