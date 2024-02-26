@@ -11,7 +11,7 @@ String testLikelySubtags(String jsonEncoded) {
   final outputLine = <String, dynamic>{'label': label};
 
   try {
-    final locale = Locale.parse(localeStr);
+    final locale = Locale.parse(localeStr.replaceAll('_', '-'));
     String resultLocale;
     if (testOption == 'maximize') {
       resultLocale = locale.maximize().toLanguageTag();
