@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
+import 'version.dart';
+
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
     'coll_shift_short',
@@ -79,11 +81,12 @@ bool testCollator(Map<String, dynamic> decoded) {
 
 void printVersion() {
   final version = Platform.version;
-  final parsedVersion = version.substring(0, version.indexOf(' '));
+  final dartVersion = version.substring(0, version.indexOf(' '));
   final versionInfo = {
-    'icuVersion': '73',
-    'platform': 'Dart',
-    'platformVersion': parsedVersion,
+    'platform': 'Dart Native',
+    'icuVersion': 73, //TODO: get from ICU4X somehow
+    'platformVersion': dartVersion,
+    'intlVersion': intl4xVersion,
   };
   print(json.encode(versionInfo));
 }
