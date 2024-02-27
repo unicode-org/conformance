@@ -68,8 +68,11 @@ void main() {
 }
 
 bool testCollator(Map<String, dynamic> decoded) {
-  final collation = Intl(locale: Locale(language: 'en'))
-      .collation(CollationOptions(ignorePunctuation: true));
+  final ignorePunctuation = decoded['ignorePunctuation'] as bool?;
+  final options =
+      CollationOptions(ignorePunctuation: ignorePunctuation ?? false);
+
+  final collation = Intl(locale: Locale(language: 'en')).collation(options);
   final compared = collation.compare(decoded['s1'], decoded['s2']);
   return compared <= 0;
 }
