@@ -33,7 +33,7 @@ public class MessageFormatterTest {
     MFInputArg expArg = new MFInputArg();
     expArg.name = "exp";
     expArg.argType = MFInputArgType.datetime;
-    expArg.value = new Date(1679971371000L);  // March 27, 2023, 7:42:51 PM
+    expArg.value = new Date(2023 - 1900, 2, 27, 19, 42, 51);  // March 27, 2023, 7:42:51 PM
     inputs.add(expArg);
     inputJson.inputs = inputs;
 
