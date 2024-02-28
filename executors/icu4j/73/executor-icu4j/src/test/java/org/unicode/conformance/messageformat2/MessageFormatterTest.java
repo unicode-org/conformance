@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 import org.junit.Test;
 import org.unicode.conformance.testtype.messageformat2.MFInputArg;
 import org.unicode.conformance.testtype.messageformat2.MFInputArgType;
@@ -33,7 +35,13 @@ public class MessageFormatterTest {
     MFInputArg expArg = new MFInputArg();
     expArg.name = "exp";
     expArg.argType = MFInputArgType.datetime;
-    expArg.value = new Date(1679971371000L);  // March 27, 2023, 7:42:51 PM
+    GregorianCalendar timeInCalendar
+        = new GregorianCalendar(2023, 2, 27, 19, 42, 51);
+    timeInCalendar.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+    Date timeAsDate = timeInCalendar.getTime();
+
+    expArg.value = timeAsDate;  // March 27, 2023, 7:42:51 PM
+
     inputs.add(expArg);
     inputJson.inputs = inputs;
 
