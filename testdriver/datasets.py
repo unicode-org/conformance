@@ -163,7 +163,7 @@ class ExecutorLang(Enum):
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
     "dart_web" : "node ../executors/dart_web/out/executor.js",
-    "dart_native" : "../executors/dart_native/bin/executor.exe",
+    "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
     "icu4j" : "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
@@ -249,6 +249,7 @@ ICUVersionMap = {
     'icu4x': ICU4XVersionMap,
     'rust': ICU4XVersionMap,
     'dart_web': NodeICUVersionMap,
+    'dart_native': ICU4XVersionMap,
     }
 
 # Executor programs organized by langs and version
@@ -373,7 +374,7 @@ allExecutors.addSystem(system, NodeVersion.Node18_7,
                        
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
-                       '../executors/dart_native/bin/executor.exe',
+                       '../executors/dart_native/bin/executor/executor.exe',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 # TESTING

@@ -27,7 +27,7 @@ Future<void> main(List<String> args) async {
       name: 'testLangNames',
       argNames: ['encoded'],
     ),
- };
+  };
   for (final MapEntry(key: name, value: function) in names.entries) {
     await prepare(name, function);
   }
