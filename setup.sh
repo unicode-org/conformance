@@ -7,6 +7,7 @@ set -e
 dpkg --list | grep libjson-c-dev || error_code=$?
 if [[ $error_code -ne 0 ]]
 then
+    sudo apt-get update
     sudo apt-get install libjson-c-dev
 fi
 
@@ -73,11 +74,11 @@ function download_74_2() {
 
 
  pushd gh-cache
-    
+
  download_71_1
  download_72_1
  download_73_1
  download_74_1
  download_74_2
- 
+
  popd
