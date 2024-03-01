@@ -13,7 +13,7 @@ String testLangNames(String jsonEncoded) {
     if (json['locale_label'] != null) {
       // Fix to use dash, not underscore.
       final localeJson = json['locale_label'] as String;
-      locale = Locale.parse(localeJson.replaceAll('/_/g', '-'));
+      locale = Locale.parse(localeJson.replaceAll('_', '-'));
     } else {
       locale = Locale(language: 'en');
     }
@@ -25,13 +25,12 @@ String testLangNames(String jsonEncoded) {
         'error_type': 'unsupported',
         'error_detail': 'locale_label',
         'error_retry': false // Do not repeat
-       
     });
     return jsonEncode(outputLine);
-  },
-  
+  }
+
   final languageLabel =
-  (json['language_label'] as String).replaceAll('/_/g', '-');
+  (json['language_label'] as String).replaceAll('_', '-');
 
   try {
     final options = DisplayNamesOptions(
@@ -45,7 +44,7 @@ String testLangNames(String jsonEncoded) {
   } catch (error) {
     outputLine.addAll({
         //      'error': error.toString() + " language_label:" + languageLabel,
-        'error': 'something went wrong: ', + error.toString(),
+        'error': 'something went wrong: ' + error.toString(),
         'label': json['label'],
         'locale_label': locale.toLanguageTag(),
         'language_label': languageLabel,
