@@ -10,6 +10,8 @@ executors/rust/target/
 executors/cpp/executor
 executors/dart_native/bin/executor/
 
+gh-cache/
+
 schema/schema_validation_summary.json
 
 **/__pycache__/
