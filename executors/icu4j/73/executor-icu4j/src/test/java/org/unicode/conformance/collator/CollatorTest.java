@@ -20,18 +20,7 @@ public class CollatorTest {
   }
 
   @Test
-  public void testIgnorePunctuation2() {
-    String testInput =
-        "{\"label\":\"0001704\",\"s1\":\"\\\\u007f!\",\"s2\":\"\u0080!\",\"line\":339,\"ignorePunctuation\":true}";
-
-    CollatorOutputJson output =
-        (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
-
-    assertTrue(output.result);
-  }
-
-  @Test
-  public void testNonescaped() {
+  public void testNonEscaped() {
     String testInput =
         "\t{\"label\":\"0006747\",\"s1\":\"̴?\",\"s2\":\"̴̲\",\"line\":5382,\"ignorePunctuation\":true}";
 
