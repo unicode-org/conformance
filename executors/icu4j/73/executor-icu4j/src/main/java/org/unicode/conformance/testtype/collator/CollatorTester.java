@@ -161,6 +161,10 @@ public class CollatorTester implements ITestType {
       }
     }
 
+    // ensure that ICU performs decomposition before collation in order to get proper results,
+    // per documentation: https://unicode-org.github.io/icu-docs/apidoc/dev/icu4j/com/ibm/icu/text/Collator.html
+    result.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
+
     if (input.ignorePunctuation) {
       result.setAlternateHandlingShifted(true);
     }
