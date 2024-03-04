@@ -139,7 +139,7 @@ public class CollatorTester implements ITestType {
 
     if (input.locale == null) {
       if (input.rules == null) {
-        result = (RuleBasedCollator) RuleBasedCollator.getInstance();
+        result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {
         try {
           result = new RuleBasedCollator(input.rules);
@@ -149,7 +149,7 @@ public class CollatorTester implements ITestType {
       }
     } else {
       ULocale locale = ULocale.forLanguageTag(input.locale);
-      result = (RuleBasedCollator) RuleBasedCollator.getInstance(locale);
+      result = (RuleBasedCollator) Collator.getInstance(locale);
       if (input.rules != null) {
         String defaultRules = result.getRules();
         String newRules = defaultRules + input.rules;
