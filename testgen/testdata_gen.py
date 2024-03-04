@@ -1,25 +1,17 @@
 # -*- coding: utf-8 -*-
-
 import argparse
-import json
 import logging
 import logging.config
-import math
 import multiprocessing as mp
-import os
 import re
-import requests
 from enum import Enum
 
-reblankline = re.compile('^\s*$')
+from generators.collation_short import CollationShortGenerator
+from generators.lang_names import LangNamesGenerator
+from generators.likely_subtags import LikelySubtagsGenerator
+from generators.number_fmt import NumberFmtGenerator
 
-# Global constants
-# Values to be formatted in number format tests
-NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
-
-# Which locales are selected for this testing.
-# This selects es-MX, zh-TW, bn-BD
-NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
+reblankline = re.compile("^\s*$")
 
 
 class TestType(str, Enum):
@@ -1006,28 +998,29 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 
 
 def setupArgs():
-    parser = argparse.ArgumentParser(prog='testdata_gen')
-    parser.add_argument('--icu_versions', nargs='*', default=[])
+    parser = argparse.ArgumentParser(prog="testdata_gen")
+    parser.add_argument("--icu_versions", nargs="*", default=[])
     all_test_types = [t.value for t in TestType]
-    parser.add_argument('--test_types', nargs='*', choices=all_test_types, default=all_test_types)
+    parser.add_argument(
+        "--test_types", nargs="*", choices=all_test_types, default=all_test_types
+    )
     # -1 is no limit
-    parser.add_argument('--run_limit', nargs='?', type=int, default=-1)
+    parser.add_argument("--run_limit", nargs="?", type=int, default=-1)
     new_args = parser.parse_args()
     return new_args
 
 
 def generate_versioned_data_parallel(args):
     num_processors = mp.cpu_count()
-    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(args.icu_versions))
+    logging.info(
+        "Test data generation: %s processors for %s plans",
+        num_processors,
+        len(args.icu_versions),
+    )
 
     version_data = []
     for icu_version in args.icu_versions:
-        version_data.append(
-            {
-                'icu_version': icu_version,
-                'args': args
-            }
-        )
+        version_data.append({"icu_version": icu_version, "args": args})
 
     processor_pool = mp.Pool(num_processors)
     with processor_pool as p:
@@ -1037,32 +1030,36 @@ def generate_versioned_data_parallel(args):
 
 
 def generate_versioned_data(version_info):
-    new_args = version_info['args']
-    icu_version = version_info['icu_version']
-    data_generator = generateData(icu_version)
-    data_generator.run_limit = new_args.run_limit
+    args = version_info["args"]
+    icu_version = version_info["icu_version"]
 
-    logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
-                 icu_version)
+    logging.info(
+        "Generating .json files for data driven testing. ICU_VERSION requested = %s",
+        icu_version,
+    )
 
-    if len(new_args.test_types) < len(TestType):
-        logging.info('(Only generating %s)', ', '.join(new_args.test_types))
+    if len(args.test_types) < len(TestType):
+        logging.info("(Only generating %s)", ", ".join(args.test_types))
 
-    if TestType.NUMBER_FMT in new_args.test_types:
-        data_generator.processNumberFmtTestData()
-
-    if TestType.COLLATION_SHORT in new_args.test_types:
+    if TestType.COLLATION_SHORT in args.test_types:
         # This is slow
-        data_generator.processCollationTestData()
+        generator = CollationShortGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
 
-    if TestType.LIKELY_SUBTAGS in new_args.test_types:
-        data_generator.processLikelySubtagsData()
-
-    if TestType.LANG_NAMES in new_args.test_types:
+    if TestType.LANG_NAMES in args.test_types:
         # This is slow
-        data_generator.processLangNameTestData()
+        generator = LangNamesGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
 
-    logging.info('++++ Data generation for %s is complete.', icu_version)
+    if TestType.LIKELY_SUBTAGS in args.test_types:
+        generator = LikelySubtagsGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    if TestType.NUMBER_FMT in args.test_types:
+        generator = NumberFmtGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    logging.info("++++ Data generation for %s is complete.", icu_version)
 
 
 def main():
@@ -1075,5 +1072,5 @@ def main():
     generate_versioned_data_parallel(new_args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
