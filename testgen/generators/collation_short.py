@@ -373,14 +373,11 @@ class CollationShortGenerator(DataGenerator):
         return "".join(return_list)
 
     def stringifyCode(self, cp):
-        # Converts some code points represented as hex strings to escaped values, others as characters
-        if cp < 0x20 or cp == 0x22 or cp == 127 or cp == 0x5C:
-            teststring = "\\u" + format(cp, "04x")
-        else:
-            try:
-                teststring = chr(cp)
-            except ValueError as err:
-                teststring = cp
+        # Just include character and escaping will work in JSONification
+        try:
+            teststring = chr(cp)
+        except ValueError as err:
+            teststring = cp
 
         return teststring
 
