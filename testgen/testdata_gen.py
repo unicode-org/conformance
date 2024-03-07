@@ -57,7 +57,7 @@ class generateData():
                 return None
             return r.text
         except BaseException as err:
-            logging.warning('Warning: cannot load data %s for version %s. Error = %s', datafile_name, version, err)
+            logging.debug('Warning: cannot load data %s for version %s. Error = %s', datafile_name, version, err)
             return None
 
     def processCollationTestData(self):
@@ -331,7 +331,8 @@ def readFile(filename, version=''):
         with open(path, 'r', encoding='utf-8') as testdata:
             return testdata.read()
     except BaseException as err:
-        logging.warning('** READ: Error = %s', err)
+        # Missing source --> do not generate test data
+        logging.debug('** READ: Error = %s', err)
         return None
 
 
