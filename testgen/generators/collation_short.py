@@ -283,7 +283,7 @@ class CollationShortGenerator(DataGenerator):
                 attributes.append([is_attribute.group(1), is_attribute.group(2)])
                 continue
         if encode_errors:
-            logging.warning(
+            logging.debug(
                 "!! %s File has %s ENCODING ERRORS: %s",
                 filename,
                 len(encode_errors),
@@ -350,7 +350,7 @@ class CollationShortGenerator(DataGenerator):
 
         logging.info("Coll Test: %d lines processed", len(test_list))
         if data_errors:
-            logging.warning(
+            logging.debug(
                 "!! %s File has %s DATA ERRORS: %s",
                 filename,
                 len(data_errors),
