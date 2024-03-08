@@ -69,7 +69,7 @@
      "type": "array",
      "items": {
        "type": "object",
-       "additionalProperties": false,
+       "additionalProperties": true,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
@@ -97,6 +97,10 @@
          },
          "error_type": {
            "type": "string",
+           "description": "additional error info"
+         },
+         "error_retry": {
+           "type": "boolean",
            "description": "additional error info"
          },
          "test_type": {

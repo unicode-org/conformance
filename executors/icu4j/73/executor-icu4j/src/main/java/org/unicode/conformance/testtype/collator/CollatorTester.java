@@ -39,27 +39,8 @@ public class CollatorTester implements ITestType {
 
     result.locale = (String) inputMapData.get("locale", null);
 
-    boolean ignorePunctuation = false;
-    Optional<Object> ignorePunctuationStr = inputMapData.get("ignorePunctuation");
-    try {
-      if (ignorePunctuationStr.isPresent()) {
-        ignorePunctuation = Boolean.parseBoolean((String) ignorePunctuationStr.get());
-      }
-    } catch (Exception e) {
-      // do nothing, default is false
-    }
-    result.ignorePunctuation = ignorePunctuation;
-
-    int line = 0;
-    Optional<Object> lineStr = inputMapData.get("line");
-    try {
-      if (lineStr.isPresent()) {
-        line = Integer.parseInt((String) lineStr.get());
-      }
-    } catch (Exception e) {
-      // do nothing, default is 0
-    }
-    result.line = line;
+    result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
+    result.line = (int) ((double) inputMapData.get("line", 0.0));
 
     result.compare_type = (String) inputMapData.get("compare_type", null);
     result.test_description = (String) inputMapData.get("test_description", null);
@@ -158,7 +139,7 @@ public class CollatorTester implements ITestType {
 
     if (input.locale == null) {
       if (input.rules == null) {
-        result = (RuleBasedCollator) RuleBasedCollator.getInstance();
+        result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {
         try {
           result = new RuleBasedCollator(input.rules);
@@ -168,7 +149,7 @@ public class CollatorTester implements ITestType {
       }
     } else {
       ULocale locale = ULocale.forLanguageTag(input.locale);
-      result = (RuleBasedCollator) RuleBasedCollator.getInstance(locale);
+      result = (RuleBasedCollator) Collator.getInstance(locale);
       if (input.rules != null) {
         String defaultRules = result.getRules();
         String newRules = defaultRules + input.rules;
@@ -179,6 +160,10 @@ public class CollatorTester implements ITestType {
         }
       }
     }
+
+    // ensure that ICU performs decomposition before collation in order to get proper results,
+    // per documentation: https://unicode-org.github.io/icu-docs/apidoc/dev/icu4j/com/ibm/icu/text/Collator.html
+    result.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
 
     if (input.ignorePunctuation) {
       result.setAlternateHandlingShifted(true);

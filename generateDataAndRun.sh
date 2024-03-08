@@ -79,7 +79,8 @@ if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
     pushd executors/dart_native/
     dart pub get
-    dart compile exe bin/executor.dart
+    dart --enable-experiment=native-assets run bin/set_version.dart
+    dart --enable-experiment=native-assets build bin/executor.dart
     popd
 fi
 

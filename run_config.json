@@ -75,7 +75,7 @@
     "prereq": {
       "name": "nvm",
       "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "command": "nvm install 21.6.0;nvm use 21.6.0"
     },
     "run": {
       "icu_version": "icu73",
@@ -83,7 +83,18 @@
       "test_type": [
         "collation_short",
         "number_fmt",
+        "lang_names",
         "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "run": {
+      "icu_version": "icu73",
+      "exec": "dart_native",
+      "test_type": [
+        "collation_short"
       ],
       "per_execution": 10000
     }
@@ -236,21 +247,7 @@
       "icu_version": "icu73",
       "exec": "icu4j",
       "test_type": [
-        "collation_short"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
-      "name": "mvn-icu4j-73-shaded",
-      "version": "73",
-      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
-    },
-    "run": {
-      "icu_version": "icu73",
-      "exec": "icu4j",
-      "test_type": [
+        "collation_short",
         "lang_names",
         "likely_subtags",
         "number_fmt"
