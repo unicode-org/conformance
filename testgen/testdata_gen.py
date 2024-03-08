@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
-
 import argparse
-import json
 import logging
 import logging.config
-import math
 import multiprocessing as mp
-import os
 import re
-import requests
-import sys
+from enum import Enum
 
-reblankline = re.compile('^\s*$')
+from generators.collation_short import CollationShortGenerator
+from generators.lang_names import LangNamesGenerator
+from generators.likely_subtags import LikelySubtagsGenerator
+from generators.number_fmt import NumberFmtGenerator
 
-# Global constants
-# Values to be formatted in number format tests
-NUMBERS_TO_TEST = ['0', '91827.3645', '-0.22222']
+reblankline = re.compile("^\s*$")
 
-# Which locales are selected for this testing.
-# This selects es-MX, zh-TW, bn-BD
-NUMBERFORMAT_LOCALE_INDICES = [3, 7, 11]
+
+class TestType(str, Enum):
+    NUMBER_FMT = 'number_fmt'
+    COLLATION_SHORT = 'collation_short'
+    LANG_NAMES = 'lang_names'
+    LIKELY_SUBTAGS = 'likely_subtags'
 
 
 class generateData():
@@ -58,7 +57,7 @@ class generateData():
                 return None
             return r.text
         except BaseException as err:
-            logging.warning('Warning: cannot load data %s for version %s. Error = %s', datafile_name, version, err)
+            logging.debug('Warning: cannot load data %s for version %s. Error = %s', datafile_name, version, err)
             return None
 
     def processCollationTestData(self):
@@ -79,7 +78,6 @@ class generateData():
         test_complex, verify_complex, encode_errors = generateCollTestData2(
             'collationtest.txt',
             self.icu_version,
-            ignorePunctuation=False,
             start_count=len(json_test['tests']))
 
         if verify_complex:
@@ -318,28 +316,6 @@ class generateData():
         logging.info('Likely Subtags Test (%s): %d lines processed', self.icu_version, count)
         return
 
-    def processDateTimeTestData(self):
-        # Get each kind of datetime tests and create a unified data set
-        test_name = 'datetime_fmt'
-        json_test = {'test_type': test_name,
-                     'tests':[],
-                     'data_errors': []}
-        json_verify = {'test_type': test_name,
-                       'verifications': []}
-        self.insert_datetime_header([json_test, json_verify], test_name)
-
-        data_error_list = []
-
-        start_count = 0
-        # And write the files
-
-        self.saveJsonFile(test_name + '_test.json', json_test, 2)
-        self.saveJsonFile(test_name + '_verify.json', json_verify, 2)
-
-    def insert_datetime_header(self, test_objs, test_name):
-        for obj in test_objs:
-            obj['Test scenario'] = test_name
-            obj['description'] =  'Formatted date time strings created with passed in parameters'
 
 # Utility functions
 def computeMaxDigitsForCount(count):
@@ -355,7 +331,8 @@ def readFile(filename, version=''):
         with open(path, 'r', encoding='utf-8') as testdata:
             return testdata.read()
     except BaseException as err:
-        logging.warning('** READ: Error = %s', err)
+        # Missing source --> do not generate test data
+        logging.debug('** READ: Error = %s', err)
         return None
 
 
@@ -667,35 +644,26 @@ def generateDcmlFmtTestDataObjects(rawtestdata, count=0):
 
 
 def stringifyCode(cp):
-    # Converts some code points represented as hex strings to escaped values, others as characters
-    if cp < 0x20 or cp == 0x22 or cp == 127 or cp == 0x5c:
-        teststring = '\\u' + format(cp, '04x')
-    else:
-        try:
-            teststring = chr(cp)
-        except ValueError as err:
-            teststring = cp
+    # Simply use the character codes without explicit escaping
+    try:
+        teststring = chr(cp)
+    except ValueError as err:
+        teststring = cp
 
     return teststring
 
 
-def generateCollTestData2(filename,
-                          icu_version,
-                          ignorePunctuation,
-                          start_count=0):
+def generateCollTestData2(filename, icu_version, start_count=0):
     # Read raw data from complex test file, e.g., collation_test.txt
-    test_list, verify_list = None, None
-
     label_num = start_count
-
-    encode_errors = []
 
     test_list = []
     verify_list = []
+    encode_errors = []
 
     rawcolltestdata = readFile(filename, icu_version)
     if not rawcolltestdata:
-        return test_list, verify_list
+        return test_list, verify_list, encode_errors
 
     raw_testdata_list = rawcolltestdata.splitlines()
     max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximate
@@ -916,15 +884,16 @@ def check_unpaired_surrogate_in_string(text):
 
     return False
 
-def generateCollTestDataObjects(filename,
-                                icu_version,
-                                ignorePunctuation,
-                                start_count=0):
+def generateCollTestDataObjects(filename, icu_version, ignorePunctuation, start_count=0):
+    test_list = []
+    verify_list = []
+    data_errors = []  # Items with malformed Unicode
+
     # Read raw data
     rawcolltestdata = readFile(filename, icu_version)
 
     if not rawcolltestdata:
-        return None, None
+        return test_list, verify_list, data_errors
 
     raw_testdata_list = rawcolltestdata.splitlines()
 
@@ -932,12 +901,9 @@ def generateCollTestDataObjects(filename,
     # Adds field for ignoring punctuation as needed.
     recommentline = re.compile('^\s*#')
 
-    test_list = []
-    verify_list = []
 
     max_digits = 1 + computeMaxDigitsForCount(len(raw_testdata_list))  # Approximately correct
     count = start_count
-    data_errors = []  # Items with malformed Unicode
 
     prev = None
     index = 0
@@ -1033,26 +999,29 @@ def insertNumberFmtDescr(tests_obj, verify_obj):
 
 
 def setupArgs():
-    parser = argparse.ArgumentParser(prog='testdata_gen')
-    parser.add_argument('--icu_versions', nargs='*', default=[])
+    parser = argparse.ArgumentParser(prog="testdata_gen")
+    parser.add_argument("--icu_versions", nargs="*", default=[])
+    all_test_types = [t.value for t in TestType]
+    parser.add_argument(
+        "--test_types", nargs="*", choices=all_test_types, default=all_test_types
+    )
     # -1 is no limit
-    parser.add_argument('--run_limit', nargs='?', type=int, default=-1)
+    parser.add_argument("--run_limit", nargs="?", type=int, default=-1)
     new_args = parser.parse_args()
     return new_args
 
 
-def generate_versioned_data_parallel(icu_versions, args):
+def generate_versioned_data_parallel(args):
     num_processors = mp.cpu_count()
-    logging.info('Test data generation: %s processors for %s plans' , num_processors, len(icu_versions))
+    logging.info(
+        "Test data generation: %s processors for %s plans",
+        num_processors,
+        len(args.icu_versions),
+    )
 
     version_data = []
-    for icu_version in icu_versions:
-        version_data.append(
-            {
-                'icu_version': icu_version,
-                'args': args
-            }
-        )
+    for icu_version in args.icu_versions:
+        version_data.append({"icu_version": icu_version, "args": args})
 
     processor_pool = mp.Pool(num_processors)
     with processor_pool as p:
@@ -1060,39 +1029,49 @@ def generate_versioned_data_parallel(icu_versions, args):
 
     return result
 
+
 def generate_versioned_data(version_info):
-    new_args = version_info['args']
-    icu_version = version_info['icu_version']
-    data_generator = generateData(icu_version)
-    data_generator.run_limit = new_args.run_limit
+    args = version_info["args"]
+    icu_version = version_info["icu_version"]
 
-    logging.info('Generating .json files for data driven testing. ICU_VERSION requested = %s',
-                 icu_version)
+    logging.info(
+        "Generating .json files for data driven testing. ICU_VERSION requested = %s",
+        icu_version,
+    )
 
-    data_generator.processDateTimeTestData()
+    if len(args.test_types) < len(TestType):
+        logging.info("(Only generating %s)", ", ".join(args.test_types))
 
-    data_generator.processNumberFmtTestData()
+    if TestType.COLLATION_SHORT in args.test_types:
+        # This is slow
+        generator = CollationShortGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
 
-    # This is slow
-    data_generator.processCollationTestData()
+    if TestType.LANG_NAMES in args.test_types:
+        # This is slow
+        generator = LangNamesGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
 
-    data_generator.processLikelySubtagsData()
+    if TestType.LIKELY_SUBTAGS in args.test_types:
+        generator = LikelySubtagsGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
 
-    # This is slow
-    data_generator.processLangNameTestData()
+    if TestType.NUMBER_FMT in args.test_types:
+        generator = NumberFmtGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
 
-    logging.info('++++ Data generation for %s is complete.', icu_version)
+    logging.info("++++ Data generation for %s is complete.", icu_version)
 
 
-def main(args):
+def main():
     new_args = setupArgs()
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
 
     # Generate version data in parallel if possible
-    generate_versioned_data_parallel(new_args.icu_versions, new_args)
+    generate_versioned_data_parallel(new_args)
 
 
-if __name__ == '__main__':
-  main(sys.argv)
+if __name__ == "__main__":
+    main()
