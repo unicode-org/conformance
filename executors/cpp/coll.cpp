@@ -137,14 +137,15 @@ const string test_collator(json_object *json_in) {
     char uni_rules_out[1000] = "";
     int32_t rule_chars_out = uni_rules.extract(uni_rules_out, 1000, nullptr, status);
 
-    rb_coll = new RuleBasedCollator(uni_rules, status);
+    // Make sure normalization is consistent
+    rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
     if (U_FAILURE(status)) {
       test_result = error_message.c_str();
       // TODO: report the error in creating the instance
       cout << "# Error in making RuleBasedCollator: " << label_string << " : " << test_result << endl;
 
       json_object_object_add(return_json,
-                           "error", json_object_new_string("creat rule based collator"));
+                             "error", json_object_new_string("creat rule based collator"));
       no_error = false;
     }
 
@@ -176,6 +177,16 @@ const string test_collator(json_object *json_in) {
                            "error", json_object_new_string("error creating collator instance"));
       no_error = false;
       cout << "# Error in createInstance: " << label_string << " : " << test_result << endl;
+    }
+
+    // Make sure normalization is consistent
+    uni_coll->setAttribute(UCOL_NORMALIZATION_MODE, UCOL_ON, status);
+    if (U_FAILURE(status)) {
+      test_result = error_message.c_str();
+      json_object_object_add(return_json,
+                           "error", json_object_new_string("error setting normalization to UCOL_ON"));
+      no_error = false;
+      cout << "# Error in setAttribute: " << label_string << " : " << test_result << endl;
     }
 
     if (strength_obj) {

@@ -72,7 +72,7 @@ const supported_tests_json = {"supported_tests":
                               [
                                 "collation_short",
                                 "coll_shift_short",
-                               "decimal_fmt",
+                                "decimal_fmt",
                                 "number_fmt",
                                 "display_names",
                                 "lang_names",

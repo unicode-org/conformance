@@ -16,7 +16,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         .as_str()
         .unwrap()
         .replace('_', "-");
-    let input_lang_result = Language::from_str(&language_label);
+    let input_lang_result = language_label.parse::<Language>();
     let input_lang = match input_lang_result {
         Ok(l) => l,
         Err(_e) => {
@@ -67,11 +67,8 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    // The locale data may not yet be supported.
-    let data_locale = DataLocale::from(&langid);
+    let display_name_formatter = LanguageDisplayNames::try_new(&langid.into(), options);
 
-    let display_name_formatter =
-        LanguageDisplayNames::try_new_unstable(&provider, &data_locale, options);
     let json_result = match display_name_formatter {
         Ok(formatter) => {
             json!({
