@@ -3,31 +3,20 @@ import argparse
 import logging
 import logging.config
 import multiprocessing as mp
-import re
-from enum import Enum
 
+from test_type import TestType, test_types
 from generators.collation_short import CollationShortGenerator
 from generators.lang_names import LangNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
+from generators.message_fmt2 import MessageFmt2Generator
 from generators.number_fmt import NumberFmtGenerator
-
-reblankline = re.compile("^\s*$")
-
-
-class TestType(str, Enum):
-    COLLATION_SHORT = "collation_short"
-    LANG_NAMES = "lang_names"
-    LIKELY_SUBTAGS = "likely_subtags"
-    MESSAGE_FMT2 = "message_fmt2"
-    NUMBER_FMT = "number_fmt"
 
 
 def setupArgs():
     parser = argparse.ArgumentParser(prog="testdata_gen")
     parser.add_argument("--icu_versions", nargs="*", default=[])
-    all_test_types = [t.value for t in TestType]
     parser.add_argument(
-        "--test_types", nargs="*", choices=all_test_types, default=all_test_types
+        "--test_types", nargs="*", choices=test_types, default=test_types
     )
     # -1 is no limit
     parser.add_argument("--run_limit", nargs="?", type=int, default=-1)
@@ -78,6 +67,10 @@ def generate_versioned_data(version_info):
 
     if TestType.LIKELY_SUBTAGS in args.test_types:
         generator = LikelySubtagsGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    if TestType.MESSAGE_FMT2 in args.test_types:
+        generator = MessageFmt2Generator(icu_version, args.run_limit)
         generator.process_test_data()
 
     if TestType.NUMBER_FMT in args.test_types:

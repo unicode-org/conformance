@@ -5,16 +5,19 @@ import glob
 from pathlib import Path
 from jsonschema import validate, ValidationError
 from generators.base import DataGenerator
-from testgen.testdata_gen import TestType
+from test_type import TestType
 
 
 class MessageFmt2Generator(DataGenerator):
     def process_test_data(self):
-        json_test = {"test_type": str(TestType.MESSAGE_FMT2), "tests": []}
-        json_verify = {"test_type": str(TestType.MESSAGE_FMT2), "verifications": []}
+        json_test = {"test_type": TestType.MESSAGE_FMT2.value, "tests": []}
+        json_verify = {"test_type": TestType.MESSAGE_FMT2.value, "verifications": []}
 
         src_dir = Path(
-            os.path.dirname(__file__), self.icu_version, TestType.MESSAGE_FMT2
+            os.path.dirname(__file__),
+            "..",
+            self.icu_version,
+            TestType.MESSAGE_FMT2.value,
         )
         src_file_paths = glob.glob(
             os.path.join(src_dir, "**", "*.json"), recursive=True
@@ -24,8 +27,9 @@ class MessageFmt2Generator(DataGenerator):
         json_schema_path = Path(
             os.path.dirname(__file__),
             "..",
+            "..",
             "schema",
-            TestType.MESSAGE_FMT2,
+            TestType.MESSAGE_FMT2.value,
             "testgen_schema.json",
         )
         json_schema = self.readFile(json_schema_path, filetype="json")
@@ -75,6 +79,8 @@ class MessageFmt2Generator(DataGenerator):
 
         json_test["tests"] = self.sample_tests(test_list)
         json_verify["verifications"] = self.sample_tests(verify_list)
+
+        print(json_test)
 
         self.saveJsonFile(f"{TestType.MESSAGE_FMT2}_test.json", json_test, 2)
         self.saveJsonFile(f"{TestType.MESSAGE_FMT2}_verify.json", json_verify, 2)
