@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MessageFormat2 data-driven tests source",
+  "description": "This documents the format of message_fmt2 source test data before test generation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario",
+    "tests"
+  ],
+  "properties": {
+    "scenario": {
+      "type": "string",
+      "description": "Identifier for the tests in the file"
+    },
+    "description": {
+      "type": "string",
+      "description": "Information about the test scenario."
+    },
+    "defaultTestProperties": {
+      "$ref": "#/$defs/defaultTestProperties"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/test"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "defaultTestProperties": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "testSubtype": {
+          "$ref": "#/$defs/testSubtype"
+        },
+        "locale": {
+          "$ref": "#/$defs/locale"
+        },
+        "pattern": {
+          "$ref": "#/$defs/pattern"
+        },
+        "args": {
+          "$ref": "#/$defs/args"
+        },
+        "verify": {
+          "$ref": "#/$defs/verify"
+        }
+      }
+    },
+    "test": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/description"
+        },
+        "testSubtype": {
+          "$ref": "#/$defs/testSubtype"
+        },
+        "locale": {
+          "$ref": "#/$defs/locale"
+        },
+        "pattern": {
+          "$ref": "#/$defs/pattern"
+        },
+        "args": {
+          "$ref": "#/$defs/args"
+        },
+        "verify": {
+          "$ref": "#/$defs/verify"
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "description": "Information about the test."
+    },
+    "testSubtype": {
+      "description": "A tag for the executor to decide how to run the test.",
+      "enum": [
+        "syntax",
+        "selector",
+        "formatter"
+      ]
+    },
+    "locale": {
+      "type": "string"
+    },
+    "pattern": {
+      "type": "string"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/arg"
+      }
+    },
+    "arg": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "argType",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "argType": {
+          "enum": [
+            "string",
+            "number",
+            "datetime"
+          ]
+        },
+        "value": {}
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "argType": {
+              "const": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "argType": {
+              "const": "datetime"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "argType": {
+              "const": "number"
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "verify": {
+      "type": "string"
+    }
+  }
+}

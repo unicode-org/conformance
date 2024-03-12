@@ -66,14 +66,14 @@ class DataGenerator(ABC):
                 samples.append(all_tests[index])
             return samples
 
-    def readFile(self, filename, version=""):
+    def readFile(self, filename, version="", filetype="txt"):
         # If version is provided, it refers to a subdirectory containing the test source
         path = filename
         if version:
             path = os.path.join(version, filename)
         try:
             with open(path, "r", encoding="utf-8") as testdata:
-                return testdata.read()
+                return json.load(testdata) if filetype == "json" else testdata.read()
         except BaseException as err:
             logging.warning("** READ: Error = %s", err)
             return None

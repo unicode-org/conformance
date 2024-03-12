@@ -1,0 +1,21 @@
+{
+  "scenario": "Literal text",
+  "description": "Text placed directly into the pattern",
+  "defaultTestProperties": {
+    "testSubtype": "syntax"
+  },
+  "tests": [
+    {
+      "description": "Includes basic literals",
+      "locale": "en-US",
+      "pattern": "hello world",
+      "verify": "hello world"
+    },
+    {
+      "description": "Includes unquoted literals",
+      "locale": "en-US",
+      "pattern": "hello {world}",
+      "verify": "hello world"
+    }
+  ]
+}
