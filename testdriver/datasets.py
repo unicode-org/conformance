@@ -166,7 +166,7 @@ ExecutorCommands = {
     "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
-    "icu4j" : "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
+    "icu4j" : "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
     }
 
 class ParallelMode(Enum):
@@ -219,7 +219,7 @@ IcuVersionToExecutorMap = {
     'dart': {},
     'icu4c': {},
     'icu4j': {
-      '73': ['73']
+      '74': ['74']
     },
 
 }
@@ -359,8 +359,8 @@ allExecutors.addSystem(system, '0.1.0',
 
 system = ExecutorLang.ICU4J.value
 
-allExecutors.addSystem(system, '73',
-                       'java -jar ../executors/icu4j/73/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+allExecutors.addSystem(system, '74',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 
 system = ExecutorLang.DARTWEB.value
