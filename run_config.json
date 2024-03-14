@@ -229,12 +229,12 @@
   },
   {
     "prereq": {
-      "name": "mvn-icu4j-73-shaded",
-      "version": "73",
-      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
+      "name": "mvn-icu4j-74-shaded",
+      "version": "74",
+      "command": "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
     },
     "run": {
-      "icu_version": "icu73",
+      "icu_version": "icu74",
       "exec": "icu4j",
       "test_type": [
         "collation_short",

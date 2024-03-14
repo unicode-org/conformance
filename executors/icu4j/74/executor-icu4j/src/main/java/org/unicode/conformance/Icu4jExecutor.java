@@ -23,10 +23,10 @@ import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 public class Icu4jExecutor {
 
     public static final String PLATFORM = "ICU4J";
-    public static final String PLATFORM_VERSION = "73.2";
-    public static final String ICU_VERSION = "73";
+    public static final String PLATFORM_VERSION = "74.2";
+    public static final String ICU_VERSION = "74";
 
-    public static final String CLDR_VERSION = "43";
+    public static final String CLDR_VERSION = "44";
 
     /**
      * Entry point for the executor.
