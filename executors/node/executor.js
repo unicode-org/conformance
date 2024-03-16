@@ -26,6 +26,8 @@ let langnames = require('./langnames.js')
 
 let likely_subtags = require('./likely_subtags.js')
 
+let datetime_fmt = require('./datetime_fmt.js')
+
 /**
  * TODOs:
  * 1. Handle other types of test cases.
@@ -66,7 +68,8 @@ const supported_test_types = [
   Symbol("display_names"),
   Symbol("lang_names"),
   Symbol("language_display_name"),
-  Symbol("local_info")
+  Symbol("local_info"),
+  Symbol("datetime_fmt")
 ];
 const supported_tests_json = {"supported_tests":
                               [
@@ -114,12 +117,19 @@ function parseJsonForTestId(parsed) {
   if (testId == "decimal_fmt" || testId == "number_fmt") {
     return testTypes.TestDecimalFormat;
   }
+
   if (testId == "display_names") {
     return testTypes.TestDisplayNames;
   }
+
   if (testId == "language_display_name" || testId == "lang_names") {
     return testTypes.TestLangNames;
   }
+
+  if (testId == "datetime_fmt") {
+    return testTypes.TestDateTimeFormat;
+  }
+
   console.log("#*********** NODE Unknown test type = " + testId);
   return null;
 
@@ -201,6 +211,9 @@ rl.on('line', function(line) {
     } else
     if (test_type == "likely_subtags") {
       outputLine = likely_subtags.testLikelySubtags(parsedJson);
+    } else
+    if (test_type == "datetime_fmt") {
+      outputLine = datetime_fmt.testDateTimeFmt(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type',
                     'test_type': test_type,

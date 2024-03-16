@@ -93,7 +93,6 @@ const string test_datetime_fmt(json_object *json_in) {
     testDateTime = json_object_get_double(input_millis);
   }
 
-
   json_object *input_string_obj = json_object_object_get(json_in, "input_string");
   if (input_string_obj) {
     const string input_date_string = json_object_get_string(input_string_obj);

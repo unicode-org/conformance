@@ -221,16 +221,28 @@
 {"test_type": "datetime_fmt", "label":"abcd", "input_millis": "0.0"}
 
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-US", "input_millis": 0}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-US", "input_millis": 0}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-GB", "input_millis": 86400000}
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "1000000.0"}
+
+    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": 1000000.0}
+
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en", "input_string": "2020-03-02"}
+
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "2020-03-02"}
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "03/02/2020"}
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "03/02/2020"}
-{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_string": "2020-03-02"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_string": "2020-03-02 13:12:11"}
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_string": "20200302 01:02:03"}     
-{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_string": "2020-03-02"}    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_string": "2020-03-02 01:02:03"}    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-GB", "datetime_skeleton":"MMMMdjmm yyyy zzzz", "input_string": "2024-03-02 01:02:03"}    
     
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_millis": "0.0"}
 
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_millis": "1710454221991.673"}
+    
 #  formats of weekday in two Portuguese locales
 {"test_type": "datetime_fmt", "label":"pt E","locale":"pt", "datetime_skeleton":"E MMdYYYY", "input_millis": "0.0"}
 {"test_type": "datetime_fmt", "label":"pt-PT E","locale":"pt-PT", "datetime_skeleton":"E MMdYYYY", "input_millis": "0.0"}    
