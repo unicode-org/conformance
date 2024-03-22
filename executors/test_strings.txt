@@ -218,7 +218,12 @@
 
 {"test_type": "number_fmt", "label":"2062","locale":"es-MX","skeleton":"currency/EUR unit-width-narrow .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"narrow","maximumFractionDigits":3,"minimumFractionDigits":3}}
 
-{"test_type": "datetime_fmt", "label":"abcd", "input_millis": "0.0"}
+{"test_type": "datetime_fmt","label":"36036","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"bn","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores"},"input_millis":1710658800000}
+{"test_type": "datetime_fmt","label":"36036","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"bn","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores", "numberingSystem":"latn"},"input_millis":1710658800000}
+{"test_type": "datetime_fmt","label":"36036","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"bn","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores", "numberingSystem":"arab"},"input_millis":1710658800000}    
+    {"test_type": "datetime_fmt", "label":"5148","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"en-US","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores"},"input_millis":1710658800000}
+
+        {"test_type": "datetime_fmt", "label":"abcd", "input_millis": "0.0"}
 
 {"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "0.0"}
 {"test_type": "datetime_fmt", "label":"abcd","locale":"en-US", "input_millis": 0}
@@ -255,4 +260,14 @@
 {"test_type": "datetime_fmt", "label":"pt EEEEE","locale":"pt", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"}    
 {"test_type": "datetime_fmt", "label":"pt-PT EEEEE","locale":"pt-PT", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"} 
 
+{"test_type": "list_fmt", "label":"0","input_list":[],"options":{"style":"long","type":"conjunction"},"locale":"und"}
 
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat"],"options":{"style":"narrow","type":"conjunction"},"locale":"en"}    
+
+    {"test_type": "list_fmt", "label":"12","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"en"}    
+    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"en"}    
+    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"unit"},"locale":"en"}    
+
+    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"bn"}    
+    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"chr"}    
+    

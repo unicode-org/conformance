@@ -16,17 +16,19 @@
 */
 
 
-let collator = require('./collator.js')
+let collator = require('./collator.js');
 
-let numberformatter = require('./numberformat.js')
+let numberformatter = require('./numberformat.js');
 
-let displaynames = require('./displaynames.js')
+let displaynames = require('./displaynames.js');
 
-let langnames = require('./langnames.js')
+let langnames = require('./langnames.js');
 
-let likely_subtags = require('./likely_subtags.js')
+let likely_subtags = require('./likely_subtags.js');
 
-let datetime_fmt = require('./datetime_fmt.js')
+let datetime_fmt = require('./datetime_fmt.js');
+
+let list_fmt = require('./list_fmt.js');
 
 /**
  * TODOs:
@@ -34,12 +36,13 @@ let datetime_fmt = require('./datetime_fmt.js')
  */
 
 /**
+ * 21-Mar-2024: Adding datetime and list formatting.
  * 16-Sep-2022: Modularize this, moving functions to other files.
-  * 29-Aug-2022: Adding basic decimal test
-  * 16-Aug-2022: Collation tests all working now.
-  * 09-Aug-2022: Using updated Collation test data, about 10% of the tests fail
-  *
-  * Started 28-July-2022, ccornelius@google.com
+ * 29-Aug-2022: Adding basic decimal test
+ * 16-Aug-2022: Collation tests all working now.
+ * 09-Aug-2022: Using updated Collation test data, about 10% of the tests fail
+ *
+ * Started 28-July-2022, ccornelius@google.com
  */
 
 let doLogInput = 0;  // TODO: How to turn this on from command line?
@@ -52,12 +55,13 @@ const testTypes = {
   TestCollNonignorableShort : Symbol("coll_nonignorable_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
   TestNumberFormat : Symbol("number_fmt"),
-  TestDateTimeFormat : Symbol("datetime_fmtl"),
+  TestDateTimeFormat : Symbol("datetime_fmt"),
   TestRelativeDateTimeFormat : Symbol("relative_datetime_fmt"),
   TestPluralRules : Symbol("plural_rules"),
   TestDisplayNames : Symbol("display_names"),
   TestLangNames : Symbol("language_display_name"),
-}
+  TestListFmt : Symbol("list_fmt")
+};
 
 const supported_test_types = [
   Symbol("collation_short"),
@@ -69,18 +73,21 @@ const supported_test_types = [
   Symbol("lang_names"),
   Symbol("language_display_name"),
   Symbol("local_info"),
-  Symbol("datetime_fmt")
+  Symbol("datetime_fmt"),
+  Symbol("list_fmt")
 ];
-const supported_tests_json = {"supported_tests":
-                              [
-                                "collation_short",
-                                "coll_shift_short",
-                                "decimal_fmt",
-                                "number_fmt",
-                                "display_names",
-                                "lang_names",
-                                "language_display_name"
-                              ]};
+
+const supported_tests_json = {
+  "supported_tests": [
+    "collation_short",
+    "coll_shift_short",
+    "decimal_fmt",
+    "number_fmt",
+    "display_names",
+    "lang_names",
+    "language_display_name",
+    "list_fmt"
+  ]};
 
 // Test line-by-line input, with output as string.
 // Check on using Intl functions, e.g., DateTimeFormat()
@@ -128,6 +135,10 @@ function parseJsonForTestId(parsed) {
 
   if (testId == "datetime_fmt") {
     return testTypes.TestDateTimeFormat;
+  }
+
+  if (testId == "list_fmt") {
+    return testTypes.TestListFmt;
   }
 
   console.log("#*********** NODE Unknown test type = " + testId);
@@ -214,26 +225,30 @@ rl.on('line', function(line) {
     } else
     if (test_type == "datetime_fmt") {
       outputLine = datetime_fmt.testDateTimeFmt(parsedJson);
+    } else
+    if (test_type == "list_fmt") {
+      outputLine = list_fmt.testListFmt(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type',
                     'test_type': test_type,
                     'unsupported_test': test_type};
     }
 
-    const jsonOut = JSON.stringify(outputLine);
+      const jsonOut = JSON.stringify(outputLine);
 
-    if ('error' in outputLine) {
-      // To get the attention of the driver
-      console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
+      if ('error' in outputLine) {
+        // To get the attention of the driver
+        console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
+      }
+
+      // Send result to stdout for verification
+      process.stdout.write(jsonOut + '\n');
+      if (doLogOutput > 0) {
+        console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');
+      }
+
     }
-
-    // Send result to stdout for verification
-    process.stdout.write(jsonOut + '\n');
-    if (doLogOutput > 0) {
-      console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');
-    }
-
+    lineId += 1;
   }
-  lineId += 1;
-}
+
      )

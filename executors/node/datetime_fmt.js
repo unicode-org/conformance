@@ -11,14 +11,15 @@ module.exports = {
       locale = 'und';
     }
 
-    let test_option;
-    if (json['option']) {
-      test_option = json['option'];
+    let test_options = {};
+    if (json['options']) {
+      test_options = json['options'];
     }
 
     let return_json = {'label': label};
 
     // Get the date from input milliseconds.
+    // Prefer milliseconds
     let test_date;
     if (json['input_millis']) {
       let millis = json['input_millis'];
@@ -32,20 +33,17 @@ module.exports = {
       }
       // Input in milliseconds since the epoch
       test_date = new Date(millis);
+    } else {
+      // If no milliseconds given.
+      if (json['input_string']) {
+        // Input in string to be parsed
+        test_date = new Date(json['input_string']);
+      }
     }
-    if (json['input_string']) {
-      // Input in string to be parsed
-      test_date = new Date(json['input_string']);
-    }
-
-    // Why does input of "0" give 2000-01-01?
-    // And why does input of 0 give today?
-
-    // TODO: Use the skeleton if provided
 
     let dt_formatter;
     try {
-      dt_formatter = new Intl.DateTimeFormat(locale);
+      dt_formatter = new Intl.DateTimeFormat(locale, test_options);
     } catch (error) {
       /* Something is wrong with the constructor */
       return_json['error'] = 'DateTimeFormat Constructor: ' + error.message;

@@ -48,6 +48,8 @@ class ICUVersion(Enum):
   ICU72rc = "72rc"
   ICU72 = "72.1"
   ICU73 = "73"
+  ICU74 = "74"
+  ICU75 = "75"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
@@ -70,6 +72,8 @@ class CLDRVersion(Enum):
   CLDR41 = "41"
   CLDR42 = "42"
   CLDR43 = "43"
+  CLDR44 = "44"
+  CLDR45 = "45"
 
 def latestCldrVersion():
   return CLDRVersion.CLDR43  # TODO: Fix this
@@ -87,6 +91,8 @@ cldr_icu_map = {
     CLDRVersion.CLDR41: [ICUVersion.ICU71],
     CLDRVersion.CLDR42: [ICUVersion.ICU72],
     CLDRVersion.CLDR43: [ICUVersion.ICU73],
+    CLDRVersion.CLDR44: [ICUVersion.ICU74],
+    CLDRVersion.CLDR45: [ICUVersion.ICU75],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -97,6 +103,7 @@ class testType(Enum):
   display_names = 'display_names'
   lang_names = 'lang_names'
   likely_subtags = 'likely_subtags'
+  list_fmt = 'list_fmt'
   local_info = 'local_info'
   number_fmt = 'number_fmt'
 
@@ -148,6 +155,18 @@ testDatasets[testName] = DataSet(testType.number_fmt.value,
                                  'num_fmt_test_file.json',
                                  'num_fmt_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
+
+testName = 'datetime_fmt'
+testDatasets[testName] = DataSet(testType.datetime_fmt.value,
+                                 'datetime_fmt_test.json',
+                                 'datetime_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'list_fmt'
+testDatasets[testName] = DataSet(testType.list_fmt.value,
+                                 'list_fmt_test.json',
+                                 'list_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
 
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".

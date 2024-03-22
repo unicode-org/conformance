@@ -7,8 +7,10 @@ import re
 from enum import Enum
 
 from generators.collation_short import CollationShortGenerator
+from generators.datetime_fmt import DateTimeFmtGenerator
 from generators.lang_names import LangNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
+from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
 
 reblankline = re.compile("^\s*$")
@@ -16,8 +18,10 @@ reblankline = re.compile("^\s*$")
 
 class TestType(str, Enum):
     COLLATION_SHORT = "collation_short"
+    DATETIME_FMT = "datetime_fmt"
     LANG_NAMES = "lang_names"
     LIKELY_SUBTAGS = "likely_subtags"
+    LIST_FMT = "list_fmt"
     NUMBER_FMT = "number_fmt"
 
 
@@ -68,6 +72,17 @@ def generate_versioned_data(version_info):
     if TestType.COLLATION_SHORT in args.test_types:
         # This is slow
         generator = CollationShortGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    ## DISABLED FOR NOW. Use new .js generator with Node version
+    if TestType.DATETIME_FMT in args.test_types:
+        # This is slow
+        generator = DateTimeFmtGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    if TestType.LIST_FMT in args.test_types:
+        # This is slow
+        generator = ListFmtGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
     if TestType.LANG_NAMES in args.test_types:
