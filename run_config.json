@@ -10,6 +10,7 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "number_fmt"
@@ -28,6 +29,7 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "number_fmt"
@@ -46,6 +48,7 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "number_fmt"
@@ -64,6 +67,7 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "number_fmt"
@@ -75,7 +79,7 @@
     "prereq": {
       "name": "nvm",
       "version": "20.1.0",
-      "command": "nvm install 21.6.0;nvm use 21.6.0"
+      "command": "nvm install 20.1.0;nvm use 20.1.0"
     },
     "run": {
       "icu_version": "icu73",
@@ -92,7 +96,7 @@
   {
     "prereq": {
       "name": "nvm 21.6.0, icu74.1",
-      "version": "20.1.0",
+      "version": "21.6.0",
       "command": "nvm install 21.6.0;nvm use 21.6.0"
     },
     "run": {
@@ -100,6 +104,8 @@
       "exec": "node",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags"
@@ -118,6 +124,8 @@
       "exec": "node",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags"
@@ -136,6 +144,8 @@
       "exec": "node",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags"
@@ -154,6 +164,8 @@
       "exec": "node",
       "test_type": [
         "collation_short",
+        "list_fmt",
+        "datetime_fmt",
         "number_fmt"
       ],
       "per_execution": 10000
