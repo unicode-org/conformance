@@ -62,6 +62,7 @@ const string test_datetime_fmt(json_object *json_in) {
       cout << "# ERROR in createInstanceForSkeleton" << endl;
     }
   } else {
+    // TODO: Get the parameters and options.
     // Create default formatter
     df = DateFormat::createDateTimeInstance(
         icu::DateFormat::EStyle::kDefault,
@@ -88,27 +89,29 @@ const string test_datetime_fmt(json_object *json_in) {
 
   UDate testDateTime;
   // The type of conversion requested
+
+  // Prefer milliseconds as input.
   json_object *input_millis = json_object_object_get(json_in, "input_millis");
   if (input_millis) {
     testDateTime = json_object_get_double(input_millis);
-  }
+  } else {
+    json_object *input_string_obj = json_object_object_get(json_in, "input_string");
+    if (input_string_obj) {
+      const string input_date_string = json_object_get_string(input_string_obj);
+      cout << "# date from input_string: " << input_date_string << endl;
 
-  json_object *input_string_obj = json_object_object_get(json_in, "input_string");
-  if (input_string_obj) {
-    const string input_date_string = json_object_get_string(input_string_obj);
-    cout << "# date from input_string: " << input_date_string << endl;
+      UnicodeString date_ustring(input_date_string.c_str());
 
-    UnicodeString date_ustring(input_date_string.c_str());
-
-    UnicodeString parse_skeleton = "YYYY-MM-DD HH:mm:ss";
-    DateFormat* dparser = DateFormat::createInstanceForSkeleton(parse_skeleton,
-                                               displayLocale,
-                                               status);
-    cout << "# Calling parse with: " << input_date_string << endl;
-    testDateTime = dparser->parse(date_ustring, status);
-    if (U_FAILURE(status)) {
-      cout << "df->parse failure: " << u_errorName(status) << endl;
-      // TODO: Return error in the json.
+      UnicodeString parse_skeleton = "YYYY-MM-DD HH:mm:ss";
+      DateFormat* dparser = DateFormat::createInstanceForSkeleton(parse_skeleton,
+                                                                  displayLocale,
+                                                                  status);
+      cout << "# Calling parse with: " << input_date_string << endl;
+      testDateTime = dparser->parse(date_ustring, status);
+      if (U_FAILURE(status)) {
+        cout << "df->parse failure: " << u_errorName(status) << endl;
+        // TODO: Return error in the json.
+      }
     }
   }
 
@@ -126,12 +129,14 @@ const string test_datetime_fmt(json_object *json_in) {
   if (U_FAILURE(status)) {
     // TODO: Return error.
     cout << "# formatted result: extract error. " << chars_out << endl;
+    json_object_object_add(return_json,
+            "error",
+            json_object_new_string("Failure in extracting test result"));
+  } else {
+    json_object_object_add(return_json,
+                           "result",
+                           json_object_new_string(test_result_string));
   }
-
-  json_object_object_add(return_json,
-                         "result",
-                         json_object_new_string(test_result_string));
-
   string return_string = json_object_to_json_string(return_json);
   return return_string;
 }

@@ -43,12 +43,14 @@ extern const string test_collator(json_object *json_in);
 extern const string test_datetime_fmt(json_object *json_in);
 extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
+extern const string test_list_fmt(json_object *json_in);
 extern const string test_numfmt(json_object *json_in);
 
-std::string supported_tests[5] = {
+std::string supported_tests[6] = {
   "collation_short",
   "datetime_fmt",
   "likely_subtags",
+  "list_fmt",
   "lang_names",
   "number_fmt"
 };
@@ -111,6 +113,9 @@ int main(int argc, const char** argv)
       }
       else if (test_type == "likely_subtags") {
         outputLine = test_likely_subtags(json_input);
+      }
+      else if (test_type == "list_fmt") {
+        outputLine = test_list_fmt(json_input);
       }
       else if (test_type == "lang_names") {
         outputLine = test_langnames(json_input);
