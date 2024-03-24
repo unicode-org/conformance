@@ -55,7 +55,7 @@ function generateAll() {
   const expected_count = locales.length * types.length * styles.length *
         lists.length;
 
-  console.log("Generating ", expected_count, " test cases for ", process.versions.icu);
+  console.log("Generating ", expected_count, " list_fmt tests for ", process.versions.icu);
 
   for (const locale of locales) {
 
