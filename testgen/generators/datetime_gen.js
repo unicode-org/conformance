@@ -18,20 +18,23 @@ const fs = require('node:fs');
 const debug = false;
 
 // Add numbering system to the test options
-const numbering_system = ['latn', 'arab', 'beng']
+// Don't test these across all other options, however.
+const numbering_systems = ['latn', 'arab', 'beng']
 
-const locales = ['und',
-                 'en-US',
-                 'zh-TW', 'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
-                 'bn',
-                 'mr',
-                 'zu'];
+// ICU4X locales, maybe 20
+const locales = [
+  'en-US', 'en-GB',
+  'zh-TW', 'vi', 'el', 'mt-MT',
+  'bn', 'zu',
+  'und'];
 
+// maybe 10 calendars
 const calendars = ['gregory',
                    'buddhist', 'hebrew', 'chinese', 'roc', 'japanese',
-                   'islamic', 'iso8601'
+                   'islamic', 'islamic-umalqura', 'persian'
                   ];
 
+// (numsysm, skeleton, timezone) ~`00
 const spec_options = [{},
                       {'dateStyle': 'short', 'timeStyle': 'short'},
                       {'dateStyle': 'medium', 'timeStyle': 'medium'},
@@ -49,15 +52,15 @@ const spec_options = [{},
                       {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 3},
                       {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric"},
                       {'hour': '2-digit', 'minute': 'numeric'},
-                      {'minute': 'numeric'},
-                      {'minute': '2-digit'},
-                      {'second': 'numeric'},
-                      {'second': '2-digit'},
+//                      {'minute': 'numeric'},
+//                      {'minute': '2-digit'},
+//                      {'second': 'numeric'},
+                      // {'second': '2-digit'},
 
-                      {'year': 'numeric', 'minute': '2-digit'},
-                      {'year': '2-digit', 'minute': 'numeric'},
-                      {'year': 'numeric', 'minute': 'numeric'},
-                      {'year': '2-digit', 'minute': '2-digit'},
+                      // {'year': 'numeric', 'minute': '2-digit'},
+                      // {'year': '2-digit', 'minute': 'numeric'},
+                      // {'year': 'numeric', 'minute': 'numeric'},
+                      // {'year': '2-digit', 'minute': '2-digit'},
 
                       {'month': 'numeric', 'weekday': 'long', 'day': 'numeric'},
                       {'month': '2-digit', 'weekday': 'long', 'day': 'numeric'},
@@ -68,6 +71,7 @@ const spec_options = [{},
                       {'month': 'short', 'weekday': 'short', 'day': 'numeric'},
                       {'month': 'short', 'weekday': 'narrow', 'day': 'numeric'},
 
+                      // TODO: remove non-semantic skeletons
                       {'era': 'long'},
                       {'era': 'short'},
                       {'era': 'narrow'},
@@ -103,7 +107,6 @@ const dates = [
   new Date('1969, July 16'),
   new Date(0),
   new Date(-1e13),
-  new Date(1e3),
   new Date(1e9),
   new Date(1e12),
 ];
@@ -135,7 +138,7 @@ function generateAll() {
   const expected_count = locales.length * calendars.length * spec_options.length *
         timezones.length * dates.length;
 
-  console.log("Generating ", expected_count, " test cases for ", process.versions.icu);
+  console.log("Generating ", expected_count, " date/time tests for ", process.versions.icu);
 
   for (const locale of locales) {
 
@@ -145,69 +148,76 @@ function generateAll() {
 
         for (const timezone of timezones) {
 
-          // Create format object with these options
-          let all_options = {...option};
-          if (calendar != '') {
-            all_options['calendar'] = calendar;
-          }
-          if (timezone != '') {
-            all_options['timeZone'] = timezone;
-          }
+          for (const number_system of numbering_systems) {
 
-          let formatter;
-          try {
-            formatter = new Intl.DateTimeFormat(locale, all_options);
-          } catch (error) {
-            console.log(error, ' with locale ',
-                        locale, ' and options: ', all_options);
-            continue;
-          }
+            // Create format object with these options
+            let all_options = {...option};
+            if (calendar != '') {
+              all_options['calendar'] = calendar;
+            }
+            if (timezone != '') {
+              all_options['timeZone'] = timezone;
+            }
+            if (number_system) {
+              all_options['numberingSystem'] = number_system;
+            }
 
-          if (debug) {
-            console.log("resolved options: ", formatter.resolvedOptions());
-          }
-          for (const d of dates) {
+            let formatter;
             try {
-              result = formatter.format(d);
+              formatter = new Intl.DateTimeFormat(locale, all_options);
             } catch (error) {
-              console.log('FORMATTER CREATION FAILS! ', error);
-            }
-            // format this date
-            // get the milliseconds
-            const millis = d.getTime();
-
-            const label_string = String(label_num);
-
-            let test_case = {'label': label_string,
-                             'input_string': String(d),
-                             'input_millis': millis
-                            };
-
-            if (locale != '') {
-              test_case["locale"] = locale;
-            }
-            if (all_options != null) {
-              test_case["options"] = {...all_options};
+              console.log(error, ' with locale ',
+                          locale, ' and options: ', all_options);
+              continue;
             }
 
             if (debug) {
-              console.log("TEST CASE :", test_case);
+              console.log("resolved options: ", formatter.resolvedOptions());
             }
-            test_cases.push(test_case);
 
-            // Generate what we get.
-            try {
-              verify_cases.push({'label': label_string,
-                                 'verify': result});
-              if (debug) {
-                console.log('   expected = ', result);
+            for (const d of dates) {
+              try {
+                result = formatter.format(d);
+              } catch (error) {
+                console.log('FORMATTER CREATION FAILS! ', error);
               }
-            } catch (error) {
-              console.log('!!! error ', error, ' in label ', label_num,
-' for date = ', d);
+              // format this date
+              // get the milliseconds
+              const millis = d.getTime();
+
+              const label_string = String(label_num);
+
+              let test_case = {'label': label_string,
+                               'input_string': d.toISOString(),
+                               'input_millis': millis
+                              };
+
+              if (locale != '') {
+                test_case["locale"] = locale;
+              }
+              if (all_options != null) {
+                test_case["options"] = {...all_options};
+              }
+
+              if (debug) {
+                console.log("TEST CASE :", test_case);
+              }
+              test_cases.push(test_case);
+
+              // Generate what we get.
+              try {
+                verify_cases.push({'label': label_string,
+                                   'verify': result});
+                if (debug) {
+                  console.log('   expected = ', result);
+                }
+              } catch (error) {
+                console.log('!!! error ', error, ' in label ', label_num,
+                            ' for date = ', d);
+              }
+              label_num ++;
             }
-            label_num ++;
-          };
+          }
         }
       }
     }
