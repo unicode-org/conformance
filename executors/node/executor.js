@@ -30,6 +30,8 @@ let datetime_fmt = require('./datetime_fmt.js');
 
 let list_fmt = require('./list_fmt.js');
 
+let rdt_fmt = require('./relativedatetime_fmt.js');
+
 /**
  * TODOs:
  * 1. Handle other types of test cases.
@@ -56,11 +58,11 @@ const testTypes = {
   TestDecimalFormat : Symbol("decimal_fmt"),
   TestNumberFormat : Symbol("number_fmt"),
   TestDateTimeFormat : Symbol("datetime_fmt"),
-  TestRelativeDateTimeFormat : Symbol("relative_datetime_fmt"),
   TestPluralRules : Symbol("plural_rules"),
   TestDisplayNames : Symbol("display_names"),
   TestLangNames : Symbol("language_display_name"),
-  TestListFmt : Symbol("list_fmt")
+  TestListFmt : Symbol("list_fmt"),
+  TestRelativeDateTimeFormat : Symbol("rdt_fmt")
 };
 
 const supported_test_types = [
@@ -74,7 +76,8 @@ const supported_test_types = [
   Symbol("language_display_name"),
   Symbol("local_info"),
   Symbol("datetime_fmt"),
-  Symbol("list_fmt")
+  Symbol("list_fmt"),
+  Symbol("rdt_fmt")
 ];
 
 const supported_tests_json = {
@@ -86,7 +89,8 @@ const supported_tests_json = {
     "display_names",
     "lang_names",
     "language_display_name",
-    "list_fmt"
+    "list_fmt",
+    "rdt_fmt"
   ]};
 
 // Test line-by-line input, with output as string.
@@ -141,10 +145,11 @@ function parseJsonForTestId(parsed) {
     return testTypes.TestListFmt;
   }
 
-  console.log("#*********** NODE Unknown test type = " + testId);
-  return null;
+  if (testId == "rdt_fmt") {
+    return testTypes.TestRelativeDateTimeFmt;
+  }
 
-  // No test found.
+  console.log("#*********** NODE Unknown test type = " + testId);
   return null;
 }
 
@@ -228,27 +233,30 @@ rl.on('line', function(line) {
     } else
     if (test_type == "list_fmt") {
       outputLine = list_fmt.testListFmt(parsedJson);
+    } else
+    if (test_type == "rdt_fmt") {
+      outputLine = rdt_fmt.testRelativeDateTimeFmt(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type',
                     'test_type': test_type,
                     'unsupported_test': test_type};
     }
 
-      const jsonOut = JSON.stringify(outputLine);
+    const jsonOut = JSON.stringify(outputLine);
 
-      if ('error' in outputLine) {
-        // To get the attention of the driver
-        console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
-      }
-
-      // Send result to stdout for verification
-      process.stdout.write(jsonOut + '\n');
-      if (doLogOutput > 0) {
-        console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');
-      }
-
+    if ('error' in outputLine) {
+      // To get the attention of the driver
+      console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
     }
-    lineId += 1;
+
+    // Send result to stdout for verification
+    process.stdout.write(jsonOut + '\n');
+    if (doLogOutput > 0) {
+      console.log("##### NODE RETURNS " + lineId + ' ' + jsonOut + ' !!!!!');
+    }
+
   }
+  lineId += 1;
+}
 
      )

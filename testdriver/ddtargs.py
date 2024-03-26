@@ -34,7 +34,8 @@ class DdtOptions():
 
 type_options = ['collation_short', 'datetime_fmt',
                 'decimal_fmt', 'display_names',
-                'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt', 'ALL']
+                'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt',
+                'rdt_fmt', 'ALL']
 
 class DdtArgs():
   def __init__(self, args):

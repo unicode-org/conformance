@@ -260,14 +260,43 @@
 {"test_type": "datetime_fmt", "label":"pt EEEEE","locale":"pt", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"}    
 {"test_type": "datetime_fmt", "label":"pt-PT EEEEE","locale":"pt-PT", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"} 
 
+# Date time styles
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "long", "timeStyle": "long", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "long", "timeStyle": "short", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "timeStyle": "long", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "timeStyle": "short", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "narrow", "timeStyle": "full", "calendar": "gregory"}}
+
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "narrow", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "long", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "full", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_millis": 1710658800000, "locale": "en-GB", "options": {"dateStyle": "full", "calendar": "gregory"}}
+    
 {"test_type": "list_fmt", "label":"0","input_list":[],"options":{"style":"long","type":"conjunction"},"locale":"und"}
 
 {"test_type": "list_fmt", "label":"12","input_list":["dog","cat"],"options":{"style":"narrow","type":"conjunction"},"locale":"en"}    
 
-    {"test_type": "list_fmt", "label":"12","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"en"}    
-    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"en"}    
-    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"unit"},"locale":"en"}    
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "timeStyle": "short", "calendar": "gregory"}}
 
-    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"bn"}    
-    {"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"chr"}    
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"en"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"en"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"short","type":"unit"},"locale":"en"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"bn"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"chr"}    
+
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat", "hamster", "iguana", "parrot"],"options":{"style":"long","type":"conjunction"},"locale":"de"}    
+{"test_type": "list_fmt", "label":"12","input_list":[],"options":{"style":"long","type":"conjunction"},"locale":"zh-TW"}    
+
+
+# Relative date time format
+{"test_type": "rdt_fmt", "label": "-100", "unit": "second", "count": -100, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "100", "unit": "second", "count": 100, "locale": "en-US", "options": {}}
+
+{"test_type": "rdt_fmt", "label": "-100", "unit": "day", "count": -2, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "-100", "unit": "day", "count": -1, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "-100", "unit": "day", "count": -1, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "100", "unit": "day", "count": 0, "locale": "en-US", "options": {"style":"long"}}  
+{"test_type": "rdt_fmt", "label": "100", "unit":"day" "day", "count": 1, "locale": "en-US", "options": {}}  
+{"test_type": "rdt_fmt", "label": "100", "unit":"day", "count": 1, "locale": "es", "options": {}}
     

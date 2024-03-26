@@ -51,7 +51,8 @@
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
       ],
       "per_execution": 10000
     }
@@ -69,8 +70,9 @@
         "collation_short",
         "datetime_fmt",
         "lang_names",
+        "list_fmt",
         "likely_subtags",
-        "number_fmt"
+        "number_fmt",
       ],
       "per_execution": 10000
     }
@@ -108,7 +110,8 @@
         "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -128,7 +131,8 @@
         "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -148,7 +152,8 @@
         "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -166,7 +171,8 @@
         "collation_short",
         "list_fmt",
         "datetime_fmt",
-        "number_fmt"
+        "number_fmt",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }

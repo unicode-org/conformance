@@ -106,6 +106,7 @@ class testType(Enum):
   list_fmt = 'list_fmt'
   local_info = 'local_info'
   number_fmt = 'number_fmt'
+  rdt_fmt = 'rdt_fmt'
 
 # Returns default value for a key not defined.
 def def_value():
@@ -166,6 +167,12 @@ testName = 'list_fmt'
 testDatasets[testName] = DataSet(testType.list_fmt.value,
                                  'list_fmt_test.json',
                                  'list_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'rdt_fmt'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'rdt_fmt_test.json',
+                                 'rdt_fmt_verify.json',
                                  CLDRVersion.CLDR44, ICUVersion.ICU74)
 
 # Standard executor languages. Note that the ExecutorInfo

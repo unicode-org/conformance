@@ -119,7 +119,7 @@ function generateAll() {
   }
 
 
-  console.log('Number of tests generated for ',
+  console.log('Number of list format tests generated for ',
               process.versions.icu, ': ', label_num);
 
   test_obj['tests'] = test_cases;
