@@ -65,7 +65,7 @@ class VerifyPlan:
                       encoding='utf-8', mode='r') as verify_data_file:
                 self.verifyData = json.loads(verify_data_file.read())
                 self.verifyExpected = self.verifyData['verifications']
-        except BaseException as err:
+        except KeyError as err:
             logging.error('Cannot load %s verify data: %s',
                           self.verify_path, err)
             return None

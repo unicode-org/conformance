@@ -366,7 +366,8 @@ class TestPlan:
                     all_test_results.extend(result)
                 else:
                     num_errors += 1
-                    logging.error('!!!!!!  "platform error": "%s",\n', self.run_error_message)
+                    logging.error("!!!!!! platform error: %s", self.run_error_message)
+                    logging.error('  %s %s %s %s', self.test_type, self.test_lang, self.icu_version, self.platformVersion)
 
                 # Reset the batch
                 lines_in_batch = 0
