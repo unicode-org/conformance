@@ -52,7 +52,7 @@
         "lang_names",
         "likely_subtags",
         "list_fmt",
-        "number_fmt",
+        "number_fmt"
       ],
       "per_execution": 10000
     }
@@ -72,7 +72,7 @@
         "lang_names",
         "list_fmt",
         "likely_subtags",
-        "number_fmt",
+        "number_fmt"
       ],
       "per_execution": 10000
     }

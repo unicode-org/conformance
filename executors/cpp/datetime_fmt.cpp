@@ -24,9 +24,19 @@
 #include <string>
 #include <cstring>
 
+using icu::DateFormat;
+
 using std::cout;
 using std::endl;
 using std::string;
+
+icu::DateFormat::EStyle stringToEStyle(string style_string) {
+  if (style_string == "full") return icu::DateFormat::kFull;
+  if (style_string == "long") return icu::DateFormat::kLong;
+  if (style_string == "medium") return icu::DateFormat::kMedium;
+  if (style_string == "short") return icu::DateFormat::kShort;
+  return icu::DateFormat::kDefault;
+}
 
 
 const string test_datetime_fmt(json_object *json_in) {
@@ -48,10 +58,123 @@ const string test_datetime_fmt(json_object *json_in) {
 
   DateFormat* df;
 
+  // Get the input data as a date object.
+
+  // Types of input:
+  //   "input_millis" milliseconds since base date/time
+  //   "input_string" parsable string such as "2020-03-02 10:15:17 -08:00"
+  //   OTHER?
+
+  string dateStyle_str;
+  string timeStyle_str;
+  string calendar_str;
+  string timezone_str;
+
+  string era_str;
+  string year_str;
+  string month_str;
+  string weekday_str;
+  string day_str;
+  string hour_str;
+  string minute_str;
+  string second_str;
+  int fractional_seconds_digits = 0;
+
+  // Get fields out of the options if present
+  json_object* options_obj = json_object_object_get(json_in, "options");
+
+  icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kNone;
+  icu::DateFormat::EStyle time_style = icu::DateFormat::EStyle::kNone;
+
+  if (options_obj) {
+    json_object* option_item = json_object_object_get(options_obj, "dateStyle");
+    if (option_item) {
+      dateStyle_str = json_object_get_string(option_item);
+      date_style = stringToEStyle(dateStyle_str);
+      cout << "# dateStyle: " << dateStyle_str << " " << date_style << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "timeStyle");
+    if (option_item) {
+      timeStyle_str = json_object_get_string(option_item);
+      time_style = stringToEStyle(timeStyle_str);
+      cout << "# timeStyle: " << timeStyle_str << " " << time_style << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "calendar");
+    if (option_item) {
+      dateStyle_str = json_object_get_string(option_item);
+      cout << "# calendar: " << calendar_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "timezone");
+    if (option_item) {
+      timezone_str = json_object_get_string(option_item);
+      cout << "# timezone: " << timezone_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "era");
+    if (option_item) {
+      era_str = json_object_get_string(option_item);
+      cout << "# era: " << era_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "year");
+    if (option_item) {
+      year_str = json_object_get_string(option_item);
+      cout << "# year: " << year_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "month");
+    if (option_item) {
+      month_str = json_object_get_string(option_item);
+      cout << "# month: " << month_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "weekday");
+    if (option_item) {
+      weekday_str = json_object_get_string(option_item);
+      cout << "# weekdat: " << weekday_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "day");
+    if (option_item) {
+      day_str = json_object_get_string(option_item);
+      cout << "# day: " << day_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "hour");
+    if (option_item) {
+      hour_str = json_object_get_string(option_item);
+      cout << "# hour: " << hour_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "minute");
+    if (option_item) {
+      minute_str = json_object_get_string(option_item);
+      cout << "# minute: " << minute_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "second");
+    if (option_item) {
+      second_str = json_object_get_string(option_item);
+      cout << "# second: " << second_str << endl;
+    }
+
+    option_item = json_object_object_get(options_obj, "fractional_seconds_digits");
+    if (option_item) {
+      fractional_seconds_digits = json_object_get_int(option_item);
+      cout << "# fractional seconds digits: " << fractional_seconds_digits << endl;
+    }
+
+  }
+
   json_object *date_skeleton_obj = json_object_object_get(json_in, "datetime_skeleton");
   if (date_skeleton_obj) {
     // Data specifies a date time skeleton. Make a formatter based on this.
     string skeleton_string = json_object_get_string(date_skeleton_obj);
+
+    cout << "# Skelecton = " << skeleton_string << endl;
 
     UnicodeString u_skeleton = skeleton_string.c_str();
     df = DateFormat::createInstanceForSkeleton(u_skeleton,
@@ -62,11 +185,10 @@ const string test_datetime_fmt(json_object *json_in) {
       cout << "# ERROR in createInstanceForSkeleton" << endl;
     }
   } else {
-    // TODO: Get the parameters and options.
     // Create default formatter
     df = DateFormat::createDateTimeInstance(
-        icu::DateFormat::EStyle::kDefault,
-        icu::DateFormat::EStyle::kDefault,
+        date_style,
+        time_style,
         displayLocale);
   }
 
@@ -79,13 +201,6 @@ const string test_datetime_fmt(json_object *json_in) {
   // JSON data returned.
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
-
-  // Get the input data as a date object.
-
-  // Types of input:
-  //   "input_millis" milliseconds since base date/time
-  //   "input_string" parsable string such as "2020-03-02 10:15:17 -08:00"
-  //   OTHER?
 
   UDate testDateTime;
   // The type of conversion requested
@@ -103,10 +218,10 @@ const string test_datetime_fmt(json_object *json_in) {
       UnicodeString date_ustring(input_date_string.c_str());
 
       UnicodeString parse_skeleton = "YYYY-MM-DD HH:mm:ss";
+
       DateFormat* dparser = DateFormat::createInstanceForSkeleton(parse_skeleton,
                                                                   displayLocale,
                                                                   status);
-      cout << "# Calling parse with: " << input_date_string << endl;
       testDateTime = dparser->parse(date_ustring, status);
       if (U_FAILURE(status)) {
         cout << "df->parse failure: " << u_errorName(status) << endl;
@@ -130,8 +245,8 @@ const string test_datetime_fmt(json_object *json_in) {
     // TODO: Return error.
     cout << "# formatted result: extract error. " << chars_out << endl;
     json_object_object_add(return_json,
-            "error",
-            json_object_new_string("Failure in extracting test result"));
+                           "error",
+                           json_object_new_string("Failure in extracting test result"));
   } else {
     json_object_object_add(return_json,
                            "result",
