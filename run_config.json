@@ -74,11 +74,11 @@
   {
     "prereq": {
       "name": "nvm",
-      "version": "20.1.0",
+      "version": "21.6.0",
       "command": "nvm install 21.6.0;nvm use 21.6.0"
     },
     "run": {
-      "icu_version": "icu73",
+      "icu_version": "icu74",
       "exec": "dart_web",
       "test_type": [
         "collation_short",
