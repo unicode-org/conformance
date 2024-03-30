@@ -525,7 +525,9 @@ class TestReport:
                         'warning'
                         # Number format
                         'input_data',
-                        'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode', ]
+                        'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode',
+                        # list_fmt
+                        'type', 'input_list']
             option_keys = ['notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode']
 
             for key in key_list:
@@ -599,6 +601,13 @@ class TestReport:
                         'rules',
                         'test_description',
                         'unsupported_options',
+                        'style',
+                        'type',
+                        'dateStyle',
+                        'timeStyle,'
+                        'calendar',
+                        'unit',
+                        'count'
                         ]
 
             self.add_to_results_by_key(label, results, input_data, test, key_list)
@@ -629,6 +638,11 @@ class TestReport:
                 try:
                     if input_data.get(key):  # For collation results
                         value = input_data.get(key)
+                        if key == 'input_list':
+                            if 'input_size' not in results:
+                                results['input_size'] = {}
+                            else:
+                                results['input_size'].add(len(value))
                         if key == 'rules':
                             value = 'RULE'  # A special case to avoid over-characterization
                         if key not in results:
@@ -651,6 +665,7 @@ class TestReport:
         results['delete_space'] = set()
         results['replace_digit'] = set()
         results['exponent_diff'] = set()
+        results['whitespace_diff'] = set()
         results['replace'] = set()
         results['parens'] = set()  # Substitions of brackets for parens, etc.
 
@@ -685,8 +700,12 @@ class TestReport:
                     if kind == 'replace':
                         if old_val.isdigit() and new_val.isdigit():
                             results['replace_digit'].add(label)
+                        elif old_val.isspace() and new_val.isspace():
+                            # Difference is in type of white space
+                            results['whitespace_diff'].add(label)
                         else:
-                            results['replace'].add(label)
+                            results['exponent_diff'] = set()
+
                     elif kind == "delete":
                         if old_val.isdigit():
                             results['delete_digit'].add(label)

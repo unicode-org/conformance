@@ -1,0 +1,64 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/list_format_verify_schema.json'",
+ "title": "ICU list format verify data description",
+ "description": "This documents format of number format verify data",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["list_fmt"]
+   },
+   "tests": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": true,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "unsupported": {
+           "description": "More about the failure",
+           "type": "string"
+         },
+         "result": {
+           "description": "What was actually returned",
+           "type": "string"
+         },
+         "error": {
+           "type": "string",
+           "description": "what when wrong"
+         },
+         "error_message": {
+           "type": "string",
+           "description": "More detail about the error"
+         },
+         "error_detail": {
+           "description": "Even more about the failure",
+           "type": ["object", "string"],
+           "properties": {
+             "unsupported_options": {
+               "description": "More about the failure",
+               "type": ["array", "string"],
+               "items": {
+                 "description": "requested options that are not supported",
+                 "type": "string"
+               }
+             }
+           }
+         },
+         "error_type": {
+           "description": "What went wrong",
+           "type": "string"
+         }
+       }
+     },
+     "required": [
+       "label"
+     ]       
+   }
+ }
+}

@@ -1,0 +1,114 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/list_fmt_test_schema.json'",
+ "title": "ICU Conformance test data description",
+ "description": "This documents the format of list_fmt test data for execution",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of the test",
+     "type": "string",
+     "enum": ["list_fmt"]
+   },
+   "Test scenario": {
+     "type": "string",
+     "description":" Obsolete tag to be removed and replaced with test Type"
+   },
+   "source_file": {
+     "description": "origin of conformance data",
+     "type": "string"
+   },
+   "source_version": {
+     "description": "version of conformance data",
+     "type": "string"
+   },
+   "test_ environmment": {
+     "test_language":  {
+       "description": "Programming language of execution",
+       "type": "string"
+     },
+     "executor": {
+       "description": "path to the executor for this output",
+       "type": "string"
+     },
+     "test_type": {
+       "description": "the kind of tests run",
+       "type": "string"
+     },
+     "date_time": {
+       "description": "timestamp of output",
+       "type": "string"
+     },
+     "input_file": {
+       "description": "path to test data",
+       "type": "string"
+     },
+     "icu_version": {
+       "description": "ICU data version used in testing",
+       "type": "string"
+     },
+     "cldr_version": {
+       "description": "CLDR version used in testing",
+       "type": "string"
+     },
+     "test_count": {
+       "description": "Number of tests run",
+       "type": "integer"
+     }
+   },
+   "error_info": {
+     "description": "count of detected errors",
+     "type": "integer"
+   },
+   "platform": {
+     "description": "the executor's platorm",
+     "type": "integer"
+   },
+   "tests": {
+     "description": "list of N tests for list format",
+     "type": "array",
+     "items": {
+       "additionalProperties": true,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "locale": {
+           "description": "locale tag source ",
+           "type": "string"
+         },
+         "input_list": {
+           "description": "strings to be formatted as a list ",
+           "type": "array",
+           "items": {
+             "type": "string"
+           }
+         },
+         "options": {
+           "description": "Details of processing requested",
+           "type": "object",
+           "additionalProperties": false,
+           "properties": {
+             "style": {
+               "description": "size of the output for list connectors",
+               "type": "string",
+               "enum": ["long", "short", "narrow"]
+             },
+             "type": {
+               "description": "The kind of connection between list items, e.g., and/or/none",
+               "type": "string",
+               "enum": ["conjunction", "disjunction", "unit"]
+             }
+           }
+         }
+       },
+       "required": [
+         "label",
+         "input"
+       ]
+     }
+   }
+ }
+}
+     

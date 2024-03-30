@@ -2,15 +2,19 @@
 
 ALL_TEST_TYPES = ['collation_short',
                   'datetime_fmt',
+                  'list_fmt',
                   'number_format',
                   'language_names',
-                  'likely_subtags']
+                  'likely_subtags'
+                  ]
 
 TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation_short',
+    'datetime_fmt_test_file': 'datetime_fmt',
     'lang_name_test_file': 'language_names',
     'likely_subtags_test': 'likely_subtags',
-    'num_fmt_test_file': 'number_fmt'
+    'num_fmt_test_file': 'number_fmt',
+    'list_fmt_test_file': 'list_fmt'
 }
 
 SCHEMA_FILE_MAP = {
@@ -120,6 +124,20 @@ SCHEMA_FILE_MAP = {
             "prod_file": "likely_subtags_test.json"
         }
     },
+    "list_fmt": {
+        "test_data": {
+            "schema_file": "list_fmt/test_schema.json",
+            'prod_file': 'list_fmt.json'
+        },
+        "verify_data": {
+            "schema_file": "list_fmt/verify_schema.json",
+            'prod_file': 'list_fmt.json'
+        },
+        "result_data": {
+            "schema_file": "list_fmt/result_schema.json",
+            "prod_file": "list_fmt_test.json"
+        }
 
     # Additional tests
+    }
 }

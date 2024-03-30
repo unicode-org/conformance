@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <cstring>
 
 using icu::ListFormatter;
@@ -41,7 +42,7 @@ const string test_list_fmt (json_object* json_in) {
   string locale_string = "und";
   json_object* locale_label_obj = json_object_object_get(json_in, "locale");
   if (locale_label_obj) {
-    string locale_string = json_object_get_string(locale_label_obj);
+    locale_string = json_object_get_string(locale_label_obj);
   }
   Locale displayLocale(locale_string.c_str());
 
@@ -70,6 +71,7 @@ const string test_list_fmt (json_object* json_in) {
         return_json,
         "error",
         json_object_new_string("no input list"));
+    // TODO: return the JSON now.
   }
 
   // Get fields out of the options if present

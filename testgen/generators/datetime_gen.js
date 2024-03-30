@@ -17,6 +17,9 @@ const fs = require('node:fs');
 
 const debug = false;
 
+// Controls if milliseconds value is stored in test cases in addition to ISO string.
+let use_milliseconds = false;
+
 // Add numbering system to the test options
 // Don't test these across all other options, however.
 const numbering_systems = ['latn', 'arab', 'beng']
@@ -24,7 +27,7 @@ const numbering_systems = ['latn', 'arab', 'beng']
 // ICU4X locales, maybe 20
 const locales = [
   'en-US', 'en-GB',
-  'zh-TW', 'vi', 'el', 'mt-MT',
+  'zh-TW', 'vi', 'ar', 'mt-MT',
   'bn', 'zu',
   'und'];
 
@@ -86,15 +89,11 @@ const spec_options = [{},
 const timezones = [
   '',
   'America/Los_Angeles',
-  'Europe/Paris',
-  'Africa/Cairo',
   'Africa/Luanda',
   'Asia/Tehran',
   'Europe/Kiev',
   'Australia/Brisbane',
-  'Australia/Melbourne',
   'Pacific/Guam',
-  'Atlantic/Azores'
 ];
 
 const dates = [
@@ -110,6 +109,84 @@ const dates = [
   new Date(1e9),
   new Date(1e12),
 ];
+
+const dt_fields = {
+  'era': {
+    'long': 'GGGG',
+    'short': 'GG',
+    'narrow': 'GGGGG'
+  },
+  'year': {
+    'numeric': 'y',
+    '2-digit': 'yy'
+  },
+  'quarter': {
+    'numeric': 'q'
+  },
+  'month': {
+    'numeric': 'M',
+    '2-digit': 'MM',
+    'long': 'MMMM',
+    'short': 'MMM',
+    'narrow': 'MMMMM'
+  },
+  'weekday': {
+    'long': 'EEEE',
+    'short': 'E',
+    'narrow': 'EEEEE'
+  },
+  'day': {
+    'numeric': 'd',
+    '2-digit': 'dd'
+  },
+  'hour': {
+    'numeric': 'h',
+    '2-digit': 'hh'
+  },
+  'minute': {
+    'numeric': 'm',
+    '2-digit': 'mm'
+  },
+  'second': {
+    'numeric': 's',
+    '2-digit': 'ss'
+  },
+  'fractionalSecondDigits': {
+    1:'S', 2:'SS', 3:'SSS'},
+  'timeZoneName': {
+    'short': 'v',
+    'long': 'vvvv',
+    'shortOffset': 'O',
+    'longOffset': 'OOOO',
+    'shortGeneric': 'z',
+    'longGeneric': 'zz'}
+};
+
+function optionsToSkeleton(options) {
+  let skeleton_array = [];
+
+  for (const option of Object.keys(options)) {
+    // Look up the symbol
+    if (dt_fields[option]) {
+      if (option == 'dateStyle' || option == 'timeStyle')  {
+        continue;
+      }
+      const symbol = dt_fields[option];
+      const size = options[option];
+      // TODO: Get the correct number of symbols.
+      if (size in symbol) {
+        skeleton_array.push(symbol[size]);
+      } else {
+        console.warn('#### No entry for ', symbol, ' / ', size);
+      }
+    }
+    else {
+      console.warn('# !! No date/time field for this options: ', option, ' in ', options);
+    }
+  }
+
+  return skeleton_array.join('');
+}
 
 function generateAll() {
 
@@ -146,78 +223,93 @@ function generateAll() {
 
       for (const option of spec_options) {
 
-        for (const timezone of timezones) {
+        // Rotate timezones through the data, but not as as separate loop
+        const tz_index = label_num % timezones.length;
+        timezone = timezones[tz_index];
+        //for (const timezone of timezones) {
 
-          for (const number_system of numbering_systems) {
+        // Set number systems as appropriate for particular locals
+        number_system = 'latn';
+        if (locale == 'ar') {
+          number_system = 'arab';
+        } else
+        if (locale == 'bn') {
+          number_system = 'beng';
+        }
 
-            // Create format object with these options
-            let all_options = {...option};
-            if (calendar != '') {
-              all_options['calendar'] = calendar;
-            }
-            if (timezone != '') {
-              all_options['timeZone'] = timezone;
-            }
-            if (number_system) {
-              all_options['numberingSystem'] = number_system;
-            }
+        const skeleton = optionsToSkeleton(option);
 
-            let formatter;
-            try {
-              formatter = new Intl.DateTimeFormat(locale, all_options);
-            } catch (error) {
-              console.log(error, ' with locale ',
-                          locale, ' and options: ', all_options);
-              continue;
-            }
+        // Create format object with these options
+        let all_options = {...option};
+        if (calendar != '') {
+          all_options['calendar'] = calendar;
+        }
 
-            if (debug) {
-              console.log("resolved options: ", formatter.resolvedOptions());
-            }
+        if (timezone != '') {
+          all_options['timeZone'] = timezone;
+        }
+        if (number_system) {
+          all_options['numberingSystem'] = number_system;
+        }
 
-            for (const d of dates) {
-              try {
-                result = formatter.format(d);
-              } catch (error) {
-                console.log('FORMATTER CREATION FAILS! ', error);
-              }
-              // format this date
-              // get the milliseconds
-              const millis = d.getTime();
+        let formatter;
+        try {
+          formatter = new Intl.DateTimeFormat(locale, all_options);
+        } catch (error) {
+          console.log(error, ' with locale ',
+                      locale, ' and options: ', all_options);
+          continue;
+        }
 
-              const label_string = String(label_num);
-
-              let test_case = {'label': label_string,
-                               'input_string': d.toISOString(),
-                               'input_millis': millis
-                              };
-
-              if (locale != '') {
-                test_case["locale"] = locale;
-              }
-              if (all_options != null) {
-                test_case["options"] = {...all_options};
-              }
-
-              if (debug) {
-                console.log("TEST CASE :", test_case);
-              }
-              test_cases.push(test_case);
-
-              // Generate what we get.
-              try {
-                verify_cases.push({'label': label_string,
-                                   'verify': result});
-                if (debug) {
-                  console.log('   expected = ', result);
-                }
-              } catch (error) {
-                console.log('!!! error ', error, ' in label ', label_num,
-                            ' for date = ', d);
-              }
-              label_num ++;
-            }
+        for (const d of dates) {
+          try {
+            result = formatter.format(d);
+          } catch (error) {
+            console.log('FORMATTER CREATION FAILS! ', error);
           }
+          // format this date
+          // get the milliseconds
+          const millis = d.getTime();
+
+          const label_string = String(label_num);
+
+          let test_case = {'label': label_string,
+                           'input_string': d.toISOString(),
+                          };
+
+          if (skeleton) {
+            test_case['skeleton'] = skeleton;
+          }
+
+          if (use_milliseconds) {
+            // Optional
+            test_case['input_millis'] = millis;
+          }
+
+          if (locale != '') {
+            test_case["locale"] = locale;
+          }
+          if (all_options != null) {
+            test_case["options"] = {...all_options};
+          }
+
+          if (debug) {
+            console.log("TEST CASE :", test_case);
+          }
+          test_cases.push(test_case);
+
+          // Generate what we get.
+          try {
+            verify_cases.push({'label': label_string,
+                               'verify': result});
+            if (debug) {
+              console.log('   expected = ', result);
+            }
+          } catch (error) {
+            console.log('!!! error ', error, ' in label ', label_num,
+                        ' for date = ', d);
+          }
+          label_num ++;
         }
       }
     }

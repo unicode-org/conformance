@@ -10,7 +10,7 @@ CLEANFILES=*~ $(TARGET).out
 ####################################################################
 CC=$(shell icu-config --detect-prefix --cc)
 CXX=$(shell icu-config --detect-prefix --cxx)
-CPPFLAGS=$(shell icu-config --detect-prefix --cppflags)
+CPPFLAGS=$(shell icu-config --detect-prefix --cppflags) -std=c++17
 CFLAGS=$(shell icu-config --detect-prefix --cflags)
 CXXFLAGS=$(shell icu-config --detect-prefix --cxxflags)
 LDFLAGS =$^ $(shell icu-config --detect-prefix --ldflags)

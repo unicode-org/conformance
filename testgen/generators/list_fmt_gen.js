@@ -10,10 +10,11 @@
 
 const fs = require('node:fs');
 
-const debug = false;
+let debug = false;
 
 const locales = ['und',
-                 'en-US', 'zh-TW', 'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
+                 'en-US', 'zh-TW', 'es',
+                 'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
                  'bn', 'ar','mr', 'zu'];
 
 const types = ['conjunction', 'disjunction', 'unit'];
@@ -27,6 +28,17 @@ const lists = [
   ['fish', 'mouse', 'parakeet'],
   ['3 weeks', '2 days', '3 hours', '25 minutes']
 ];
+
+const spanish_or_tests = [
+  ['otros edificios', 'casas'],
+  ['casas', 'otros edificios'],
+];
+
+const spanish_and_tests = [
+  ['divertido', 'interesante'],
+  ['interesante', 'divertido']
+];
+
 
 function generateAll() {
 
@@ -78,15 +90,34 @@ function generateAll() {
           continue;
         }
 
-        for (const list of lists) {
+        let test_lists = lists;
+        if (locale == 'es') {
+          if (type == 'conjunction') {
+            test_lists = spanish_and_tests;
+          } else
+          if (type == 'disjunction') {
+            test_lists = spanish_or_tests;
+          }
+        } else {
+          debug = false;
+        }
+
+        for (const list of test_lists) {
           try {
             result = formatter.format(list);
           } catch (error) {
             console.log('FORMATTER CREATION FAILS! ', error);
           }
 
+          if (list.length < 2 && locale != 'en-US') {
+            // We don't need all the cases for empty or single item lists;.
+            continue;
+          }
+
           const label_string = String(label_num);
+
           // TODO: Save this as a test case.
+          let test_list;
           let test_case = {'label': label_string,
                            'input_list': list,
                            'options': {...all_options}
