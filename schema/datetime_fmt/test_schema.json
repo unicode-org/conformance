@@ -24,14 +24,6 @@
            "description": "language tag for formatting the output",
            "type": "string"
          },
-         "input": {
-           "description": "date time specification in XYZ format",
-           "type": "string"
-         },
-         "input_millis": {
-           "description": "numeric value for time in milliseconds since January 1, 1970, UTC (the epoch)",
-           "type": "string"
-         },
          "input_string": {
            "description": "String in ISO 8601 form, e.g. YYYY-MM-DD hh:mm:ss.sss",
            "type": "string"

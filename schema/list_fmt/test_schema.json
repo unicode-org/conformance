@@ -22,7 +22,7 @@
      "description": "version of conformance data",
      "type": "string"
    },
-   "test_ environmment": {
+   "test_environmment": {
      "test_language":  {
        "description": "Programming language of execution",
        "type": "string"
