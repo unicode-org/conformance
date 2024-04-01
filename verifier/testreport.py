@@ -704,7 +704,7 @@ class TestReport:
                             # Difference is in type of white space
                             results['whitespace_diff'].add(label)
                         else:
-                            results['exponent_diff'] = set()
+                            results['exponent_diff'].add(label)
 
                     elif kind == "delete":
                         if old_val.isdigit():
