@@ -263,7 +263,10 @@ function generateAll() {
 
         for (const d of dates) {
           try {
-            result = formatter.format(d);
+            // result = formatter.format(d);
+            // To avoid the hack that replaces NBSP with ASCII space.
+            const parts = formatter.formatToParts(d);
+            result = parts.map((x) => x.value).join("");
           } catch (error) {
             console.log('FORMATTER CREATION FAILS! ', error);
           }

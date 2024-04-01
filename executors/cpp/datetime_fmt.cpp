@@ -12,6 +12,8 @@
 #include "unicode/datefmt.h"
 #include "unicode/locid.h"
 #include "unicode/smpdtfmt.h"
+#include "unicode/timezone.h"
+
 #include "unicode/uclean.h"
 
 #include "util.h"
@@ -24,8 +26,10 @@
 #include <string>
 #include <cstring>
 
+using icu::Calendar;
 using icu::DateFormat;
 using icu::SimpleDateFormat;
+using icu::TimeZone;
 
 using std::cout;
 using std::endl;
@@ -36,7 +40,7 @@ icu::DateFormat::EStyle stringToEStyle(string style_string) {
   if (style_string == "long") return icu::DateFormat::kLong;
   if (style_string == "medium") return icu::DateFormat::kMedium;
   if (style_string == "short") return icu::DateFormat::kShort;
-  return icu::DateFormat::kDefault;
+  return icu::DateFormat::kNone;
 }
 
 const string test_datetime_fmt(json_object *json_in) {
@@ -44,6 +48,9 @@ const string test_datetime_fmt(json_object *json_in) {
 
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
+
+  Calendar *cal = nullptr;
+  TimeZone *tz = nullptr;
 
   // The locale for formatted output
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
@@ -54,14 +61,45 @@ const string test_datetime_fmt(json_object *json_in) {
     locale_string = "und";
   }
 
+  Locale displayLocale(locale_string.c_str());
+  Locale und_locale("und");
+
   // JSON data returned.
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  Locale displayLocale(locale_string.c_str());
-  Locale und_locale("und");
+  string calendar_str;
+
+  // Get fields out of the options if present
+  json_object* options_obj = json_object_object_get(json_in, "options");
+
+  if (options_obj) {
+    json_object* cal_item = json_object_object_get(options_obj, "calendar");
+    if (cal_item) {
+      calendar_str = json_object_get_string(cal_item);
+
+      // Add '@calendar=' + calendar_string to locale
+      locale_string = locale_string + "@calendar=" + calendar_str;
+
+      cout << "# Calendar locale: " << locale_string << endl;
+      if (tz) {
+        cal = Calendar::createInstance(*tz, displayLocale, status);
+      } else {
+        cal = Calendar::createInstance(displayLocale, status);
+      }
+      if (U_FAILURE(status)) {
+        cout << "# ERROR in createInstance for Calendar" << endl;
+        json_object_object_add(
+            return_json,
+            "error",
+            json_object_new_string("Error in createInstance for calendar"));
+        return json_object_to_json_string(return_json);
+      }
+    }
+  }
 
   DateFormat* df;
+
 
   // Get the input data as a date object.
   // Types of input:
@@ -70,21 +108,7 @@ const string test_datetime_fmt(json_object *json_in) {
 
   string dateStyle_str;
   string timeStyle_str;
-  string calendar_str;
   string timezone_str;
-
-  string era_str;
-  string year_str;
-  string month_str;
-  string weekday_str;
-  string day_str;
-  string hour_str;
-  string minute_str;
-  string second_str;
-  int fractional_seconds_digits = 0;
-
-  // Get fields out of the options if present
-  json_object* options_obj = json_object_object_get(json_in, "options");
 
   // Expected values if neither dateStyle nor timeStyle is given explicitly.
   icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kMedium;
@@ -103,26 +127,32 @@ const string test_datetime_fmt(json_object *json_in) {
       time_style = stringToEStyle(timeStyle_str);
     }
 
-    option_item = json_object_object_get(options_obj, "calendar");
-    if (option_item) {
-      calendar_str = json_object_get_string(option_item);
-    }
-
-    option_item = json_object_object_get(options_obj, "timezone");
+    option_item = json_object_object_get(options_obj, "timeZone");
     if (option_item) {
       timezone_str = json_object_get_string(option_item);
+      UnicodeString u_tz(timezone_str.c_str());
+      tz = TimeZone::createTimeZone(u_tz);
+      cout << "# Created timezone " << tz << " for " << timezone_str << endl;
     }
   }
 
-  json_object *date_skeleton_obj = json_object_object_get(json_in, "datetime_skeleton");
+  json_object *date_skeleton_obj =
+      json_object_object_get(json_in, "datetime_skeleton");
   if (date_skeleton_obj) {
     // Data specifies a date time skeleton. Make a formatter based on this.
     string skeleton_string = json_object_get_string(date_skeleton_obj);
 
     UnicodeString u_skeleton(skeleton_string.c_str());
-    df = DateFormat::createInstanceForSkeleton(u_skeleton,
-                                               displayLocale,
-                                               status);
+    if (cal) {
+      df = DateFormat::createInstanceForSkeleton(cal,
+                                                 u_skeleton,
+                                                 displayLocale,
+                                                 status);
+    } else {
+      df = DateFormat::createInstanceForSkeleton(u_skeleton,
+                                                 displayLocale,
+                                                 status);
+    }
     if (U_FAILURE(status)) {
       cout << "# ERROR in createInstanceForSkeleton" << endl;
       json_object_object_add(
@@ -133,10 +163,6 @@ const string test_datetime_fmt(json_object *json_in) {
     }
   } else {
     // Create default formatter
-    cout << "# DT createDateTimeInstance with styles " <<
-        date_style << ", " <<
-        time_style << endl;
-
     df = DateFormat::createDateTimeInstance(
         date_style,
         time_style,
@@ -151,6 +177,14 @@ const string test_datetime_fmt(json_object *json_in) {
         "error",
         json_object_new_string("Cannot construct datetime formatter"));
     return json_object_to_json_string(return_json);
+  }
+
+  if (tz) {
+    cout <<
+        "# Setting TZ " <<
+        tz <<
+        endl;
+    df->setTimeZone(*tz);
   }
 
 
