@@ -32,8 +32,10 @@ class DdtOptions():
     self.parallel_mode = None  # For each exec or using N CPUs?
     self.exec_mode = 'one_test'  # Default. 'multi_test
 
-type_options = ['collation_short', 'decimal_fmt', 'display_names',
-                'number_fmt', 'lang_names', 'likely_subtags', 'ALL']
+type_options = ['collation_short', 'datetime_fmt',
+                'decimal_fmt', 'display_names',
+                'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt',
+                'rdt_fmt', 'ALL']
 
 class DdtArgs():
   def __init__(self, args):
@@ -56,6 +58,11 @@ class DdtArgs():
     self.parser.add_argument('--verifyonly', default=None)
     self.parser.add_argument('--noverify', default=None)  #
     self.parser.add_argument('--custom_verifier', default=None)  #
+
+    self.parser.add_argument(
+        '--run_serially', default=None,
+        help='Execute tests in series rather than in parallel')
+
     self.options = self.parser.parse_args(args)
 
   def parse(self):
@@ -152,6 +159,7 @@ def argsTestData():
        'likely_subtags'],
       ['--test', 'collation_short', 'ALL', 'decimal_fmt'],
 
+      ['--test_type', 'datetime_fmt'],
       ['--test_type', 'ALL'],
       '--type ALL decimal_fmt --exec a b c d'.split(),
 

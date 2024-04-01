@@ -1,0 +1,131 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/datetime_test.json'",
+ "title": "ICU Conformance test data description",
+ "description": "This documents the format of date/time test data for execution",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of these tests",
+     "type": "string",
+     "enum": ["datetime_fmt"]
+   },
+   "tests": {
+     "description": "list of N tests for date time formatting",
+     "type": "array",
+     "additionalProperties": false,
+     "items": {
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "locale": {
+           "description": "language tag for formatting the output",
+           "type": "string"
+         },
+         "input_string": {
+           "description": "String in ISO 8601 form, e.g. YYYY-MM-DD hh:mm:ss.sss",
+           "type": "string"
+         },
+         "datetime_skeleton": {
+           "description": "Skeleton for date/time format: https://unicode-org.github.io/icu/userguide/format_parse/datetime/",
+           "type": "string"
+         },
+         "options": {
+           "description": "Formatting paramters for date / time, similar to ECMAScript Intl's options bag",
+           "type": "object",
+           "properties": {
+             "calendar": {
+               "type": "string",
+               "description": "calendar to use such as chinese, gregory, persion, etc."
+             },
+             "numberingSystem": {
+               "type": "string",
+               "description": "such as arab, arabext, hans, adlam, beng, mathsans, etc."
+             },
+             "hour12": {
+               "type": "string",
+               "description": "12-hour time vs.  24-hour"
+             },
+             "hourCycle": {
+               "type": "string",
+               "description": "The hour cycle to use",
+               "enum": ["h11", "h12", "h23", "h24"]
+             },
+             "timeZone": {
+               "type": "string",
+               "description": "time zone to use - nums recognize UTC"
+             },
+             "weekday": {
+               "type": "string",
+               "description": "representation of the weekday",
+               "enum": ["long", "short", "narrow"]
+             },
+             "era": {
+               "type": "string",
+               "description": "representation of the weekday",
+               "enum": ["long", "short", "narrow"]
+             },
+             "year": {
+               "type": "string",
+               "description": "representation of the weekday",
+               "enum": ["numeric", "2-digit"]
+             },
+             "month": {
+               "type": "string",
+               "description": "representation of the month",
+               "enum": ["numeric", "2-digit", "long", "short", "narrow"]
+             },
+             "dayPeriod": {
+               "type": "string",
+               "description": "formatting styl for day periods",
+               "enum": ["long", "short", "narrow"]
+             },
+             "hour": {
+               "type": "string",
+               "description": "representation of the hour",
+               "enum": ["numeric", "2-digit"]
+             },
+             "minute": {
+               "type": "string",
+               "description": "representation of the minute",
+               "enum": ["numeric", "2-digit"]
+             },
+             "second": {
+               "type": "string",
+               "description": "representation of the second",
+               "enum": ["numeric", "2-digit"]
+             },
+             "fractionalSecondsDigits": {
+               "type": "integer",
+               "description": "how many values to allo for fractions of a second",
+               "enum": ["1", "2", "3"]
+             },
+             "timeZoneName": {
+               "type": "string",
+               "description": "format of the time zone",
+               "enum": ["long", "short", "shortOffset", "longOffset", "shortGeneric", "longGeneric"]
+             },
+             "dateStyle": {
+               "type": "string",
+               "description": "shortcut for the date style",
+               "enum": ["full", "long", "medium", "short"]
+             },
+             "timeStyle": {
+               "type": "string",
+               "description": "shortcut for the time style",
+               "enum": ["full", "long", "medium", "short"]
+             }
+           }
+         }
+       },
+       "required": [
+         "label",
+         "input"
+       ]       
+     }
+   }
+ },
+ "required": ["test_type", "tests"]
+}
