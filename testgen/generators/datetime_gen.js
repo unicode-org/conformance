@@ -167,10 +167,10 @@ function optionsToSkeleton(options) {
 
   for (const option of Object.keys(options)) {
     // Look up the symbol
+    if (option == 'dateStyle' || option == 'timeStyle')  {
+      continue;
+    }
     if (dt_fields[option]) {
-      if (option == 'dateStyle' || option == 'timeStyle')  {
-        continue;
-      }
       const symbol = dt_fields[option];
       const size = options[option];
       // TODO: Get the correct number of symbols.

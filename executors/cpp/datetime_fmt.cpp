@@ -111,7 +111,7 @@ const string test_datetime_fmt(json_object *json_in) {
   string timezone_str;
 
   // Expected values if neither dateStyle nor timeStyle is given explicitly.
-  icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kMedium;
+  icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kNone;
   icu::DateFormat::EStyle time_style = icu::DateFormat::EStyle::kNone;
 
   if (options_obj) {
