@@ -23,14 +23,18 @@ module.exports = {
       test_options['type'] = plural_type;
     }
 
-    const supported_locales =
-          Intl.PluralRules.supportedLocalesOf(locale, test_options);
-    console.log("supported: ", supported_locales);
-    if (!supported_locales.includes(locale)) {
-      return {"label": label,
-              "unsupported": "unsupported_locale",
-              "error_detail": {'unsupported_locale': locale}
-             };
+    try {
+      const supported_locales =
+            Intl.PluralRules.supportedLocalesOf(locale, test_options);
+
+      if (!supported_locales.includes(locale)) {
+        return {"label": label,
+                "unsupported": "unsupported_locale",
+                "error_detail": {'unsupported_locale': locale}
+               };
+      }
+    } catch (error) {
+      // Ignore for now.
     }
 
     let list_formatter;
