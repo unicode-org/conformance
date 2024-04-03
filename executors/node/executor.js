@@ -30,6 +30,8 @@ let datetime_fmt = require('./datetime_fmt.js');
 
 let list_fmt = require('./list_fmt.js');
 
+let plural_rules = require('./plural_rules.js');
+
 let rdt_fmt = require('./relativedatetime_fmt.js');
 
 /**
@@ -77,7 +79,8 @@ const supported_test_types = [
   Symbol("local_info"),
   Symbol("datetime_fmt"),
   Symbol("list_fmt"),
-  Symbol("rdt_fmt")
+  Symbol("rdt_fmt"),
+  Symbol("plural_rules")
 ];
 
 const supported_tests_json = {
@@ -90,7 +93,8 @@ const supported_tests_json = {
     "lang_names",
     "language_display_name",
     "list_fmt",
-    "rdt_fmt"
+    "rdt_fmt",
+    "plural_rules"
   ]};
 
 // Test line-by-line input, with output as string.
@@ -147,6 +151,10 @@ function parseJsonForTestId(parsed) {
 
   if (testId == "rdt_fmt") {
     return testTypes.TestRelativeDateTimeFmt;
+  }
+
+  if (testId == "list_fmt") {
+    return testTypes.TestPluralRules;
   }
 
   console.log("#*********** NODE Unknown test type = " + testId);
@@ -236,6 +244,9 @@ rl.on('line', function(line) {
     } else
     if (test_type == "rdt_fmt") {
       outputLine = rdt_fmt.testRelativeDateTimeFmt(parsedJson);
+    } else
+    if (test_type == "plural_rules") {
+      outputLine = plural_rules.testPluralRules(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type',
                     'test_type': test_type,

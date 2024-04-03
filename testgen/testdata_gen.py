@@ -12,6 +12,7 @@ from generators.lang_names import LangNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
 from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
+from generators.plurals import PluralGenerator
 from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 
 reblankline = re.compile("^\s*$")
@@ -25,6 +26,7 @@ class TestType(str, Enum):
     LIST_FMT = "list_fmt"
     NUMBER_FMT = "number_fmt"
     RELATIVE_DATETIME_FMT = "rdt_fmt"
+    PLURAL_RULES = "plural_rules"
 
 
 def setupArgs():
@@ -105,6 +107,10 @@ def generate_versioned_data(version_info):
         generator = RelativeDateTimeFmtGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
+    if TestType.PLURAL_RULES in args.test_types:
+        # This is slow
+        generator = PluralGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
     logging.info("++++ Data generation for %s is complete.", icu_version)
 
 

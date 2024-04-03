@@ -107,7 +107,8 @@ class testType(Enum):
   local_info = 'local_info'
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
-
+  plural_rules = 'plural_rules'
+  
 # Returns default value for a key not defined.
 def def_value():
   return "Not present"
@@ -173,6 +174,12 @@ testName = 'rdt_fmt'
 testDatasets[testName] = DataSet(testType.rdt_fmt.value,
                                  'rdt_fmt_test.json',
                                  'rdt_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'plural_rules'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'plural_rules_test.json',
+                                 'plural_rules_verify.json',
                                  CLDRVersion.CLDR44, ICUVersion.ICU74)
 
 # Standard executor languages. Note that the ExecutorInfo
