@@ -36,7 +36,7 @@
       "pattern": "{{}}}"
     },
     {
-      "description": "",
+      "description": "Errors on opening placeholder sigil inside quoted literal",
       "pattern": "{|foo| #markup}"
     },
     {
