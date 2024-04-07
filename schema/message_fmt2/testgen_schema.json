@@ -82,8 +82,7 @@
       "description": "A tag for the executor to decide how to run the test.",
       "enum": [
         "syntax",
-        "selector",
-        "formatter"
+        "format_to_parts"
       ]
     },
     "locale": {
@@ -152,7 +151,10 @@
       ]
     },
     "verify": {
-      "type": "string"
+      "type": [
+        "string",
+        "array"
+      ]
     }
   }
 }
