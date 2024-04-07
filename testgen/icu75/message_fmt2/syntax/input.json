@@ -1,5 +1,5 @@
 {
-  "scenario": "Inputs",
+  "scenario": "Input syntax",
   "description": "Syntax to describe expected args",
   "defaultTestProperties": {
     "testSubtype": "syntax",

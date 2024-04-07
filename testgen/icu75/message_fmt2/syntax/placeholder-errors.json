@@ -1,5 +1,5 @@
 {
-  "scenario": "Placeholders (errors)",
+  "scenario": "Placeholder syntax errors",
   "description": "Error cases for core placeholder syntax",
   "defaultTestProperties": {
     "testSubtype": "syntax",

@@ -1,5 +1,5 @@
 {
-  "scenario": "Locals",
+  "scenario": "Local syntax",
   "description": "Placeholders defined in the pattern",
   "defaultTestProperties": {
     "testSubtype": "syntax",
@@ -56,6 +56,6 @@
         }
       ],
       "verify": "bar foo"
-    },
+    }
   ]
 }

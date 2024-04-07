@@ -1,5 +1,5 @@
 {
-  "scenario": "Literals",
+  "scenario": "Literal syntax",
   "description": "Literal content placed directly into the pattern",
   "defaultTestProperties": {
     "testSubtype": "syntax"

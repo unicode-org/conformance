@@ -1,5 +1,5 @@
 {
-  "scenario": "Escapes",
+  "scenario": "Escape syntax",
   "description": "Handling of escaped characters",
   "defaultTestProperties": {
     "testSubtype": "syntax",

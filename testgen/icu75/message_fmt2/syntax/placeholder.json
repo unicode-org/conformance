@@ -1,5 +1,5 @@
 {
-  "scenario": "Placeholders",
+  "scenario": "Placeholder syntax",
   "description": "Core placeholder and annotation syntax",
   "defaultTestProperties": {
     "testSubtype": "syntax"
@@ -27,7 +27,7 @@
           "argType": "number",
           "name": "one",
           "value": 1.3
-        }
+        },
         {
           "argType": "number",
           "name": "two",
@@ -45,7 +45,7 @@
           "argType": "number",
           "name": "one",
           "value": 1.3
-        }
+        },
         {
           "argType": "number",
           "name": "two",
@@ -93,5 +93,5 @@
         }
       ]
     }
-  ],
+  ]
 }

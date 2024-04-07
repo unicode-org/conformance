@@ -1,5 +1,5 @@
 {
-  "scenario": "Open-close",
+  "scenario": "Open-close syntax",
   "description": "Opening and closing placeholders (e.g. markup)",
   "defaultTestProperties": {
     "testSubtype": "format_to_parts",

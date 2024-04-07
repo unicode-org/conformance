@@ -1,5 +1,5 @@
 {
-  "scenario": "Whitespace",
+  "scenario": "Whitespace in syntax",
   "description": "Leading and trailing space characters",
   "defaultTestProperties": {
     "testSubtype": "syntax"
