@@ -1,0 +1,97 @@
+{
+  "scenario": "Placeholders",
+  "description": "Core placeholder and annotation syntax",
+  "defaultTestProperties": {
+    "testSubtype": "syntax"
+  },
+  "tests": [
+    {
+      "description": "Replaces simple placeholders with string args",
+      "pattern": "hello {$place}",
+      "locale": "en-US",
+      "args": [
+        {
+          "argType": "string",
+          "name": "place",
+          "value": "world"
+        }
+      ],
+      "verify": "hello world"
+    },
+    {
+      "description": "Replaces simple placeholders with numeric args",
+      "pattern": "hello {$place}",
+      "locale": "en-US",
+      "args": [
+        {
+          "argType": "number",
+          "name": "one",
+          "value": 1.3
+        }
+        {
+          "argType": "number",
+          "name": "two",
+          "value": 4.2
+        }
+      ],
+      "verify": "1.3 and 4.2"
+    },
+    {
+      "description": "Uses locale to format numeric args",
+      "pattern": "hello {$place}",
+      "locale": "fr",
+      "args": [
+        {
+          "argType": "number",
+          "name": "one",
+          "value": 1.3
+        }
+        {
+          "argType": "number",
+          "name": "two",
+          "value": 4.2
+        }
+      ],
+      "verify": "1,3 and 4,2"
+    },
+    {
+      "description": "Allows hyphens and dots in placeholder names",
+      "pattern": "hello {$place-.}",
+      "locale": "en-US",
+      "args": [
+        {
+          "argType": "string",
+          "name": "place-.",
+          "value": "world"
+        }
+      ],
+      "verify": "hello world"
+    },
+    {
+      "description": "Returns the pattern syntax for unresolved variables",
+      "pattern": "hello {$place}",
+      "locale": "en-US",
+      "verify": "hello {$place}"
+    },
+    {
+      "description": "Omits literal options if they have an @ prefix",
+      "pattern": "{42 @foo @bar=13}",
+      "verify": [
+        {
+          "type": "string",
+          "value": "42"
+        }
+      ]
+    },
+    {
+      "description": "Omits options with placeholder values if the name has an @ prefix",
+      "pattern": "{42 @foo=$bar}",
+      "verify": [
+        {
+          "type": "string",
+          "value": "42"
+        }
+      ]
+    }
+  ],
+}

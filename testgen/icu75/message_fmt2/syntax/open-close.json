@@ -1,0 +1,88 @@
+{
+  "scenario": "Open-close",
+  "description": "Opening and closing placeholders (e.g. markup)",
+  "defaultTestProperties": {
+    "testSubtype": "format_to_parts",
+    "locale": "en-US"
+  },
+  "tests": [
+    {
+      "description": "Allows opening placeholders",
+      "pattern": "{#tag}",
+      "verify": [
+        {
+          "type": "markup",
+          "kind": "open",
+          "name": "tag"
+        }
+      ]
+    },
+    {
+      "description": "Allows closing placeholders",
+      "pattern": "{/tag}",
+      "verify": [
+        {
+          "type": "markup",
+          "kind": "close",
+          "name": "tag"
+        }
+      ]
+    },
+    {
+      "description": "Allows literal content between opening and closing placeholders",
+      "pattern": "{#ns:tag}content{/ns:tag}",
+      "verify": [
+        {
+          "type": "markup",
+          "kind": "open",
+          "name": "ns:tag"
+        },
+        {
+          "type": "literal",
+          "value": "content"
+        },
+        {
+          "type": "markup",
+          "kind": "close",
+          "name": "ns:tag"
+        }
+      ]
+    },
+    {
+      "description": "Allows options for opening and closing placeholders",
+      "pattern": "{#tag foo=bar}",
+      "verify": [
+        {
+          "type": "markup",
+          "kind": "open",
+          "name": "tag",
+          "options": {
+            "foo": "bar"
+          }
+        }
+      ]
+    },
+    {
+      "description": "Allows quoted literals and inputs as options",
+      "pattern": "{#tag a:foo=|foo| b:bar=$bar}",
+      "args": [
+        {
+          "argType": "string",
+          "name": "bar",
+          "value": "b a r"
+        }
+      ],
+      "verify": [
+        {
+          "type": "markup",
+          "kind": "open",
+          "name": "tag",
+          "options": {
+            "a:foo": "foo",
+            "b:bar": "b a r"
+          }
+        }
+      ]
+    },
+  ]
+}
