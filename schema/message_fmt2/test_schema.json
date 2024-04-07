@@ -44,7 +44,8 @@
           "description": "A tag for the executor to decide how to run the test.",
           "enum": [
             "syntax",
-            "format_to_parts"
+            "format_to_parts",
+            "formatter"
           ]
         },
         "locale": {
