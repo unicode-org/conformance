@@ -1,6 +1,6 @@
 // Tests Intl Locale for pluralrules.
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules
 
 // TODO: Consider if a list of locales can be used.
 module.exports = {
