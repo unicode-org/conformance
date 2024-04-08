@@ -2,24 +2,42 @@
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale
 
-
 // TODO: Consider if a list of locales can be used.
 module.exports = {
   testPluralRules: function (json) {
     const label = json['label'];
-    const locale = json['locale'];
-
     let return_json = {'label': label};
+
+    let locale = json['locale'].replace('_', '-');
+    if (locale == 'root') {
+      return_json['warning'] = 'locale <root> replaced with <und>';
+      locale = 'und';
+    }
 
 
     let test_options = {};
     let sample;
+
     if (json['sample']) {
-      sample = Number(json['sample']);  // Convert to a number
+      let raw_sample = json['sample'];
+      if (raw_sample.indexOf('c') >= 0) {
+        return_json['warning'] = 'compact sample <' + raw_sample +
+            '> replaced by <' + raw_sample.replace('c','e') + '>';
+        raw_sample = raw_sample.replace('c','e');
+      }
+      if (raw_sample.indexOf('.') >= 0) {
+        sample = parseFloat(raw_sample);
+      } else {
+        sample = parseInt(raw_sample);
+      }
+    } else {
+      return_json['error'] = 'Incomplete test: no sample included';
+      return return_json;
     }
+
     let plural_type;
     if (json['type']) {
-      plural_type = json['plural_type'];
+      plural_type = json['type'];
       test_options['type'] = plural_type;
     }
 
@@ -28,9 +46,14 @@ module.exports = {
             Intl.PluralRules.supportedLocalesOf(locale, test_options);
 
       if (!supported_locales.includes(locale)) {
+
         return {"label": label,
+                "error" : "unusupported",
                 "unsupported": "unsupported_locale",
-                "error_detail": {'unsupported_locale': locale}
+                "error_detail": {'unsupported_locale': locale,
+                                 'supported_locals': supported_locales,
+                                 'test_options': test_options
+                                }
                };
       }
     } catch (error) {

@@ -16,11 +16,27 @@ class PluralGenerator(DataGenerator):
         self.test_id = 'plural_rules'
         self.categories = ['zero', 'one', 'two', 'few', 'many', 'other']
 
-        source_url = ['https://github.com/unicode-org/cldr/blob/main/common/supplemental/plurals.xml',
-                      'https://github.com/unicode-org/cldr/blob/main/common/supplemental/ordinals.xml'
-                      ]
+        # TODO: Make these more global
+        cldr_git_version = 'main'
+        if self.icu_version == "icu71":
+            cldr_git_version = 'maint/maint-41'
+        elif self.icu_version == 'icu72':
+            cldr_git_version = 'maint/maint-42'
+        elif self.icu_version == "icu73":
+            cldr_git_version = 'maint/maint-43'
+        elif self.icu_version == "icu74":
+            cldr_git_version = 'maint/maint-44'
+        elif self.icu_version == "icu75":
+            cldr_git_version = 'maint/maint-45'
 
-        version = '1'  #  What is this value?
+        cardinal_source = 'https://github.com/unicode-org/cldr/blob/%s/common/supplemental/plurals.xml' % cldr_git_version
+        ordinal_source = 'https://github.com/unicode-org/cldr/blob/%s/common/supplemental/ordinals.xml' % cldr_git_version
+        source_url = [
+            cardinal_source,
+            ordinal_source
+        ]
+
+        version = 'CLDR %s' % cldr_git_version
 
         self.json_test = {
             "test_type": self.test_id,
@@ -43,28 +59,34 @@ class PluralGenerator(DataGenerator):
     def process_test_data(self):
         # Set up the neede values in lieu of __init__
         self.plurals_descriptor()
+        all_tests = []
+        all_verifications = []
 
         result = True  # TODO: Set to False if there's an error.
+        self.label_num = 0
 
         test_cardinal, verifications_cardinal = self.process_cardinal_plurals()
         if test_cardinal:
-            self.json_test["tests"].extend(test_cardinal)
+            all_tests.extend(test_cardinal)
         if verifications_cardinal:
-            self.json_verify["verifications"].extend(verifications_cardinal)
+            all_verifications.extend(verifications_cardinal)
 
         test_ordinal, verifications_ordinal = self.process_ordinal_plurals()
         if test_ordinal:
-            self.json_test["tests"].extend(test_ordinal)
+            all_tests.extend(test_ordinal)
         if verifications_ordinal:
-           self.json_verify["verifications"].extend(verifications_ordinal)
+            all_verifications.extend(verifications_ordinal)
 
         tests_range, verifications_range = self.process_plural_range_file()
         if tests_range:
-            self.json_test["tests"].extend(tests_range)
+            all_tests.extend(tests_range)
         if verifications_range:
-            self.json_verify["verifications"].extend(verifications_range)
+            all_verifications.extend(verifications_range)
 
-        # And save the results
+        # Sample and save the results
+        self.json_test["tests"] = self.sample_tests(all_tests)
+        self.json_verify["verifications"] = self.sample_tests(all_verifications)
+
         self.saveJsonFile("plural_rules_test.json", self.json_test, 2)
         self.saveJsonFile("plural_rules_verify.json", self.json_verify)
 
@@ -83,13 +105,11 @@ class PluralGenerator(DataGenerator):
         tests = []
         verifications= []
 
-        label_num = 0
-
         # TODO: Check if file exists
         try:
             tree = ET.parse(filename)
         except:
-            logging.info('No plurals file found: %s', filename)
+            logging.warning('No plurals file found: %s', filename)
             return None, None
 
         root = tree.getroot()
@@ -108,6 +128,7 @@ class PluralGenerator(DataGenerator):
                 count = rule.get('count')
                 text = rule.text
 
+                # Start after first "@"
                 samples = self.text_to_samples(text)
 
                 # For locale, for sample, expect count
@@ -116,17 +137,17 @@ class PluralGenerator(DataGenerator):
                     for sample in samples:
                         test = {
                             'locale': locale,
-                            'label': str(label_num),
+                            'label': str(self.label_num),
                             'type': num_type,
                             'sample': sample
                         }
                         verify_item = {
-                            'label': str(label_num),
+                            'label': str(self.label_num),
                             'verify': count
                         }
                         tests.append(test)
                         verifications.append(verify_item)
-                        label_num += 1
+                        self.label_num += 1
 
         return tests, verifications
 
@@ -139,7 +160,8 @@ class PluralGenerator(DataGenerator):
         text_after_at = text
         if pos_at >= 0:
             text_after_at = text[pos_at:]
-        samples = re.findall(r'(\d+\.?\d*)',  text_after_at)
+        # Parsing based on https://unicode.org/reports/tr35/tr35-numbers.html#Language_Plural_Rules
+        samples = re.findall(r'([\+\-]?\d+\.?\d*[ce]?\d+)',  text_after_at)
 
         return samples
     def process_plural_range_file(self):

@@ -153,7 +153,7 @@ function parseJsonForTestId(parsed) {
     return testTypes.TestRelativeDateTimeFmt;
   }
 
-  if (testId == "list_fmt") {
+  if (testId == "plural_rules") {
     return testTypes.TestPluralRules;
   }
 
