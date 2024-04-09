@@ -188,7 +188,7 @@ function optionsToSkeleton(options) {
   return skeleton_array.join('');
 }
 
-function generateAll() {
+function generateAll(run_limit) {
 
   let test_obj = {
     'Test scenario': 'datetime_fmt',
@@ -256,7 +256,7 @@ function generateAll() {
         try {
           formatter = new Intl.DateTimeFormat(locale, all_options);
         } catch (error) {
-          console.log(error, ' with locale ',
+          console.error(error, ' with locale ',
                       locale, ' and options: ', all_options);
           continue;
         }
@@ -268,7 +268,7 @@ function generateAll() {
             const parts = formatter.formatToParts(d);
             result = parts.map((x) => x.value).join("");
           } catch (error) {
-            console.log('FORMATTER CREATION FAILS! ', error);
+            console.error('FORMATTER CREATION FAILS! ', error);
           }
           // format this date
           // get the milliseconds
@@ -297,7 +297,7 @@ function generateAll() {
           }
 
           if (debug) {
-            console.log("TEST CASE :", test_case);
+            console.debug("TEST CASE :", test_case);
           }
           test_cases.push(test_case);
 
@@ -309,7 +309,7 @@ function generateAll() {
               console.log('   expected = ', result);
             }
           } catch (error) {
-            console.log('!!! error ', error, ' in label ', label_num,
+            console.error('!!! error ', error, ' in label ', label_num,
                         ' for date = ', d);
           }
           label_num ++;
@@ -318,11 +318,10 @@ function generateAll() {
     }
   }
 
-
-  console.log('Number of date/time tests generated for ',
+  console.log('Total date/time tests generated for ',
               process.versions.icu, ': ', label_num);
 
-  test_obj['tests'] = test_cases;
+  test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
     fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null, 2));
     // file written successfully
@@ -330,7 +329,10 @@ function generateAll() {
     console.error(err);
   }
 
-  verify_obj['verifications'] = verify_cases;
+  console.log('Number of date/time sampled tests ',
+              process.versions.icu, ': ', test_obj['tests'] .length);
+
+  verify_obj['verifications'] = sample_tests(verify_cases, run_limit);
   try {
     fs.writeFileSync('datetime_fmt_verify.json', JSON.stringify(verify_obj, null, 2));
     // file written successfully
@@ -338,5 +340,30 @@ function generateAll() {
     console.error(err);
   }
 }
+
+function sample_tests(all_tests, run_limit) {
+  // Gets a sampling of the data based on total and the expected number.
+
+  if (run_limit < 0 || all_tests.length <= run_limit) {
+    return all_tests;
+  }
+
+  let size_all = all_tests.length;
+  let increment = Math.floor(size_all / run_limit);
+  let samples = [];
+  for (let index = 0; index < size_all; index += increment) {
+    samples.push(all_tests[index]);
+  }
+  return samples;
+}
+
 /* Call the generator */
-generateAll();
+let run_limit = -1;
+if (process.argv.length >= 5) {
+  if (process.argv[3] == '-run_limit') {
+    run_limit = Number(process.argv[4]);
+  }
+}
+
+// Call the generator
+generateAll(run_limit);
