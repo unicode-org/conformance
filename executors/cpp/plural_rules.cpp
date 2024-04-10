@@ -71,18 +71,16 @@ const string test_plural_rules (json_object* json_in) {
     // Get the number
     string sample_string = json_object_get_string(sample_obj);
 
+    if (sample_string.find('c') != std::string::npos) {
+      input_is_compact = true;
+    }
     if (sample_string.find('.') != std::string::npos) {
       // Convert into an integer, decimal, or compact decimal
       input_double_sample = std::stod(sample_string);
       input_is_double = true;
-      cout << "#    DOUBLE STRING " << input_double_sample << endl;
-    } else
-      if (sample_string.find('c') != std::string::npos) {
-        input_is_compact = true;
-      } else {
-        input_int_sample = std::stoi(sample_string);
-        input_is_integer = true;
-        cout << "#    INT STRING " << input_int_sample << endl;
+    } else {
+      input_int_sample = std::stoi(sample_string);
+      input_is_integer = true;
       }
   } else {
     // TODO: Report an error: no sample
@@ -103,8 +101,6 @@ const string test_plural_rules (json_object* json_in) {
       // TODO: Report and error.
     }
 
-  cout << "# Plural type: " << type_string << " " << plural_type << endl;
-
   PluralRules* prules = icu::PluralRules::forLocale(
       display_locale,
       plural_type,
@@ -114,18 +110,18 @@ const string test_plural_rules (json_object* json_in) {
     json_object_object_add(return_json,
                            "error",
                            json_object_new_string("construct plural rules"));
+    return  json_object_to_json_string(return_json);
   }
 
   // TODO: distinguish between ints, doubles, and compact values
   UnicodeString u_result;
   if (input_is_double) {
-    cout << "Double select " << input_double_sample << endl;
     u_result = prules->select(input_double_sample);
   } else
   if (input_is_integer) {
-    cout << "Double select " << input_double_sample << endl;
     u_result = prules->select(input_int_sample);
-  } else {
+  } else
+    if (input_is_compact) {
     // TODO: Handle compact and other possible options
     cout << " # TODO: Handle compact, etc." << endl;
     u_result = "Not yet handled";
@@ -138,7 +134,7 @@ const string test_plural_rules (json_object* json_in) {
         "unsupported",
         json_object_new_string("compact not yet supported"));
 
-    return  json_object_to_json_string(return_json);
+    return json_object_to_json_string(return_json);
   }
 
   char test_result_string[1000] = "";
@@ -147,6 +143,7 @@ const string test_plural_rules (json_object* json_in) {
         return_json,
         "error",
         json_object_new_string("calling plural rules select"));
+    return  json_object_to_json_string(return_json);
   } else {
     int32_t chars_out =
         u_result.extract(test_result_string, 1000, nullptr, status);
@@ -159,6 +156,7 @@ const string test_plural_rules (json_object* json_in) {
         return_json,
         "error",
         json_object_new_string("plural rules result extract error"));
+    return  json_object_to_json_string(return_json);
   } else {
     // It all seems to work!
     json_object_object_add(return_json,
