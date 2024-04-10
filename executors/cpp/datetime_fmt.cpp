@@ -132,7 +132,7 @@ const string test_datetime_fmt(json_object *json_in) {
       timezone_str = json_object_get_string(option_item);
       UnicodeString u_tz(timezone_str.c_str());
       tz = TimeZone::createTimeZone(u_tz);
-      cout << "# Created timezone " << tz << " for " << timezone_str << endl;
+      // cout << "# Created timezone " << tz << " for " << timezone_str << endl;
     }
   }
 
@@ -189,10 +189,7 @@ const string test_datetime_fmt(json_object *json_in) {
   }
 
   if (tz) {
-    cout <<
-        "# Setting TZ " <<
-        tz <<
-        endl;
+    // cout << "# Setting TZ " << tz << endl;
     df->setTimeZone(*tz);
   }
 

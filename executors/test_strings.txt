@@ -313,3 +313,18 @@
 {"test_type": "rdt_fmt", "label": "100", "unit":"day" "day", "count": 1, "locale": "en-US", "options": {}}  
 {"test_type": "rdt_fmt", "label": "100", "unit":"day", "count": 1, "locale": "es", "options": {}}
     
+
+
+// Testing skeleton options
+{"test_type": "datetime_fmt", "label":"10","input_string":"2001-09-09T01:46:40.000Z","locale":"en-US","options":{"calendar":"gregory","numberingSystem":"latn"}}
+    {"test_type": "datetime_fmt", "label":"10","input_string":"2001-09-09T01:46:40.000Z","locale":"en-US","options":{"calendar":"gregory","numberingSystem":"latn"}}
+
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"hh","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"h","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"H","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"hhh","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"1265","input_string":"2024-03-17T07:00:00.000Z","skeleton":"hhhm","locale":"en-US","options":{"hour":"2-digit","minute":"numeric","calendar":"chinese","timeZone":"Australia/Brisbane","numberingSystem":"latn"}}
+
+{"test_type": "datetime_fmt", "label":"3812","input_string":"1969-07-16T07:00:00.000Z","skeleton":"HHm","locale":"en-GB","options":{"hour":"2-digit","minute":"numeric","calendar":"buddhist","timeZone":"Australia/Brisbane","numberingSystem":"latn"}}
+
+{"test_type": "datetime_fmt", "label":"3812","input_string":"1969-07-16T07:00:00.000Z","locale":"en-GB","options":{"dateStyle": "short", "timeStyle": "short", "hour":"2-digit","minute":"numeric","calendar":"buddhist","timeZone":"Australia/Brisbane","numberingSystem":"latn"}}

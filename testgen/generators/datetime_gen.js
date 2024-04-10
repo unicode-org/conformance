@@ -100,8 +100,10 @@ const dates = [
   new Date('Mar 17, 2024'),
   new Date('AD 1'),
   new Date('AD 0, 13:00'),
+  //new Date('1066, December 16, 7:17'),  // Expect Sunday
   new Date('1066, December 16, 7:17'),
-  new Date('1454, May 29, 16:47'),
+  // new Date('1454, May 29, 16:47'),  // Expect Monday
+  new Date('1754, May 29, 16:47'),
   new Date('BCE 753, April 21'),
   new Date('1969, July 16'),
   new Date(0),

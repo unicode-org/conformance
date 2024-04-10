@@ -527,7 +527,10 @@ class TestReport:
                         'input_data',
                         'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode',
                         # list_fmt
-                        'type', 'input_list']
+                        'type', 'input_list',
+                        # date/time format
+                        'skeleton']
+
             option_keys = ['notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode']
 
             for key in key_list:
