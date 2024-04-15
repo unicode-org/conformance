@@ -689,6 +689,7 @@ class TestReport:
             try:
                 # Try
                 try:
+                    # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
                     sm_opcodes = sm.get_opcodes()
                 except TypeError as err:
