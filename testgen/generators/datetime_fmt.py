@@ -32,7 +32,8 @@ class DateTimeFmtGenerator(DataGenerator):
 
         # Set up Node version and call the generator
         nvm_version = icu_nvm_versions[self.icu_version]
-        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s; node generators/datetime_gen.js' % (nvm_version, nvm_version)
+        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s; node generators/datetime_gen.js %s %s' % (
+            nvm_version, nvm_version, '-run_limit', self.run_limit)
 
         logging.info('Running this command: %s', generate_command)
         result = result = subprocess.run(generate_command, shell=True)

@@ -342,7 +342,17 @@ class Verifier:
 
         return [schema_validation_name, generated_data_validation_name, test_output_validation_name]
 
+    def copy_js_files(self):
+        # Create a copy of locale .js files to the report area for including in reports
+        files_to_copy = ['diff_match_patch.js']
+        output_dir = os.path.join(self.file_base, self.report_file_name)
 
+        for js_file in files_to_copy:
+            destination = os.path.join(self.file_base, self.report_file_name, js_file)
+            result = shutil.copy2(js_file, destination)
+
+
+# Test basic verifier functions
 class Tester:
     def __init__(self, title=None):
         self.reportPath = None
@@ -391,7 +401,6 @@ class Tester:
         logging.info('  Report: %s', report_data)
 
 
-# Test basic verifier functions
 def run_verifier_tests():
     execs = ['node', 'rust']
 
@@ -404,7 +413,6 @@ def run_verifier_tests():
 
         tester_display_names = Tester()
         tester_display_names.display_names_exec(executor)
-
 
 # For running verifications of test output vs. expected values.
 def main(args):
@@ -435,6 +443,9 @@ def main(args):
     # TODO: Should this be optional?
     verifier.create_summary_reports()
     logging.info('Verifier completed summary report')
+
+    # Copy any other files such as JavaScript to the report area
+    verifier.copy_js_files()
 
 
 if __name__ == '__main__':

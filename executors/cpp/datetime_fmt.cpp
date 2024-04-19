@@ -132,23 +132,26 @@ const string test_datetime_fmt(json_object *json_in) {
       timezone_str = json_object_get_string(option_item);
       UnicodeString u_tz(timezone_str.c_str());
       tz = TimeZone::createTimeZone(u_tz);
-      cout << "# Created timezone " << tz << " for " << timezone_str << endl;
+      // cout << "# Created timezone " << tz << " for " << timezone_str << endl;
     }
   }
 
   json_object *date_skeleton_obj =
-      json_object_object_get(json_in, "datetime_skeleton");
+      json_object_object_get(json_in, "skeleton");
   if (date_skeleton_obj) {
     // Data specifies a date time skeleton. Make a formatter based on this.
     string skeleton_string = json_object_get_string(date_skeleton_obj);
 
+    cout << "# Skeleton = " << skeleton_string << endl;
     UnicodeString u_skeleton(skeleton_string.c_str());
     if (cal) {
+      cout << "  Cal defined " << endl;
       df = DateFormat::createInstanceForSkeleton(cal,
                                                  u_skeleton,
                                                  displayLocale,
                                                  status);
     } else {
+      cout << "  NO CAL DEFINED " << endl;
       df = DateFormat::createInstanceForSkeleton(u_skeleton,
                                                  displayLocale,
                                                  status);
@@ -163,6 +166,12 @@ const string test_datetime_fmt(json_object *json_in) {
     }
   } else {
     // Create default formatter
+    cout << "# createDateTimeInstance: dstyle " <<
+        date_style << ", tstyle " <<
+        time_style << " locale " <<
+        locale_string <<
+        endl;
+
     df = DateFormat::createDateTimeInstance(
         date_style,
         time_style,
@@ -180,10 +189,7 @@ const string test_datetime_fmt(json_object *json_in) {
   }
 
   if (tz) {
-    cout <<
-        "# Setting TZ " <<
-        tz <<
-        endl;
+    // cout << "# Setting TZ " << tz << endl;
     df->setTimeZone(*tz);
   }
 

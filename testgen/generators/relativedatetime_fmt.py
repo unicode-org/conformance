@@ -35,7 +35,7 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
         generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s; node generators/rdt_fmt_gen.js' % (nvm_version, nvm_version)
 
         logging.info('Running this command: %s', generate_command)
-        result = result = subprocess.run(generate_command, shell=True)
+        result = subprocess.run(generate_command, shell=True)
 
         # Move results to the right directory
         mv_command = 'mv rdt_fmt*.json %s' % self.icu_version
