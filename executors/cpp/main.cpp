@@ -40,7 +40,7 @@ using std::string;
 
 // Test functions
 extern const string test_collator(json_object *json_in);
-extern const string test_datetime_fmt(json_object *json_in);
+extern const string TestDatetimeFmt(json_object *json_in);
 extern const string test_langnames(json_object *json_in);
 extern const string test_likely_subtags(json_object *json_in);
 extern const string test_list_fmt(json_object *json_in);
@@ -106,7 +106,7 @@ int main(int argc, const char** argv)
         outputLine = test_collator(json_input);
       }
       else if (test_type == "datetime_fmt") {
-         outputLine = test_datetime_fmt(json_input);
+         outputLine = TestDatetimeFmt(json_input);
       }
       else if (test_type == "number_fmt") {
          outputLine = test_numfmt(json_input);

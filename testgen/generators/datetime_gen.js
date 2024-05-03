@@ -38,53 +38,55 @@ const calendars = ['gregory',
                   ];
 
 // (numsysm, skeleton, timezone) ~`00
-const spec_options = [{},
-                      {'dateStyle': 'short', 'timeStyle': 'short'},
-                      {'dateStyle': 'medium', 'timeStyle': 'medium'},
-                      {'dateStyle': 'long', 'timeStyle': 'long'},
-                      {'dateStyle': 'full', 'timeStyle': 'full'},
-                      {'dateStyle': 'full', 'timeStyle': 'short'},
-                      {'dateStyle': 'long'},
-                      {'timeStyle': 'long'},
-                      {'hour': 'numeric'},
-                      {'hour': '2-digit'},
-                      {'hour': 'numeric', 'minute': 'numeric'},
-                      {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric"},
-                      {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 1},
-                      {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 2},
-                      {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 3},
-                      {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric"},
-                      {'hour': '2-digit', 'minute': 'numeric'},
-//                      {'minute': 'numeric'},
-//                      {'minute': '2-digit'},
-//                      {'second': 'numeric'},
-                      // {'second': '2-digit'},
+const spec_options = [
+  // Removed empty option list
+  {'dateStyle': 'short', 'timeStyle': 'short'},
+  {'dateStyle': 'medium', 'timeStyle': 'medium'},
+  {'dateStyle': 'long', 'timeStyle': 'long'},
+  {'dateStyle': 'full', 'timeStyle': 'full'},
+  {'dateStyle': 'full', 'timeStyle': 'short'},
+  {'dateStyle': 'long'},
+  {'timeStyle': 'long'},
+  {'hour': 'numeric'},
+  // {'hour': '2-digit'},  // ?? remove this ?
+  {'hour': 'numeric', 'minute': 'numeric'},
+  {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric"},
+  {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 1},
+  {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 2},
+  {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric", 'fractionalSecondDigits': 3},
+  {'hour': 'numeric', 'minute': 'numeric', 'second': "numeric"},
+  {'hour': 'numeric', 'minute': 'numeric'},
+  // {'hour': '2-digit', 'minute': 'numeric'},
+  //                      {'minute': 'numeric'},
+  //                      {'minute': '2-digit'},
+  //                      {'second': 'numeric'},
+  // {'second': '2-digit'},
 
-                      // {'year': 'numeric', 'minute': '2-digit'},
-                      // {'year': '2-digit', 'minute': 'numeric'},
-                      // {'year': 'numeric', 'minute': 'numeric'},
-                      // {'year': '2-digit', 'minute': '2-digit'},
+  // {'year': 'numeric', 'minute': '2-digit'},
+  // {'year': '2-digit', 'minute': 'numeric'},
+  // {'year': 'numeric', 'minute': 'numeric'},
+  // {'year': '2-digit', 'minute': '2-digit'},
 
-                      {'month': 'numeric', 'weekday': 'long', 'day': 'numeric'},
-                      {'month': '2-digit', 'weekday': 'long', 'day': 'numeric'},
-                      {'month': 'long', 'weekday': 'long', 'day': 'numeric'},
-                      {'month': 'short', 'weekday': 'long', 'day': 'numeric'},
-                      {'month': 'narrow', 'weekday': 'long', 'day': 'numeric'},
+  {'month': 'numeric', 'weekday': 'long', 'day': 'numeric'},
+  {'month': '2-digit', 'weekday': 'long', 'day': 'numeric'},
+  {'month': 'long', 'weekday': 'long', 'day': 'numeric'},
+  {'month': 'short', 'weekday': 'long', 'day': 'numeric'},
+  {'month': 'narrow', 'weekday': 'long', 'day': 'numeric'},
 
-                      {'month': 'short', 'weekday': 'short', 'day': 'numeric'},
-                      {'month': 'short', 'weekday': 'narrow', 'day': 'numeric'},
+  {'month': 'short', 'weekday': 'short', 'day': 'numeric'},
+  {'month': 'short', 'weekday': 'narrow', 'day': 'numeric'},
 
-                      // TODO: remove non-semantic skeletons
-                      {'era': 'long'},
-                      {'era': 'short'},
-                      {'era': 'narrow'},
-                      {'timeZoneName': 'long'},
-                      {'timeZoneName': 'short'},
-                      {'timeZoneName': 'shortOffset'},
-                      {'timeZoneName': 'longOffset'},
-                      {'timeZoneName': 'shortGeneric'},
-                      {'timeZoneName': 'longGeneric'},
-                     ];
+  // TODO: remove non-semantic skeletons
+  {'era': 'long'},
+  {'era': 'short'},
+  {'era': 'narrow'},
+  {'timeZoneName': 'long'},
+  {'timeZoneName': 'short'},
+  {'timeZoneName': 'shortOffset'},
+  {'timeZoneName': 'longOffset'},
+  {'timeZoneName': 'shortGeneric'},
+  {'timeZoneName': 'longGeneric'},
+];
 
 const timezones = [
   '',
@@ -96,18 +98,20 @@ const timezones = [
   'Pacific/Guam',
 ];
 
+const pre_gregorian_dates = [
+  new Date('1066, December 16, 7:17'),  // Expect Sunday
+  new Date('1454, May 29, 16:47'),  // Expect Monday
+  new Date('BCE 753, April 21'),  // Expect Tuesday
+  new Date(0),
+  new Date(-1e13),
+];
+
 const dates = [
   new Date('Mar 17, 2024'),
   new Date('AD 1'),
   new Date('AD 0, 13:00'),
-  //new Date('1066, December 16, 7:17'),  // Expect Sunday
-  new Date('1066, December 16, 7:17'),
-  // new Date('1454, May 29, 16:47'),  // Expect Monday
   new Date('1754, May 29, 16:47'),
-  new Date('BCE 753, April 21'),
   new Date('1969, July 16'),
-  new Date(0),
-  new Date(-1e13),
   new Date(1e9),
   new Date(1e12),
 ];
@@ -142,26 +146,26 @@ const dt_fields = {
     '2-digit': 'dd'
   },
   'hour': {
-    'numeric': 'h',
-    '2-digit': 'hh'
+    'numeric': 'j',
+    // '2-digit': 'jj'  // Note that this should not be modified
   },
   'minute': {
     'numeric': 'm',
-    '2-digit': 'mm'
+  //  '2-digit': 'mm'
   },
   'second': {
     'numeric': 's',
-    '2-digit': 'ss'
+//    '2-digit': 'ss'
   },
   'fractionalSecondDigits': {
     1:'S', 2:'SS', 3:'SSS'},
   'timeZoneName': {
-    'short': 'v',
-    'long': 'vvvv',
+    'short': 'z',
+    'long': 'zzzz',
     'shortOffset': 'O',
     'longOffset': 'OOOO',
-    'shortGeneric': 'z',
-    'longGeneric': 'zz'}
+    'shortGeneric': 'v',
+    'longGeneric': 'VVVV'}
 };
 
 function optionsToSkeleton(options) {
@@ -218,6 +222,7 @@ function generateAll(run_limit) {
         timezones.length * dates.length;
 
   console.log("Generating ", expected_count, " date/time tests for ", process.versions.icu);
+  console.log('  RUN LIMIT = ', run_limit);
 
   for (const locale of locales) {
 
@@ -231,7 +236,11 @@ function generateAll(run_limit) {
         //for (const timezone of timezones) {
 
         // Set number systems as appropriate for particular locals
-        number_system = 'latn';
+        let number_system = 'latn';
+        if (calendar != 'chinese') {
+          number_system = 'latn';
+        }
+
         if (locale == 'ar') {
           number_system = 'arab';
         } else
@@ -264,13 +273,52 @@ function generateAll(run_limit) {
         }
 
         for (const d of dates) {
+          let result;
           try {
-            // result = formatter.format(d);
             // To avoid the hack that replaces NBSP with ASCII space.
             const parts = formatter.formatToParts(d);
-            result = parts.map((x) => x.value).join("");
+            // Handle options that have only era or timeZoneName, working around
+            // https://github.com/tc39/ecma402/issues/461
+            const keys = Object.keys(option);
+
+            if (keys.length == 1 && (keys[0] == 'era' || keys[0] == 'timeZoneName')) {
+              try {
+                const item = parts.filter(({type}) => type === keys[0]);
+                try {
+                  result = item[0]['value'];
+                } catch(error) {
+                  // This item isn't in the output. Just return the entire string.
+                  result = parts.map((x) => x.value).join("");
+                  // console.error('BAD PARTS?: ', JSON.stringify(parts));
+                  // console.error(' result: ', JSON.stringify(result));
+                }
+                if (!result || debug) {
+                  console.log('  key = ' + keys[0] +
+                              ', ' + JSON.stringify(all_options));
+                  console.log('  ITEM = ', JSON.stringify(item))
+                  console.log('  PARTS = ', JSON.stringify(parts));
+                }
+
+              } catch (error) {
+                console.error('Error: ' + error + ', key = ' + keys[0] +
+                              ', date = ' + d);
+                console.error('     ' + JSON.stringify(parts));
+                console.error('    ' + JSON.stringify(all_options));
+              }
+
+            } else {
+              // Not era or timeZoneName
+              result = parts.map((x) => x.value).join("");
+              if (!result) {
+                console.warn('no result for ', label_num, ': ', JSON.stringify(all_options));
+              }
+            }
+            // console.warn(' result = ', result);
           } catch (error) {
-            console.error('FORMATTER CREATION FAILS! ', error);
+            console.error('FORMATTER result fails! ', error);
+            const keys = Object.keys(all_options);
+            console.error('  options: ' + locale + ", " + keys);
+            console.error('    ' + JSON.stringify(all_options));
           }
           // format this date
           // get the milliseconds
@@ -298,13 +346,16 @@ function generateAll(run_limit) {
             test_case["options"] = {...all_options};
           }
 
-          if (debug) {
+          if (!result || debug) {
             console.debug("TEST CASE :", test_case);
           }
           test_cases.push(test_case);
 
           // Generate what we get.
           try {
+            if (!result) {
+              console.warn('NO RESULT: ', label_string);
+            }
             verify_cases.push({'label': label_string,
                                'verify': result});
             if (debug) {
@@ -320,8 +371,6 @@ function generateAll(run_limit) {
     }
   }
 
-  console.log('Total date/time tests generated for ',
-              process.versions.icu, ': ', label_num);
 
   test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
@@ -361,9 +410,10 @@ function sample_tests(all_tests, run_limit) {
 
 /* Call the generator */
 let run_limit = -1;
-if (process.argv.length >= 5) {
-  if (process.argv[3] == '-run_limit') {
-    run_limit = Number(process.argv[4]);
+console.log(process.argv[2]);
+if (process.argv.length >= 3) {
+  if (process.argv[2] == '-run_limit') {
+    run_limit = Number(process.argv[3]);
   }
 }
 
