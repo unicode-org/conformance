@@ -165,7 +165,7 @@ const dt_fields = {
     'shortOffset': 'O',
     'longOffset': 'OOOO',
     'shortGeneric': 'v',
-    'longGeneric': 'VVVV'}
+    'longGeneric': 'vvvv'}
 };
 
 function optionsToSkeleton(options) {
