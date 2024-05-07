@@ -48,6 +48,8 @@ class ICUVersion(Enum):
   ICU72rc = "72rc"
   ICU72 = "72.1"
   ICU73 = "73"
+  ICU74 = "74"
+  ICU75 = "75"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
@@ -70,6 +72,8 @@ class CLDRVersion(Enum):
   CLDR41 = "41"
   CLDR42 = "42"
   CLDR43 = "43"
+  CLDR44 = "44"
+  CLDR45 = "45"
 
 def latestCldrVersion():
   return CLDRVersion.CLDR43  # TODO: Fix this
@@ -87,6 +91,8 @@ cldr_icu_map = {
     CLDRVersion.CLDR41: [ICUVersion.ICU71],
     CLDRVersion.CLDR42: [ICUVersion.ICU72],
     CLDRVersion.CLDR43: [ICUVersion.ICU73],
+    CLDRVersion.CLDR44: [ICUVersion.ICU74],
+    CLDRVersion.CLDR45: [ICUVersion.ICU75],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -97,9 +103,12 @@ class testType(Enum):
   display_names = 'display_names'
   lang_names = 'lang_names'
   likely_subtags = 'likely_subtags'
+  list_fmt = 'list_fmt'
   local_info = 'local_info'
   number_fmt = 'number_fmt'
-
+  rdt_fmt = 'rdt_fmt'
+  plural_rules = 'plural_rules'
+  
 # Returns default value for a key not defined.
 def def_value():
   return "Not present"
@@ -149,6 +158,30 @@ testDatasets[testName] = DataSet(testType.number_fmt.value,
                                  'num_fmt_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
+testName = 'datetime_fmt'
+testDatasets[testName] = DataSet(testType.datetime_fmt.value,
+                                 'datetime_fmt_test.json',
+                                 'datetime_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'list_fmt'
+testDatasets[testName] = DataSet(testType.list_fmt.value,
+                                 'list_fmt_test.json',
+                                 'list_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'rdt_fmt'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'rdt_fmt_test.json',
+                                 'rdt_fmt_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'plural_rules'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'plural_rules_test.json',
+                                 'plural_rules_verify.json',
+                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".
 class ExecutorLang(Enum):
@@ -166,7 +199,7 @@ ExecutorCommands = {
     "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
-    "icu4j" : "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
+    "icu4j" : "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
     }
 
 class ParallelMode(Enum):
@@ -219,7 +252,7 @@ IcuVersionToExecutorMap = {
     'dart': {},
     'icu4c': {},
     'icu4j': {
-      '73': ['73']
+      '74': ['74']
     },
 
 }
@@ -359,8 +392,8 @@ allExecutors.addSystem(system, '0.1.0',
 
 system = ExecutorLang.ICU4J.value
 
-allExecutors.addSystem(system, '73',
-                       'java -jar ../executors/icu4j/73/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+allExecutors.addSystem(system, '74',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 
 system = ExecutorLang.DARTWEB.value

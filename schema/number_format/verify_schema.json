@@ -1,0 +1,30 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/number_format__verify_schema.json'",
+ "title": "ICU Number format verify data description",
+ "description": "This documents format of number format verify data",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "verifications": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "string"
+         }
+       },
+       "required": [
+         "label",
+         "verify" 
+       ]       
+     }
+   }
+ }
+}

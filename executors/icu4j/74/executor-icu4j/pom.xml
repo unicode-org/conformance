@@ -27,11 +27,11 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- ICU4J 73 (library under test) -->
+    <!-- ICU4J 74 (library under test) -->
     <dependency>
       <groupId>com.ibm.icu</groupId>
       <artifactId>icu4j</artifactId>
-      <version>73.2</version>
+      <version>74.2</version>
     </dependency>
 
     <!-- JSON library -->

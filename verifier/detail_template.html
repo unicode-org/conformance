@@ -33,7 +33,11 @@
         cursor: pointer;
         font-size:20px;
     }
-
+    
+    #diff_area {
+        font-size: 24px;
+        font-color: blue;
+    }
 h1, h2, h3, p {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -350,7 +354,7 @@ table th {
                         } else {
                             output = item[key];
                         }
-                        html.push('<td onclick="captureInputDataOnClick(this);">' + output +'</td>');
+                        html.push('<td onclick="captureInputDataOnClick(this);" onmouseover="hoverDiffText(this);">' + output +'</td>');
                     }
                 }
                 html.push("</tr>");
@@ -609,7 +613,31 @@ table th {
         navigator.clipboard.writeText(output);
     }
 
+    // On hover, show the differen between expected and actual result.
+    function hoverDiffText(element) {
+      // First, get the row of this item.
+      const row = element.parentNode;
+      const text1 = row.children[1].innerHTML;
+      const text2 = row.children[2].innerHTML;
+      if (text1 == text2) {
+        return;
+      }
+      const dmp = new diff_match_patch();
+      const diff_text = dmp.diff_main(text1, text2);
+      dmp.diff_cleanupSemantic(diff_text);
+      // And show the difference nicely.
+      const ds = dmp.diff_prettyHtml(diff_text);
+      const diff_area = document.getElementById("diff_area");
+      diff_area.innerHTML = ds;
+      }
   </script>
+
+  <!-- diff-match-patch code from
+       https://github.com/google/diff-match-patch/wiki/Language:-JavaScript
+       Intended to use for differences between expected and actual result.
+    -->
+    <script src="../../../diff_match_patch.js"></script>
+  
  </head>
  <body>
     <h1>Verification report: $test_type on $library_name</h1>
@@ -627,6 +655,10 @@ table th {
       <div bp="8">
         <h2>Test details</h2>
         <p>$test_environment</p>
+      </div>
+      <div bp="4">
+        <h2>Acknowledgements</h2>
+        <p><a href='https://github.com/google/diff-match-patch/wiki/Language:-JavaScript'>diff-match-patch</a></p>
       </div>
     </div>
     <br>
@@ -660,6 +692,7 @@ table th {
 
       <details>
         <summary>Failing tests <span id='fail_count'>($failing_tests)</span></summary>
+        <div id="diff_area"><p></p></div>
         <div id="fail-pagination-container"></div>
         <div id="fail-data-container"></div>
         <div id='testFailuresCharacterized'>

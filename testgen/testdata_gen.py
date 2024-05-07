@@ -3,13 +3,32 @@ import argparse
 import logging
 import logging.config
 import multiprocessing as mp
+import re
+from enum import Enum
 
 from test_type import TestType, test_types
 from generators.collation_short import CollationShortGenerator
+from generators.datetime_fmt import DateTimeFmtGenerator
 from generators.lang_names import LangNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
 from generators.message_fmt2 import MessageFmt2Generator
+from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
+from generators.plurals import PluralGenerator
+from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
+
+reblankline = re.compile("^\s*$")
+
+
+class TestType(str, Enum):
+    COLLATION_SHORT = "collation_short"
+    DATETIME_FMT = "datetime_fmt"
+    LANG_NAMES = "lang_names"
+    LIKELY_SUBTAGS = "likely_subtags"
+    LIST_FMT = "list_fmt"
+    NUMBER_FMT = "number_fmt"
+    RELATIVE_DATETIME_FMT = "rdt_fmt"
+    PLURAL_RULES = "plural_rules"
 
 
 def setupArgs():
@@ -60,6 +79,17 @@ def generate_versioned_data(version_info):
         generator = CollationShortGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
+    ## DISABLED FOR NOW. Use new .js generator with Node version
+    if TestType.DATETIME_FMT in args.test_types:
+        # This is slow
+        generator = DateTimeFmtGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    if TestType.LIST_FMT in args.test_types:
+        # This is slow
+        generator = ListFmtGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
     if TestType.LANG_NAMES in args.test_types:
         # This is slow
         generator = LangNamesGenerator(icu_version, args.run_limit)
@@ -77,6 +107,15 @@ def generate_versioned_data(version_info):
         generator = NumberFmtGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
+    if TestType.RELATIVE_DATETIME_FMT in args.test_types:
+        # This is slow
+        generator = RelativeDateTimeFmtGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    if TestType.PLURAL_RULES in args.test_types:
+        # This is slow
+        generator = PluralGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
     logging.info("++++ Data generation for %s is complete.", icu_version)
 
 
