@@ -150,11 +150,13 @@ const string TestDatetimeFmt(json_object *json_in) {
   if (skeleton_string != "") {
     UnicodeString u_skeleton(skeleton_string.c_str());
     if (cal) {
+      cout << "  Cal defined " << endl;
       df = DateFormat::createInstanceForSkeleton(cal,
                                                  u_skeleton,
                                                  display_locale,
                                                  status);
     } else {
+      cout << "  NO CAL DEFINED " << endl;
       df = DateFormat::createInstanceForSkeleton(u_skeleton,
                                                  display_locale,
                                                  status);

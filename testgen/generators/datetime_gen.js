@@ -410,10 +410,9 @@ function sample_tests(all_tests, run_limit) {
 
 /* Call the generator */
 let run_limit = -1;
-console.log(process.argv[2]);
-if (process.argv.length >= 3) {
-  if (process.argv[2] == '-run_limit') {
-    run_limit = Number(process.argv[3]);
+if (process.argv.length >= 5) {
+  if (process.argv[3] == '-run_limit') {
+    run_limit = Number(process.argv[4]);
   }
 }
 
