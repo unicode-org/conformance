@@ -24,7 +24,7 @@
 
 #include "unicode/uclean.h"
 
-#include "./util.h"
+#include "util.h"
 
 using icu::Calendar;
 using icu::DateFormat;
@@ -112,7 +112,8 @@ const string TestDatetimeFmt(json_object *json_in) {
   icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kNone;
   icu::DateFormat::EStyle time_style = icu::DateFormat::EStyle::kNone;
 
-  // Set this as default unless there's an explicit setting of skeleton or date_style
+  // Set this as default unless there's an explicit setting of
+  // skeleton or date_style.
   string default_skeleton_string = "M/d/yyyy";
 
   if (options_obj) {
@@ -240,18 +241,16 @@ const string TestDatetimeFmt(json_object *json_in) {
 
       return json_object_to_json_string(return_json);
     }
+  } else if (input_millis) {
+    test_date_time = json_object_get_double(input_millis);
   } else {
-    if (input_millis) {
-      test_date_time = json_object_get_double(input_millis);
-    } else {
-      json_object_object_add(
-          return_json,
-          "error",
-          json_object_new_string("No date/time data provided"));
+    json_object_object_add(
+        return_json,
+        "error",
+        json_object_new_string("No date/time data provided"));
 
-      string return_string = json_object_to_json_string(return_json);
-      return json_object_to_json_string(return_json);
-    }
+    string return_string = json_object_to_json_string(return_json);
+    return json_object_to_json_string(return_json);
   }
 
   // The output of the formatting
