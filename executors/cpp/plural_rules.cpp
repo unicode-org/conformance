@@ -8,26 +8,25 @@
  * https://github.com/unicode-org/icu/blob/maint/maint-75/icu4c/source/test/intltest/plurfmts.cpp
  */
 
-
-#include "unicode/utypes.h"
-#include "unicode/unistr.h"
-#include "unicode/plurfmt.h"
-#include "unicode/plurrule.h"
-
-#include "unicode/locid.h"
-#include "unicode/uclean.h"
-
-#include "util.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-
 #include <json-c/json.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <cstring>
+#include <vector>
+
+#include "unicode/locid.h"
+#include "unicode/plurfmt.h"
+#include "unicode/plurrule.h"
+#include "unicode/uclean.h"
+#include "unicode/unistr.h"
+#include "unicode/utypes.h"
+
+#include "util.h"
 
 using icu::PluralRules;
 
@@ -35,8 +34,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-
-const string test_plural_rules (json_object* json_in) {
+const string TestPluralRules (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");
@@ -81,9 +79,12 @@ const string test_plural_rules (json_object* json_in) {
     } else {
       input_int_sample = std::stoi(sample_string);
       input_is_integer = true;
-      }
+    }
   } else {
-    // TODO: Report an error: no sample
+    json_object_object_add(return_json,
+                           "error",
+                           json_object_new_string("no sample string"));
+    return  json_object_to_json_string(return_json);
   }
 
   // Get option fields
@@ -94,12 +95,16 @@ const string test_plural_rules (json_object* json_in) {
   UPluralType plural_type;
   if (type_string == "cardinal") {
     plural_type = UPLURAL_TYPE_CARDINAL;
-  } else
-    if (type_string == "ordinal") {
-      plural_type = UPLURAL_TYPE_ORDINAL;
-    } else {
-      // TODO: Report and error.
-    }
+  } else if (type_string == "ordinal") {
+    plural_type = UPLURAL_TYPE_ORDINAL;
+  } else {
+    string error_message = "unknown plural type: " + type_string;
+    json_object_object_add(
+        return_json,
+        "error",
+        json_object_new_string(error_message.c_str()));
+    return  json_object_to_json_string(return_json);
+  }
 
   PluralRules* prules = icu::PluralRules::forLocale(
       display_locale,
@@ -117,13 +122,10 @@ const string test_plural_rules (json_object* json_in) {
   UnicodeString u_result;
   if (input_is_double) {
     u_result = prules->select(input_double_sample);
-  } else
-  if (input_is_integer) {
+  } else if (input_is_integer) {
     u_result = prules->select(input_int_sample);
-  } else
-    if (input_is_compact) {
+  } else if (input_is_compact) {
     // TODO: Handle compact and other possible options
-    cout << " # TODO: Handle compact, etc." << endl;
     u_result = "Not yet handled";
     json_object_object_add(
         return_json,
@@ -147,8 +149,6 @@ const string test_plural_rules (json_object* json_in) {
   } else {
     int32_t chars_out =
         u_result.extract(test_result_string, 1000, nullptr, status);
-  cout << " test_result_string " << test_result_string << endl;
-
   }
 
   if (U_FAILURE(status)) {
