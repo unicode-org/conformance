@@ -527,7 +527,10 @@ class TestReport:
                         'input_data',
                         'notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode',
                         # list_fmt
-                        'type', 'input_list']
+                        'type', 'input_list',
+                        # date/time format
+                        'skeleton']
+
             option_keys = ['notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode']
 
             for key in key_list:
@@ -664,7 +667,7 @@ class TestReport:
         results['delete_digit'] = set()
         results['delete_space'] = set()
         results['replace_digit'] = set()
-        results['exponent_diff'] = set()
+        results['replace_dff'] = set()
         results['whitespace_diff'] = set()
         results['replace'] = set()
         results['parens'] = set()  # Substitions of brackets for parens, etc.
@@ -686,6 +689,7 @@ class TestReport:
             try:
                 # Try
                 try:
+                    # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
                     sm_opcodes = sm.get_opcodes()
                 except TypeError as err:
@@ -704,7 +708,7 @@ class TestReport:
                             # Difference is in type of white space
                             results['whitespace_diff'].add(label)
                         else:
-                            results['exponent_diff'].add(label)
+                            results['replace_dff'].add(label)
 
                     elif kind == "delete":
                         if old_val.isdigit():
@@ -742,12 +746,12 @@ class TestReport:
                                     results['insert_space'].add(label)
 
                                 elif x[2] in ['+', '0', '+0']:
-                                    results['exponent_diff'].add(label)
+                                    results['replace_dff'].add(label)
                                 else:
                                     results['insert'].add(label)
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
-                                    results['exponent_diff'].add(label)
+                                    results['replace_dff'].add(label)
 
                 # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
