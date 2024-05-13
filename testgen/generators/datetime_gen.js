@@ -17,6 +17,8 @@ const fs = require('node:fs');
 
 const debug = false;
 
+const skip_things = false;  // To limit some options for generating tests
+
 // Controls if milliseconds value is stored in test cases in addition to ISO string.
 let use_milliseconds = false;
 
@@ -221,9 +223,32 @@ function generateAll(run_limit) {
 
   for (const locale of locales) {
 
+    const intl_locale = new Intl.Locale(locale);
+
     for (const calendar of calendars) {
 
+      if ( !skip_things) {
+        try {
+          const supported_calendars = intl_locale.calendars;
+          // Check if the calendar system is supported in this locale.
+          // If not, skip the test.
+          if ( !supported_calendars.includes(calendar)) {
+            if (debug) {
+              console.warn(locale + ' does not support ' +  calendar);
+              console.log(locale + ': ' + supported_calendars);
+            }
+            continue;
+          }
+        } catch(error) {
+          console.log('Error: ' + error);
+        }
+      }
       for (const option of spec_options) {
+
+        if ('era' in option && calendar == 'chinese') {
+          // Chinese calendar doesn't have era.
+          continue;
+        }
 
         // Rotate timezones through the data, but not as as separate loop
         const tz_index = label_num % timezones.length;
@@ -251,6 +276,19 @@ function generateAll(run_limit) {
           all_options['timeZone'] = timezone;
         }
         if (number_system) {
+          try {
+            const common_number_systems = intl_locale.numberingSystems;
+            const supported_calendars = intl_locale.calendars;
+            // TODO: Check if the number system is supported in this locale.
+            // If not, skip the test.
+            // console.log(locale + ': ' + common_number_systems);
+            if ( !supported_calendars.includes(calendar)) {
+              console.warn(locale + ' does not support ' +  calendar);
+              console.log(locale + ': ' + supported_calendars);
+            }
+          } catch(error) {
+            console.log('Error: ' + error);
+          }
           all_options['numberingSystem'] = number_system;
         }
 
@@ -268,7 +306,46 @@ function generateAll(run_limit) {
             // result = formatter.format(d);
             // To avoid the hack that replaces NBSP with ASCII space.
             const parts = formatter.formatToParts(d);
-            result = parts.map((x) => x.value).join("");
+            // Handle options that have only era or timeZoneName, working around
+            // https://github.com/tc39/ecma402/issues/461
+            const keys = Object.keys(option);
+
+            if (keys.length == 1 && (keys[0] == 'era' || keys[0] == 'timeZoneName')) {
+              if (calendar == 'chinese') {
+                continue;
+              }
+              try {
+                const item = parts.filter(({type}) => type === keys[0]);
+                try {
+                  result = item[0]['value'];
+                } catch(error) {
+                  // This item isn't in the output. Just return the entire string.
+                  result = parts.map((x) => x.value).join("");
+                  // console.error('BAD PARTS?: ', JSON.stringify(parts));
+                  // console.error(' result: ', JSON.stringify(result));
+                }
+                if (!result || debug) {
+                  console.log('  key = ' + keys[0] +
+                              ', ' + JSON.stringify(all_options));
+                  console.log('  ITEM = ', JSON.stringify(item))
+                  console.log('  PARTS = ', JSON.stringify(parts));
+                }
+
+              } catch (error) {
+                console.error('Error: ' + error + ', key = ' + keys[0] +
+                              ', date = ' + d);
+                console.error('     ' + JSON.stringify(parts));
+                console.error('    ' + JSON.stringify(all_options));
+              }
+
+            } else {
+              // Not era or timeZoneName
+              result = parts.map((x) => x.value).join("");
+              if (!result) {
+                console.warn('no result for ', label_num, ': ', JSON.stringify(all_options));
+              }
+            }
+            // console.warn(' result = ', result);
           } catch (error) {
             console.error('FORMATTER CREATION FAILS! ', error);
           }

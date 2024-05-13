@@ -79,6 +79,48 @@
   },
   {
     "prereq": {
+      "name": "Get ICU4C 75.1",
+      "version": "75.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-75_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "lang_names",
+        "list_fmt",
+        "likely_subtags",
+        "number_fmt"        
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 22..0, icu75.1",
+      "version": "22.1.0",
+      "command": "nvm install 22.1.0;nvm use 22.1.0"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "nvm",
       "version": "20.1.0",
       "command": "nvm install 20.1.0;nvm use 20.1.0"
