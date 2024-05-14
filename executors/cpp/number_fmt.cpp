@@ -220,7 +220,7 @@ UNumberSignDisplay set_sign_display(json_object* options_obj) {
   return signDisplay_setting;
 }
 
-const string test_numfmt(json_object *json_in) {
+const string TestNumfmt(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   // label information

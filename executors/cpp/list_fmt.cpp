@@ -32,7 +32,7 @@ using icu::UnicodeString;
 using std::string;
 
 
-const string test_list_fmt (json_object* json_in) {
+const string TestListFmt (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");

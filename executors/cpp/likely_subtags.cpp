@@ -25,7 +25,7 @@ using std::string;
 using icu::Locale;
 using icu::UnicodeString;
 
-const string test_likely_subtags(json_object *json_in) {
+const string TestLikelySubtags(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
