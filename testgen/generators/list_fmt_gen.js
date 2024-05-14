@@ -78,7 +78,8 @@ function generateAll() {
         // Create format object with these options
         let all_options = {
           'style': style,
-          'type': type
+          'list_type': type,  // Needed because "type" is a reserved word in Rust
+          'type': type  // Backward compatible
         }
 
         let formatter;

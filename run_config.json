@@ -226,7 +226,8 @@
         "collation_short",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -242,9 +243,10 @@
       "exec": "rust",
       "test_type": [
         "collation_short",
-        "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "list_fmt",
+        "likely_subtags",
+        "number_fmt"
       ],
       "per_execution": 10000
     }
