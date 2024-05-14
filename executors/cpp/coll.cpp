@@ -15,20 +15,18 @@
  */
 
 
-#include <iostream>
-#include <string>
+#include <json-c/json.h>
 
-#include <string.h>
-
-#include <unicode/locid.h>
-#include <unicode/utypes.h>
 #include <unicode/coll.h>
+#include <unicode/locid.h>
 #include <unicode/tblcoll.h>
 #include <unicode/ucol.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
+#include <unicode/utypes.h>
 
-#include <json-c/json.h>
+#include <iostream>
+#include <string>
 
 using std::cout;
 using std::endl;
@@ -39,12 +37,12 @@ using icu::UnicodeString;
 using icu::Collator;
 using icu::RuleBasedCollator;
 
-const string error_message = "error";
+const char error_message[] = "error";
 
 /**
- * test_collator  --  process JSON inputs, run comparator, return result
+ * TestCollator  --  process JSON inputs, run comparator, return result
  */
-const string test_collator(json_object *json_in) {
+const string TestCollator(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -57,10 +55,11 @@ const string test_collator(json_object *json_in) {
   string string2 = json_object_get_string(str2);
 
   // Does this conversion preserve the data?
-  UnicodeString us1 = UnicodeString::fromUTF8(string1);  //(string1.c_str()).unescape();
-  UnicodeString us2 = UnicodeString::fromUTF8(string2);  // .c_str()).unescape();
+  UnicodeString us1 = UnicodeString::fromUTF8(string1);
+  UnicodeString us2 = UnicodeString::fromUTF8(string2);
 
   string test_result;
+  int uni_result_utf8;
 
   json_object *locale_obj = json_object_object_get(json_in, "locale");
   const char *locale_string;
@@ -71,7 +70,8 @@ const string test_collator(json_object *json_in) {
   }
 
   // Comparison type
-  json_object *compare_type_obj = json_object_object_get(json_in, "compare_type");
+  json_object *compare_type_obj =
+      json_object_object_get(json_in, "compare_type");
   string compare_type_string = "";
   if (compare_type_obj) {
     compare_type_string = json_object_get_string(compare_type_obj);
@@ -86,17 +86,13 @@ const string test_collator(json_object *json_in) {
     strength_string = json_object_get_string(strength_obj);
     if (strength_string == "primary") {
       strength_type = Collator::PRIMARY;
-    }
-    else if (strength_string == "secondary") {
+    } else if (strength_string == "secondary") {
       strength_type = Collator:: SECONDARY;
-    }
-    else if (strength_string == "tertiary") {
+    } else if (strength_string == "tertiary") {
       strength_type = Collator::TERTIARY;
-    }
-    else if (strength_string == "quaternary") {
+    } else if (strength_string == "quaternary") {
       strength_type = Collator::QUATERNARY;
-    }
-    else if (strength_string == "IDENTICAL") {
+    } else if (strength_string == "IDENTICAL") {
       strength_type = Collator::IDENTICAL;
     }
   }
@@ -117,7 +113,8 @@ const string test_collator(json_object *json_in) {
   }
 
   // Handle some options
-  json_object *ignore_obj = json_object_object_get(json_in, "ignorePunctuation");
+  json_object *ignore_obj =
+      json_object_object_get(json_in, "ignorePunctuation");
 
   const int32_t unspecified_length = -1;
   bool coll_result = true;
@@ -135,36 +132,40 @@ const string test_collator(json_object *json_in) {
 
   if (rules_string != "") {
     char uni_rules_out[1000] = "";
-    int32_t rule_chars_out = uni_rules.extract(uni_rules_out, 1000, nullptr, status);
+    int32_t rule_chars_out =
+        uni_rules.extract(uni_rules_out, 1000, nullptr, status);
 
     // Make sure normalization is consistent
     rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
     if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
+      test_result = error_message;
       // TODO: report the error in creating the instance
-      cout << "# Error in making RuleBasedCollator: " << label_string << " : " << test_result << endl;
+      cout << "# Error in making RuleBasedCollator: " <<
+          label_string << " : " << test_result << endl;
 
-      json_object_object_add(return_json,
-                             "error", json_object_new_string("creat rule based collator"));
+      json_object_object_add(
+          return_json,
+          "error", json_object_new_string("creat rule based collator"));
       no_error = false;
     }
 
     uni_result = rb_coll->compare(us1, us2, status);
     if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
+      test_result = error_message;
 
-      json_object_object_add(return_json,
-                           "error", json_object_new_string("error in rb_coll->compare"));
+      json_object_object_add(
+          return_json,
+          "error", json_object_new_string("error in rb_coll->compare"));
       no_error = false;
-      cout << "# Error in rb_coll->compare: " << label_string << " : " << test_result << endl;
+      cout << "# Error in rb_coll->compare: " <<
+          label_string << " : " <<
+          test_result << endl;
     }
     // Don't need this anymore.
     delete rb_coll;
-  }
-  else {
+  } else {
     // Not a rule-based collator.
     if (locale_string == "") {
-
       uni_coll = Collator::createInstance(status);
     } else {
       cout << "# Locale set to " << locale_string <<  endl;
@@ -172,21 +173,28 @@ const string test_collator(json_object *json_in) {
     }
 
     if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
-      json_object_object_add(return_json,
-                           "error", json_object_new_string("error creating collator instance"));
+      test_result = error_message;
+      json_object_object_add(
+          return_json,
+          "error", json_object_new_string("error creating collator instance"));
       no_error = false;
-      cout << "# Error in createInstance: " << label_string << " : " << test_result << endl;
+      cout << "# Error in createInstance: " <<
+          label_string << " : " <<
+          test_result << endl;
     }
 
     // Make sure normalization is consistent
     uni_coll->setAttribute(UCOL_NORMALIZATION_MODE, UCOL_ON, status);
     if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
-      json_object_object_add(return_json,
-                           "error", json_object_new_string("error setting normalization to UCOL_ON"));
+      test_result = error_message;
+      json_object_object_add(
+          return_json,
+          "error",
+          json_object_new_string("error setting normalization to UCOL_ON"));
       no_error = false;
-      cout << "# Error in setAttribute: " << label_string << " : " << test_result << endl;
+      cout << "# Error in setAttribute: " <<
+          label_string << " : " <<
+          test_result << endl;
     }
 
     if (strength_obj) {
@@ -198,20 +206,24 @@ const string test_collator(json_object *json_in) {
       if (ignore_punctuation_bool) {
         uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
         if (U_FAILURE(status)) {
-          test_result = error_message.c_str();
-          json_object_object_add(return_json,
-                                 "error", json_object_new_string("error setAttribute"));
+          test_result = error_message;
+          json_object_object_add(
+              return_json,
+              "error", json_object_new_string("error setAttribute"));
           no_error = false;
-          cout << "# Error in setAttribute: " << label_string << " : " << test_result << endl;
+          cout << "# Error in setAttribute: " <<
+              label_string << " : " <<
+              test_result << endl;
         }
       }
     }
 
     // Just to check the result.
-    UColAttributeValue alternate_value = uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);
+    UColAttributeValue alternate_value =
+        uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);
 
     // Try two differen APIs
-    int uni_result_utf8 = uni_coll->compareUTF8(string1, string2, status);
+    uni_result_utf8 = uni_coll->compareUTF8(string1, string2, status);
     // This one seems to work better.
     uni_result = uni_coll->compare(us1, us2, status);
 
@@ -222,19 +234,22 @@ const string test_collator(json_object *json_in) {
     }
 
     if (U_FAILURE(status)) {
-        json_object_object_add(return_json,
-                               "error", json_object_new_string("error in uni_coll_compare"));
+        json_object_object_add(
+            return_json,
+            "error", json_object_new_string("error in uni_coll_compare"));
       no_error = false;
-      cout << "## Error in uni_coll->compare: " << label_string << " : " << error_message.c_str() << endl;
+      cout << "## Error in uni_coll->compare: " <<
+          label_string << " : " <<
+          error_message << endl;
     }
     if (uni_coll) {
-      UColAttributeValue alternate_value = uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);
+      UColAttributeValue alternate_value =
+          uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);
     }
     delete uni_coll;
   }
 
   if (no_error) {
-    int64_t numeric_result = int64_t(uni_result);
     if (uni_result == UCOL_GREATER) {
       coll_result = false;
 
@@ -246,20 +261,26 @@ const string test_collator(json_object *json_in) {
       char char_out2[1000] = "";
       int32_t chars_out = us1.extract(char_out1, 1000, nullptr, status);
       if (U_FAILURE(status)) {
-        test_result = error_message.c_str();
-        json_object_object_add(return_json,
-                               "error", json_object_new_string("error extracting us1"));
-        cout << "# Error in us1.extract: " << label_string << " : " << test_result << endl;
+        test_result = error_message;
+        json_object_object_add(
+            return_json,
+            "error", json_object_new_string("error extracting us1"));
+        cout << "# Error in us1.extract: " <<
+            label_string << " : " <<
+            test_result << endl;
       }
 
       int32_t chars_out2 = us2.extract(char_out2, 1000, nullptr, status);
       if (U_FAILURE(status)) {
-        test_result = error_message.c_str();
+        test_result = error_message;
         // TODO: report the error in creating the instance
-        test_result = error_message.c_str();
-        json_object_object_add(return_json,
-                               "error", json_object_new_string("error extracting us2"));
-        cout << "# Error in us2.extract: " << label_string << " : " << test_result << endl;
+        test_result = error_message;
+        json_object_object_add(
+            return_json,
+            "error", json_object_new_string("error extracting us2"));
+        cout << "# Error in us2.extract: " <<
+            label_string << " : " <<
+            test_result << endl;
       }
 
       // Include data compared in the failing test
@@ -270,7 +291,7 @@ const string test_collator(json_object *json_in) {
 
       // What was the actual returned value?
       json_object_object_add(
-          return_json, "compare", json_object_new_int64(numeric_result));
+          return_json, "compare", json_object_new_int64(uni_result));
     } else {
       coll_result = true;
     }

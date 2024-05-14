@@ -2,29 +2,30 @@
  * testing likely subtags for locales
  */
 
-#include "unicode/utypes.h"
-#include "unicode/unistr.h"
-#include "unicode/locid.h"
-#include "unicode/uclean.h"
-#include <unicode/bytestream.h>
+#include <json-c/json.h>
 
 #include "util.h"
+
+#include <unicode/bytestream.h>
+#include <unicode/locid.h>
+#include <unicode/uclean.h>
+#include <unicode/unistr.h>
+#include <unicode/utypes.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <json-c/json.h>
-
 #include <cstring>
 #include <iostream>
-#include <string>
 #include <regex>
+#include <string>
 
-using std::cout;
-using std::endl;
 using std::string;
 
-const string test_likely_subtags(json_object *json_in) {
+using icu::Locale;
+using icu::UnicodeString;
 
+const string test_likely_subtags(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -75,8 +76,8 @@ const string test_likely_subtags(json_object *json_in) {
       }
       test_result = name_string.c_str();
     }
-  }
-  else if (option_string == "minimize" || option_string == "minimizeFavorRegion") {
+  } else if (option_string == "minimize" ||
+             option_string == "minimizeFavorRegion") {
     // Minimize
     displayLocale.minimizeSubtags(status);
     if (U_FAILURE(status)) {
@@ -91,10 +92,8 @@ const string test_likely_subtags(json_object *json_in) {
             "error",
             json_object_new_string("toLanguageTag"));
       }
-
     }
-  }
-  else if (option_string == "minimizeFavorScript") {
+  } else if (option_string == "minimizeFavorScript") {
     // Minimize with script preferred.
     bool favorScript = true;
     json_object_object_add(return_json,
@@ -111,8 +110,7 @@ const string test_likely_subtags(json_object *json_in) {
                            json_object_new_string(protected_msg.c_str()));
     // This is a protected API in ICU4C.
     // displayLocale.minimizeSubtags(favorScript, status);
-  }
-  else {
+  } else {
     // An error in the call.
     json_object_object_add(
         return_json,

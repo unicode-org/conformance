@@ -6,19 +6,19 @@
  * testing list formatting
  */
 
+// ?? #include "util.h"
 
-#include "unicode/utypes.h"
-#include "unicode/unistr.h"
-#include "unicode/listformatter.h"
-#include "unicode/locid.h"
-#include "unicode/uclean.h"
+#include <json-c/json.h>
 
-#include "util.h"
+#include <unicode/listformatter.h>
+#include <unicode/locid.h>
+#include <unicode/uclean.h>
+#include <unicode/unistr.h>
+#include <unicode/utypes.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-
-#include <json-c/json.h>
 
 #include <iostream>
 #include <string>
@@ -26,9 +26,9 @@
 #include <cstring>
 
 using icu::ListFormatter;
+using icu::Locale;
+using icu::UnicodeString;
 
-using std::cout;
-using std::endl;
 using std::string;
 
 

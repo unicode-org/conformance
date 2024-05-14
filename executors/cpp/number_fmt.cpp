@@ -5,45 +5,36 @@
 /******
  * testing number format
  */
-
-
-#include "unicode/dcfmtsym.h"
-
-#include "unicode/utypes.h"
-//#include "unicode/appendable.h"
-#include "unicode/bytestream.h"
-#include "unicode/compactdecimalformat.h"
-#include "unicode/currunit.h"
-#include "unicode/dcfmtsym.h"
-#include "unicode/fieldpos.h"
-#include "unicode/fpositer.h"
-#include "unicode/measunit.h"
-#include "unicode/nounit.h"
-#include "unicode/numberformatter.h"
-//#include "unicode/parseerr.h"
-#include "unicode/plurrule.h"
-#include "unicode/ucurr.h"
-
-#include "unicode/stringpiece.h"
-
-#include "unicode/unum.h"
-#include "unicode/unumberformatter.h"
-// TODO: NEEDED? #include "unicode/unumberoptions.h"
-#include "unicode/uobject.h"
-
-#include "unicode/unistr.h"
-#include "unicode/locid.h"
-#include "unicode/uclean.h"
-
-#include "unicode/numfmt.h"
-#include "unicode/numberrangeformatter.h"
-#include "unicode/numsys.h"
+#include <json-c/json.h>
 
 #include "util.h"
+
+#include <unicode/dcfmtsym.h>
+
+#include <unicode/bytestream.h>
+#include <unicode/compactdecimalformat.h>
+#include <unicode/currunit.h>
+#include <unicode/dcfmtsym.h>
+#include <unicode/fieldpos.h>
+#include <unicode/fpositer.h>
+#include <unicode/locid.h>
+#include <unicode/measunit.h>
+#include <unicode/nounit.h>
+#include <unicode/numberformatter.h>
+#include <unicode/numberrangeformatter.h>
+#include <unicode/numfmt.h>
+#include <unicode/numsys.h>
+#include <unicode/stringpiece.h>
+#include <unicode/uclean.h>
+#include <unicode/ucurr.h>
+#include <unicode/unistr.h>
+#include <unicode/unum.h>
+#include <unicode/unumberformatter.h>
+#include <unicode/uobject.h>
+#include <unicode/utypes.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <json-c/json.h>
 
 #include <iostream>
 #include <string>
@@ -67,10 +58,10 @@ using icu::MeasureUnit;
 
 using number::impl::UFormattedNumberData;
 
+using icu::Locale;
 using icu::number::LocalizedNumberFormatter;
 using icu::number::FormattedNumber;
 using icu::number::impl::UFormattedNumberData;
-// using icu::number::SimpleNumberFormatter;
 
 const string error_message = "error";
 
