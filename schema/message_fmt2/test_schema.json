@@ -1,24 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/unicode-org/message-format-wg/main/test/schemas/v0/tests.schema.json",
-  "title": "MessageFormat 2 data-driven tests",
-  "description": "This is the main schema for MessageFormat 2 test source data.",
+  "title": "MessageFormat2 data-driven tests",
+  "description": "This documents the format of message_fmt2 test data for execution.",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "test_type",
     "tests"
   ],
   "properties": {
-    "scenario": {
-      "type": "string",
-      "description": "Identifier for the tests in the file"
-    },
-    "description": {
-      "type": "string",
-      "description": "Information about the test scenario."
-    },
-    "defaultTestProperties": {
-      "$ref": "#/$defs/defaultTestProperties"
+    "test_type": {
+      "const": "message_fmt2"
     },
     "tests": {
       "type": "array",
@@ -28,361 +20,98 @@
       "minItems": 1
     }
   },
-  "$comment": "This allOf specifies required test properties that allow a default. A value will be required in 'defaultTestProperties' if one is not provided for every individual test.",
-  "allOf": [
-    {
-      "anyOf": [
-        {
-          "properties": {
-            "defaultTestProperties": {
-              "required": [
-                "locale"
-              ]
-            }
-          }
-        },
-        {
-          "properties": {
-            "tests": {
-              "type": "array",
-              "items": {
-                "required": [
-                  "locale"
-                ]
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "anyOf": [
-        {
-          "properties": {
-            "defaultTestProperties": {
-              "required": [
-                "src"
-              ]
-            }
-          }
-        },
-        {
-          "properties": {
-            "tests": {
-              "type": "array",
-              "items": {
-                "required": [
-                  "src"
-                ]
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "$comment": "Only one assertion is required. It doesn't matter which type.",
-      "anyOf": [
-        {
-          "properties": {
-            "defaultTestProperties": {
-              "$ref": "#/$defs/anyExp"
-            }
-          }
-        },
-        {
-          "properties": {
-            "tests": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/anyExp"
-              }
-            }
-          }
-        }
-      ]
-    }
-  ],
   "$defs": {
-    "defaultTestProperties": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "locale": {
-          "$ref": "#/$defs/locale"
-        },
-        "src": {
-          "$ref": "#/$defs/src"
-        },
-        "params": {
-          "$ref": "#/$defs/params"
-        },
-        "exp": {
-          "$ref": "#/$defs/exp"
-        },
-        "expCleanSrc": {
-          "$ref": "#/$defs/expCleanSrc"
-        },
-        "expParts": {
-          "$ref": "#/$defs/expParts"
-        },
-        "expErrors": {
-          "$ref": "#/$defs/expErrors"
-        }
-      }
-    },
     "test": {
       "type": "object",
       "additionalProperties": false,
+      "required": [
+        "label",
+        "test_description",
+        "test_subtype",
+        "locale",
+        "pattern"
+      ],
       "properties": {
-        "description": {
+        "label": {
+          "type": "string",
+          "description": "Identifier for the test."
+        },
+        "test_description": {
           "type": "string",
           "description": "Information about the test."
         },
+        "test_subtype": {
+          "description": "A tag for the executor to decide how to run the test.",
+          "enum": [
+            "syntax",
+            "format_to_parts",
+            "formatter"
+          ]
+        },
         "locale": {
-          "$ref": "#/$defs/locale"
+          "type": "string"
         },
-        "src": {
-          "$ref": "#/$defs/src"
+        "pattern": {
+          "type": "string"
         },
-        "params": {
-          "$ref": "#/$defs/params"
-        },
-        "exp": {
-          "$ref": "#/$defs/exp"
-        },
-        "expCleanSrc": {
-          "$ref": "#/$defs/expCleanSrc"
-        },
-        "expParts": {
-          "$ref": "#/$defs/expParts"
-        },
-        "expErrors": {
-          "$ref": "#/$defs/expErrors"
-        },
-        "only": {
-          "type": "boolean",
-          "description": "Normally not set. A flag to use during development to only run one or more specific tests."
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/arg"
+          }
         }
       }
     },
-    "locale": {
-      "description": "The locale to use for formatting.",
-      "type": "string"
-    },
-    "src": {
-      "description": "The MF2 syntax source.",
-      "type": "string"
-    },
-    "params": {
-      "description": "Parameters to pass in to the formatter for resolving external variables.",
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/var"
-      }
-    },
-    "var": {
+    "arg": {
       "type": "object",
-      "oneOf": [
+      "additionalProperties": false,
+      "required": [
+        "argType",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "argType": {
+          "enum": [
+            "string",
+            "number",
+            "datetime"
+          ]
+        },
+        "value": {}
+      },
+      "anyOf": [
         {
-          "additionalProperties": false,
-          "required": [
-            "name",
-            "value"
-          ],
           "properties": {
-            "name": {
-              "type": "string"
+            "argType": {
+              "const": "string"
             },
-            "value": {}
+            "value": {
+              "type": "string"
+            }
           }
         },
         {
-          "additionalProperties": false,
-          "required": [
-            "name",
-            "type",
-            "value"
-          ],
           "properties": {
-            "name": {
-              "type": "string"
-            },
-            "type": {
+            "argType": {
               "const": "datetime"
             },
             "value": {
-              "$comment": "Should be converted to a datetime.",
               "type": "string"
             }
           }
-        }
-      ]
-    },
-    "exp": {
-      "description": "The expected result of formatting the message to a string.",
-      "type": "string"
-    },
-    "expCleanSrc": {
-      "description": "The expected normalized form of `src`, for testing stringifiers.",
-      "type": "string"
-    },
-    "expParts": {
-      "description": "The expected result of formatting the message to parts.",
-      "type": "array",
-      "items": {
-        "oneOf": [
-          {
-            "description": "Message literal part.",
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "type",
-              "value"
-            ],
-            "properties": {
-              "type": {
-                "const": "literal"
-              },
-              "value": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "description": "Message markup part.",
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "type",
-              "kind",
-              "name"
-            ],
-            "properties": {
-              "type": {
-                "const": "markup"
-              },
-              "kind": {
-                "enum": [
-                  "open",
-                  "standalone",
-                  "close"
-                ]
-              },
-              "source": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "options": {
-                "type": "object"
-              }
-            }
-          },
-          {
-            "description": "Message expression part.",
-            "type": "object",
-            "required": [
-              "type",
-              "source"
-            ],
-            "not": {
-              "required": [
-                "parts",
-                "value"
-              ]
+        },
+        {
+          "properties": {
+            "argType": {
+              "const": "number"
             },
-            "properties": {
-              "type": {
-                "type": "string"
-              },
-              "source": {
-                "type": "string"
-              },
-              "locale": {
-                "type": "string"
-              },
-              "parts": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string"
-                    },
-                    "source": {
-                      "type": "string"
-                    },
-                    "value": {}
-                  },
-                  "required": [
-                    "type"
-                  ]
-                }
-              },
-              "value": {}
+            "value": {
+              "type": "number"
             }
           }
-        ]
-      }
-    },
-    "expErrors": {
-      "description": "The runtime errors expected to be emitted when formatting the message. If expErrors is either absent or empty, the message must be formatted without errors.",
-      "type": [
-        "array",
-        "boolean"
-      ],
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type"
-        ],
-        "properties": {
-          "type": {
-            "enum": [
-              "syntax-error",
-              "variant-key-mismatch",
-              "missing-fallback-variant",
-              "missing-selector-annotation",
-              "duplicate-declaration",
-              "duplicate-option-name",
-              "unresolved-variable",
-              "unknown-function",
-              "unsupported-expression",
-              "invalid-expression",
-              "operand-mismatch",
-              "unsupported-statement",
-              "selection-error",
-              "formatting-error",
-              "bad-input"
-            ]
-          }
-        }
-      }
-    },
-    "anyExp": {
-      "anyOf": [
-        {
-          "required": [
-            "exp"
-          ]
-        },
-        {
-          "required": [
-            "expCleanSrc"
-          ]
-        },
-        {
-          "required": [
-            "expParts"
-          ]
-        },
-        {
-          "required": [
-            "expErrors"
-          ]
         }
       ]
     }
