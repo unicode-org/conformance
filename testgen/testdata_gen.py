@@ -4,7 +4,6 @@ import logging
 import logging.config
 import multiprocessing as mp
 import re
-from enum import Enum
 
 from test_type import TestType, test_types
 from generators.collation_short import CollationShortGenerator
@@ -18,17 +17,6 @@ from generators.plurals import PluralGenerator
 from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 
 reblankline = re.compile("^\s*$")
-
-
-class TestType(str, Enum):
-    COLLATION_SHORT = "collation_short"
-    DATETIME_FMT = "datetime_fmt"
-    LANG_NAMES = "lang_names"
-    LIKELY_SUBTAGS = "likely_subtags"
-    LIST_FMT = "list_fmt"
-    NUMBER_FMT = "number_fmt"
-    RELATIVE_DATETIME_FMT = "rdt_fmt"
-    PLURAL_RULES = "plural_rules"
 
 
 def setupArgs():
