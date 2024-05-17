@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MessageFormat2 data-driven tests",
-  "description": "This documents the format of message_fmt2 test data for execution.",
+  "description": "The format of message_fmt2 test data for execution.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -26,8 +26,6 @@
       "additionalProperties": false,
       "required": [
         "label",
-        "test_description",
-        "test_subtype",
         "locale",
         "pattern"
       ],
@@ -40,80 +38,57 @@
           "type": "string",
           "description": "Information about the test."
         },
-        "test_subtype": {
-          "description": "A tag for the executor to decide how to run the test.",
-          "enum": [
-            "syntax",
-            "format_to_parts",
-            "formatter"
-          ]
-        },
         "locale": {
           "type": "string"
         },
-        "pattern": {
+        "src": {
           "type": "string"
         },
-        "args": {
+        "params": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/arg"
+            "$ref": "#/$defs/var"
           }
         }
       }
     },
-    "arg": {
+    "var": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "argType",
-        "value"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "argType": {
-          "enum": [
-            "string",
-            "number",
-            "datetime"
-          ]
-        },
-        "value": {}
-      },
-      "anyOf": [
+      "oneOf": [
         {
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "value"
+          ],
           "properties": {
-            "argType": {
-              "const": "string"
-            },
-            "value": {
+            "name": {
               "type": "string"
-            }
+            },
+            "value": {}
           }
         },
         {
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "type",
+            "value"
+          ],
           "properties": {
-            "argType": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
               "const": "datetime"
             },
             "value": {
+              "$comment": "Should be converted to a datetime.",
               "type": "string"
-            }
-          }
-        },
-        {
-          "properties": {
-            "argType": {
-              "const": "number"
-            },
-            "value": {
-              "type": "number"
             }
           }
         }
       ]
-    }
+    },
   }
 }

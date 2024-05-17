@@ -54,33 +54,36 @@ class MessageFmt2Generator(DataGenerator):
 
             for src_test in src_data["tests"]:
                 test_count += 1
-                label = f"{test_count - 1:05d}"
-                description = f'{src_data["scenario"]}: {src_test["description"]}'
-                args = src_test.get("args") or (
-                    defaults.get("args") if defaults else None
-                )
+
+                def from_src_test_or_default(dct, key):
+                    if key in src_test:
+                        dct[key] = src_test[key]
+                    elif key in defaults:
+                        dct[key] = defaults[key]
 
                 try:
-                    test_list.append(
-                        {
-                            "label": label,
-                            "test_description": description,
-                            "test_subtype": src_test.get("testSubtype")
-                            or defaults["testSubtype"],
-                            "locale": src_test.get("locale") or defaults["locale"],
-                            "pattern": src_test.get("pattern") or defaults["pattern"],
-                            **({"args": args} if args else {}),
-                        }
-                    )
-                    verify_list.append({"label": label, "verify": src_test["verify"]})
+                    test = {}
+                    test["label"] = f"{test_count - 1:05d}"
+                    if "description" in src_test:
+                        test["description"] = src_test["description"]
+                    test["locale"] = src_test.get("locale") or defaults["locale"]
+                    test["src"] = src_test.get("src") or defaults["src"]
+                    from_src_test_or_default(test, "params")
+                    test_list.append(test)
+
+                    verification = {}
+                    verification["label"] = test["label"]
+                    from_src_test_or_default(verification, "exp")
+                    from_src_test_or_default(verification, "expCleanSrc")
+                    from_src_test_or_default(verification, "expParts")
+                    from_src_test_or_default(verification, "expErrors")
+                    verify_list.append(verification)
                 except KeyError as err:
                     logging.error("Missing value for %s in %s", err, test_file_path)
-                    logging.error("Omitting test %s (%s)", label, description)
+                    logging.error("Omitting test %s", test["label"])
 
         json_test["tests"] = self.sample_tests(test_list)
         json_verify["verifications"] = self.sample_tests(verify_list)
-
-        print(json_test)
 
         self.saveJsonFile(f"{TestType.MESSAGE_FMT2}_test.json", json_test, 2)
         self.saveJsonFile(f"{TestType.MESSAGE_FMT2}_verify.json", json_verify, 2)

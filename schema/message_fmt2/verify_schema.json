@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MessageFormat2 data-driven tests",
-  "description": "This documents the format of message_fmt2 data to verify the test output against.",
+  "description": "The format of message_fmt2 data to verify the test output against.",
   "type": "object",
   "additionalProperties": false,
   "required": [
