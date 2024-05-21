@@ -28,7 +28,6 @@ using std::string;
 using icu::Locale;
 using icu::UnicodeString;
 
-
 const string TestLangNames (json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 

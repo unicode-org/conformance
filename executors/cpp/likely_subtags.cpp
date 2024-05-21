@@ -4,8 +4,6 @@
 
 #include <json-c/json.h>
 
-#include "util.h"
-
 #include <unicode/bytestream.h>
 #include <unicode/locid.h>
 #include <unicode/uclean.h>
@@ -17,12 +15,12 @@
 
 #include <cstring>
 #include <iostream>
-#include <regex>
 #include <string>
 
 using std::string;
 
 using icu::Locale;
+using icu::StringByteSink;
 using icu::UnicodeString;
 
 const string TestLikelySubtags(json_object *json_in) {

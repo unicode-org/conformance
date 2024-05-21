@@ -15,7 +15,7 @@
 TARGET=executor
 
 # All object files (C or C++)
-OBJECTS=main.o coll.o datetime_fmt.o langnames.o likely_subtags.o list_fmt.o number_fmt.o util.o capi.o
+OBJECTS=main.o coll.o datetime_fmt.o langnames.o likely_subtags.o list_fmt.o number_fmt.o
 
 #### rules
 # Load in standard makefile definitions

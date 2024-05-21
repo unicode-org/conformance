@@ -5,9 +5,6 @@
 /******
  * testing list formatting
  */
-
-// ?? #include "util.h"
-
 #include <json-c/json.h>
 
 #include <unicode/listformatter.h>
@@ -20,17 +17,16 @@
 #include <stdlib.h>
 #include <vector>
 
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <cstring>
 
 using icu::ListFormatter;
 using icu::Locale;
 using icu::UnicodeString;
 
 using std::string;
-
 
 const string TestListFmt (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
