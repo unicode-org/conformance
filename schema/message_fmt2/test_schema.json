@@ -4,10 +4,7 @@
   "description": "The format of message_fmt2 test data for execution.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "test_type",
-    "tests"
-  ],
+  "required": ["test_type", "tests"],
   "properties": {
     "test_type": {
       "const": "message_fmt2"
@@ -24,11 +21,7 @@
     "test": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "label",
-        "locale",
-        "pattern"
-      ],
+      "required": ["label", "locale", "src"],
       "properties": {
         "label": {
           "type": "string",
@@ -57,10 +50,7 @@
       "oneOf": [
         {
           "additionalProperties": false,
-          "required": [
-            "name",
-            "value"
-          ],
+          "required": ["name", "value"],
           "properties": {
             "name": {
               "type": "string"
@@ -70,11 +60,7 @@
         },
         {
           "additionalProperties": false,
-          "required": [
-            "name",
-            "type",
-            "value"
-          ],
+          "required": ["name", "type", "value"],
           "properties": {
             "name": {
               "type": "string"
@@ -89,6 +75,6 @@
           }
         }
       ]
-    },
+    }
   }
 }
