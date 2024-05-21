@@ -40,12 +40,9 @@ using std::cout;
 using std::endl;
 using std::string;
 
-// ?? using namespace icu;
-
 using icu::CurrencyUnit;
 using icu::Locale;
 using icu::MeasureUnit;
-//?? using icu::NoUnit;
 using icu::NumberingSystem;
 using icu::UnicodeString;
 
