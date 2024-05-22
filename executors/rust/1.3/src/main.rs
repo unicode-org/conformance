@@ -21,11 +21,13 @@ mod decimalfmt;
 mod displaynames;
 mod langnames;
 mod likelysubtags;
+mod listfmt;
 mod numberfmt;
 
 use collator::run_collation_test;
 use langnames::run_language_name_test;
 use likelysubtags::run_likelysubtags_test;
+use listfmt::run_list_fmt_test;
 use numberfmt::run_numberformat_test;
 
 use serde_json::{json, Value};
@@ -68,7 +70,9 @@ fn main() -> io::Result<()> {
                     "collation_short",
                     "number_fmt",
                     "decimal_fmt",
-                    "likelysubtags"] }
+                    "likelysubtags",
+                    "list_fmt"
+                ] }
             );
             println!("{}", json_result);
         }
@@ -103,6 +107,8 @@ fn main() -> io::Result<()> {
                 run_language_name_test(&json_info)
             } else if test_type == "likely_subtags" {
                 run_likelysubtags_test(&json_info)
+            } else if test_type == "list_fmt" {
+                run_list_fmt_test(&json_info)
             } else {
                 Err(test_type.to_string())
             };

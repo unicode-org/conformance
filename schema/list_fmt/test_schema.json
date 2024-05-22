@@ -96,6 +96,11 @@
                "enum": ["long", "short", "narrow"]
              },
              "type": {
+               "description": "Deprecated! The kind of connection between list items, e.g., and/or/none",
+               "type": "string",
+               "enum": ["conjunction", "disjunction", "unit"]
+             },
+             "list_type": {
                "description": "The kind of connection between list items, e.g., and/or/none",
                "type": "string",
                "enum": ["conjunction", "disjunction", "unit"]
