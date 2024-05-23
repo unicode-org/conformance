@@ -145,7 +145,7 @@ const string TestCollator(json_object *json_in) {
 
       json_object_object_add(
           return_json,
-          "error", json_object_new_string("creat rule based collator"));
+          "error", json_object_new_string("create rule based collator"));
       no_error = false;
     }
 

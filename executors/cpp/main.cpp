@@ -31,6 +31,7 @@ const char gHelpString[] =
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using std::cin;
 using std::cout;
@@ -44,6 +45,7 @@ extern const string TestLangNames(json_object *json_in);
 extern const string TestLikelySubtags(json_object *json_in);
 extern const string TestListFmt(json_object *json_in);
 extern const string TestNumfmt(json_object *json_in);
+extern const string TestPluralRules(json_object *json_in);
 
 /**
  * Main   --  process command line, call tests or return data
@@ -51,16 +53,17 @@ extern const string TestNumfmt(json_object *json_in);
  *            commands start with "#"
  *            test data is JSON format
  */
-int main(int argc, const char** argv)
-{
+int main(int argc, const char** argv) {
   // All the currently supported test types.
-  std::string supported_tests[6] = {
+  std::vector <string> supported_tests;
+  supported_tests = {
     "collation_short",
     "datetime_fmt",
     "likely_subtags",
     "list_fmt",
     "lang_names",
-    "number_fmt"
+    "number_fmt",
+    "plural_rules"
   };
 
   for (std::string line; std::getline(cin, line);) {
@@ -80,7 +83,8 @@ int main(int argc, const char** argv)
       // TODO: get from the array of supported tests
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
-      for (int index = 0; index < size(supported_tests); index ++) {
+
+      for (int index = 0; index < supported_tests.size(); index ++) {
         json_object_array_add(
             test_array,
             json_object_new_string(supported_tests[index].c_str()));
@@ -112,6 +116,8 @@ int main(int argc, const char** argv)
         outputLine = TestListFmt(json_input);
       } else if (test_type == "lang_names") {
         outputLine = TestLangNames(json_input);
+      } else if (test_type == "plural_rules") {
+        outputLine = TestPluralRules(json_input);
       } else {
         outputLine =  "# BAD TEST " + test_type;
       }
