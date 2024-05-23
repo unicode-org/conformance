@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using std::cin;
 using std::cout;
@@ -47,10 +48,10 @@ extern const string TestPluralRules(json_object *json_in);
  *            commands start with "#"
  *            test data is JSON format
  */
-int main(int argc, const char** argv)
-{
+int main(int argc, const char** argv) {
   // All the currently supported test types.
-  std::string supported_tests[7] = {
+  std::vector <string> supported_tests;
+  supported_tests = {
     "collation_short",
     "datetime_fmt",
     "likely_subtags",
@@ -77,7 +78,7 @@ int main(int argc, const char** argv)
       // TODO: get from the array of supported tests
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
-      for (int index = 0; index < 7; index ++) {
+      for (int index = 0; index < supported_tests.size(); index ++) {
         json_object_array_add(
             test_array,
             json_object_new_string(supported_tests[index].c_str()));
@@ -100,9 +101,9 @@ int main(int argc, const char** argv)
       if (test_type == "collation_short") {
         outputLine = test_collator(json_input);
       } else if (test_type == "datetime_fmt") {
-         outputLine = TestDatetimeFmt(json_input);
+        outputLine = TestDatetimeFmt(json_input);
       } else if (test_type == "number_fmt") {
-         outputLine = test_numfmt(json_input);
+        outputLine = test_numfmt(json_input);
       } else if (test_type == "likely_subtags") {
         outputLine = test_likely_subtags(json_input);
       } else if (test_type == "list_fmt") {
