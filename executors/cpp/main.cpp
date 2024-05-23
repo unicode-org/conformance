@@ -108,7 +108,7 @@ int main(int argc, const char** argv) {
         outputLine = test_likely_subtags(json_input);
       } else if (test_type == "list_fmt") {
         outputLine = test_list_fmt(json_input);
-      } else if (test_type == "lan1g_names") {
+      } else if (test_type == "lang_names") {
         outputLine = test_langnames(json_input);
       } else if (test_type == "plural_rules") {
         outputLine = TestPluralRules(json_input);
