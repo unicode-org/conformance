@@ -285,8 +285,8 @@
     
 {"test_type": "list_fmt", "label":"en_-GB 2000", "input_string": "2000-01-01T21:00:00.000Z","input_list":[],"options":{"style":"long","type":"conjunction"},"locale":"en-GB"}
 
-{"test_type": "list_fmt", "label":"12","input_list":["dog","cat"],"options":{"style":"narrow","type":"conjunction"},"locale":"en-GB"}    
-{"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","type":"conjunction"},"locale":"en-GB"}    
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat"],"options":{"style":"narrow","list_type":"conjunction", "type":"conjunction"},"locale":"en-GB"}    
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","list_type":"conjunction"},"locale":"en-GB"}    
 {"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","type":"disjunction"},"locale":"en-GB"}    
 {"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","type":"unit"},"locale":"en-GB"}    
 
