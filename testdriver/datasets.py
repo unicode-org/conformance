@@ -209,7 +209,7 @@ class ParallelMode(Enum):
 
 class NodeVersion(Enum):
   Node22 = "22.1.0"
-  Node20 = "21.6.0"
+  Node21 = "21.6.0"
   Node19 = "19.7.0"
   Node18_7 = "18.7.0"
   Node16 = "17.9.1"
@@ -340,7 +340,7 @@ class ExecutorInfo():
 allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODE.value
-allExecutors.addSystem(system, NodeVersion.Node20,
+allExecutors.addSystem(system, NodeVersion.Node21,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 

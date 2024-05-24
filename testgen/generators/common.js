@@ -1,5 +1,5 @@
 
-function xsample_tests(all_tests, run_limit) {
+function sample_tests(all_tests, run_limit) {
   // Gets a sampling of the data based on total and the expected number.
 
   if (run_limit < 0 || all_tests.length <= run_limit) {

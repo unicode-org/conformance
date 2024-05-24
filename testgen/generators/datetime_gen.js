@@ -285,20 +285,32 @@ function generateAll(run_limit) {
           all_options['timeZone'] = timezone;
         }
         if (number_system) {
+          // getNumberingSystems() may not be available yet.
+          // If we have this info and the number system isn't in this local, skip the test.
           try {
-            const common_number_systems = intl_locale.numberingSystems;
-            const supported_calendars = intl_locale.calendars;
-            // TODO: Check if the number system is supported in this locale.
-            // If not, skip the test.
-            // console.log(locale + ': ' + common_number_systems);
-            if ( !supported_calendars.includes(calendar)) {
-              console.warn(locale + ' does not support ' +  calendar);
-              console.log(locale + ': ' + supported_calendars);
+            const common_number_systems = intl_locale.getNumberingSystems();
+            if ((common_number_systems != undefined) &&
+                (! common_number_systems.includes(number_system))) {
+              console.log('Num system: Skipping ' + number_system +
+                          ' in locale' + locale);
+              continue;
             }
           } catch(error) {
-            console.log('Error: ' + error);
+            // getNumberingSystems isn't implemented. Don't skip.
           }
+
           all_options['numberingSystem'] = number_system;
+        }
+
+        try {
+          const supported_calendars = intl_locale.getCalendars();
+          if ( !supported_calendars.includes(calendar)) {
+            console.warn(locale + ' does not support ' +  calendar);
+            console.log(locale + ': ' + supported_calendars);
+            continue;
+          }
+        } catch (error) {
+          // geCalendars isn't implemented. Don't skip.
         }
 
         let formatter;
@@ -421,7 +433,7 @@ function generateAll(run_limit) {
     console.error(err);
   }
 
-  console.log('Number of date/time sampled tests ',
+  console.log('Number of date/time sampled tests for version ',
               process.versions.icu, ': ', test_obj['tests'] .length);
 
   verify_obj['verifications'] = sample_tests(verify_cases, run_limit);
