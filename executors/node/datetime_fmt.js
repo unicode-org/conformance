@@ -7,6 +7,7 @@ module.exports = {
   testDateTimeFmt: function (json) {
     const label = json['label'];
     let locale = json['locale'];
+    const intl_locale = new Intl.Locale(locale);
     if (! locale) {
       locale = 'und';
     }
@@ -16,6 +17,12 @@ module.exports = {
       test_options = json['options'];
     }
 
+    let calendar;
+    try {
+      calendar = test_options['calendar'];
+    } catch {
+      calendar = null;
+    }
     let return_json = {'label': label};
 
     // Get the date from input milliseconds.
@@ -25,6 +32,20 @@ module.exports = {
     // Parse the input string as a date.
     if (json['input_string']) {
       test_date = new Date(json['input_string']);
+    }
+
+    try {
+      if (calendar) {
+        const supported_calendars = intl_locale.calendars;
+        // Check if the calendar system is supported in this locale.
+        // If not, skip the test.
+        if ( !supported_calendars.includes(calendar)) {
+          return_json['unsupported'] = ': ' + error.message;
+          return return_json;
+        }
+      }
+    } catch(error) {
+      // This is not yet supported.
     }
 
     let dt_formatter;

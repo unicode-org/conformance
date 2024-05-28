@@ -14,11 +14,13 @@ class DateTimeFmtGenerator(DataGenerator):
 
     def process_test_data(self):
         # Use NOde JS to create the .json files
-        icu_nvm_versions = {'icu74': '21.6.0',
-                            'icu73': '20.1.0',
-                            'icu72': '18.14.2',
-                            'icu71': '18.7.0',
-                            }
+        icu_nvm_versions = {
+            'icu75': '22.1.0',
+            'icu74': '21.6.0',
+            'icu73': '20.1.0',
+            'icu72': '18.14.2',
+            'icu71': '18.7.0',
+        }
 
         run_list = [
             ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0'],
