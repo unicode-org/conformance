@@ -17,6 +17,11 @@
  * and returns results via STDOUT.
  */
 
+const char gHelpString[] =
+    "usage: executor"
+    "-help            Display this message.\n"
+    "-debug n         Level of debug - default = -1\n";
+
 #include <json-c/json.h>
 
 #include <unicode/utypes.h>
@@ -34,12 +39,12 @@ using std::endl;
 using std::string;
 
 // Test functions
-extern const string test_collator(json_object *json_in);
+extern const string TestCollator(json_object *json_in);
 extern const string TestDatetimeFmt(json_object *json_in);
-extern const string test_langnames(json_object *json_in);
-extern const string test_likely_subtags(json_object *json_in);
-extern const string test_list_fmt(json_object *json_in);
-extern const string test_numfmt(json_object *json_in);
+extern const string TestLangNames(json_object *json_in);
+extern const string TestLikelySubtags(json_object *json_in);
+extern const string TestListFmt(json_object *json_in);
+extern const string TestNumfmt(json_object *json_in);
 extern const string TestPluralRules(json_object *json_in);
 
 /**
@@ -78,6 +83,7 @@ int main(int argc, const char** argv) {
       // TODO: get from the array of supported tests
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
+
       for (int index = 0; index < supported_tests.size(); index ++) {
         json_object_array_add(
             test_array,
@@ -99,29 +105,26 @@ int main(int argc, const char** argv) {
       std::string test_type = json_object_get_string(test_type_obj);
 
       if (test_type == "collation_short") {
-        outputLine = test_collator(json_input);
+        outputLine = TestCollator(json_input);
       } else if (test_type == "datetime_fmt") {
-        outputLine = TestDatetimeFmt(json_input);
+         outputLine = TestDatetimeFmt(json_input);
       } else if (test_type == "number_fmt") {
-        outputLine = test_numfmt(json_input);
+         outputLine = TestNumfmt(json_input);
       } else if (test_type == "likely_subtags") {
-        outputLine = test_likely_subtags(json_input);
+        outputLine = TestLikelySubtags(json_input);
       } else if (test_type == "list_fmt") {
-        outputLine = test_list_fmt(json_input);
+        outputLine = TestListFmt(json_input);
       } else if (test_type == "lang_names") {
-        outputLine = test_langnames(json_input);
+        outputLine = TestLangNames(json_input);
       } else if (test_type == "plural_rules") {
         outputLine = TestPluralRules(json_input);
       } else {
         outputLine =  "# BAD TEST " + test_type;
-        //       "{\"error\": \"unknown test type\"," +
-        //       "\"test_type\":" +  test_type + "," +
-        //       "\"unsupported_test:\"" + test_type + "}";
       }
 
+      // Report back to the test driver.
       cout << outputLine << endl;
     }
   }
-
   return 0;
 }

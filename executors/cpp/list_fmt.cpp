@@ -5,34 +5,30 @@
 /******
  * testing list formatting
  */
+#include <json-c/json.h>
 
+#include <unicode/listformatter.h>
+#include <unicode/locid.h>
+#include <unicode/uclean.h>
+#include <unicode/unistr.h>
+#include <unicode/utypes.h>
 
-#include "unicode/utypes.h"
-#include "unicode/unistr.h"
-#include "unicode/listformatter.h"
-#include "unicode/locid.h"
-#include "unicode/uclean.h"
-
-#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
 
-#include <json-c/json.h>
-
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <cstring>
 
 using icu::ListFormatter;
+using icu::Locale;
+using icu::UnicodeString;
 
-using std::cout;
-using std::endl;
 using std::string;
 
-
-const string test_list_fmt (json_object* json_in) {
+const string TestListFmt (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");

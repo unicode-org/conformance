@@ -208,7 +208,8 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
-  Node20 = "20.1.0"
+  Node22 = "22.1.0"
+  Node21 = "21.6.0"
   Node19 = "19.7.0"
   Node18_7 = "18.7.0"
   Node16 = "17.9.1"
@@ -237,6 +238,8 @@ class ICU4XVersion(Enum):
 # TODO: combine the version info
 IcuVersionToExecutorMap = {
     'node': {
+        '75': ["22.1.0"],
+        '74': ["21.6.0"],
         '73': ["20.1.0"],
         '72': ['18.14.2'],
         '71': ['18.7.0', '16.19.1'],
@@ -259,6 +262,8 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
+    '22.1.0': '75.1',
+    '21.6.0': '74.1',
     '20.1.0': '73.1',
     '18.14.2': '72.1',
     '18.7.0': '71.1',
@@ -335,7 +340,7 @@ class ExecutorInfo():
 allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODE.value
-allExecutors.addSystem(system, NodeVersion.Node20,
+allExecutors.addSystem(system, NodeVersion.Node21,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
 
@@ -383,6 +388,12 @@ allExecutors.addSystem(
     '../executors/cpp/executor',
     CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73,
     env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu73/bin'})
+
+allExecutors.addSystem(
+    system, CppVersion.Cpp,
+    '../executors/cpp/executor',
+    CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75,
+    env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu75/bin'})
 
 system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',

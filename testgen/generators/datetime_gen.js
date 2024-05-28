@@ -17,6 +17,8 @@ const fs = require('node:fs');
 
 const debug = false;
 
+const skip_things = false;  // To limit some options for generating tests
+
 // Controls if milliseconds value is stored in test cases in addition to ISO string.
 let use_milliseconds = false;
 
@@ -226,9 +228,32 @@ function generateAll(run_limit) {
 
   for (const locale of locales) {
 
+    const intl_locale = new Intl.Locale(locale);
+
     for (const calendar of calendars) {
 
+      if ( !skip_things) {
+        try {
+          const supported_calendars = intl_locale.calendars;
+          // Check if the calendar system is supported in this locale.
+          // If not, skip the test.
+          if ( !supported_calendars.includes(calendar)) {
+            if (debug) {
+              console.warn(locale + ' does not support ' +  calendar);
+              console.log(locale + ': ' + supported_calendars);
+            }
+            continue;
+          }
+        } catch(error) {
+          console.log('Error: ' + error);
+        }
+      }
       for (const option of spec_options) {
+
+        if ('era' in option && calendar == 'chinese') {
+          // Chinese calendar doesn't have era.
+          continue;
+        }
 
         // Rotate timezones through the data, but not as as separate loop
         const tz_index = label_num % timezones.length;
@@ -260,7 +285,32 @@ function generateAll(run_limit) {
           all_options['timeZone'] = timezone;
         }
         if (number_system) {
+          // getNumberingSystems() may not be available yet.
+          // If we have this info and the number system isn't in this local, skip the test.
+          try {
+            const common_number_systems = intl_locale.getNumberingSystems();
+            if ((common_number_systems != undefined) &&
+                (! common_number_systems.includes(number_system))) {
+              console.log('Num system: Skipping ' + number_system +
+                          ' in locale' + locale);
+              continue;
+            }
+          } catch(error) {
+            // getNumberingSystems isn't implemented. Don't skip.
+          }
+
           all_options['numberingSystem'] = number_system;
+        }
+
+        try {
+          const supported_calendars = intl_locale.getCalendars();
+          if ( !supported_calendars.includes(calendar)) {
+            console.warn(locale + ' does not support ' +  calendar);
+            console.log(locale + ': ' + supported_calendars);
+            continue;
+          }
+        } catch (error) {
+          // geCalendars isn't implemented. Don't skip.
         }
 
         let formatter;
@@ -282,6 +332,9 @@ function generateAll(run_limit) {
             const keys = Object.keys(option);
 
             if (keys.length == 1 && (keys[0] == 'era' || keys[0] == 'timeZoneName')) {
+              if (calendar == 'chinese') {
+                continue;
+              }
               try {
                 const item = parts.filter(({type}) => type === keys[0]);
                 try {
@@ -380,7 +433,7 @@ function generateAll(run_limit) {
     console.error(err);
   }
 
-  console.log('Number of date/time sampled tests ',
+  console.log('Number of date/time sampled tests for version ',
               process.versions.icu, ': ', test_obj['tests'] .length);
 
   verify_obj['verifications'] = sample_tests(verify_cases, run_limit);

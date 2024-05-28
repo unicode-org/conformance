@@ -10,28 +10,18 @@
 
 #include <json-c/json.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <unicode/locid.h>
+#include <unicode/plurfmt.h>
+#include <unicode/plurrule.h>
+#include <unicode/unistr.h>
 
-#include <cstring>
-#include <iostream>
 #include <string>
-#include <string_view>
 #include <vector>
 
-#include "unicode/locid.h"
-#include "unicode/plurfmt.h"
-#include "unicode/plurrule.h"
-#include "unicode/uclean.h"
-#include "unicode/unistr.h"
-#include "unicode/utypes.h"
-
-#include "util.h"
-
+using icu::Locale;
 using icu::PluralRules;
+using icu::UnicodeString;
 
-using std::cout;
-using std::endl;
 using std::string;
 
 const string TestPluralRules (json_object* json_in) {
@@ -70,7 +60,7 @@ const string TestPluralRules (json_object* json_in) {
     string sample_string = json_object_get_string(sample_obj);
 
     if (sample_string.find('c') != std::string::npos) {
-      input_is_compact = true;
+
     }
     if (sample_string.find('.') != std::string::npos) {
       // Convert into an integer, decimal, or compact decimal
