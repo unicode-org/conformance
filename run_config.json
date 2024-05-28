@@ -13,6 +13,7 @@
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
+        "list_fmt",
         "number_fmt",
         "plural_rules"
       ],
@@ -33,6 +34,7 @@
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
+        "list_fmt",
         "number_fmt",
         "plural_rules"
       ],
@@ -94,9 +96,10 @@
         "collation_short",
         "datetime_fmt",
         "lang_names",
-        "list_fmt",
         "likely_subtags",
-        "number_fmt"        
+        "list_fmt",
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
