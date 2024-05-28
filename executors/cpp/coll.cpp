@@ -25,6 +25,7 @@
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 
+#include <cstring>
 #include <iostream>
 #include <string>
 
@@ -132,8 +133,7 @@ const string TestCollator(json_object *json_in) {
 
   if (rules_string != "") {
     char uni_rules_out[1000] = "";
-    int32_t rule_chars_out =
-        uni_rules.extract(uni_rules_out, 1000, nullptr, status);
+    uni_rules.extract(uni_rules_out, 1000, nullptr, status);  // ignore length
 
     // Make sure normalization is consistent
     rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
@@ -165,10 +165,9 @@ const string TestCollator(json_object *json_in) {
     delete rb_coll;
   } else {
     // Not a rule-based collator.
-    if (locale_string == "") {
+    if (strlen(locale_string) <= 0) {
       uni_coll = Collator::createInstance(status);
     } else {
-      cout << "# Locale set to " << locale_string <<  endl;
       uni_coll = Collator::createInstance(Locale(locale_string), status);
     }
 
@@ -219,20 +218,10 @@ const string TestCollator(json_object *json_in) {
     }
 
     // Just to check the result.
-    UColAttributeValue alternate_value =
-        uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);
+    uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status); // ignore return
 
-    // Try two differen APIs
-    uni_result_utf8 = uni_coll->compareUTF8(string1, string2, status);
-    // This one seems to work better.
+    // Perform the string comparison
     uni_result = uni_coll->compare(us1, us2, status);
-
-    if (uni_result != uni_result_utf8) {
-      cout << "# UNI_COLL COMPARE Unicode String " << uni_result << " ";
-      cout << "# UNI_COLL COMPARE UTF8 String " << uni_result_utf8 << endl;
-      cout << "# ******* results different in " << label_string << endl;
-    }
-
     if (U_FAILURE(status)) {
         json_object_object_add(
             return_json,
@@ -243,8 +232,7 @@ const string TestCollator(json_object *json_in) {
           error_message << endl;
     }
     if (uni_coll) {
-      UColAttributeValue alternate_value =
-          uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);
+      uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore result
     }
     delete uni_coll;
   }
@@ -259,7 +247,7 @@ const string TestCollator(json_object *json_in) {
       // Check unescaped versions.
       char char_out1[1000] = "";
       char char_out2[1000] = "";
-      int32_t chars_out = us1.extract(char_out1, 1000, nullptr, status);
+      us1.extract(char_out1, 1000, nullptr, status);  // ignore result
       if (U_FAILURE(status)) {
         test_result = error_message;
         json_object_object_add(
@@ -270,7 +258,7 @@ const string TestCollator(json_object *json_in) {
             test_result << endl;
       }
 
-      int32_t chars_out2 = us2.extract(char_out2, 1000, nullptr, status);
+      us2.extract(char_out2, 1000, nullptr, status);  // ignore result
       if (U_FAILURE(status)) {
         test_result = error_message;
         // TODO: report the error in creating the instance
@@ -289,7 +277,7 @@ const string TestCollator(json_object *json_in) {
       json_object_object_add(
           return_json, "s2", json_object_new_string(string2.c_str()));
 
-      // What was the actual returned value?
+      // Record the actual returned value
       json_object_object_add(
           return_json, "compare", json_object_new_int64(uni_result));
     } else {

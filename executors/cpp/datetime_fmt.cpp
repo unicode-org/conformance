@@ -1,9 +1,5 @@
 /********************************************************************
- * Comments and license as needed
- ************************************
-
-/******
- * testing datetime format
+ * testing icu4c datetime format
  */
 
 #include <json-c/json.h>
@@ -251,11 +247,8 @@ const string TestDatetimeFmt(json_object *json_in) {
   df->format(test_date_time, formatted_result);
 
   // Get the resulting value as a string
-  string test_result;
-  int32_t chars_out;  // Extracted characters from Unicode string
   char test_result_string[1000] = "";
-  chars_out = formatted_result.extract(
-      test_result_string, 1000, nullptr, status);
+  formatted_result.extract(test_result_string, 1000, nullptr, status);  // ignore return value
 
   if (U_FAILURE(status)) {
     json_object_object_add(

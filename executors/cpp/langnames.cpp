@@ -1,9 +1,5 @@
 /********************************************************************
- * Comments and license as needed
- ************************************
-
-/******
- * testing language display names
+ * testing icu4c for language display names
  */
 
 #include <json-c/json.h>
@@ -60,8 +56,7 @@ const string TestLangNames (json_object *json_in) {
 
   char test_result_string[1000] = "";
 
-  int32_t chars_out = testLang.extract(
-      test_result_string, 1000, nullptr, status);
+  testLang.extract(test_result_string, 1000, nullptr, status);  // ignore return
   if (U_FAILURE(status)) {
     json_object_object_add(
         return_json,

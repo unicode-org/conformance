@@ -39,11 +39,7 @@ const string TestLikelySubtags(json_object *json_in) {
 
   Locale displayLocale(locale_string.c_str());
 
-  const char* test_result;
-  const string error_message_max = "error in maximize";
-  const string error_message_min = "error in minimize";
-  const string protected_msg = "This ICU4C API is protected";
-  const char* empty_result = "";
+  string test_result = "";
 
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
@@ -52,17 +48,13 @@ const string TestLikelySubtags(json_object *json_in) {
   string name_string;
   StringByteSink<string> byteSink(&name_string);
 
-  // If needed.
-  json_object *error_msg = json_object_new_object();
-
-  test_result = empty_result;
   if (option_string == "maximize") {
     // This makes the maximized form
     Locale maximized(displayLocale);
     maximized.addLikelySubtags(status);
 
     if (U_FAILURE(status)) {
-      test_result = error_message_max.c_str();
+      test_result = "error in maximize";
     } else {
       maximized.toLanguageTag(byteSink, status);
 
@@ -72,17 +64,18 @@ const string TestLikelySubtags(json_object *json_in) {
             "error",
             json_object_new_string("toLanguageTag"));
       }
-      test_result = name_string.c_str();
+      test_result = name_string;
     }
   } else if (option_string == "minimize" ||
              option_string == "minimizeFavorRegion") {
     // Minimize
     displayLocale.minimizeSubtags(status);
     if (U_FAILURE(status)) {
-      test_result = error_message_min.c_str();
+      const string error_message_min = "error in minimize";
+      test_result = error_message_min;
     } else {
       displayLocale.toLanguageTag(byteSink, status);
-      test_result = name_string.c_str();
+      test_result = name_string;
 
       if (U_FAILURE(status)) {
         json_object_object_add(
@@ -105,7 +98,8 @@ const string TestLikelySubtags(json_object *json_in) {
                            json_object_new_string(option_string.c_str()));
     json_object_object_add(return_json,
                          "error_detail",
-                           json_object_new_string(protected_msg.c_str()));
+                           json_object_new_string("This ICU4C API is protected"));
+
     // This is a protected API in ICU4C.
     // displayLocale.minimizeSubtags(favorScript, status);
   } else {
@@ -123,12 +117,12 @@ const string TestLikelySubtags(json_object *json_in) {
   if (U_FAILURE(status)) {
     json_object_object_add(return_json,
                            "error",
-                           json_object_new_string(test_result));
+                           json_object_new_string(test_result.c_str()));
   } else {
     // The output of the likely subtag operation.
     json_object_object_add(return_json,
                            "result",
-                           json_object_new_string(test_result));
+                           json_object_new_string(test_result.c_str()));
   }
 
   return  json_object_to_json_string(return_json);
