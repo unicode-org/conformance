@@ -105,9 +105,9 @@ const string TestListFmt (json_object* json_in) {
   UnicodeString *u_array = &u_strings[0];
   UnicodeString u_result_string;
   u_result_string = list_formatter->format(u_array,
-                                        u_strings_size,
-                                        u_result_string,
-                                        status);
+                                           u_strings_size,
+                                           u_result_string,
+                                           status);
 
   char test_result_string[1000] = "";
   if (U_FAILURE(status)) {
@@ -116,7 +116,8 @@ const string TestListFmt (json_object* json_in) {
         "error",
         json_object_new_string("calling list format"));
   } else {
-    u_result_string.extract(test_result_string, 1000, nullptr, status);  // result ignored
+    u_result_string.extract(
+        test_result_string, 1000, nullptr, status);  // result ignored
   }
 
   if (U_FAILURE(status)) {

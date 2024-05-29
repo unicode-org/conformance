@@ -248,7 +248,8 @@ const string TestDatetimeFmt(json_object *json_in) {
 
   // Get the resulting value as a string
   char test_result_string[1000] = "";
-  formatted_result.extract(test_result_string, 1000, nullptr, status);  // ignore return value
+  formatted_result.extract(
+      test_result_string, 1000, nullptr, status);  // ignore return value
 
   if (U_FAILURE(status)) {
     json_object_object_add(

@@ -87,18 +87,22 @@ const string TestLikelySubtags(json_object *json_in) {
   } else if (option_string == "minimizeFavorScript") {
     // Minimize with script preferred.
     bool favorScript = true;
-    json_object_object_add(return_json,
-                         "error",
-                           json_object_new_string("unsupported option"));
-    json_object_object_add(return_json,
-                         "error_type",
-                           json_object_new_string("unsupported"));
-    json_object_object_add(return_json,
-                         "unsupported",
-                           json_object_new_string(option_string.c_str()));
-    json_object_object_add(return_json,
-                         "error_detail",
-                           json_object_new_string("This ICU4C API is protected"));
+    json_object_object_add(
+        return_json,
+        "error",
+        json_object_new_string("unsupported option"));
+    json_object_object_add(
+        return_json,
+        "error_type",
+        json_object_new_string("unsupported"));
+    json_object_object_add(
+        return_json,
+        "unsupported",
+        json_object_new_string(option_string.c_str()));
+    json_object_object_add(
+        return_json,
+        "error_detail",
+        json_object_new_string("This ICU4C API is protected"));
 
     // This is a protected API in ICU4C.
     // displayLocale.minimizeSubtags(favorScript, status);
@@ -115,14 +119,16 @@ const string TestLikelySubtags(json_object *json_in) {
   }
 
   if (U_FAILURE(status)) {
-    json_object_object_add(return_json,
-                           "error",
-                           json_object_new_string(test_result.c_str()));
+    json_object_object_add(
+        return_json,
+        "error",
+        json_object_new_string(test_result.c_str()));
   } else {
     // The output of the likely subtag operation.
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result.c_str()));
+    json_object_object_add(
+        return_json,
+        "result",
+        json_object_new_string(test_result.c_str()));
   }
 
   return  json_object_to_json_string(return_json);

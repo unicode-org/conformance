@@ -218,7 +218,7 @@ const string TestCollator(json_object *json_in) {
     }
 
     // Just to check the result.
-    uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status); // ignore return
+    uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore return
 
     // Perform the string comparison
     uni_result = uni_coll->compare(us1, us2, status);
