@@ -1,9 +1,5 @@
 /********************************************************************
- * Comments and license as needed
- ************************************
-
-/******
- * testing list formatting
+ * testing list formatting in icu4c
  */
 #include <json-c/json.h>
 
@@ -51,7 +47,6 @@ const string TestListFmt (json_object* json_in) {
   std::vector<UnicodeString> u_strings;
   int u_strings_size = 0;
   if (input_list_obj) {
-    struct array_list* input_list_array = json_object_get_array(input_list_obj);
     int input_length = json_object_array_length(input_list_obj);
 
     // Construct the list of Unicode Strings
@@ -61,7 +56,7 @@ const string TestListFmt (json_object* json_in) {
       string item_string = json_object_get_string(item);
       u_strings.push_back(item_string.c_str());
     }
-    u_strings_size = u_strings_size = u_strings.size();
+    u_strings_size = u_strings.size();
   } else {
     json_object_object_add(
         return_json,
@@ -110,9 +105,9 @@ const string TestListFmt (json_object* json_in) {
   UnicodeString *u_array = &u_strings[0];
   UnicodeString u_result_string;
   u_result_string = list_formatter->format(u_array,
-                                        u_strings_size,
-                                        u_result_string,
-                                        status);
+                                           u_strings_size,
+                                           u_result_string,
+                                           status);
 
   char test_result_string[1000] = "";
   if (U_FAILURE(status)) {
@@ -121,8 +116,8 @@ const string TestListFmt (json_object* json_in) {
         "error",
         json_object_new_string("calling list format"));
   } else {
-    int32_t chars_out =
-        u_result_string.extract(test_result_string, 1000, nullptr, status);
+    u_result_string.extract(
+        test_result_string, 1000, nullptr, status);  // result ignored
   }
 
   if (U_FAILURE(status)) {

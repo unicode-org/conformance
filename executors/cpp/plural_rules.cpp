@@ -1,10 +1,6 @@
 /********************************************************************
- * Comments and license as needed
- ************************************
-
-/******
- * testing plural rules
- * Based on code of ICU4C testing:
+ * testing plural rules in icu4c
+ *
  * https://github.com/unicode-org/icu/blob/maint/maint-75/icu4c/source/test/intltest/plurfmts.cpp
  */
 
@@ -60,8 +56,9 @@ const string TestPluralRules (json_object* json_in) {
     string sample_string = json_object_get_string(sample_obj);
 
     if (sample_string.find('c') != std::string::npos) {
-
+      // TODO: Handle compact numbers
     }
+
     if (sample_string.find('.') != std::string::npos) {
       // Convert into an integer, decimal, or compact decimal
       input_double_sample = std::stod(sample_string);
@@ -137,8 +134,8 @@ const string TestPluralRules (json_object* json_in) {
         json_object_new_string("calling plural rules select"));
     return  json_object_to_json_string(return_json);
   } else {
-    int32_t chars_out =
-        u_result.extract(test_result_string, 1000, nullptr, status);
+    u_result.extract(
+        test_result_string, 1000, nullptr, status);  // ignore result
   }
 
   if (U_FAILURE(status)) {
@@ -149,9 +146,10 @@ const string TestPluralRules (json_object* json_in) {
     return  json_object_to_json_string(return_json);
   } else {
     // It all seems to work!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result_string));
+    json_object_object_add(
+        return_json,
+        "result",
+        json_object_new_string(test_result_string));
   }
 
   // The JSON output.

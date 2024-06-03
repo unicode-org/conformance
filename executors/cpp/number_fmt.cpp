@@ -1,10 +1,7 @@
 /********************************************************************
- * Comments and license as needed
- ************************************
-
-/******
- * testing number format
+ * testing icu4c number format
  */
+
 #include <json-c/json.h>
 
 #include <unicode/bytestream.h>
@@ -55,8 +52,6 @@ using icu::number::NumberFormatterSettings;
 using icu::number::Notation;
 using icu::number::Precision;
 using icu::number::Scale;
-
-const char error_message[] = "error";
 
 // Get the integer value of a settting
 int16_t get_integer_setting(string key_value_string) {
@@ -215,7 +210,6 @@ const string TestNumfmt(json_object *json_in) {
   // Other parts of the input.
   json_object *options_obj = json_object_object_get(json_in, "options");
   json_object *skeleton_obj = json_object_object_get(json_in, "skeleton");
-  json_object *pattern_obj = json_object_object_get(json_in, "pattern");
 
   // The locale for numbers
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
@@ -225,15 +219,6 @@ const string TestNumfmt(json_object *json_in) {
   }
 
   const Locale displayLocale(locale_string.c_str());
-
-  // Try using the skeleton to create the formatter
-  json_object *skelecton_obj = json_object_object_get(json_in, "skeleton");
-  UnicodeString unicode_skeleton_string;
-  string skeleton_string;
-  if (skeleton_obj) {
-    skeleton_string = json_object_get_string(skeleton_obj);
-    unicode_skeleton_string = skeleton_string.c_str();
-  }
 
   // Get options
   json_object *notation_obj;
@@ -339,7 +324,7 @@ const string TestNumfmt(json_object *json_in) {
       string currencyDisplay_string =
           json_object_get_string(currencyDisplay_obj);
       unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
-     if (currencyDisplay_string == "narrowSymbol") {
+      if (currencyDisplay_string == "narrowSymbol") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
       } else if (currencyDisplay_string == "symbol") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_SHORT;
@@ -441,12 +426,7 @@ const string TestNumfmt(json_object *json_in) {
 
   int32_t chars_out;  // Results of extracting characters from Unicode string
   bool no_error = true;
-  char test_result_string[1000] = "";
-
-  string test_result;
-
-  // Get the numeric value
-  double input_double = std::stod(input_string);
+  char test_result[1000] = "";
 
   LocalizedNumberFormatter nf;
   if (notation_string == "scientific") {
@@ -468,35 +448,38 @@ const string TestNumfmt(json_object *json_in) {
   }
 
   if (skeleton_obj) {
-    // If present, use the skeleton
+    // Use the skeleton provided
+    UnicodeString unicode_skeleton_string;
+    string skeleton_string = json_object_get_string(skeleton_obj);
+    unicode_skeleton_string = skeleton_string.c_str();
+
     nf = NumberFormatter::forSkeleton(
         unicode_skeleton_string, status).locale(displayLocale);
   } else {
-  // Use settings to initialize the formatter
-  nf = NumberFormatter::withLocale(displayLocale)
-       .notation(notation_setting)
-       .decimal(separator_setting)
-       .precision(precision_setting)
-       .integerWidth(integerWidth_setting)
-       .grouping(grouping_setting)
-       .adoptSymbols(numbering_system)
-       .roundingMode(rounding_setting)
-       .scale(scale_setting)
-       .sign(signDisplay_setting)
-       .unit(unit_setting)
-       .unitWidth(unit_width_setting);
+    // Use settings to initialize the formatter
+    nf = NumberFormatter::withLocale(displayLocale)
+         .notation(notation_setting)
+         .decimal(separator_setting)
+         .precision(precision_setting)
+         .integerWidth(integerWidth_setting)
+         .grouping(grouping_setting)
+         .adoptSymbols(numbering_system)
+         .roundingMode(rounding_setting)
+         .scale(scale_setting)
+         .sign(signDisplay_setting)
+         .unit(unit_setting)
+         .unitWidth(unit_width_setting);
   }
 
   if (U_FAILURE(status)) {
-    test_result = error_message;
-      const char* error_name = u_errorName(status);
-      json_object_object_add(
-          return_json,
-          "error", json_object_new_string("error in constructor"));
-      json_object_object_add(
-          return_json,
-          "error_detail", json_object_new_string(error_name));
-      no_error = false;
+    const char* error_name = u_errorName(status);
+    json_object_object_add(
+        return_json,
+        "error", json_object_new_string("error in constructor"));
+    json_object_object_add(
+        return_json,
+        "error_detail", json_object_new_string(error_name));
+    no_error = false;
   }
 
   if (no_error) {
@@ -512,13 +495,10 @@ const string TestNumfmt(json_object *json_in) {
       json_object_object_add(
           return_json,
           "error_detail", json_object_new_string(error_name));
-      no_error = false;
     }
 
     // Get the resulting value as a string
-    chars_out = number_result.extract(
-        test_result_string, 1000, nullptr, status);
-    test_result = test_result_string;
+    number_result.extract(test_result, 1000, nullptr, status);  // ignore result
 
     if (U_FAILURE(status)) {
       // Report a failure
@@ -528,20 +508,20 @@ const string TestNumfmt(json_object *json_in) {
           json_object_new_string("error in string extract"));
       json_object_object_add(
           return_json, "error_detail", json_object_new_string(error_name));
-      no_error = false;
     } else {
       // It worked!
       json_object_object_add(return_json,
                              "result",
-                             json_object_new_string(test_result.c_str()));
+                             json_object_new_string(test_result));
     }
   }
+
   // To see what was actually used.
   UnicodeString u_skeleton_out = nf.toSkeleton(status);
-  chars_out = u_skeleton_out.extract(test_result_string, 1000, nullptr, status);
+  u_skeleton_out.extract(test_result, 1000, nullptr, status);  // result ignored
   json_object_object_add(return_json,
                          "actual_skeleton",
-                         json_object_new_string(test_result_string));
+                         json_object_new_string(test_result));
 
   string return_string = json_object_to_json_string(return_json);
   return return_string;
