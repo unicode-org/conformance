@@ -1,8 +1,10 @@
+use fixed_decimal::FixedDecimal;
 use icu::locid::Locale;
-use serde_json::Value;
+use serde_json::{json, Value};
+use std::str::FromStr;
 
 // https://docs.rs/icu/latest/icu/plurals/index.html
-use icu::plurals::{PluralRuleType, PluralRules};
+use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
 
 // Function runs plural rules
 pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
@@ -15,27 +17,32 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
     let input_number = &json_obj["sample"].as_str().unwrap();
 
     // Returns error if parsing the number string fails.
-    let test_number = input_number.parse::<usize>().map_err(|e| e.to_string())?;
-
-    // Get type string: either ordinal or cardinal
-    let plural_type_string: &str = json_obj["plural_type"].as_str().unwrap();
-
-    
-    // Get PluralRuleTypecardinal / ordinal
-    let pr = if plural_type_string == "cardinal" {
-        PluralRules::try_new(&locale.into(),
-                             PluralRuleType::Cardinal)
-            .expect("locale should be present");
+    let test_number = if let Ok(fd) = FixedDecimal::from_str(input_number) {
+        fd
     } else {
-        PluralRules::try_new(&locale.into(),
-                             PluralRuleType::Ordinal)
-            .expect("locale should be present");
+        // Report an unexpected result.
+        return Ok(json!({
+            "label": label,
+            "error_detail": {"option": input_number},
+            "error_type": "parsing sample",
+            "unsupported": "problem with input number"
+        }));
     };
 
-    // Get the category and convert to a string.
-    let category = PluralCategory pr.category_for(test_number);
+    // Get type string: either ordinal or cardinal
+    let plural_type_string: &str = json_obj["type"].as_str().unwrap();
 
-    // ?? let category_string = category.write_to_string.into_owned();
+    // Get PluralRuleTypecardinal / ordinal
+    let plural_type = if plural_type_string == "cardinal" {
+        PluralRuleType::Cardinal
+    } else {
+        PluralRuleType::Ordinal
+    };
+
+    let pr = PluralRules::try_new(&locale.into(), plural_type).expect("locale should be present");
+
+    // Get the category and convert to a string.
+    let category = pr.category_for(&test_number);
 
     let category_string = if category == PluralCategory::Zero {
         "zero"
@@ -53,30 +60,16 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
         // Report an unexpected result.
         return Ok(json!({
             "label": label,
-            "error_detail": {"category": category},
+            "error_detail": {"option": "unknown category returned"},
             "error_type": "unsupported",
             "unsupported": "unknown plural result"
         }));
     };
 
-    let json_result = match category {
-        Ok(formatter) => {
-            json!({
-                "label": label,
-                "result": category.write_to_stringinto_owned();
-            }) 
-       }
-        Err(e) => {
-            json!({
-                "label": label,
-                "locale_label": locale_str,
-                "error": e.to_string(),
-                "error_type": "unsupported",
-                "unsupported": e.to_string(),
-                "error_detail": {"unsupported_locale": locale_str}
-            })
-        }
-    };
+    let json_result = json!({
+        "label": label,
+        "result": category_string
+    });
 
     // Return the string
     Ok(json_result)
