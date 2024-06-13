@@ -11,7 +11,18 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
 
     let locale_str: &str = json_obj["locale"].as_str().unwrap();
-    let locale = locale_str.parse::<Locale>().unwrap();
+
+    let locale =
+        if let Ok(lc) = locale_str.parse::<Locale>() {
+            lc
+        } else {
+            return Ok(json!({
+                "label": label,
+                "error_detail": {"option": locale_str},
+                "error_type": "locale problem",
+            }));
+        };
+
 
     // Get number string
     let input_number = &json_obj["sample"].as_str().unwrap();
