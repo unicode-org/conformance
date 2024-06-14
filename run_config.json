@@ -273,10 +273,12 @@
       "exec": "rust",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
-        "list_fmt"
+        "list_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -292,10 +294,12 @@
       "exec": "rust",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "list_fmt",
         "likely_subtags",
-        "number_fmt"
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
