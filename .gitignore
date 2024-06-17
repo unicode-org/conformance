@@ -42,3 +42,6 @@ TEMP_DATA/*
 # log files (including logrotate state and file backups)
 debug.log*
 logrotate.state
+
+# Maven
+dependency-reduced-pom.xml

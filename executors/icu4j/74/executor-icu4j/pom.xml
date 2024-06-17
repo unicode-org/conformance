@@ -50,6 +50,17 @@
   </dependencies>
 
   <build>
+    <!-- Add custom resource paths -->
+    <testResources>
+      <testResource>
+        <!--
+          Include the entire testgen directory so that we can have access to
+          all MF2 resources across all versions of ICU/CLDR
+         -->
+        <directory>../../../../testgen</directory>
+      </testResource>
+    </testResources>
+
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
