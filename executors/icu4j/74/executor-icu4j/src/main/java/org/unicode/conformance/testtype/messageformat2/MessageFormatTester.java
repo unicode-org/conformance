@@ -18,14 +18,12 @@ public class MessageFormatTester implements ITestType {
   public ITestTypeInputJson inputMapToJson(Map<String, Object> inputMapData) {
     MessageFormatInputJson result = new MessageFormatInputJson();
 
-    result.test_type = (String) inputMapData.get("test_type", null);
     result.label = (String) inputMapData.get("label", null);
 
-    result.test_subtype = (MFTestSubType) inputMapData.get("test_subtype", null);
     result.locale = (String) inputMapData.get("locale", null);
-    result.pattern = (String) inputMapData.get("pattern", null);
+    result.src = (String) inputMapData.get("src", null);
     result.test_description = (String) inputMapData.get("test_description", null);
-    result.inputs = (List<MFInputArg>) inputMapData.get("inputs", null);
+    result.params = (List<IMFInputParam>) inputMapData.get("inputs", null);
     result.verify = (String) inputMapData.get("verify", null);
 
     return result;
@@ -72,13 +70,14 @@ public class MessageFormatTester implements ITestType {
 
   public String getFormattedMessage(MessageFormatInputJson input) {
     final Locale locale = Locale.forLanguageTag(input.locale);
-    java.util.Map arguments = new HashMap<String,Object>();
-    for (MFInputArg arg : input.inputs) {
-      arguments.put(arg.name, arg.value);
+    java.util.Map<String,Object> arguments = new HashMap<>();
+    for (IMFInputParam arg : input.params) {
+      arguments.put(arg.getName(), arg.getValue());
     }
 
     MessageFormatter formatter = MessageFormatter.builder()
-        .setPattern(input.pattern)
+        // .setPattern(input.pattern)
+        .setPattern(input.src)
         .setLocale(locale)
         .build();
 

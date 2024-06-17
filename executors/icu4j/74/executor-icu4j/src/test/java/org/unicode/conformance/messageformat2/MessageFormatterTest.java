@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.ibm.icu.util.ULocale;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -13,9 +12,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.unicode.conformance.testtype.messageformat2.MFInputArg;
-import org.unicode.conformance.testtype.messageformat2.MFInputArgType;
-import org.unicode.conformance.testtype.messageformat2.MFTestSubType;
+import org.unicode.conformance.testtype.messageformat2.IMFInputParam;
+import org.unicode.conformance.testtype.messageformat2.MFInputParamDatetime;
+import org.unicode.conformance.testtype.messageformat2.MFInputParamObject;
 import org.unicode.conformance.testtype.messageformat2.MessageFormatInputJson;
 import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 
@@ -97,24 +96,19 @@ public class MessageFormatterTest {
   public void testGetFormattedMessage() {
     // Setup
     MessageFormatInputJson inputJson = new MessageFormatInputJson();
-    inputJson.test_type = "message_fmt2";
     inputJson.label = "00001";
-    inputJson.test_subtype = MFTestSubType.formatter;
     inputJson.locale = "en-GB";
-    inputJson.pattern = "{Hello {$name}, your card expires on {$exp :datetime skeleton=yMMMdE}!}";
+    inputJson.src = "{Hello {$name}, your card expires on {$exp :datetime skeleton=yMMMdE}!}";
     inputJson.test_description = "Test using the ICU4J API doc example for the MessageFormatter class";
-    List<MFInputArg> inputs = new ArrayList<>();
-    MFInputArg nameArg = new MFInputArg();
+    List<IMFInputParam> inputs = new ArrayList<>();
+    MFInputParamObject nameArg = new MFInputParamObject();
     nameArg.name = "name";
-    nameArg.argType = MFInputArgType.string;
     nameArg.value = "John";
     inputs.add(nameArg);
-    MFInputArg expArg = new MFInputArg();
+    MFInputParamDatetime expArg = new MFInputParamDatetime("exp", "2023-03-27T19:42:51"); // March 27, 2023, 7:42:51 PM
     expArg.name = "exp";
-    expArg.argType = MFInputArgType.datetime;
-    expArg.value = new Date(2023 - 1900, 2, 27, 19, 42, 51);  // March 27, 2023, 7:42:51 PM
     inputs.add(expArg);
-    inputJson.inputs = inputs;
+    inputJson.params = inputs;
 
     // Actual
     String formattedString = MessageFormatTester.INSTANCE.getFormattedMessage(inputJson);

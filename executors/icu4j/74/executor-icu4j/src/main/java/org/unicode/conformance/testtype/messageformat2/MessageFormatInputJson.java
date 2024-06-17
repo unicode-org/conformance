@@ -5,19 +5,15 @@ import org.unicode.conformance.testtype.ITestTypeInputJson;
 
 public class MessageFormatInputJson implements ITestTypeInputJson {
 
-  public String test_type;
-
   public String label;
-
-  public MFTestSubType test_subtype;
 
   public String locale;
 
-  public String pattern;
+  public String src;
 
   public String test_description;
 
-  public List<MFInputArg> inputs;
+  public List<IMFInputParam> params;
 
   public String verify;
 
