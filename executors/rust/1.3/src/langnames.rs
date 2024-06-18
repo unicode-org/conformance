@@ -2,10 +2,10 @@
 
 use serde_json::{json, Value};
 
-use icu::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
+use crate::icu::experimental::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
 
-use icu::locid::subtags::Language;
-use icu::locid::Locale;
+use crate::icu::locid::subtags::Language;
+use crate::icu::locid::Locale;
 
 // Function runs language names tests
 pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {

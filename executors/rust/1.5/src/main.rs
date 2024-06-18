@@ -16,20 +16,20 @@
 // References for ICU4X:
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
 
+#[path = "../../1.3/src/collator.rs"]
 mod collator;
+#[path = "../../1.3/src/langnames.rs"]
 mod langnames;
+#[path = "../../1.3/src/likelysubtags.rs"]
 mod likelysubtags;
+#[path = "../../1.3/src/listfmt.rs"]
 mod listfmt;
+#[path = "../../1.3/src/numberfmt.rs"]
 mod numberfmt;
+#[path = "../../1.3/src/pluralrules.rs"]
 mod pluralrules;
 
-mod icu {
-    pub mod experimental {
-        pub use ::icu::displaynames;
-        pub use ::icu::compactdecimal;
-    }
-    pub use ::icu::locid;
-}
+use icu;
 
 use collator::run_collation_test;
 use langnames::run_language_name_test;
