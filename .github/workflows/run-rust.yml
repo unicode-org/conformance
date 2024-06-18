@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        icu4x-version: [ '1.3', '1.4' ]
+        icu4x-version: [ '1.3', '1.4', '1.5' ]
     name: Lint the executor code for ICU4X
     runs-on: ubuntu-latest
     steps:
