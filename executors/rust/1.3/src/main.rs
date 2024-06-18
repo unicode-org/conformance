@@ -25,10 +25,10 @@ mod pluralrules;
 
 mod icu {
     pub mod experimental {
-        pub use ::icu::displaynames;
-        pub use ::icu::compactdecimal;
+        pub use icu::compactdecimal;
+        pub use icu::displaynames;
     }
-    pub use ::icu::locid;
+    pub use icu::locid;
 }
 
 use collator::run_collation_test;
