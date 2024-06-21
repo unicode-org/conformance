@@ -100,20 +100,19 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     } else if date_style_str.is_some() && time_style_str.is_none() {
         length::Bag::from_date_style(date_style)
     } else {
-        length::Bag::default().into()
+        length::Bag::default()
     };
 
     // Get ISO input string
     let input_time_string = &json_obj["input_string"].as_str().unwrap();
-    let input_iso: String = input_time_string.to_string() +
-        "[-00:00]";
+    let input_iso: String = input_time_string.to_string() + "[-00:00]";
 
     let dt_iso = IxdtfParser::new(&input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
     // let offset = dt_iso.offset.unwrap();
     // let tz_annotation = dt_iso.tz;
-    
+
     let datetime_iso = DateTime::try_new_iso_datetime(
         date.year,
         date.month,
