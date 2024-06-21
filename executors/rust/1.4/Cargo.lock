@@ -205,6 +205,7 @@ dependencies = [
  "icu",
  "icu_datagen",
  "icu_provider",
+ "ixdtf",
  "json",
  "log",
  "rustc_version_runtime",
@@ -825,6 +826,15 @@ name = "itoa"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
+
+[[package]]
+name = "ixdtf"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2123305f927452a9502fc05c33800280d90127c95c50eb45ec6b3c50346afbf3"
+dependencies = [
+ "displaydoc",
+]
 
 [[package]]
 name = "json"

@@ -21,6 +21,8 @@ icu_provider = "~1.4"
 fixed_decimal = "0.5.3"
 writeable = "0.5.2"
 
+ixdtf = "0.2.0"
+    
 [build-dependencies]
 cargo_metadata = "0.18"
 icu_datagen = { version = "~1.4", default-features = false }

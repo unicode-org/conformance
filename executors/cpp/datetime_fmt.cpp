@@ -130,6 +130,10 @@ const string TestDatetimeFmt(json_object *json_in) {
       timezone_str = json_object_get_string(option_item);
       UnicodeString u_tz(timezone_str.c_str());
       tz = TimeZone::createTimeZone(u_tz);
+    } else {
+      // Default is UTC
+      UnicodeString u_tz("UTC");
+      tz = TimeZone::createTimeZone(u_tz);
     }
   }
 

@@ -283,7 +283,12 @@ function generateAll(run_limit) {
 
         if (timezone != '') {
           all_options['timeZone'] = timezone;
+        } else {
+          // Default to GMT+00:00
+          all_options['timeZone'] = 'UTC'
+
         }
+
         if (number_system) {
           // getNumberingSystems() may not be available yet.
           // If we have this info and the number system isn't in this local, skip the test.

@@ -1,29 +1,17 @@
- // https://docs.rs/icu/1.3.2/icu/datetime/struct.DateTimeFormatter.html
+// https://docs.rs/icu/1.3.2/icu/datetime/struct.DateTimeFormatter.html
+// https://docs.rs/icu/1.3.2/icu/datetime/input/trait.TimeZoneInput.html
+// https://docs.rs/ixdtf/latest/ixdtf/
 
 use icu::calendar::DateTime;
-use icu::calendar::{buddhist::Buddhist,
-                    chinese::Chinese,
-                    coptic::Coptic,
-                    dangi::Dangi,
-                    ethopian::Ethopian,
-                    gergorian::Gregorian,
-                    hewbrew::Hebrew,
-                    indian::Indian,
-                    iso::ISO,
-                    japanese::Japanese,
-                    julian::Julian,
-                    persian::Persian,
-                    roc::Roc,
-                    Date};
-
-use icu::datetime::{options::length, DateTimeFormatter};
-// use icu::datetime::input::DateTimeInput;
+use icu::datetime::{options::length, ZonedDateTimeFormatter};
+use icu::locid::Locale;
+use icu::timezone::CustomTimeZone;
 use icu_provider::DataLocale;
 
-use icu::locid::Locale;
+use ixdtf::parsers::IxdtfParser;
 
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use serde::{Deserialize,Serialize};
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -33,72 +21,139 @@ struct DateTimeFormatOptions {
     time_zone: Option<String>,
     era: Option<String>,
     calendar: Option<String>,
-    numbering_system: Option<String>
+    numbering_system: Option<String>,
 }
 
 pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
-    
-    let langid: Locale = json_obj
-        .get("locale")
-        .map(|locale_name| locale_name.as_str().unwrap().parse().unwrap())
-        .unwrap_or_default();
-
-    let data_locale = DataLocale::from(langid);
 
     // If there are unsupported values, return
     // "unsupported" rather than an error.
     let options = &json_obj["options"]; // This will be an array.
 
+    let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
+
+    // Get calendar. If present, add to locale string
+    // as "-u-ca-" + calendar name.
+    let calendar_str = &option_struct.calendar;
+
+    let locale_json_str: &str = json_obj["locale"].as_str().unwrap();
+    let mut locale_str: String = locale_json_str.to_string();
+    if calendar_str.is_some() {
+        locale_str = locale_json_str.to_string() + "-u-ca-" + &calendar_str.as_ref().unwrap();
+    }
+
+    let lang_id = if let Ok(lc) = locale_str.parse::<Locale>() {
+        lc
+    } else {
+        return Ok(json!({
+            "label": label,
+            "error_detail": {"option": locale_str},
+            "error_type": "locale problem",
+        }));
+    };
+    let data_locale = DataLocale::from(lang_id);
+
     let mut _unsupported_options: Vec<&str> = Vec::new();
 
-    // handle options - maybe done?
-    
-    // TODO: handle calendar
-    // TODO: dateStyle
-    // TODO: timeStyle
     // TODO: timeZone
     // TODO: era
     // TODO: skeleton
 
-    // Set up DT options
-    let dt_options = length::Bag::from_date_time_style(
-        length::Date::Medium,
+    let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
+
+    let date_style_str = &option_struct.date_style;
+    let date_style = if date_style_str == &Some("full".to_string()) {
+        length::Date::Full
+    } else if date_style_str == &Some("long".to_string()) {
+        length::Date::Long
+    } else if date_style_str == &Some("short".to_string()) {
+        length::Date::Short
+    } else if date_style_str == &Some("medium".to_string()) {
+        length::Date::Medium
+    } else {
+        length::Date::Full
+    };
+
+    // TimeStyle long or full requires that you use ZonedDateTimeFormatter.
+    // long known issue that is documented and has been filed several times.
+    // Is fixed in 2.0
+    let time_style_str = &option_struct.time_style;
+    let time_style = if time_style_str == &Some("full".to_string()) {
+        length::Time::Full
+    } else if time_style_str == &Some("long".to_string()) {
+        length::Time::Long
+    } else if time_style_str == &Some("short".to_string()) {
         length::Time::Short
-    );
-    
-    let option_struct: DateTimeFormatOptions =
-        serde_json::from_str(&options.to_string()).unwrap();
-    
-    // TODO: !!! time input in ISO format.
-    // let input_string = &json_obj["input_string"].as_str().unwrap();
+    } else if time_style_str == &Some("medium".to_string()) {
+        length::Time::Medium
+    } else {
+        // !!! SET TO UNDEFINED
+        length::Time::Full
+    };
 
-    // let iso_input = DateTime::try_new_iso_datetime(input_string);
+    // Set up DT option if either is set
+    let dt_options = if date_style_str.is_some() && time_style_str.is_some() {
+        length::Bag::from_date_time_style(date_style, time_style)
+    } else if date_style_str.is_none() && time_style_str.is_some() {
+        length::Bag::from_time_style(time_style)
+    } else if date_style_str.is_some() && time_style_str.is_none() {
+        length::Bag::from_date_style(date_style)
+    } else {
+        length::Bag::default().into()
+    };
 
-    let dtf = DateTimeFormatter::try_new(
-        &data_locale,
-        dt_options.into(),
+    // Get ISO input string
+    let input_time_string = &json_obj["input_string"].as_str().unwrap();
+    let input_iso: String = input_time_string.to_string() +
+        "[-00:00]";
+
+    let dt_iso = IxdtfParser::new(&input_iso).parse().unwrap();
+    let date = dt_iso.date.unwrap();
+    let time = dt_iso.time.unwrap();
+    // let offset = dt_iso.offset.unwrap();
+    // let tz_annotation = dt_iso.tz;
+    
+    let datetime_iso = DateTime::try_new_iso_datetime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+        time.second,
     )
-        .expect("Failed to create DateTimeFormatter instance.");
+    .expect("Failed to initialize ISO DateTime instance.");
+    let any_datetime = datetime_iso.to_any();
 
-    // !!! TEMPORARY !
-    let date_iso = DateTime::try_new_iso_datetime(2020, 9, 1, 12, 34, 28)
-        .expect("Failed to construct DateTime.");
-    let any_datetime = date_iso.to_any();
+    // Testing with a default timezone
+    let time_zone = CustomTimeZone::utc();
 
-    // !!! Calendar.
-    let calendar_type = gregorian;
-    let calendar_date = date_iso.to_calendar(calendar_type);
+    // The constructor is called
+    let dtf_result =
+        ZonedDateTimeFormatter::try_new(&data_locale, dt_options.into(), Default::default());
 
-    // Result to stdout.
-    // TODO: get the date/time info from a skeleton.
-    let formatted_dt = dtf.format(&any_datetime).expect("should work");
+    let datetime_formatter = match dtf_result {
+        Ok(dtf) => dtf,
+        Err(e) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("{option_struct:?}"),
+                "error_type": format!("Failed to create DateTimeFormatter instance: {e:?}"),
+            }));
+        }
+    };
+
+    // TODO: Use a skeleton.
+
+    let formatted_dt = datetime_formatter
+        .format(&any_datetime, &time_zone)
+        .expect("should work");
     let result_string = formatted_dt.to_string();
-    
+
     Ok(json!({
         "label": label,
         "result": result_string,
-        "actual_options": format!("{option_struct:?}, {options:?}"),
+        "actual_options":
+        format!("{dt_options:?}, {time_zone:?}, {dt_iso:?}"),
     }))
-        
 }
