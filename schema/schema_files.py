@@ -3,6 +3,7 @@
 ALL_TEST_TYPES = ['collation_short',
                   'datetime_fmt',
                   'list_fmt',
+                  'message_fmt2',
                   'number_format',
                   'language_names',
                   'likely_subtags'
@@ -13,6 +14,7 @@ TEST_FILE_TO_TEST_TYPE_MAP = {
     'datetime_fmt_test_file': 'datetime_fmt',
     'lang_name_test_file': 'language_names',
     'likely_subtags_test': 'likely_subtags',
+    'message_fmt2_test_file': 'message_fmt2',
     'num_fmt_test_file': 'number_fmt',
     'list_fmt_test_file': 'list_fmt'
 }
@@ -139,5 +141,19 @@ SCHEMA_FILE_MAP = {
         }
 
     # Additional tests
+    },
+    "message_fmt2": {
+        "test_data": {
+            "schema_file": "message_fmt2/test_schema.json",
+            'prod_file': 'message_fmt2_test.json'
+        },
+        "verify_data": {
+            "schema_file": "message_fmt2/verify_schema.json",
+            'prod_file': 'message_fmt2_verify.json'
+        },
+        "result_data": {
+            "schema_file": "message_fmt2/result_schema.json",
+            'prod_file': 'message_fmt2_result.json'
+        }
     }
 }
