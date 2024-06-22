@@ -105,6 +105,7 @@ class testType(Enum):
   likely_subtags = 'likely_subtags'
   list_fmt = 'list_fmt'
   local_info = 'local_info'
+  message_fmt2 = 'message_fmt2'
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
   plural_rules = 'plural_rules'
@@ -151,6 +152,12 @@ testDatasets[testName] = DataSet(testType.likely_subtags.value,
                                  'likely_subtags_test.json',
                                  'likely_subtags_verify.json',
                                  CLDRVersion.CLDR43, ICUVersion.ICU73)
+
+testName = 'message_fmt2'
+testDatasets[testName] = DataSet(testType.message_fmt2.value,
+                                 'message_fmt2_test_file.json',
+                                 'message_fmt2_verify_file.json',
+                                 CLDRVersion.CLDR45, ICUVersion.ICU75)
 
 testName = 'number_fmt'
 testDatasets[testName] = DataSet(testType.number_fmt.value,
