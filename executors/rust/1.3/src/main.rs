@@ -25,7 +25,7 @@ mod listfmt;
 mod numberfmt;
 mod pluralrules;
 mod relativedatetime_fmt;
-    
+
 use collator::run_collation_test;
 use langnames::run_language_name_test;
 use likelysubtags::run_likelysubtags_test;

@@ -4,9 +4,7 @@ use fixed_decimal::FixedDecimal;
 use icu::locid::Locale;
 use icu_provider::DataLocale;
 
-use icu::relativetime::{
-    RelativeTimeFormatter, RelativeTimeFormatterOptions,
-};
+use icu::relativetime::{RelativeTimeFormatter, RelativeTimeFormatterOptions};
 
 use serde_json::{json, Value};
 
@@ -38,22 +36,24 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
         }));
     };
     let data_locale = DataLocale::from(lang_id);
-    
+
     let count_str: &str = json_obj["count"].as_str().unwrap();
-    let count = count_str.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
+    let count = count_str
+        .parse::<FixedDecimal>()
+        .map_err(|e| e.to_string())?;
 
     let unit_str: &str = json_obj["unit"].as_str().unwrap();
 
     // !!! TODO: get the options to create the correct
 
     // TODO: use unit & length to select the correct constructor.
-    
+
     let relative_time_formatter = RelativeTimeFormatter::try_new_long_second(
         &data_locale,
         RelativeTimeFormatterOptions::default(),
     )
-        .expect("locale should be present");
-    
+    .expect("locale should be present");
+
     assert_writeable_eq!(
         relative_time_formatter.format(FixedDecimal::from(5i8)),
         "in 5 seconds"
@@ -69,10 +69,9 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     let result_string = formatted_result.to_string();
 
     Ok(json!({
-        "label": label,
-        "result": result_string,
-        "actual_options": format!("{unit_str:?}, {count:?}"),
-//        format!("{option_struct:?}, {unit_str:?}, {count:?}"),
-    }))
-    
+            "label": label,
+            "result": result_string,
+            "actual_options": format!("{unit_str:?}, {count:?}"),
+    //        format!("{option_struct:?}, {unit_str:?}, {count:?}"),
+        }))
 }
