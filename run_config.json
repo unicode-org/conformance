@@ -253,7 +253,7 @@
     "prereq": {
       "name": "mvn-icu4j-74-shaded",
       "version": "74",
-      "command": "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+      "command": "mvn -q -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
     },
     "run": {
       "icu_version": "icu74",
@@ -271,7 +271,7 @@
     "prereq": {
       "name": "mvn-icu4j-74-shaded",
       "version": "74",
-      "command": "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+      "command": "mvn -q -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
     },
     "run": {
       "icu_version": "icu75",

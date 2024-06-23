@@ -155,8 +155,8 @@ testDatasets[testName] = DataSet(testType.likely_subtags.value,
 
 testName = 'message_fmt2'
 testDatasets[testName] = DataSet(testType.message_fmt2.value,
-                                 'message_fmt2_test_file.json',
-                                 'message_fmt2_verify_file.json',
+                                 'message_fmt2_test.json',
+                                 'message_fmt2_verify.json',
                                  CLDRVersion.CLDR45, ICUVersion.ICU75)
 
 testName = 'number_fmt'
@@ -206,7 +206,7 @@ ExecutorCommands = {
     "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
-    "icu4j" : "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
+    "icu4j" : "mvn -q -f ../executors/icu4j/74/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
     }
 
 class ParallelMode(Enum):
@@ -401,7 +401,11 @@ system = ExecutorLang.ICU4J.value
 
 allExecutors.addSystem(system, '74',
                        'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
-                       CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
+                       CLDRVersion.CLDR44, versionICU=ICUVersion.ICU74)
+
+allExecutors.addSystem(system, '75',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+                       CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75)
 
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,

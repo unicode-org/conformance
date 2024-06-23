@@ -6,7 +6,7 @@ public class MessageFormatOutputJson  implements ITestTypeOutputJson {
 
   public String label;
 
-  public String verify;
+  public String result;
 
   public String error;
 

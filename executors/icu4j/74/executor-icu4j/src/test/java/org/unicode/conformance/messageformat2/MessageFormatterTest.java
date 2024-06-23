@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -117,6 +118,28 @@ public class MessageFormatterTest {
     String expected = "Hello John, your card expires on Mon, 27 Mar 2023!";
     assertEquals(expected, formattedString);
 
+  }
+
+  // ICU 75 impl output differs from MF2 spec defined at same time point (CLDR 45)
+  // in what to return in message for non-provided args / formatting errors
+  @Ignore
+  @Test
+  public void testGetFormattedMessage_usingNonProvidedArg() {
+    // Setup
+    MessageFormatInputJson inputJson = new MessageFormatInputJson();
+    inputJson.label = "00020";
+    inputJson.locale = "en-US";
+    inputJson.src = "{:date}";
+    inputJson.test_description = "Test of formatting a pattern using an input arg that isn't provided";
+    List<IMFInputParam> inputs = new ArrayList<>();
+    inputJson.params = inputs;
+
+    // Actual
+    String formattedString = MessageFormatTester.INSTANCE.getFormattedMessage(inputJson);
+
+    // Expect & assert test
+    String expected = "{:date}";
+    assertEquals(expected, formattedString);
   }
 
 }

@@ -24,7 +24,6 @@ public class MessageFormatTester implements ITestType {
     result.src = (String) inputMapData.get("src", null);
     result.test_description = (String) inputMapData.get("test_description", null);
     result.params = (List<IMFInputParam>) inputMapData.get("inputs", null);
-    result.verify = (String) inputMapData.get("verify", null);
 
     return result;
   }
@@ -39,7 +38,7 @@ public class MessageFormatTester implements ITestType {
 
     try {
       String messageFormatResult = getFormattedMessage(input);
-      output.verify = messageFormatResult;
+      output.result = messageFormatResult;
     } catch (Exception e) {
       output.error = e.getMessage();
       output.error_message = e.getMessage();
@@ -60,7 +59,7 @@ public class MessageFormatTester implements ITestType {
     MessageFormatOutputJson output = (MessageFormatOutputJson) outputJson;
     return new io.lacuna.bifurcan.Map<String,Object>()
         .put("label", output.label)
-        .put("verify", output.verify);
+        .put("verify", output.result);
   }
 
   @Override
@@ -71,8 +70,10 @@ public class MessageFormatTester implements ITestType {
   public String getFormattedMessage(MessageFormatInputJson input) {
     final Locale locale = Locale.forLanguageTag(input.locale);
     java.util.Map<String,Object> arguments = new HashMap<>();
-    for (IMFInputParam arg : input.params) {
-      arguments.put(arg.getName(), arg.getValue());
+    if (input.params != null) {
+      for (IMFInputParam arg : input.params) {
+        arguments.put(arg.getName(), arg.getValue());
+      }
     }
 
     MessageFormatter formatter = MessageFormatter.builder()

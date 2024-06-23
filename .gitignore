@@ -38,6 +38,7 @@ testdriver/.local-chrome/
 testgen/*.json
 
 TEMP_DATA/*
+TEMP_DATA_100/*
 
 # log files (including logrotate state and file backups)
 debug.log*
