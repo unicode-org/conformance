@@ -142,4 +142,25 @@ public class MessageFormatterTest {
     assertEquals(expected, formattedString);
   }
 
+  // ICU 75 impl output differs from MF2 spec defined at same time point (CLDR 45)
+  @Ignore
+  @Test
+  public void testGetFormattedMessage_numberLiteralOperand() {
+    // Setup
+    MessageFormatInputJson inputJson = new MessageFormatInputJson();
+    inputJson.label = "00035";
+    inputJson.locale = "en-US";
+    inputJson.src = "hello {4.2 :integer}";
+    inputJson.test_description = "Test of formatting a pattern using an input arg that isn't provided";
+    List<IMFInputParam> inputs = new ArrayList<>();
+    inputJson.params = inputs;
+
+    // Actual
+    String formattedString = MessageFormatTester.INSTANCE.getFormattedMessage(inputJson);
+
+    // Expect & assert test
+    String expected = "hello 4";
+    assertEquals(expected, formattedString);
+  }
+
 }
