@@ -105,12 +105,13 @@ class TestDriver:
             plan.run_plan()
 
     def run_one(self, plan):
-        print("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
+        logging.info("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
         plan.run_plan()
+
     def run_plans_parallel(self):
         # Testing 15-Jan-2024
         num_processors = mp.cpu_count()
-        print('There are %s processors for %s plans' % (num_processors, len(self.test_plans)))
+        logging.info('There are %s processors for %s plans' % (num_processors, len(self.test_plans)))
 
         processor_pool = mp.Pool(num_processors)
         with processor_pool as p:

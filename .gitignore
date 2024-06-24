@@ -5,6 +5,7 @@
 
 .pylintrc
 .idea
+.devcontainer
 
 executors/rust/target/
 executors/cpp/executor
@@ -37,7 +38,11 @@ testdriver/.local-chrome/
 testgen/*.json
 
 TEMP_DATA/*
+TEMP_DATA_100/*
 
 # log files (including logrotate state and file backups)
 debug.log*
 logrotate.state
+
+# Maven
+dependency-reduced-pom.xml
