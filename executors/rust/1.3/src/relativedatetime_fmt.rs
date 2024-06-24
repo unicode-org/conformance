@@ -28,6 +28,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
 
     let locale_str: String = locale_json_str.to_string();
     let lang_id = if let Ok(lc) = locale_str.parse::<Locale>() {
+        lc
     } else {
         return Ok(json!({
             "label": label,
@@ -54,17 +55,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     )
     .expect("locale should be present");
 
-    assert_writeable_eq!(
-        relative_time_formatter.format(FixedDecimal::from(5i8)),
-        "in 5 seconds"
-    );
-    assert_writeable_eq!(
-        relative_time_formatter.format(FixedDecimal::from(-10i8)),
-        "10 seconds ago"
-    );
-
-    let formatted_result = relative_time_formatter.format(count);
-    // ??? .expect("should work");
+    let formatted_result = relative_time_formatter.format(count.clone());
 
     let result_string = formatted_result.to_string();
 
