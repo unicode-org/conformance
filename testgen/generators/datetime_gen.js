@@ -98,6 +98,7 @@ const timezones = [
   'Europe/Kiev',
   'Australia/Brisbane',
   'Pacific/Guam',
+  "America/Montevideo"
 ];
 
 const pre_gregorian_dates = [
@@ -220,8 +221,11 @@ function generateAll(run_limit) {
 
   let label_num = 0;
 
-  const expected_count = locales.length * calendars.length * spec_options.length *
-        timezones.length * dates.length;
+  const expected_count = locales.length *
+        calendars.length *
+        spec_options.length *
+        timezones.length *
+        dates.length;
 
   console.log("Generating ", expected_count, " date/time tests for ", process.versions.icu);
   console.log('  RUN LIMIT = ', run_limit);
@@ -238,10 +242,6 @@ function generateAll(run_limit) {
           // Check if the calendar system is supported in this locale.
           // If not, skip the test.
           if ( !supported_calendars.includes(calendar)) {
-            if (debug) {
-              console.warn(locale + ' does not support ' +  calendar);
-              console.log(locale + ': ' + supported_calendars);
-            }
             continue;
           }
         } catch(error) {
@@ -258,7 +258,7 @@ function generateAll(run_limit) {
         // Rotate timezones through the data, but not as as separate loop
         const tz_index = label_num % timezones.length;
         timezone = timezones[tz_index];
-        //for (const timezone of timezones) {
+
 
         // Set number systems as appropriate for particular locals
         let number_system = 'latn';

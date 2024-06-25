@@ -5,8 +5,12 @@
 use icu::calendar::DateTime;
 use icu::datetime::{options::length, ZonedDateTimeFormatter};
 use icu::locid::Locale;
-use icu::timezone::CustomTimeZone;
+use icu::timezone::{CustomTimeZone};
 use icu_provider::DataLocale;
+
+use icu::timezone::MetazoneCalculator;
+
+use icu::timezone::IanaToBcp47Mapper;
 
 use ixdtf::parsers::IxdtfParser;
 
@@ -56,9 +60,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let mut _unsupported_options: Vec<&str> = Vec::new();
 
-    // TODO: timeZone
-    // TODO: era
-    // TODO: skeleton
+    // TODO: Get and use timeZone
 
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
@@ -125,9 +127,30 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let any_datetime = datetime_iso.to_any();
 
     // Testing with a default timezone
-    let time_zone = CustomTimeZone::utc();
+    let timezone_str = &option_struct.time_zone;
 
-    // The constructor is called
+    // https://docs.rs/icu/latest/icu/timezone/struct.IanaToBcp47Mapper.html
+    let mapper = IanaToBcp47Mapper::new();
+    let mapper_borrowed = mapper.as_borrowed();
+
+    let mapped_tz = mapper_borrowed.get(timezone_str.as_ref().unwrap());
+    let mzc = MetazoneCalculator::new();
+    let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
+    
+    let timezone = if timezone_str.is_some() {
+        CustomTimeZone {
+            gmt_offset: None,
+            time_zone_id: None,
+            metazone_id: my_metazone_id,
+            zone_variant: None,
+        }
+    } else {
+        // Defaults to UTC
+        CustomTimeZone::utc()
+    };
+
+    // The constructor is called with the given options
+    // The default parameter is time zone formatter options. Not used yet.
     let dtf_result =
         ZonedDateTimeFormatter::try_new(&data_locale, dt_options.into(), Default::default());
 
@@ -142,10 +165,11 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    // TODO: Use a skeleton.
+    // Note: A "classical" skeleton is used in most cases, but this version
+    // of the executor does not use it.
 
     let formatted_dt = datetime_formatter
-        .format(&any_datetime, &time_zone)
+        .format(&any_datetime, &timezone)
         .expect("should work");
     let result_string = formatted_dt.to_string();
 
@@ -153,6 +177,6 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         "label": label,
         "result": result_string,
         "actual_options":
-        format!("{dt_options:?}, {time_zone:?}, {dt_iso:?}"),
+        format!("{dt_options:?}, {timezone:?}, {dt_iso:?}"),
     }))
 }
