@@ -25,6 +25,12 @@ module.exports = {
     }
     let return_json = {'label': label};
 
+    let timezone;
+    try {
+       timezone = test_options['time_zone'];
+    } catch {
+      timezone = options['timeZone'] = 'UTC';
+    }
     // Get the date from input milliseconds.
     // Prefer milliseconds
     let test_date;
