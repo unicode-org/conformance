@@ -190,6 +190,6 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     Ok(json!({
         "label": label,
         "result": result_string,
-    "actual_options": format!("{unit:?}, {style:?}, {count:?}"),
+    "actual_options": format!("{options:?}"),
     }))
 }
