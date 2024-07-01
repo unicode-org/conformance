@@ -14,6 +14,7 @@ import org.unicode.conformance.testtype.ITestTypeOutputJson;
 import org.unicode.conformance.testtype.collator.CollatorTester;
 import org.unicode.conformance.testtype.langnames.LangNamesTester;
 import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
+import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 
 /**
@@ -109,7 +110,7 @@ public class Icu4jExecutor {
             io.lacuna.bifurcan.IMap<String,Object> response =
                 parsedInputPersistentMap
                     .put("error", "Error in input")
-                    .put("error_message", "Error in input found in executor before execution");
+                    .put("error_message", "Error in input found in executor before execution: test_type not present.");
 
             return ExecutorUtils.formatAsJson(response);
         } else {
@@ -123,11 +124,13 @@ public class Icu4jExecutor {
                 testType = LikelySubtagsTester.INSTANCE;
             } else if (testTypeStr.equals("number_fmt")) {
                 testType = NumberFormatterTester.INSTANCE;
+            } else if (testTypeStr.equals("message_fmt2")) {
+                testType = MessageFormatTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap
                         .put("error", "Error in input")
-                        .put("error_message", "Error in input found in executor before execution");
+                        .put("error_message", "Error in input found in executor before execution: test_type not recognized");
 
                 return ExecutorUtils.formatAsJson(response);
             }

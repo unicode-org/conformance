@@ -13,6 +13,8 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+require("temporal-polyfill/global");
+
 const fs = require('node:fs');
 
 const debug = false;
