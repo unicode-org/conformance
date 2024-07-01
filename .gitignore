@@ -31,11 +31,15 @@ testgen/icu*/*.json
 
 *~
 
+# JS deps
+**/node_modules
+
 # C / CPP compiled
 *.o
 
 testdriver/.local-chrome/
 testgen/*.json
+testgen/generators/*.json
 
 TEMP_DATA/*
 TEMP_DATA_100/*
