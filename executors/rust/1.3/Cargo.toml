@@ -22,6 +22,7 @@ fixed_decimal = "0.5.3"
 writeable = "0.5.2"
 
 ixdtf = "0.2.0"
+tinystr = "0.7.6"
         
 [build-dependencies]
 cargo_metadata = "0.18"

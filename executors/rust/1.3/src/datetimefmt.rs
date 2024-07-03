@@ -2,13 +2,18 @@
 // https://docs.rs/icu/1.3.2/icu/datetime/input/trait.TimeZoneInput.html
 // https://docs.rs/ixdtf/latest/ixdtf/
 
+
 use icu::calendar::DateTime;
 use icu::datetime::{options::length, ZonedDateTimeFormatter};
 use icu::locid::Locale;
-use icu::timezone::{CustomTimeZone};
-use icu_provider::DataLocale;
 
+// https://docs.rs/icu/latest/icu/timezone/struct.CustomTimeZone.html#method.maybe_calculate_metazone
+use icu::timezone::{CustomTimeZone};
+use icu::timezone::provider::{TimeZoneBcp47Id};
+use tinystr::tinystr;
 use icu::timezone::MetazoneCalculator;
+
+use icu_provider::DataLocale;
 
 use icu::timezone::IanaToBcp47Mapper;
 
@@ -35,7 +40,8 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     // "unsupported" rather than an error.
     let options = &json_obj["options"]; // This will be an array.
 
-    let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
+    let option_struct: DateTimeFormatOptions =
+        serde_json::from_str(&options.to_string()).unwrap();
 
     // Get calendar. If present, add to locale string
     // as "-u-ca-" + calendar name.
@@ -43,6 +49,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let locale_json_str: &str = json_obj["locale"].as_str().unwrap();
     let mut locale_str: String = locale_json_str.to_string();
+    // ??? Is calendar necessary with the u-ca option in ISO string?
     if calendar_str.is_some() {
         locale_str = locale_json_str.to_string() + "-u-ca-" + &calendar_str.as_ref().unwrap();
     }
@@ -91,7 +98,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         length::Time::Medium
     } else {
         // !!! SET TO UNDEFINED
-        length::Time::Full
+       length::Time::Full
     };
 
     // Set up DT option if either is set
@@ -105,15 +112,15 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         length::Bag::default()
     };
 
-    // Get ISO input string
-    let input_time_string = &json_obj["input_string"].as_str().unwrap();
-    let input_iso: String = input_time_string.to_string() + "[-00:00]";
+    // Get ISO input string including offset and time zone
+    let input_iso = &json_obj["input_string"].as_str().unwrap();
+//    let input_iso: String = input_time_string.to_string() + "[-00:00]";
 
     let dt_iso = IxdtfParser::new(&input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
-    // let offset = dt_iso.offset.unwrap();
-    // let tz_annotation = dt_iso.tz;
+    let _tz_offset = dt_iso.offset.unwrap();
+    let _tz_annotation = dt_iso.tz.unwrap();
 
     let datetime_iso = DateTime::try_new_iso_datetime(
         date.year,
@@ -137,10 +144,14 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let mzc = MetazoneCalculator::new();
     let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
     
-    let timezone = if timezone_str.is_some() {
+    // Compute the seconds for the 
+    let offset_seconds = GmtOffset::try_from_offset_seconds(
+        tz_offset.hour * 360 + _tz_offset.minute * 60);
+    
+    let time_zone = if timezone_str.is_some() {
         CustomTimeZone {
-            gmt_offset: None,
-            time_zone_id: None,
+            gmt_offset: offset_seconds,   // ??? tz_offset,
+            time_zone_id: None,  // !! ?? Some(TimeZoneBcp47Id(tinystr!(4, my_metazone_id))),
             metazone_id: my_metazone_id,
             zone_variant: None,
         }
@@ -169,14 +180,15 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     // of the executor does not use it.
 
     let formatted_dt = datetime_formatter
-        .format(&any_datetime, &timezone)
+        .format(&any_datetime, &time_zone)
         .expect("should work");
-    let result_string = formatted_dt.to_string();
+    let result_string = formatted_dt.toy_string();
 
     Ok(json!({
         "label": label,
         "result": result_string,
         "actual_options":
-        format!("{dt_options:?}, {timezone:?}, {dt_iso:?}"),
+        format!("{_tz_offset:?}, {dt_options:?}, {timezone:?}"),  // , {dt_iso:?}"),
     }))
 }
+
