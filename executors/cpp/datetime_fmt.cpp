@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <regex>
 #include <cstring>
 
 #include "unicode/utypes.h"
@@ -184,9 +185,10 @@ const string TestDatetimeFmt(json_object *json_in) {
     return json_object_to_json_string(return_json);
   }
 
-  if (tz) {
-    df->setTimeZone(*tz);
-  }
+  // !!! IS OFFSET ALREADY CONSIDERED?
+  // if (tz) {
+  //   df->setTimeZone(*tz);
+  // }
 
 
   // Use ISO string form of the date/time.
@@ -201,9 +203,26 @@ const string TestDatetimeFmt(json_object *json_in) {
 
     string input_date_string = json_object_get_string(input_string_obj);
 
+    // SimpleDateFormat can't parse options or timezone offset
+    // First, remove options starting with "["
+    std:size_t pos = input_date_string.find("[");
+    if (pos >= 0) {
+      input_date_string = input_date_string.substr(0, pos);
+    }
+    // Now remove the explicit offset
+    pos = input_date_string.find("+");
+    if (pos >= 0) {
+      input_date_string = input_date_string.substr(0, pos);
+    }
+    pos = input_date_string.rfind("-");
+    if (pos >= 10) {
+      // DOn't clip in the date fields
+      input_date_string = input_date_string.substr(0, pos);
+    }
     UnicodeString date_ustring(input_date_string.c_str());
 
-    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:s.SSSZ", und_locale, status);
+    // TODO:  handles the offset +/-
+    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:s", und_locale, status);
     if (U_FAILURE(status)) {
       string error_name = u_errorName(status);
       string error_message =
@@ -219,6 +238,7 @@ const string TestDatetimeFmt(json_object *json_in) {
     }
 
     // Get date from the parser if possible.
+
     test_date_time = iso_date_fmt.parse(date_ustring, status);
 
     if (U_FAILURE(status)) {
