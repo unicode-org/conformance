@@ -2,16 +2,15 @@
 // https://docs.rs/icu/1.3.2/icu/datetime/input/trait.TimeZoneInput.html
 // https://docs.rs/ixdtf/latest/ixdtf/
 
-
 use icu::calendar::DateTime;
 use icu::datetime::{options::length, ZonedDateTimeFormatter};
 use icu::locid::Locale;
 
 // https://docs.rs/icu/latest/icu/timezone/struct.CustomTimeZone.html#method.maybe_calculate_metazone
-use icu::timezone::{CustomTimeZone};
-use icu::timezone::provider::{TimeZoneBcp47Id};
-use tinystr::tinystr;
+use icu::timezone::provider::TimeZoneBcp47Id;
+use icu::timezone::CustomTimeZone;
 use icu::timezone::MetazoneCalculator;
+use tinystr::tinystr;
 
 use icu_provider::DataLocale;
 
@@ -40,8 +39,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     // "unsupported" rather than an error.
     let options = &json_obj["options"]; // This will be an array.
 
-    let option_struct: DateTimeFormatOptions =
-        serde_json::from_str(&options.to_string()).unwrap();
+    let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
     // Get calendar. If present, add to locale string
     // as "-u-ca-" + calendar name.
@@ -98,7 +96,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         length::Time::Medium
     } else {
         // !!! SET TO UNDEFINED
-       length::Time::Full
+        length::Time::Full
     };
 
     // Set up DT option if either is set
@@ -114,7 +112,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // Get ISO input string including offset and time zone
     let input_iso = &json_obj["input_string"].as_str().unwrap();
-//    let input_iso: String = input_time_string.to_string() + "[-00:00]";
+    //    let input_iso: String = input_time_string.to_string() + "[-00:00]";
 
     let dt_iso = IxdtfParser::new(&input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
@@ -143,15 +141,15 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let mapped_tz = mapper_borrowed.get(timezone_str.as_ref().unwrap());
     let mzc = MetazoneCalculator::new();
     let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
-    
-    // Compute the seconds for the 
-    let offset_seconds = GmtOffset::try_from_offset_seconds(
-        tz_offset.hour * 360 + _tz_offset.minute * 60);
-    
+
+    // Compute the seconds for the
+    let offset_seconds =
+        GmtOffset::try_from_offset_seconds(tz_offset.hour * 360 + _tz_offset.minute * 60);
+
     let time_zone = if timezone_str.is_some() {
         CustomTimeZone {
-            gmt_offset: offset_seconds,   // ??? tz_offset,
-            time_zone_id: None,  // !! ?? Some(TimeZoneBcp47Id(tinystr!(4, my_metazone_id))),
+            gmt_offset: offset_seconds, // ??? tz_offset,
+            time_zone_id: None,         // !! ?? Some(TimeZoneBcp47Id(tinystr!(4, my_metazone_id))),
             metazone_id: my_metazone_id,
             zone_variant: None,
         }
@@ -191,4 +189,3 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         format!("{_tz_offset:?}, {dt_options:?}, {timezone:?}"),  // , {dt_iso:?}"),
     }))
 }
-
