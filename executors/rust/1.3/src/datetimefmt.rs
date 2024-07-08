@@ -113,7 +113,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let input_iso = &json_obj["input_string"].as_str().unwrap();
     //    let input_iso: String = input_time_string.to_string() + "[-00:00]";
 
-    let dt_iso = IxdtfParser::new(&input_iso).parse().unwrap();
+    let dt_iso = IxdtfParser::new(input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
     let tz_offset = dt_iso.offset.unwrap();
@@ -142,9 +142,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
 
     // Compute the seconds for the
-    let offset_seconds =
-        GmtOffset::try_from_offset_seconds(
-            tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60)).ok();
+    let offset_seconds = GmtOffset::try_from_offset_seconds(
+        tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
+    )
+    .ok();
 
     let time_zone = if timezone_str.is_some() {
         CustomTimeZone {
