@@ -354,11 +354,13 @@ function generateAll(run_limit) {
           const supported_calendars = intl_locale.calendars;
           // Check if the calendar system is supported in this locale.
           // If not, skip the test.
-          if ( !supported_calendars.includes(calendar)) {
+          if (!supported_calendars || !supported_calendars.includes(calendar)) {
+            console.
             continue;
           }
         } catch(error) {
-          console.log('Error: ' + error);
+          console.log('Supported calendars for %sError: %s',
+                      intl_locale, error);
         }
       }
       for (const option of spec_options) {
@@ -371,7 +373,6 @@ function generateAll(run_limit) {
         // Rotate timezones through the data, but not as as separate loop
         const tz_index = (label_num + 1) % timezones.length;
         let timezone = timezones[tz_index];
-        // console.log('TIMEZONE INIT: %s %s', timezone, tz_index);
 
 
         // Set number systems as appropriate for particular locals
@@ -401,7 +402,6 @@ function generateAll(run_limit) {
           // Default to GMT+00:00
           all_options['timeZone'] = 'UTC'
           timezone = 'UTC';
-          // console.log('TIMEZONE reset: %s', timezone);
         }
 
         if (number_system) {
@@ -459,7 +459,13 @@ function generateAll(run_limit) {
 
             // For computing the string with Date
             let zdt_vanilla = Temporal.ZonedDateTime.from(temporal_date);
-            this_date = zdt_to_date(zdt_vanilla, vanilla_locale, vanilla_calendar);
+            try {
+              this_date = new Date(zdt_vanilla.epochMilliseconds);
+            } catch (error) {
+              console.log('new Date fail %s with %s on %s', error,
+                          temporal_date);
+              continue;
+            }
             if (! this_date) {
               console.log('$$$$ %s no date from zdt_to_date. %s, %s %s %s',
                           label_num, zdt_vanilla, temporal_date,

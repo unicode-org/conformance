@@ -7,10 +7,9 @@ use icu::datetime::{options::length, ZonedDateTimeFormatter};
 use icu::locid::Locale;
 
 // https://docs.rs/icu/latest/icu/timezone/struct.CustomTimeZone.html#method.maybe_calculate_metazone
-use icu::timezone::provider::TimeZoneBcp47Id;
 use icu::timezone::CustomTimeZone;
+use icu::timezone::GmtOffset;
 use icu::timezone::MetazoneCalculator;
-use tinystr::tinystr;
 
 use icu_provider::DataLocale;
 
@@ -117,7 +116,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let dt_iso = IxdtfParser::new(&input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
-    let _tz_offset = dt_iso.offset.unwrap();
+    let tz_offset = dt_iso.offset.unwrap();
     let _tz_annotation = dt_iso.tz.unwrap();
 
     let datetime_iso = DateTime::try_new_iso_datetime(
@@ -144,12 +143,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // Compute the seconds for the
     let offset_seconds =
-        GmtOffset::try_from_offset_seconds(tz_offset.hour * 360 + _tz_offset.minute * 60);
+        GmtOffset::try_from_offset_seconds(
+            tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60)).ok();
 
     let time_zone = if timezone_str.is_some() {
         CustomTimeZone {
-            gmt_offset: offset_seconds, // ??? tz_offset,
-            time_zone_id: None,         // !! ?? Some(TimeZoneBcp47Id(tinystr!(4, my_metazone_id))),
+            gmt_offset: offset_seconds,
+            time_zone_id: mapped_tz,
             metazone_id: my_metazone_id,
             zone_variant: None,
         }
@@ -180,12 +180,12 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let formatted_dt = datetime_formatter
         .format(&any_datetime, &time_zone)
         .expect("should work");
-    let result_string = formatted_dt.toy_string();
+    let result_string = formatted_dt.to_string();
 
     Ok(json!({
         "label": label,
         "result": result_string,
         "actual_options":
-        format!("{_tz_offset:?}, {dt_options:?}, {timezone:?}"),  // , {dt_iso:?}"),
+        format!("{tz_offset:?}, {dt_options:?}, {time_zone:?}"),  // , {dt_iso:?}"),
     }))
 }
