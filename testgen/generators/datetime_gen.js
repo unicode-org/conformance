@@ -261,29 +261,6 @@ const dt_fields = {
     'longGeneric': 'vvvv'}
 };
 
-            // Convert to a date for formatting with ECMASript Intl
-function zdt_to_date(zdt, locale, calendar) {
-  // Convert to a date for formatting with ECMASript Intl
-  let date_string;
-  let this_date;
-  try {
-    // Calendar
-    date_string = zdt.toLocaleString(locale, {calendar: calendar});
-  } catch (error) {
-    console.log('@@@@ zdt_to_date: \"%s\" %s, from zdt= %s, locale = %s, cal = %s',
-                error, date_string, zdt, locale, calendar);
-    return null;
-  }
-  try {
-    this_date = new Date(date_string);
-  } catch (error) {
-    console.log('##### new Date: \"%s\"%s, %s from %s', error, date_string, zdt);
-    return null;
-  }
-
-  return this_date;
-}
-
 function optionsToSkeleton(options) {
   let skeleton_array = [];
 
