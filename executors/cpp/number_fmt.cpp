@@ -1,49 +1,33 @@
 /********************************************************************
- * Comments and license as needed
- ************************************
-
-/******
- * testing number format
+ * testing icu4c number format
  */
 
+#include <json-c/json.h>
 
-#include "unicode/dcfmtsym.h"
+#include <unicode/bytestream.h>
+#include <unicode/compactdecimalformat.h>
+#include <unicode/currunit.h>
+#include <unicode/dcfmtsym.h>
+#include <unicode/fieldpos.h>
+#include <unicode/fpositer.h>
+#include <unicode/locid.h>
+#include <unicode/measunit.h>
+#include <unicode/nounit.h>
+#include <unicode/numberformatter.h>
+#include <unicode/numberrangeformatter.h>
+#include <unicode/numfmt.h>
+#include <unicode/numsys.h>
+#include <unicode/stringpiece.h>
+#include <unicode/uclean.h>
+#include <unicode/ucurr.h>
+#include <unicode/unistr.h>
+#include <unicode/unum.h>
+#include <unicode/unumberformatter.h>
+#include <unicode/uobject.h>
+#include <unicode/utypes.h>
 
-#include "unicode/utypes.h"
-//#include "unicode/appendable.h"
-#include "unicode/bytestream.h"
-#include "unicode/compactdecimalformat.h"
-#include "unicode/currunit.h"
-#include "unicode/dcfmtsym.h"
-#include "unicode/fieldpos.h"
-#include "unicode/fpositer.h"
-#include "unicode/measunit.h"
-#include "unicode/nounit.h"
-#include "unicode/numberformatter.h"
-//#include "unicode/parseerr.h"
-#include "unicode/plurrule.h"
-#include "unicode/ucurr.h"
-
-#include "unicode/stringpiece.h"
-
-#include "unicode/unum.h"
-#include "unicode/unumberformatter.h"
-// TODO: NEEDED? #include "unicode/unumberoptions.h"
-#include "unicode/uobject.h"
-
-#include "unicode/unistr.h"
-#include "unicode/locid.h"
-#include "unicode/uclean.h"
-
-#include "unicode/numfmt.h"
-#include "unicode/numberrangeformatter.h"
-#include "unicode/numsys.h"
-
-#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <json-c/json.h>
 
 #include <iostream>
 #include <string>
@@ -53,26 +37,21 @@ using std::cout;
 using std::endl;
 using std::string;
 
+using icu::CurrencyUnit;
+using icu::Locale;
+using icu::MeasureUnit;
 using icu::NumberingSystem;
+using icu::UnicodeString;
 
+using icu::number::FormattedNumber;
+using icu::number::impl::UFormattedNumberData;
+using icu::number::IntegerWidth;
+using icu::number::LocalizedNumberFormatter;
 using icu::number::NumberFormatter;
 using icu::number::NumberFormatterSettings;
 using icu::number::Notation;
 using icu::number::Precision;
-using icu::number::IntegerWidth;
 using icu::number::Scale;
-
-using icu::CurrencyUnit;
-using icu::MeasureUnit;
-
-using number::impl::UFormattedNumberData;
-
-using icu::number::LocalizedNumberFormatter;
-using icu::number::FormattedNumber;
-using icu::number::impl::UFormattedNumberData;
-// using icu::number::SimpleNumberFormatter;
-
-const string error_message = "error";
 
 // Get the integer value of a settting
 int16_t get_integer_setting(string key_value_string) {
@@ -94,7 +73,6 @@ double get_double_setting(string key_value_string) {
     return_val = std::stod(num_string);
   }
   return return_val;
-
 }
 
 // Get integer width settings
@@ -114,15 +92,14 @@ IntegerWidth set_integerWidth(json_object* options_obj) {
     int32_t val_min32 = get_integer_setting(int_width_string);
     int_width_string = json_object_get_string(integer_obj_max);
     int32_t val_max32 = get_integer_setting(int_width_string);
-    integerWidth_setting = IntegerWidth::zeroFillTo(val_min32).truncateAt(val_max32);
-  }
-  else if (integer_obj_min && !integer_obj_max) {
+    integerWidth_setting =
+        IntegerWidth::zeroFillTo(val_min32).truncateAt(val_max32);
+  } else if (integer_obj_min && !integer_obj_max) {
     int_width_string = json_object_get_string(integer_obj_min);
     int32_t val_min32 = get_integer_setting(int_width_string);
     int_width_string = json_object_get_string(integer_obj_min);
     integerWidth_setting = IntegerWidth::zeroFillTo(val_min32);
-  }
-  else if (!integer_obj_min && integer_obj_max) {
+  } else if (!integer_obj_min && integer_obj_max) {
     int_width_string = json_object_get_string(integer_obj_max);
     int32_t val_max32 = get_integer_setting(int_width_string);
     integerWidth_setting = IntegerWidth::zeroFillTo(1).truncateAt(val_max32);
@@ -131,7 +108,8 @@ IntegerWidth set_integerWidth(json_object* options_obj) {
 }
 
 // Get fraction and siginfication digits settings
-Precision set_precision_digits(json_object* options_obj, Precision previous_setting) {
+Precision set_precision_digits(json_object* options_obj,
+                               Precision previous_setting) {
   Precision precision_setting = previous_setting;
   if (!options_obj) {
     return precision_setting;
@@ -158,10 +136,9 @@ Precision set_precision_digits(json_object* options_obj, Precision previous_sett
   if (precision_obj_max && precision_obj_min) {
     // Both are set
     precision_setting = Precision::minMaxFraction(val_min, val_max);
-  }
-  else if (!precision_obj_max && precision_obj_min) {
+  } else if (!precision_obj_max && precision_obj_min) {
     precision_setting = Precision::minFraction(val_min);
-  } else if (precision_obj_max && ! precision_obj_min) {
+  } else if (precision_obj_max && !precision_obj_min) {
     precision_setting = Precision::maxFraction(val_max);
   }
 
@@ -179,11 +156,11 @@ Precision set_precision_digits(json_object* options_obj, Precision previous_sett
     val_min = get_integer_setting(
         json_object_get_string(precision_obj_min));
   }
+
   if (precision_obj_max && precision_obj_min) {
     // Both are set
     precision_setting = Precision::minMaxSignificantDigits(val_min, val_max);
-  }
-  else if (!precision_obj_max && precision_obj_min) {
+  } else if (!precision_obj_max && precision_obj_min) {
     precision_setting = Precision::minSignificantDigits(val_min);
   } else if (precision_obj_max && !precision_obj_min) {
     precision_setting = Precision::maxSignificantDigits(val_max);
@@ -206,30 +183,24 @@ UNumberSignDisplay set_sign_display(json_object* options_obj) {
 
     if (signDisplay_string == "exceptZero") {
       signDisplay_setting = UNUM_SIGN_EXCEPT_ZERO;
-    }
-    else if (signDisplay_string == "always") {
+    } else if (signDisplay_string == "always") {
       signDisplay_setting = UNUM_SIGN_ALWAYS;
-    }
-    else if (signDisplay_string == "never") {
+    } else if (signDisplay_string == "never") {
       signDisplay_setting = UNUM_SIGN_NEVER;
-    }
-    else if (signDisplay_string == "negative") {
+    } else if (signDisplay_string == "negative") {
       signDisplay_setting = UNUM_SIGN_NEGATIVE;
-    }
-    else if (signDisplay_string == "accounting") {
+    }else if (signDisplay_string == "accounting") {
       signDisplay_setting = UNUM_SIGN_ACCOUNTING;
-    }
-    else if (signDisplay_string == "accounting_exceptZero") {
+    } else if (signDisplay_string == "accounting_exceptZero") {
       signDisplay_setting = UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO;
-    }
-    else if (signDisplay_string == "accounting_negative") {
+    }else if (signDisplay_string == "accounting_negative") {
       signDisplay_setting = UNUM_SIGN_ACCOUNTING_NEGATIVE;
     }
   }
   return signDisplay_setting;
 }
 
-const string test_numfmt(json_object *json_in) {
+const string TestNumfmt(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   // label information
@@ -239,7 +210,6 @@ const string test_numfmt(json_object *json_in) {
   // Other parts of the input.
   json_object *options_obj = json_object_object_get(json_in, "options");
   json_object *skeleton_obj = json_object_object_get(json_in, "skeleton");
-  json_object *pattern_obj = json_object_object_get(json_in, "pattern");
 
   // The locale for numbers
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
@@ -249,15 +219,6 @@ const string test_numfmt(json_object *json_in) {
   }
 
   const Locale displayLocale(locale_string.c_str());
-
-  // Try using the skeleton to create the formatter
-  json_object *skelecton_obj = json_object_object_get(json_in, "skeleton");
-  UnicodeString unicode_skeleton_string;
-  string skeleton_string;
-  if (skeleton_obj) {
-    skeleton_string = json_object_get_string(skeleton_obj);
-    unicode_skeleton_string = skeleton_string.c_str();
-  }
 
   // Get options
   json_object *notation_obj;
@@ -285,13 +246,16 @@ const string test_numfmt(json_object *json_in) {
   // Defaults for settings.
   CurrencyUnit currency_unit_setting = CurrencyUnit();
   IntegerWidth integerWidth_setting = IntegerWidth::zeroFillTo(1);
-  MeasureUnit unit_setting = NoUnit::base();
+  MeasureUnit unit_setting = icu::NoUnit::base();
   Notation notation_setting = Notation::simple();
-  Precision precision_setting = Precision::integer();  // TODO?  = Precision::unlimited();
+
+  // TODO?  = Precision::unlimited();
+  Precision precision_setting = Precision::integer();
   Scale scale_setting = Scale::none();
   UNumberSignDisplay signDisplay_setting = UNUM_SIGN_AUTO;
   UNumberFormatRoundingMode rounding_setting = UNUM_ROUND_HALFEVEN;
-  UNumberDecimalSeparatorDisplay separator_setting = UNUM_DECIMAL_SEPARATOR_AUTO;
+  UNumberDecimalSeparatorDisplay separator_setting =
+      UNUM_DECIMAL_SEPARATOR_AUTO;
   UNumberGroupingStrategy grouping_setting = UNUM_GROUPING_AUTO;
   UNumberUnitWidth unit_width_setting =
       UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
@@ -313,13 +277,11 @@ const string test_numfmt(json_object *json_in) {
     if (unit_obj) {
       unit_string = json_object_get_string(unit_obj);
       if (unit_string == "percent") {
-        unit_setting= NoUnit::percent();
-      }
-      else if (unit_string == "permille") {
-        unit_setting= NoUnit::permille();
-      }
-      else if (unit_string == "furlong") {
-        unit_setting= MeasureUnit::getFurlong();
+        unit_setting = icu::NoUnit::percent();
+      } else if (unit_string == "permille") {
+        unit_setting = icu::NoUnit::permille();
+      } else if (unit_string == "furlong") {
+        unit_setting = MeasureUnit::getFurlong();
       }
     }
 
@@ -328,8 +290,7 @@ const string test_numfmt(json_object *json_in) {
       unitDisplay_string = json_object_get_string(unitDisplay_obj);
       if (unitDisplay_string == "narrow") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
-      }
-      else if (unitDisplay_string == "long") {
+      } else if (unitDisplay_string == "long") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME;
       }
     }
@@ -357,17 +318,17 @@ const string test_numfmt(json_object *json_in) {
     }
 
     // TODO: make a function
-    currencyDisplay_obj = json_object_object_get(options_obj, "currencyDisplay");
+    currencyDisplay_obj =
+        json_object_object_get(options_obj, "currencyDisplay");
     if (currencyDisplay_obj) {
-      string currencyDisplay_string = json_object_get_string(currencyDisplay_obj);
+      string currencyDisplay_string =
+          json_object_get_string(currencyDisplay_obj);
       unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
-     if (currencyDisplay_string == "narrowSymbol") {
+      if (currencyDisplay_string == "narrowSymbol") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_NARROW;
-      }
-      else if (currencyDisplay_string == "symbol") {
+      } else if (currencyDisplay_string == "symbol") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_SHORT;
-      }
-      else if (currencyDisplay_string == "name") {
+      } else if (currencyDisplay_string == "name") {
         unit_width_setting = UNumberUnitWidth::UNUM_UNIT_WIDTH_FULL_NAME;
       }
     }
@@ -392,8 +353,10 @@ const string test_numfmt(json_object *json_in) {
         rounding_setting = UNUM_ROUND_UP;
       }
       // TODO: Finish this
-      //  UNUM_ROUND_HALFEVEN , UNUM_FOUND_HALFEVEN = UNUM_ROUND_HALFEVEN , UNUM_ROUND_HALFDOWN = UNUM_ROUND_HALFEVEN + 1 , UNUM_ROUND_HALFUP ,
-      //  UNUM_ROUND_UNNECESSARY , UNUM_ROUND_HALF_ODD , UNUM_ROUND_HALF_CEILING , UNUM_ROUND_HALF_FLOOR
+      //  UNUM_ROUND_HALFEVEN , UNUM_FOUND_HALFEVEN = UNUM_ROUND_HALFEVEN ,
+      //  UNUM_ROUND_HALFDOWN = UNUM_ROUND_HALFEVEN + 1 , UNUM_ROUND_HALFUP ,
+      //  UNUM_ROUND_UNNECESSARY , UNUM_ROUND_HALF_ODD ,
+      //  UNUM_ROUND_HALF_CEILING , UNUM_ROUND_HALF_FLOOR
     }
 
     // TODO: make a function
@@ -402,11 +365,9 @@ const string test_numfmt(json_object *json_in) {
       string group_string = json_object_get_string(group_obj);
       if (group_string == "false") {
         grouping_setting = UNUM_GROUPING_OFF;
-      }
-      else if (group_string == "true") {
+      } else if (group_string == "true") {
         grouping_setting = UNUM_GROUPING_AUTO;
-      }
-      else if (group_string == "on_aligned") {
+      } else if (group_string == "on_aligned") {
         grouping_setting = UNUM_GROUPING_ON_ALIGNED;
       }
       // TODO: FINISH - could be OFF, MIN2, AUTO, ON_ALIGNED, THOUSANDS
@@ -419,7 +380,8 @@ const string test_numfmt(json_object *json_in) {
     integerWidth_setting = set_integerWidth(options_obj);
 
     // Check on scaling the value
-    json_object* scale_obj = json_object_object_get(options_obj, "conformanceScale");
+    json_object* scale_obj = json_object_object_get(
+        options_obj, "conformanceScale");
     if (scale_obj) {
       string scale_string = json_object_get_string(scale_obj);
       double scale_val = get_double_setting(scale_string);
@@ -427,12 +389,14 @@ const string test_numfmt(json_object *json_in) {
     }
 
     // Other settings...
-    // NumberFormatter::with().symbols(DecimalFormatSymbols(Locale("de_CH"), status))
+    // NumberFormatter::with().symbols(
+    //     DecimalFormatSymbols(Locale("de_CH"), status))
 
-    json_object* numbering_system_obj = json_object_object_get(options_obj,
-                                                               "numberingSystem");
+    json_object* numbering_system_obj =
+        json_object_object_get(options_obj, "numberingSystem");
     if (numbering_system_obj) {
-      string numbering_system_string = json_object_get_string(numbering_system_obj);
+      string numbering_system_string =
+          json_object_get_string(numbering_system_obj);
       numbering_system = NumberingSystem::createInstanceByName(
           numbering_system_string.c_str(), status);
     }
@@ -462,12 +426,7 @@ const string test_numfmt(json_object *json_in) {
 
   int32_t chars_out;  // Results of extracting characters from Unicode string
   bool no_error = true;
-  char test_result_string[1000] = "";
-
-  string test_result;
-
-  // Get the numeric value
-  double input_double = std::stod(input_string);
+  char test_result[1000] = "";
 
   LocalizedNumberFormatter nf;
   if (notation_string == "scientific") {
@@ -489,34 +448,38 @@ const string test_numfmt(json_object *json_in) {
   }
 
   if (skeleton_obj) {
-    // If present, use the skeleton
+    // Use the skeleton provided
+    UnicodeString unicode_skeleton_string;
+    string skeleton_string = json_object_get_string(skeleton_obj);
+    unicode_skeleton_string = skeleton_string.c_str();
+
     nf = NumberFormatter::forSkeleton(
         unicode_skeleton_string, status).locale(displayLocale);
-  }
-  else {
-  // Use settings to initialize the formatter
-  nf = NumberFormatter::withLocale(displayLocale)
-       .notation(notation_setting)
-       .decimal(separator_setting)
-       .precision(precision_setting)
-       .integerWidth(integerWidth_setting)
-       .grouping(grouping_setting)
-       .adoptSymbols(numbering_system)
-       .roundingMode(rounding_setting)
-       .scale(scale_setting)
-       .sign(signDisplay_setting)
-       .unit(unit_setting)
-       .unitWidth(unit_width_setting);
+  } else {
+    // Use settings to initialize the formatter
+    nf = NumberFormatter::withLocale(displayLocale)
+         .notation(notation_setting)
+         .decimal(separator_setting)
+         .precision(precision_setting)
+         .integerWidth(integerWidth_setting)
+         .grouping(grouping_setting)
+         .adoptSymbols(numbering_system)
+         .roundingMode(rounding_setting)
+         .scale(scale_setting)
+         .sign(signDisplay_setting)
+         .unit(unit_setting)
+         .unitWidth(unit_width_setting);
   }
 
   if (U_FAILURE(status)) {
-      test_result = error_message.c_str();
-      const char* error_name = u_errorName(status);
-      json_object_object_add(return_json,
-                           "error", json_object_new_string("error in constructor"));
-      json_object_object_add(return_json,
-                             "error_detail", json_object_new_string(error_name));
-      no_error = false;
+    const char* error_name = u_errorName(status);
+    json_object_object_add(
+        return_json,
+        "error", json_object_new_string("error in constructor"));
+    json_object_object_add(
+        return_json,
+        "error_detail", json_object_new_string(error_name));
+    no_error = false;
   }
 
   if (no_error) {
@@ -526,38 +489,39 @@ const string test_numfmt(json_object *json_in) {
     number_result = fmt_number.toString(status);
     if (U_FAILURE(status)) {
       const char* error_name = u_errorName(status);
-      json_object_object_add(return_json,
-                           "error", json_object_new_string("error in toString"));
-      json_object_object_add(return_json,
-                             "error_detail", json_object_new_string(error_name));
-      no_error = false;
+      json_object_object_add(
+          return_json,
+          "error", json_object_new_string("error in toString"));
+      json_object_object_add(
+          return_json,
+          "error_detail", json_object_new_string(error_name));
     }
 
     // Get the resulting value as a string
-    chars_out = number_result.extract(test_result_string, 1000, nullptr, status);
-    test_result = test_result_string;
+    number_result.extract(test_result, 1000, nullptr, status);  // ignore result
 
     if (U_FAILURE(status)) {
       // Report a failure
       const char* error_name = u_errorName(status);
       json_object_object_add(
-          return_json, "error", json_object_new_string("error in string extract"));
+          return_json, "error",
+          json_object_new_string("error in string extract"));
       json_object_object_add(
           return_json, "error_detail", json_object_new_string(error_name));
-      no_error = false;
     } else {
       // It worked!
       json_object_object_add(return_json,
                              "result",
-                             json_object_new_string(test_result.c_str()));
+                             json_object_new_string(test_result));
     }
   }
+
   // To see what was actually used.
   UnicodeString u_skeleton_out = nf.toSkeleton(status);
-  chars_out = u_skeleton_out.extract(test_result_string, 1000, nullptr, status);
+  u_skeleton_out.extract(test_result, 1000, nullptr, status);  // result ignored
   json_object_object_add(return_json,
                          "actual_skeleton",
-                         json_object_new_string(test_result_string));
+                         json_object_new_string(test_result));
 
   string return_string = json_object_to_json_string(return_json);
   return return_string;

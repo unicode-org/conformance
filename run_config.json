@@ -10,9 +10,12 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -28,9 +31,12 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -46,27 +52,76 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
   },
   {
     "prereq": {
-      "name": "Get ICU4C 74",
-      "version": "74.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_1-Ubuntu22.04-x64.tgz"
+      "name": "Get ICU4C 74.2",
+      "version": "74.2",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_2-Ubuntu22.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu74",
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "lang_names",
+        "list_fmt",
+        "likely_subtags",
+        "number_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "Get ICU4C 75.1",
+      "version": "75.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-75_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 22..0, icu75.1",
+      "version": "22.1.0",
+      "command": "nvm install 22.1.0;nvm use 22.1.0"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -83,6 +138,7 @@
       "test_type": [
         "collation_short",
         "number_fmt",
+        "lang_names",
         "likely_subtags"
       ],
       "per_execution": 10000
@@ -90,18 +146,22 @@
   },
   {
     "prereq": {
-      "name": "nvm",
-      "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "name": "nvm 21.6.0, icu74.1",
+      "version": "21.6.0",
+      "command": "nvm install 21.6.0;nvm use 21.6.0"
     },
     "run": {
       "icu_version": "icu74",
       "exec": "node",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -117,9 +177,13 @@
       "exec": "node",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -135,9 +199,13 @@
       "exec": "node",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -153,7 +221,11 @@
       "exec": "node",
       "test_type": [
         "collation_short",
-        "number_fmt"
+        "list_fmt",
+        "datetime_fmt",
+        "number_fmt",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -203,7 +275,9 @@
         "collation_short",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -219,41 +293,44 @@
       "exec": "rust",
       "test_type": [
         "collation_short",
-        "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "list_fmt",
+        "likely_subtags",
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
   },
   {
     "prereq": {
-      "name": "mvn-icu4j-73-shaded",
-      "version": "73",
-      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
+      "name": "mvn-icu4j-74-shaded",
+      "version": "74",
+      "command": "mvn -q -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
     },
     "run": {
-      "icu_version": "icu73",
+      "icu_version": "icu74",
       "exec": "icu4j",
       "test_type": [
-        "collation_short"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
-      "name": "mvn-icu4j-73-shaded",
-      "version": "73",
-      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
-    },
-    "run": {
-      "icu_version": "icu73",
-      "exec": "icu4j",
-      "test_type": [
+        "collation_short",
         "lang_names",
         "likely_subtags",
         "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-74-shaded",
+      "version": "74",
+      "command": "mvn -q -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "icu4j",
+      "test_type": [
+        "message_fmt2"
       ],
       "per_execution": 10000
     }

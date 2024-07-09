@@ -1,6 +1,4 @@
 name: dart_web
-description: A sample command-line application.
-version: 1.0.0
 publish_to: none
 
 environment:
@@ -8,9 +6,9 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  intl4x: ^0.7.0
+  intl4x: ^0.7.1
   pubspec_lock_parse: ^2.2.0
 
 dev_dependencies:
-  lints: ^2.0.0
-  test: ^1.21.0
+  lints: ^3.0.0
+  test: ^1.25.2

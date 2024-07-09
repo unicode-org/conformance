@@ -1,15 +1,22 @@
 # Points to file names for each supported JSON files.
 
 ALL_TEST_TYPES = ['collation_short',
+                  'datetime_fmt',
+                  'list_fmt',
+                  'message_fmt2',
                   'number_format',
                   'language_names',
-                  'likely_subtags']
+                  'likely_subtags'
+                  ]
 
 TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation_short',
+    'datetime_fmt_test_file': 'datetime_fmt',
     'lang_name_test_file': 'language_names',
     'likely_subtags_test': 'likely_subtags',
-    'num_fmt_test_file': 'number_fmt'
+    'message_fmt2_test_file': 'message_fmt2',
+    'num_fmt_test_file': 'number_fmt',
+    'list_fmt_test_file': 'list_fmt'
 }
 
 SCHEMA_FILE_MAP = {
@@ -31,6 +38,21 @@ SCHEMA_FILE_MAP = {
         }
     },
 
+    "datetime_fmt": {
+        "test_data": {
+            "schema_file": "datetime_fmt/test_schema.json",
+            'prod_file': 'datetime_test_file.json'
+        },
+        "verify_data": {
+            "schema_file": "datetime_fmt/verify_schema.json",
+            'prod_file': 'pass.json'
+        },
+        "result_data": {
+            "schema_file": "datetime_fmt/result_schema.json",
+            "prod_file": 'datetime_test_file.json'
+        }
+    },
+
     "number_format": {
         "test_data": {
             "schema_file": "number_format/test_schema.json",
@@ -45,6 +67,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": 'num_fmt_test_file.json'
         }
     },
+
     "number_fmt": {
         "test_data": {
             "schema_file": "number_format/test_schema.json",
@@ -103,6 +126,34 @@ SCHEMA_FILE_MAP = {
             "prod_file": "likely_subtags_test.json"
         }
     },
+    "list_fmt": {
+        "test_data": {
+            "schema_file": "list_fmt/test_schema.json",
+            'prod_file': 'list_fmt.json'
+        },
+        "verify_data": {
+            "schema_file": "list_fmt/verify_schema.json",
+            'prod_file': 'list_fmt.json'
+        },
+        "result_data": {
+            "schema_file": "list_fmt/result_schema.json",
+            "prod_file": "list_fmt_test.json"
+        }
 
     # Additional tests
+    },
+    "message_fmt2": {
+        "test_data": {
+            "schema_file": "message_fmt2/test_schema.json",
+            'prod_file': 'message_fmt2_test.json'
+        },
+        "verify_data": {
+            "schema_file": "message_fmt2/verify_schema.json",
+            'prod_file': 'message_fmt2_verify.json'
+        },
+        "result_data": {
+            "schema_file": "message_fmt2/result_schema.json",
+            'prod_file': 'message_fmt2_result.json'
+        }
+    }
 }
