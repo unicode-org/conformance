@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MessageFormat2 data-driven tests",
+  "description": "The format of message_fmt2 test data for execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["test_type", "tests"],
+  "properties": {
+    "test_type": {
+      "const": "message_fmt2"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/test"
+      },
+      "minItems": 0
+    }
+  },
+  "$defs": {
+    "test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "locale", "src"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Identifier for the test."
+        },
+        "test_description": {
+          "type": "string",
+          "description": "Information about the test."
+        },
+        "locale": {
+          "type": "string"
+        },
+        "src": {
+          "type": "string"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/var"
+          }
+        }
+      }
+    },
+    "var": {
+      "type": "object",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value": {}
+          }
+        },
+        {
+          "additionalProperties": false,
+          "required": ["name", "type", "value"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "const": "datetime"
+            },
+            "value": {
+              "$comment": "Should be converted to a datetime.",
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
