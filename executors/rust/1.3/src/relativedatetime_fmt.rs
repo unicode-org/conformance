@@ -17,102 +17,102 @@ struct RelativeDateTimeFormatterOptions {
 }
 
 fn get_formatter_from_unit_style(
-    locale: DataLocale,
+    locale: &DataLocale,
     unit: String,
     style: String,
     options: RelativeTimeFormatterOptions,
 ) -> Result<RelativeTimeFormatter, RelativeTimeError> {
     if unit == "year" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_year(&locale, options)
+            RelativeTimeFormatter::try_new_long_year(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_year(&locale, options)
+            RelativeTimeFormatter::try_new_short_year(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_year(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_year(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_year(&locale, options)
+            RelativeTimeFormatter::try_new_long_year(locale, options)
         }
     } else if unit == "quarter" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_quarter(&locale, options)
+            RelativeTimeFormatter::try_new_long_quarter(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_quarter(&locale, options)
+            RelativeTimeFormatter::try_new_short_quarter(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_quarter(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_quarter(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_quarter(&locale, options)
+            RelativeTimeFormatter::try_new_long_quarter(locale, options)
         }
     } else if unit == "month" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_month(&locale, options)
+            RelativeTimeFormatter::try_new_long_month(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_month(&locale, options)
+            RelativeTimeFormatter::try_new_short_month(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_month(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_month(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_month(&locale, options)
+            RelativeTimeFormatter::try_new_long_month(locale, options)
         }
     } else if unit == "week" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_week(&locale, options)
+            RelativeTimeFormatter::try_new_long_week(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_week(&locale, options)
+            RelativeTimeFormatter::try_new_short_week(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_week(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_week(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_week(&locale, options)
+            RelativeTimeFormatter::try_new_long_week(locale, options)
         }
     } else if unit == "day" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_day(&locale, options)
+            RelativeTimeFormatter::try_new_long_day(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_day(&locale, options)
+            RelativeTimeFormatter::try_new_short_day(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_day(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_day(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_day(&locale, options)
+            RelativeTimeFormatter::try_new_long_day(locale, options)
         }
     } else if unit == "hour" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_hour(&locale, options)
+            RelativeTimeFormatter::try_new_long_hour(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_hour(&locale, options)
+            RelativeTimeFormatter::try_new_short_hour(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_hour(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_hour(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_hour(&locale, options)
+            RelativeTimeFormatter::try_new_long_hour(locale, options)
         }
     } else if unit == "minute" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_minute(&locale, options)
+            RelativeTimeFormatter::try_new_long_minute(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_minute(&locale, options)
+            RelativeTimeFormatter::try_new_short_minute(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_minute(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_minute(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_minute(&locale, options)
+            RelativeTimeFormatter::try_new_long_minute(locale, options)
         }
     } else if unit == "second" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_second(&locale, options)
+            RelativeTimeFormatter::try_new_long_second(locale, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_second(&locale, options)
+            RelativeTimeFormatter::try_new_short_second(locale, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_second(&locale, options)
+            RelativeTimeFormatter::try_new_narrow_second(locale, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_second(&locale, options)
+            RelativeTimeFormatter::try_new_long_second(locale, options)
         }
     } else {
         // An unknown unit!
-        RelativeTimeFormatter::try_new_narrow_second(&locale, options)
+        RelativeTimeFormatter::try_new_narrow_second(locale, options)
     }
 }
 
@@ -174,7 +174,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
 
     // Use unit & style to select the correct constructor.
     let relative_time_formatter = get_formatter_from_unit_style(
-        data_locale,
+        &data_locale,
         unit.to_string(),
         style.to_string(),
         RelativeTimeFormatterOptions::default(),
@@ -196,6 +196,6 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     Ok(json!({
         "label": label,
         "result": result_string,
-    "actual_options": format!("{options:?}"),
+        "actual_options": format!("{data_locale:?}"),
     }))
 }
