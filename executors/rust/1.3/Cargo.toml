@@ -8,7 +8,7 @@ edition = "2021"
 log = "0.4"
 env_logger = "0.9.1"    
 
-icu_provider = "1.3.2"
+icu_provider = "~1.3"
 
 json = "0.12.4"
 serde = "1.0.171"
