@@ -204,6 +204,7 @@ dependencies = [
  "fixed_decimal",
  "icu",
  "icu_datagen",
+ "icu_provider",
  "json",
  "log",
  "rustc_version_runtime",
