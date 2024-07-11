@@ -25,6 +25,7 @@ mod likelysubtags;
 mod listfmt;
 mod numberfmt;
 mod pluralrules;
+mod relativedatetime_fmt;
 
 use collator::run_collation_test;
 use datetimefmt::run_datetimeformat_test;
@@ -33,6 +34,7 @@ use likelysubtags::run_likelysubtags_test;
 use listfmt::run_list_fmt_test;
 use numberfmt::run_numberformat_test;
 use pluralrules::run_plural_rules_test;
+use relativedatetime_fmt::run_relativedatetimeformat_test;
 
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -118,6 +120,8 @@ fn main() -> io::Result<()> {
                 run_datetimeformat_test(&json_info)
             } else if test_type == "plural_rules" {
                 run_plural_rules_test(&json_info)
+            } else if test_type == "rdt_fmt" {
+                run_relativedatetimeformat_test(&json_info)
             } else {
                 Err(test_type.to_string())
             };
