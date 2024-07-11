@@ -255,7 +255,7 @@ rl.on('line', function(line) {
 
     const jsonOut = JSON.stringify(outputLine);
 
-    if ('error' in outputLine) {
+    if ('error' in outputLine && !('unsupported' in outputLine)) {
       // To get the attention of the driver
       console.log("#!! ERROR in NODE call: test_type: " + test_type + ", " + JSON.stringify(outputLine));
     }

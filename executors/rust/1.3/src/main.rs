@@ -17,6 +17,7 @@
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
 
 mod collator;
+mod datetimefmt;
 mod decimalfmt;
 mod displaynames;
 mod langnames;
@@ -27,6 +28,7 @@ mod pluralrules;
 mod relativedatetime_fmt;
 
 use collator::run_collation_test;
+use datetimefmt::run_datetimeformat_test;
 use langnames::run_language_name_test;
 use likelysubtags::run_likelysubtags_test;
 use listfmt::run_list_fmt_test;
@@ -114,6 +116,8 @@ fn main() -> io::Result<()> {
                 run_likelysubtags_test(&json_info)
             } else if test_type == "list_fmt" {
                 run_list_fmt_test(&json_info)
+            } else if test_type == "datetime_fmt" {
+                run_datetimeformat_test(&json_info)
             } else if test_type == "plural_rules" {
                 run_plural_rules_test(&json_info)
             } else if test_type == "rdt_fmt" {
