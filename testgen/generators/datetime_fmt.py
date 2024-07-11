@@ -35,7 +35,7 @@ class DateTimeFmtGenerator(DataGenerator):
         # Set up Node version and call the generator
         # Add temporal to the package.
         nvm_version = icu_nvm_versions[self.icu_version]
-        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s; npm install temporal; npm ic; node generators/datetime_gen.js %s %s' % (
+        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s; npm ci; node generators/datetime_gen.js %s %s' % (
             nvm_version, nvm_version, '-run_limit', self.run_limit)
 
         logging.info('Running this command: %s', generate_command)
