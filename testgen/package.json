@@ -9,6 +9,7 @@
   "author": "",
   "license": "Unicode-3.0",
   "dependencies": {
+    "temporal": "^0.7.1",
     "temporal-polyfill": "^0.2.5"
   }
 }
