@@ -27,6 +27,10 @@
           "type": "string",
           "description": "Identifier for the test."
         },
+        "hexhash": {
+          "description": "A hexadecimal hash code for the test without the label",
+          "type": "string"
+        },
         "test_description": {
           "type": "string",
           "description": "Information about the test."

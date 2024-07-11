@@ -2,21 +2,26 @@
 
 ALL_TEST_TYPES = ['collation_short',
                   'datetime_fmt',
+                  'lang_names',
+                  'likely_subtags',
+                  'language_names',
                   'list_fmt',
                   'message_fmt2',
                   'number_format',
-                  'language_names',
-                  'likely_subtags'
+                  'plural_rules',
+                  'rdt_fmt'
                   ]
 
 TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation_short',
     'datetime_fmt_test_file': 'datetime_fmt',
-    'lang_name_test_file': 'language_names',
+    'lang_names_test_file': 'language_names',
     'likely_subtags_test': 'likely_subtags',
+    'list_fmt_test_file': 'list_fmt',
     'message_fmt2_test_file': 'message_fmt2',
     'num_fmt_test_file': 'number_fmt',
-    'list_fmt_test_file': 'list_fmt'
+    'plural_rules_test_file': 'plural_rules',
+    'rdt_fmt_test_file': 'rdt'
 }
 
 SCHEMA_FILE_MAP = {
@@ -139,8 +144,20 @@ SCHEMA_FILE_MAP = {
             "schema_file": "list_fmt/result_schema.json",
             "prod_file": "list_fmt_test.json"
         }
-
-    # Additional tests
+    },
+    "plural_rules" : {
+        "test_data": {
+            "schema_file": "plural_rules/test_schema.json",
+            'prod_file': 'plural_rules.json'
+        },
+        "verify_data": {
+            "schema_file": "plural_rules/verify_schema.json",
+            'prod_file': 'plural_rules.json'
+        },
+        "result_data": {
+            "schema_file": "plural_rules/result_schema.json",
+            "prod_file": "plural_rules.json"
+        }
     },
     "message_fmt2": {
         "test_data": {
@@ -155,5 +172,21 @@ SCHEMA_FILE_MAP = {
             "schema_file": "message_fmt2/result_schema.json",
             'prod_file': 'message_fmt2_result.json'
         }
-    }
+    },
+    "rdt_fmt": {
+        "test_data": {
+            "schema_file": "rdt_fmt/test_schema.json",
+            'prod_file': 'rdt_fmt.json'
+        },
+        "verify_data": {
+            "schema_file": "rdt_fmt/verify_schema.json",
+            'prod_file': 'rdt_fmt.json'
+        },
+        "result_data": {
+            "schema_file": "plural_rules/result_schema.json",
+            "prod_file": "rdt_fmt.json"
+        }
+    },
+    # Additional tests
+
 }

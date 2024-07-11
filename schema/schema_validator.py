@@ -133,6 +133,8 @@ class ConformanceSchemaValidator():
                 file_path_pair = self.get_schema_data_info(icu_version, test_type)
                 if file_path_pair:
                     schema_test_info.append(file_path_pair)
+                else:
+                    logging.warning('No test file  %s for %s, %s', file_path_pair, test_type, icu_version)
 
         results = self.parallel_check_test_data_schema(schema_test_info)
 

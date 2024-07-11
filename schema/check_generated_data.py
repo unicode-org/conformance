@@ -74,7 +74,7 @@ def main(args):
     # Create .json
     summary_json = {
         'validation_type': 'Generated test data files',
-        'description': 'Results of validating generated test data agains schema',
+        'description': 'Results of validating generated test data against schema',
         'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
         'validations': {
             'failed': failed_validations,
@@ -82,7 +82,10 @@ def main(args):
         }
     }
 
-    summary_data = json.dumps(summary_json)
+    try:
+        summary_data = json.dumps(summary_json)
+    except BaseException as error:
+        logging.error('json.dumps Summary data problem: %s, ')
 
     try:
         output_filename = os.path.join(test_data_path, 'test_data_validation_summary.json')

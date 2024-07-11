@@ -20,7 +20,39 @@ class DataGenerator(ABC):
     def process_test_data(self):
         pass
 
+    def generateTestHashValues(self, testdata):
+        # For each test item, copy it. Omit 'label' from that copy.
+        # Create the string representation of that copy with json.dumps()
+        # Then make  a hex hash value for that string.
+        # Add it to that item.
+
+        try:
+            all_tests =  testdata['tests']
+        except BaseException as error:
+            logging.error('# generateTestHashValues: %s does not have "tests": %s',
+                          error, testdata.keys())
+            return None
+
+        for test in all_tests:
+            try:
+                test_no_label = test.copy()
+            except BaseException as error:
+                logging.error('error: %s, Item with no label found here: %s, %s' ,
+                              error, testdata['test_type'], test)
+                continue
+            del test_no_label['label']
+            test_no_label_string = json.dumps(test_no_label)
+            hash_value = hex(hash(test_no_label_string))
+            test['hexhash'] = hash_value
+        return True  # Indicates OK
+
     def saveJsonFile(self, filename, data, indent=None):
+        if 'tests' in data:
+            hash_ok = self.generateTestHashValues(data)
+            if not hash_ok:
+                logging.error('### Problems generating hash codes for file %s',
+                              filename)
+
         output_path = os.path.join(self.icu_version, filename)
         output_file = open(output_path, "w", encoding="UTF-8")
         json.dump(data, output_file, indent=indent)
