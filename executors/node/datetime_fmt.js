@@ -25,13 +25,31 @@ module.exports = {
     }
     let return_json = {'label': label};
 
+    let timezone;
+    try {
+       timezone = test_options['time_zone'];
+    } catch {
+      timezone = options['timeZone'] = 'UTC';
+    }
     // Get the date from input milliseconds.
     // Prefer milliseconds
+    let iso_date;
     let test_date;
 
     // Parse the input string as a date.
     if (json['input_string']) {
-      test_date = new Date(json['input_string']);
+      iso_date = json['input_string'];
+      // Remove anything starting with "["
+      let option_start = iso_date.indexOf('[');
+      let test_date_string;
+      if (option_start >= 0) {
+        // TODO: !! Get the timezone and calendar from the iso_date string.
+        test_date_string = iso_date.substring(0, option_start);
+      } else {
+        test_date_string = iso_date;
+      }
+      console.log('test_date_string %s', test_date_string);
+      test_date = new Date(test_date_string);
     }
 
     try {
@@ -59,6 +77,7 @@ module.exports = {
 
     try {
       const formatted_dt = dt_formatter.format(test_date);
+      return_json['actual_options'] = test_options;
       return_json['result'] = formatted_dt;
     } catch (error) {
       return_json['unsupported'] = ': ' + error.message;

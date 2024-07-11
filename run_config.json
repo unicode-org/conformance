@@ -273,6 +273,7 @@
       "exec": "rust",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
@@ -294,6 +295,7 @@
       "exec": "rust",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "list_fmt",
         "likely_subtags",
