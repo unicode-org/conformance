@@ -16,21 +16,20 @@
 // References for ICU4X:
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
 
+#[path = "../../1.3/src/collator.rs"]
 mod collator;
+#[path = "../../1.3/src/langnames.rs"]
 mod langnames;
+#[path = "../../1.3/src/likelysubtags.rs"]
 mod likelysubtags;
+#[path = "../../1.3/src/listfmt.rs"]
 mod listfmt;
+#[path = "../../1.3/src/numberfmt.rs"]
 mod numberfmt;
+#[path = "../../1.3/src/pluralrules.rs"]
 mod pluralrules;
-mod relativedatetime_fmt;
 
-mod icu {
-    pub mod experimental {
-        pub use icu::compactdecimal;
-        pub use icu::displaynames;
-    }
-    pub use icu::locid;
-}
+use icu;
 
 use collator::run_collation_test;
 use langnames::run_language_name_test;
@@ -38,7 +37,6 @@ use likelysubtags::run_likelysubtags_test;
 use listfmt::run_list_fmt_test;
 use numberfmt::run_numberformat_test;
 use pluralrules::run_plural_rules_test;
-use relativedatetime_fmt::run_relativedatetimeformat_test;
 
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -122,8 +120,6 @@ fn main() -> io::Result<()> {
                 run_list_fmt_test(&json_info)
             } else if test_type == "plural_rules" {
                 run_plural_rules_test(&json_info)
-            } else if test_type == "rdt_fmt" {
-                run_relativedatetimeformat_test(&json_info)
             } else {
                 Err(test_type.to_string())
             };
