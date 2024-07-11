@@ -93,13 +93,14 @@ const spec_options = [
 ];
 
 const timezones = [
-  '',
+  '',  // Default to UTC
   'America/Los_Angeles',
   'Africa/Luanda',
   'Asia/Tehran',
   'Europe/Kiev',
   'Australia/Brisbane',
-  'Pacific/Guam',
+  'Pacific/Palau',
+  "America/Montevideo"
 ];
 
 const pre_gregorian_dates = [
@@ -112,12 +113,100 @@ const pre_gregorian_dates = [
 
 const dates = [
   new Date('Mar 17, 2024'),
-  new Date('AD 1'),
-  new Date('AD 0, 13:00'),
-  new Date('1754, May 29, 16:47'),
+  new Date('02-Jul-2001, 13:14:15'),
+  new Date('May 29, 1984, 7:53'),
+  new Date('2050, May 29, 16:47'),
   new Date('1969, July 16'),
   new Date(1e9),
   new Date(1e12),
+];
+
+let temporal_dates = [
+  {
+    timeZone: 'America/Los_Angeles',
+    year: 2024,
+    month: 3,
+    day: 7,
+    hour: 0,
+    minute: 0,
+    second: 1,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0,
+    calendar: "gregory"
+  },
+  {
+    timeZone: 'America/Los_Angeles',
+    year: 2001,
+    month: 7,
+    day: 2,
+    hour: 13,
+    minute: 14,
+    second: 15,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0
+  },
+  {
+    timeZone: 'America/Los_Angeles',
+    year: 1984,
+    month: 5,
+    day: 29,
+    hour: 7,
+    minute: 53,
+    second: 0,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0
+  },
+  {
+    timeZone: 'America/Los_Angeles',
+    year: 2030,
+    month: 5,
+    day: 29,
+    hour: 16,
+    minute: 47,
+    second: 0,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0
+  },
+  {
+    timeZone: 'America/Los_Angeles',
+    year: 1969,
+    month: 7,
+    day: 16,
+    hour: 0,
+    minute: 0,
+    second: 0,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0
+  },
+  {  // 1e9
+    timeZone: 'America/Los_Angeles',
+    year: 1970,
+    month: 1,
+    day: 12,
+    hour: 13,
+    minute: 46,
+    second: 40,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0
+  },
+  {  // 1e12
+    timeZone: 'America/Los_Angeles',
+    year: 2001,
+    month: 9,
+    day: 9,
+    hour: 1,
+    minute: 46,
+    second: 40,
+    millisecond: 0,
+    microsecond: 0,
+    nanosecond: 0
+  }
 ];
 
 const dt_fields = {
@@ -220,10 +309,13 @@ function generateAll(run_limit) {
   }
   let verify_cases = [];
 
-  let label_num = 0;
+  let label_num = -1;  // Increment before each item
 
-  const expected_count = locales.length * calendars.length * spec_options.length *
-        timezones.length * dates.length;
+  const expected_count = locales.length *
+        calendars.length *
+        spec_options.length *
+        timezones.length *
+        dates.length;
 
   console.log("Generating ", expected_count, " date/time tests for ", process.versions.icu);
   console.log('  RUN LIMIT = ', run_limit);
@@ -239,15 +331,13 @@ function generateAll(run_limit) {
           const supported_calendars = intl_locale.calendars;
           // Check if the calendar system is supported in this locale.
           // If not, skip the test.
-          if ( !supported_calendars.includes(calendar)) {
-            if (debug) {
-              console.warn(locale + ' does not support ' +  calendar);
-              console.log(locale + ': ' + supported_calendars);
-            }
+          if (!supported_calendars || !supported_calendars.includes(calendar)) {
+            console.
             continue;
           }
         } catch(error) {
-          console.log('Error: ' + error);
+          console.log('Supported calendars for %sError: %s',
+                      intl_locale, error);
         }
       }
       for (const option of spec_options) {
@@ -258,9 +348,9 @@ function generateAll(run_limit) {
         }
 
         // Rotate timezones through the data, but not as as separate loop
-        const tz_index = label_num % timezones.length;
-        timezone = timezones[tz_index];
-        //for (const timezone of timezones) {
+        const tz_index = (label_num + 1) % timezones.length;
+        let timezone = timezones[tz_index];
+
 
         // Set number systems as appropriate for particular locals
         let number_system = 'latn';
@@ -283,9 +373,14 @@ function generateAll(run_limit) {
           all_options['calendar'] = calendar;
         }
 
-        if (timezone != '') {
+        if (timezone) {
           all_options['timeZone'] = timezone;
+        } else {
+          // Default to GMT+00:00
+          all_options['timeZone'] = 'UTC'
+          timezone = 'UTC';
         }
+
         if (number_system) {
           // getNumberingSystems() may not be available yet.
           // If we have this info and the number system isn't in this local, skip the test.
@@ -324,16 +419,68 @@ function generateAll(run_limit) {
           continue;
         }
 
-        for (const d of dates) {
+        // Generate this for several actual dates.
+        for (const date_index in dates) {
+          label_num ++;
+
+          let this_date = dates[date_index];
+
+          // Get the temporal representation, including TZ and calendar
+          let temporal_date = temporal_dates[date_index];
+          temporal_date['timeZone'] = timezone;
+
+          try {
+            let vanilla_locale = 'en-US';
+            let vanilla_calendar = 'gregory';
+            // temporal_date['calendar'] = vanilla_calendar;
+
+            // For computing the string with Date
+            let zdt_vanilla = Temporal.ZonedDateTime.from(temporal_date);
+            try {
+              this_date = new Date(zdt_vanilla.epochMilliseconds);
+            } catch (error) {
+              console.log('new Date fail %s with %s on %s', error,
+                          temporal_date);
+              continue;
+            }
+            if (! this_date) {
+              console.log('$$$$ %s no date from zdt_to_date. %s, %s %s %s',
+                          label_num, zdt_vanilla, temporal_date,
+                          vanilla_locale, vanilla_calendar);
+              continue;
+            }
+          } catch (error) {
+            console.log(' SKIPPING %s temporal.from %s: input: %s',
+                        label_num, error, temporal_date);
+            continue;
+          }
+
+          // Get the ISO string with
+          // temporal_date['calendar'] = calendar;
+          let zdt_full = Temporal.ZonedDateTime.from(temporal_date);
+          input_string = zdt_full.toString();
+
+          // !! TEMPORARY !!
+          // console.log(' TEMPORAL %s %s %s', label_num, input_string, this_date);
+
           let result;
+          let parts;
           try {
             // To avoid the hack that replaces NBSP with ASCII space.
-            const parts = formatter.formatToParts(d);
+            try {
+              parts = formatter.formatToParts(this_date);
+            } catch (error) {
+              console.log('!!!!!! %s %s', label_num, error);
+              console.log('      temporal_data = %s', temporal_date)
+              console.log('       %s formatToParts with %s', error, this_date);
+              continue;
+            }
             // Handle options that have only era or timeZoneName, working around
             // https://github.com/tc39/ecma402/issues/461
             const keys = Object.keys(option);
 
-            if (keys.length == 1 && (keys[0] == 'era' || keys[0] == 'timeZoneName')) {
+            if (keys.length == 1 &&
+                (keys[0] == 'era' || keys[0] == 'timeZoneName')) {
               if (calendar == 'chinese') {
                 continue;
               }
@@ -348,17 +495,18 @@ function generateAll(run_limit) {
                   // console.error(' result: ', JSON.stringify(result));
                 }
                 if (!result || debug) {
-                  console.log('  key = ' + keys[0] +
-                              ', ' + JSON.stringify(all_options));
+                  console.log('OK!  key = %s, %s',
+                              keys[0],
+                              JSON.stringify(all_options));
                   console.log('  ITEM = ', JSON.stringify(item))
                   console.log('  PARTS = ', JSON.stringify(parts));
                 }
 
               } catch (error) {
-                console.error('Error: ' + error + ', key = ' + keys[0] +
-                              ', date = ' + d);
-                console.error('     ' + JSON.stringify(parts));
-                console.error('    ' + JSON.stringify(all_options));
+                console.error('PARTS FILTER error: %s, key = ',
+                              error, keys[0], this_date);
+                console.error('     %s' + JSON.stringify(parts));
+                console.error('     %s' + JSON.stringify(all_options));
               }
 
             } else {
@@ -368,7 +516,7 @@ function generateAll(run_limit) {
                 console.warn('no result for ', label_num, ': ', JSON.stringify(all_options));
               }
             }
-            // console.warn(' result = ', result);
+
           } catch (error) {
             console.error('FORMATTER result fails! ', error);
             const keys = Object.keys(all_options);
@@ -377,12 +525,12 @@ function generateAll(run_limit) {
           }
           // format this date
           // get the milliseconds
-          const millis = d.getTime();
+          const millis = this_date.getTime();
 
           const label_string = String(label_num);
 
           let test_case = {'label': label_string,
-                           'input_string': d.toISOString(),
+                           'input_string': input_string
                           };
 
           if (skeleton) {
@@ -420,8 +568,9 @@ function generateAll(run_limit) {
             console.error('!!! error ', error, ' in label ', label_num,
                         ' for date = ', d);
           }
-          label_num ++;
         }
+        // !!!
+        // console.log('');
       }
     }
   }
