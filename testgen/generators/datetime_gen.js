@@ -261,6 +261,15 @@ const dt_fields = {
     'longGeneric': 'vvvv'}
 };
 
+// ??? Can this be imported?
+const crypto = require('crypto');
+function generate_hash_for_test(test_case) {
+  const hash = crypto.createHash('sha256');
+  const test_string = JSON.stringify(test_case);
+  hash.update(test_string);
+  test_case['hexhash'] = hash.digest('hex');
+}
+
 function optionsToSkeleton(options) {
   let skeleton_array = [];
 
@@ -529,7 +538,7 @@ function generateAll(run_limit) {
 
           const label_string = String(label_num);
 
-          let test_case = {'label': label_string,
+          let test_case = {
                            'input_string': input_string
                           };
 
@@ -552,6 +561,10 @@ function generateAll(run_limit) {
           if (!result || debug) {
             console.debug("TEST CASE :", test_case);
           }
+
+          generate_hash_for_test(test_case);
+            test_case['label'] = label_string;
+
           test_cases.push(test_case);
 
           // Generate what we get.

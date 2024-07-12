@@ -12,6 +12,15 @@ const fs = require('node:fs');
 
 let debug = false;
 
+// ??? Can this be imported?
+const crypto = require('crypto');
+function generate_hash_for_test(test_case) {
+  const hash = crypto.createHash('sha256');
+  const test_string = JSON.stringify(test_case);
+  hash.update(test_string);
+  test_case['hexhash'] = hash.digest('hex');
+}
+
 const locales = ['und',
                  'en-US', 'zh-TW', 'es',
                  'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
@@ -119,10 +128,12 @@ function generateAll() {
 
           // TODO: Save this as a test case.
           let test_list;
-          let test_case = {'label': label_string,
+          let test_case = {
                            'input_list': list,
                            'options': {...all_options}
                           };
+          generate_hash_for_test(test_case);
+            test_case['label'] = label_string;
 
           if (locale != '') {
             test_case["locale"] = locale;

@@ -13,6 +13,19 @@
 
 const fs = require('node:fs');
 
+// import gen_hash from ".generate_test_hash.js"};
+// const gen = require('generate_test_hash');
+
+// ??? Can this be imported?
+const crypto = require('crypto');
+function generate_hash_for_test(test_case) {
+  const hash = crypto.createHash('sha256');
+  const test_string = JSON.stringify(test_case);
+  hash.update(test_string);
+  test_case['hexhash'] = hash.digest('hex');
+}
+
+
 const debug = false;
 
 // Add numbering system to the test options
@@ -116,7 +129,9 @@ function generateAll() {
             }
 
             const label_string = String(label_num);
-            let test_case = {'label': label_string,
+
+            // Without label
+            let test_case = {
                              'unit': unit,
                              'count': String(count),
                             };
@@ -132,6 +147,10 @@ function generateAll() {
             if (debug) {
               console.log("TEST CASE :", test_case);
             }
+
+            generate_hash_for_test(test_case);
+            test_case['label'] = label_string;
+
             test_cases.push(test_case);
 
             // Generate what we get.
