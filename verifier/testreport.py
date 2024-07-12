@@ -101,6 +101,8 @@ class TestReport:
         self.test_errors = []
         self.unsupported_cases = []
 
+        self.known_issues = []
+
         self.test_type = None
         self.exec = None
         self.library_name = None
@@ -233,6 +235,7 @@ class TestReport:
 
         report['test_errors'] = self.test_errors
         report['unsupported'] = self.unsupported_cases
+        report['known_issues'] = self.known_issues
         self.report = report
 
         return json.dumps(report)
@@ -329,7 +332,9 @@ class TestReport:
                     'passing_tests': len(self.passing_tests),
                     'failing_tests': len(self.failing_tests),
                     'error_count': len(self.test_errors),
-                    'unsupported_count': len(self.unsupported_cases)
+                    'unsupported_count': len(self.unsupported_cases),
+                    'known_issue_count': len(self.known_issues)
+
                     # ...
                     }
 
@@ -361,6 +366,11 @@ class TestReport:
         unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
+
+
+        known_issues_characterized = self.characterize_failures_by_options(self.known_issues)
+        flat_combined_known_issues = self.flatten_and_combine(known_issues_characterized, None)
+        self.save_characterized_file(flat_combined_known_issues, "known_issues")
 
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
@@ -427,6 +437,7 @@ class TestReport:
             html_map['error_summary'] = ''
 
         unsupported_lines = []
+
         if self.unsupported_cases:
             # Create a table of all test errors.
             for unsupported in self.unsupported_cases:
@@ -442,11 +453,12 @@ class TestReport:
                 'unsupported_options')
 
             unsupported_summary_lines = []
+            # ??? TODO: examine if "error" is correct below
             for key, labels in unsupported_summary.items():
                 count = len(labels)
                 sub = {'error': key, 'count': count}
                 unsupported_summary_lines.append(
-                    self.test_error_summary_template.safe_substitute(sub)
+                    self.test_unsupported_summary_template.safe_substitute(sub)
                 )
             unsupported_table = self.templates.summary_table_template.safe_substitute(
                 {'table_content': '\n'.join(unsupported_summary_lines),
@@ -457,6 +469,41 @@ class TestReport:
         else:
             html_map['unsupported_section'] = 'No unsupported tests found'
             html_map['unsupported_summary'] = ''
+
+        known_issue_lines = []
+        if self.known_issues:
+            # TODO: Clean this up
+            # Create a table of all test errors.
+            for known_issue in self.known_issues:
+                line = self.test_unsupported_template.safe_substitute(known_issue)
+                known_issue_lines.append(line)
+
+            known_issue_line_data = '\n'.join(known_issue_lines)
+            html_map['known_issue_section'] = self.known_issues_table_template.safe_substitute(
+                {'test_known_issues_table': known_issue_line_data}
+            )
+            known_issue_summary = self.compute_unsupported_category_summary(
+                self.known_issues,
+                'known_issue_options')
+
+            known_issue_summary_lines = []
+            for key, labels in unsupported_summary.items():
+                count = len(labels)
+                sub = {'error': key, 'count': count}
+                known_issue_summary_lines.append(
+                    self.test_known_issuesummary_template.safe_substitute(sub)
+                )
+            unsupported_table = self.templates.test_known_issuesummary_template.safe_substitute(
+                {'table_content': '\n'.join(known_issue_summary_lines),
+                 'type': 'Unsupported options'}
+            )
+
+            html_map['known_issues_summary'] = known_issues_table
+        else:
+            html_map['known_issues_section'] = 'No known issues found'
+            html_map['known_issue_summary'] = ''
+            # TODO: Fill this in
+            pass
 
         # For each failed test base, add an HTML table element with the info
         html_output = self.report_html_template.safe_substitute(html_map)
@@ -991,6 +1038,7 @@ class SummaryReport:
             icu_version = os.path.basename(os.path.dirname(dir_path))
             results = defaultdict(lambda: defaultdict(list))
             test_type = None
+            test_results = {}
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
@@ -1018,6 +1066,13 @@ class SummaryReport:
                     'icu_version': icu_version,
                     'platform_version': '%s %s' % (platform['platform'], platform['platformVersion'])
                 }
+                # Handle this sepparately for now as we add known issue support
+                # Handle this sepparately for now as we add known issue support
+                try:
+                    test_results['known_issue_count'] = len(test_json['known_issue'])
+                except BaseException as err:
+                    test_results['known_issue_count'] = 0
+
             except BaseException as err:
                 logging.error('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
 

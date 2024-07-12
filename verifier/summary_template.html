@@ -140,7 +140,8 @@
           let table = document.getElementById('exec_summary_table')
 
           let data_groups = ['Result', 'Pass', 'Fail', 'Error', 'Unsupported',
-                             {role: 'annotation'}];
+                    'known_issue',
+                                                 {role: 'annotation'}];
 
           // Get all the types of tests available
           // Sort output in alpha order by executor and by test_type
@@ -200,6 +201,7 @@
                               report['fail_count'],
                               report['error_count'],
                               report['unsupported_count'],
+                              report['known_issue_count'],
                               ''
                           ];
                           data.push(report_data);
