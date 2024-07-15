@@ -12,6 +12,7 @@ class LangNamesGenerator(DataGenerator):
     json_test = {"test_type": "lang_names"}
     json_verify = {"test_type": "lang_names"}
 
+
     def process_test_data(self):
         self.languageNameDescr()
         filename = "languageNameTable.txt"
@@ -22,6 +23,7 @@ class LangNamesGenerator(DataGenerator):
 
         # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(rawlangnametestdata)
+        self.generateTestHashValues(self.json_test)
         output_path = os.path.join(self.icu_version, "lang_name_test_file.json")
         lang_name_test_file = open(output_path, "w", encoding="UTF-8")
         json.dump(self.json_test, lang_name_test_file, indent=1)
