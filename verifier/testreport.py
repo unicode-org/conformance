@@ -600,7 +600,7 @@ class TestReport:
                                 results[k][value] = set()
                             results[k][value].add(label)
 
-            # Try fields in language_names
+            # Try fields in lang_names
             for key in ['language_label', 'locale_label']:
                 try:
                     if input_data.get(key):
