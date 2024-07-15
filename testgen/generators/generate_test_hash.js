@@ -5,17 +5,17 @@ const crypto = require('crypto');
 function remove_none(obj) {
   // Recursively removes all null items
   if (typeof obj !== "object") {
-		return obj;
-	}
-	const result = new obj.constructor;
-	const entries = Object.entries(obj);
-	entries.sort();
-	for (const [key, value] of entries) {
-		if (value !== null) {
-			result[key] = remove_none(value);
-		}
-	}
-	return result;
+    return obj;
+  }
+  const result = new obj.constructor;
+  const entries = Object.entries(obj);
+  entries.sort();
+  for (const [key, value] of entries) {
+    if (value !== null) {
+      result[key] = remove_none(value);
+    }
+  }
+  return result;
 }
 
 function generate_hash_for_test(test_case) {

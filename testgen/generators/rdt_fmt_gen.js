@@ -121,9 +121,9 @@ function generateAll() {
 
             // Without label
             let test_case = {
-                             'unit': unit,
-                             'count': String(count),
-                            };
+              'unit': unit,
+              'count': String(count),
+            };
 
             if (locale != '') {
               test_case["locale"] = locale;

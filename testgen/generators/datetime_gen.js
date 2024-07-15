@@ -335,7 +335,7 @@ function generateAll(run_limit) {
           // If not, skip the test.
           if (!supported_calendars || !supported_calendars.includes(calendar)) {
             console.
-            continue;
+                continue;
           }
         } catch(error) {
           console.log('Supported calendars for %sError: %s',
@@ -417,7 +417,7 @@ function generateAll(run_limit) {
           formatter = new Intl.DateTimeFormat(locale, all_options);
         } catch (error) {
           console.error(error, ' with locale ',
-                      locale, ' and options: ', all_options);
+                        locale, ' and options: ', all_options);
           continue;
         }
 
@@ -530,8 +530,8 @@ function generateAll(run_limit) {
           const label_string = String(label_num);
 
           let test_case = {
-                           'input_string': input_string
-                          };
+            'input_string': input_string
+          };
 
           if (skeleton) {
             test_case['skeleton'] = skeleton;
@@ -571,7 +571,7 @@ function generateAll(run_limit) {
             }
           } catch (error) {
             console.error('!!! error ', error, ' in label ', label_num,
-                        ' for date = ', d);
+                          ' for date = ', d);
           }
         }
         // !!!
