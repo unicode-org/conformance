@@ -26,7 +26,7 @@ function generate_hash_for_test(test_case) {
   json_str = JSON.stringify(obj);
 
   const hasher = crypto.createHash("sha1");
-  hasher.update(json_str);
+  hasher.update(json_str, "utf-8");
 
   test_case['hexhash'] = hasher.digest("hex");
 }
