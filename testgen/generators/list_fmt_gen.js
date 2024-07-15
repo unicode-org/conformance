@@ -8,18 +8,11 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const gen_hash = require("./generate_test_hash.js");
+
 const fs = require('node:fs');
 
 let debug = false;
-
-// ??? Can this be imported?
-const crypto = require('crypto');
-function generate_hash_for_test(test_case) {
-  const hash = crypto.createHash('sha256');
-  const test_string = JSON.stringify(test_case);
-  hash.update(test_string);
-  test_case['hexhash'] = hash.digest('hex');
-}
 
 const locales = ['und',
                  'en-US', 'zh-TW', 'es',
@@ -132,7 +125,7 @@ function generateAll() {
                            'input_list': list,
                            'options': {...all_options}
                           };
-          generate_hash_for_test(test_case);
+          gen_hash.generate_hash_for_test(test_case);
             test_case['label'] = label_string;
 
           if (locale != '') {
@@ -167,7 +160,7 @@ function generateAll() {
 
   test_obj['tests'] = test_cases;
   try {
-    fs.writeFileSync('list_fmt_test.json', JSON.stringify(test_obj, null, 2));
+    fs.writeFileSync('list_fmt_test.json', JSON.stringify(test_obj, null));
     // file written successfully
   } catch (err) {
     console.error(err);
@@ -175,7 +168,7 @@ function generateAll() {
 
   verify_obj['verifications'] = verify_cases;
   try {
-    fs.writeFileSync('list_fmt_verify.json', JSON.stringify(verify_obj, null, 2));
+    fs.writeFileSync('list_fmt_verify.json', JSON.stringify(verify_obj, null));
     // file written successfully
   } catch (err) {
     console.error(err);

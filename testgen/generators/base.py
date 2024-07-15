@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
+import copy
+import hashlib
 import json
 import logging
 import logging.config
@@ -7,6 +9,24 @@ import math
 import os
 import requests
 
+
+def remove_none(obj):
+    # Recursively removes any parts with None as value
+    if isinstance(obj, str):
+        return obj
+    result = copy.copy(obj)
+    if hasattr(obj, "items"):
+        for (key, value) in obj.items():
+            if value is None:
+                del result[key]
+            else:
+                result[key] = remove_none(value)
+    elif hasattr(obj, "__iter__"):
+        if len(obj) == 1 and obj[0] == obj:
+            return result
+        for (i, value) in enumerate(obj):
+            result[i] = remove_none(value)
+    return result
 
 class DataGenerator(ABC):
     def __init__(self, icu_version, run_limit=None):
@@ -19,6 +39,7 @@ class DataGenerator(ABC):
     @abstractmethod
     def process_test_data(self):
         pass
+
 
     def generateTestHashValues(self, testdata):
         # For each test item, copy it. Omit 'label' from that copy.
@@ -41,9 +62,17 @@ class DataGenerator(ABC):
                               error, testdata['test_type'], test)
                 continue
             del test_no_label['label']
-            test_no_label_string = json.dumps(test_no_label)
-            hash_value = hex(hash(test_no_label_string))
-            test['hexhash'] = hash_value
+
+            # Make it compact and consistent
+            test_no_nones = remove_none(test_no_label)
+            test_no_label_string = json.dumps(test_no_nones, separators=(',', ':'), sort_keys=True)
+
+            # Create the 32 byte hasn, consisten with Javascript
+            hasher = hashlib.sha1()
+            hasher.update(test_no_label_string.encode("utf-8"))
+            hex_digest = hasher.hexdigest()
+            test['hexhash'] = hex_digest
+
         return True  # Indicates OK
 
     def saveJsonFile(self, filename, data, indent=None):

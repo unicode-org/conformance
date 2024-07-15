@@ -4,7 +4,7 @@ ALL_TEST_TYPES = ['collation_short',
                   'datetime_fmt',
                   'lang_names',
                   'likely_subtags',
-                  'language_names',
+                  'lang_names',
                   'list_fmt',
                   'message_fmt2',
                   'number_format',
@@ -15,7 +15,7 @@ ALL_TEST_TYPES = ['collation_short',
 TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation_short',
     'datetime_fmt_test_file': 'datetime_fmt',
-    'lang_names_test_file': 'language_names',
+    'lang_names_test_file': 'lang_names',
     'likely_subtags_test': 'likely_subtags',
     'list_fmt_test_file': 'list_fmt',
     'message_fmt2_test_file': 'message_fmt2',
@@ -88,32 +88,17 @@ SCHEMA_FILE_MAP = {
         }
     },
 
-    "language_names": {
-        "test_data": {
-            "schema_file": "language_names/test_schema.json",
-            'prod_file': 'lang_name_test_file.json'
-        },
-        "verify_data": {
-            "schema_file": "language_names/verify_schema.json",
-            'prod_file': 'pass.json'
-        },
-        "result_data": {
-            "schema_file": "language_names/result_schema.json",
-            "prod_file": "lang_name_test_file.json"
-        }
-    },
-
     "lang_names": {
         "test_data": {
-            "schema_file": "language_names/test_schema.json",
+            "schema_file": "lang_names/test_schema.json",
             'prod_file': 'lang_name_test_file.json'
         },
         "verify_data": {
-            "schema_file": "language_names/verify_schema.json",
+            "schema_file": "lang_names/verify_schema.json",
             'prod_file': 'pass.json'
         },
         "result_data": {
-            "schema_file": "language_names/result_schema.json",
+            "schema_file": "lang_names/result_schema.json",
             "prod_file": "lang_name_test_file.json"
         }
     },

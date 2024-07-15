@@ -13,6 +13,8 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const gen_hash = require("./generate_test_hash.js");
+
 require("temporal-polyfill/global");
 
 const fs = require('node:fs');
@@ -261,15 +263,6 @@ const dt_fields = {
     'longGeneric': 'vvvv'}
 };
 
-// ??? Can this be imported?
-const crypto = require('crypto');
-function generate_hash_for_test(test_case) {
-  const hash = crypto.createHash('sha256');
-  const test_string = JSON.stringify(test_case);
-  hash.update(test_string);
-  test_case['hexhash'] = hash.digest('hex');
-}
-
 function optionsToSkeleton(options) {
   let skeleton_array = [];
 
@@ -500,8 +493,6 @@ function generateAll(run_limit) {
                 } catch(error) {
                   // This item isn't in the output. Just return the entire string.
                   result = parts.map((x) => x.value).join("");
-                  // console.error('BAD PARTS?: ', JSON.stringify(parts));
-                  // console.error(' result: ', JSON.stringify(result));
                 }
                 if (!result || debug) {
                   console.log('OK!  key = %s, %s',
@@ -562,8 +553,9 @@ function generateAll(run_limit) {
             console.debug("TEST CASE :", test_case);
           }
 
-          generate_hash_for_test(test_case);
-            test_case['label'] = label_string;
+          gen_hash.generate_hash_for_test(test_case);
+
+          test_case['label'] = label_string;
 
           test_cases.push(test_case);
 
@@ -591,7 +583,7 @@ function generateAll(run_limit) {
 
   test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null, 2));
+    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null));
     // file written successfully
   } catch (err) {
     console.error(err);
