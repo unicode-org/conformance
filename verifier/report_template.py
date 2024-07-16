@@ -44,7 +44,7 @@ class reportTemplate():
 
         self.unsupported_table_template = Template(
 """    <table id='test_unsupported_table'>
-       <tr><th width="10%">Label</th><th width="20%">unsupported message</th><th>Details</th><th>Input data</th></tr>
+       <tr><th width="10%">Label</th><th width="20%">Unsupported message</th><th>Details</th><th>Input data</th></tr>
        <!-- For each unsupported test, output row with columns
            label, expected, actual, difference -->
       $test_unsupported_table
