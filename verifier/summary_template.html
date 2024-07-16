@@ -140,8 +140,8 @@
           let table = document.getElementById('exec_summary_table')
 
           let data_groups = ['Result', 'Pass', 'Fail', 'Error', 'Unsupported',
-                    'known_issue',
-                                                 {role: 'annotation'}];
+                             'known_issue',
+                             {role: 'annotation'}];
 
           // Get all the types of tests available
           // Sort output in alpha order by executor and by test_type
@@ -156,7 +156,6 @@
               const tests = exec_summary_json[test_type];
               for (const node_version of tests) {
                     exec_set.add(node_version['version']['platform'])
-//                  exec_set.add(node_version['exec']);
               }
           }
 
@@ -188,7 +187,6 @@
                   let details = [];
                   for (const report of tests) {
                       if (report['version']['platform'] == exec) {
-//                      if (report['exec'] == exec) {
                           reports.push(report);
                           // Add data for this report.
                           const version_label = report['version']['platformVersion'] +
@@ -196,7 +194,6 @@
                               report['version']['icuVersion'];
                           const report_data = [
                               version_label,
-                        //      report['exec_version'],
                               report['pass_count'],
                               report['fail_count'],
                               report['error_count'],

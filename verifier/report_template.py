@@ -44,8 +44,8 @@ class reportTemplate():
 
         self.unsupported_table_template = Template(
 """    <table id='test_unsupported_table'>
-       <tr><th width="10%">Label</th><th width="20%">known_issue message</th><th>Details</th><th>Input data</th></tr>
-       <!-- For each failing test, output row with columns
+       <tr><th width="10%">Label</th><th width="20%">unsupported message</th><th>Details</th><th>Input data</th></tr>
+       <!-- For each unsupported test, output row with columns
            label, expected, actual, difference -->
       $test_unsupported_table
     </table>
@@ -54,9 +54,9 @@ class reportTemplate():
         self.known_issue_table_template = Template(
             """    <table id='test_known_issue_table'>
                    <tr><th width="10%">Label</th><th width="20%">known_issue message</th><th>Details</th><th>Input data</th></tr>
-                   <!-- For each failing test, output row with columns
+                   <!-- For each known issue, output row with columns
                        label, expected, actual, difference -->
-                  $test_uknown_issue_table
+                  $test_unknown_issue_table
                 </table>
             """)
         self.fail_line_template = Template(
@@ -74,8 +74,6 @@ class reportTemplate():
         self.summary_table_template = Template(
 """    <table id='$type_summary_table'">
        <tr><th width="10%">$type</th><th width="20%">Count</th></tr>
-       <!-- For each failing test, output row with columns
-           item, count -->
        $table_content
        </table>
 """)
