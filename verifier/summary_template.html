@@ -140,6 +140,7 @@
           let table = document.getElementById('exec_summary_table')
 
           let data_groups = ['Result', 'Pass', 'Fail', 'Error', 'Unsupported',
+                             'known_issue',
                              {role: 'annotation'}];
 
           // Get all the types of tests available
@@ -155,7 +156,6 @@
               const tests = exec_summary_json[test_type];
               for (const node_version of tests) {
                     exec_set.add(node_version['version']['platform'])
-//                  exec_set.add(node_version['exec']);
               }
           }
 
@@ -187,7 +187,6 @@
                   let details = [];
                   for (const report of tests) {
                       if (report['version']['platform'] == exec) {
-//                      if (report['exec'] == exec) {
                           reports.push(report);
                           // Add data for this report.
                           const version_label = report['version']['platformVersion'] +
@@ -195,11 +194,11 @@
                               report['version']['icuVersion'];
                           const report_data = [
                               version_label,
-                        //      report['exec_version'],
                               report['pass_count'],
                               report['fail_count'],
                               report['error_count'],
                               report['unsupported_count'],
+                              report['known_issue_count'],
                               ''
                           ];
                           data.push(report_data);
@@ -224,7 +223,8 @@
                               0: {color:'#00dd77'},  // Passing
                               1: {color:'#dd0000'},  // Failing
                               2: {color:'#ffdd00'},  // Error
-                              3: {color: '#777777'}  //
+                              3: {color: '#777777'}, // Unsupported
+                              4: {color: '#ff8200'}  // Known issue (UTK orange)
                           },
                       };
                       //   Set up options and links

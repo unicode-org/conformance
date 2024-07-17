@@ -84,6 +84,8 @@ table th {
 .class_error tr:hover {background-color: #ffdd00;}
 .class_unsupported th {background-color: #777777;}
 .class_unsupported tr:hover {background-color: #dddddd;}
+.class_known_issue th {background-color: #dd8200;}
+.class_known_issue tr:hover {background-color: #dd8200;}
 
 
 .class_selected_fails th {background-color: #0000ee;}
@@ -142,7 +144,18 @@ table th {
             widget_label_sets: [],
             box_labels: [],
             selected_set: null,
+    },
+        'known_issue': {
+            json: null,
+            all_labels: new Set(),
+            count: 0,
+            characterized: null,
+            check_boxes: [],
+            widget_label_sets: [],
+            box_labels: [],
+            selected_set: null,
         }
+    
     };
 
     // Get the JSON data from the tests.
@@ -153,11 +166,13 @@ table th {
     let p2 = fetch('./failing_tests.json');
     let p3 = fetch('./test_errors.json');
     let p4 = fetch('./unsupported.json');
+    let p5 = fetch('./known_issues.json');
 
     let p_pass_char = fetch('./pass_characterized.json');
     let p_fail_char = fetch('./fail_characterized.json');
     let p_error_char = fetch('./error_characterized.json')
     let p_unsupported_char = fetch('./unsupported_characterized.json')
+    let p_known_issue_char = fetch('./known_issues_characterized.json')
 
     // Synchronize all the data loading and charts / pagination
     Promise.all([
@@ -173,8 +188,12 @@ table th {
         p4.then((response) => response.json())
             .then((data) => {
                 test_results['unsupported'].json = data}),
-
-        // TODO: Make a separate promise.all for this?
+        p5.then((response) => response.json())
+            .then((data) => {
+                test_results['known_issue'].json = data}),
+ 
+ 
+       // TODO: Make a separate promise.all for this?
         p_pass_char.then((response) => response.json())
             .then((data) => {
                 test_results['pass'].characterized = data}),
@@ -187,11 +206,14 @@ table th {
         p_unsupported_char.then((response) => response.json())
             .then((data) => {
                 test_results['unsupported'].characterized = data}),
+        p_known_issue_char.then((response) => response.json())
+            .then((data) => {
+                test_results['known_issue'].characterized = data}),
 
         new Promise((resolve, reject) => {
             $(document).ready(resolve);
         })
-    ]).then(([p1, p2, p3, p4, _ready]) => {
+    ]).then(([p1, p2, p3, p4, p5, _ready]) => {
         // Load the Visualization API and the corechart package.
         google.charts.load('current', {'packages':['corechart']});
         // Set a callback to run when the Google Visualization API is loaded.
@@ -210,8 +232,9 @@ table th {
             ['Passing', test_results['pass'].json.length, '#44ff77'],
             ['Failing', test_results['fail'].json.length, '#ff0000'],
             ['Errors', test_results['error'].json.length, '#ffdd00'],
-            ['Unsupported', test_results['unsupported'].json.length, '#777777']
-        ];
+            ['Unsupported', test_results['unsupported'].json.length, '#777777'],
+            ['Known issues', test_results['known_issue'].json.length, '#ff8200']
+       ];
         const chart = new google.visualization.BarChart(chart_output_area);
         let chart_data = google.visualization.arrayToDataTable(input_data);
         if (chart && chart_data) {
@@ -368,7 +391,7 @@ table th {
     function onloadFn() {
         // Set up for pagination of each set of results
         // Do this for each class of results.
-        const container_types = ['pass', 'fail', 'error', 'unsupported'];
+        const container_types = ['pass', 'fail', 'error', 'unsupported', 'known_issue'];
         let total_summary_count = 0;
         for (c_type of container_types) {
             let container_type = c_type;
@@ -416,6 +439,7 @@ table th {
         create_widget_area('fail', create_tristate_area);
         create_widget_area('error', create_tristate_area);
         create_widget_area('unsupported', create_tristate_area);
+        create_widget_area('known_issue', create_tristate_area);
     }
 
     function fill_pagination(pagination_container_name,
@@ -648,7 +672,8 @@ table th {
         <p><span id="total_summary_count">$total_tests</span> attempted. Pass: <span id="pass_summary_count">$passing_tests</span>,
           Fail: <span id="fail_summary_count">$failing_tests</span>,
           Errors: <span id="error_summary_count">$error_count</span>,
-          Unsupported: <span id="unsupported_summary_count">$unsupported</span></p>
+          Unsupported: <span id="unsupported_summary_count">$unsupported</span>,
+          Known issues: <span id="known_issue_summary_count">$unsupported</span></p>
         <div id='chart_div'>
         </div>
       </div>
@@ -767,6 +792,31 @@ table th {
           </details>
         </div>
       </details>
+
+      <details>
+        <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
+        <div id="known_issue-pagination-container"></div>
+        <div id="known_issue-data-container"></div>
+        <div id='testKnownIssueCharacterized'>
+          <details>
+            <summary class="known_issue">Known issues characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_known_issue' name='selectedCount' class='known_issue'>0</span>
+                  <button id="showSelected_known_issue" onclick="showSelectedItems(this, 'known_issue');">Update display</button>
+                  <button id="clearSelected_known_issue" onclick="clearSelectedItems(this, 'known_issue');">Clear</button>
+                </p>
+                <div id='known_issue_characterized'>
+                </div>
+              </div>  <!-- end of checkbox div -->
+              <div bp="9">
+                <div id="characterized-pagination-container_known_issue"></div>
+                <div id="characterized-data-container_known_issue"></div>
+              </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
+      </details>      
     </div>
     
   </body>

@@ -41,6 +41,17 @@ def sort_dict_by_count(dict_data):
                   key=lambda item: len(item[1]), reverse=True)
 
 
+class result_class_data():
+    # Claas containing results for a type or result, e.g.,
+    # for passing, failing, error, unsupported, known_issue
+    def __init__(self, class_name, test_template, summary_template, result_table_template, compute_fn):
+        self.name = class_name
+        self.test_template = test_template,
+        self.summary_template = summary_template
+        self.result_table_template = result_table_template
+        self.summary_compute_fn = compute_fn
+
+
 class DiffSummary:
     def __init__(self):
         self.single_diffs = {}
@@ -101,6 +112,61 @@ class TestReport:
         self.test_errors = []
         self.unsupported_cases = []
 
+        self.templates = templates = reportTemplate()
+
+        # For a simple template replacement
+        self.report_html_template = templates.reportOutline()
+
+        self.error_table_template = templates.error_table_template
+        self.test_error_summary_template = templates.test_error_summary_template
+        self.test_error_detail_template = templates.test_error_detail_template
+
+        self.unsupported_table_template = templates.unsupported_table_template
+        self.unsupported_summary_template = templates.unsupported_table_template
+
+        self.known_issue_table_template = templates.known_issue_table_template
+        self.known_issue_summary_template = templates.known_issue_table_template
+
+        self.fail_line_template = templates.fail_line_template
+
+
+        self.passing_data = result_class_data(
+            'passing',
+            None,
+            None,
+            None,
+            None)
+
+        self.failing_data = result_class_data(
+            'failing',
+            None,
+            templates.fail_line_template,
+            templates.test_error_summary_template,
+            None)
+
+        self.error_data = result_class_data(
+            'errors',
+            None,
+            templates.error_table_template,
+            templates.test_error_summary_template,
+            self.compute_test_error_summary)
+
+        self.unsupported_data = result_class_data(
+            'unsupported',
+            None,  # ??self.test_unsupported_template,
+            self.test_error_summary_template,
+            templates.unsupported_table_template,
+            self.compute_unsupported_category_summary)
+
+        self.known_issue_data = result_class_data(
+            'known_issues',
+            None,
+            None,  # ?? templates.known_issue_table_template,
+            templates.known_issue_table_template,
+            self.compute_known_issue_category_summary)
+
+        self.known_issues = []
+
         self.test_type = None
         self.exec = None
         self.library_name = None
@@ -111,24 +177,7 @@ class TestReport:
 
         self.diff_summary = DiffSummary()
 
-        templates = reportTemplate()
-        self.templates = templates
-
         self.differ = Differ()
-
-        # For a simple template replacement
-        self.report_html_template = templates.reportOutline()
-
-        self.error_table_template = templates.error_table_template
-        self.test_error_summary_template = templates.test_error_summary_template
-
-        self.unsupported_table_template = templates.unsupported_table_template
-
-        self.fail_line_template = templates.fail_line_template
-
-        self.test_error_detail_template = templates.test_error_detail_template
-
-        self.test_unsupported_template = templates.test_unsupported_template
 
         logging.config.fileConfig("../logging.conf")
 
@@ -204,6 +253,11 @@ class TestReport:
                 groups[value] = [label]
         return groups
 
+    def compute_known_issue_category_summary(selfself, cases, group_tag):
+        # TODO: Fill in for known issues
+        groups = {}
+        return groups
+
     def create_report(self):
         # Make a JSON object with the data
         report = {}
@@ -233,6 +287,7 @@ class TestReport:
 
         report['test_errors'] = self.test_errors
         report['unsupported'] = self.unsupported_cases
+        report['known_issues'] = self.known_issues
         self.report = report
 
         return json.dumps(report)
@@ -259,7 +314,9 @@ class TestReport:
         categories = {'pass': self.passing_tests,
                       'failing_tests': self.failing_tests,
                       'test_errors': self.test_errors,
-                      'unsupported': self.unsupported_cases}
+                      'unsupported': self.unsupported_cases,
+                      'known_issues': self.known_issues
+                      }
         for category, case_list in categories.items():
             dir_name = self.report_directory
             # Put .json files in the same directory as the .html for the detail report
@@ -329,7 +386,9 @@ class TestReport:
                     'passing_tests': len(self.passing_tests),
                     'failing_tests': len(self.failing_tests),
                     'error_count': len(self.test_errors),
-                    'unsupported_count': len(self.unsupported_cases)
+                    'unsupported_count': len(self.unsupported_cases),
+                    'known_issue_count': len(self.known_issues)
+
                     # ...
                     }
 
@@ -361,6 +420,11 @@ class TestReport:
         unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
+
+
+        known_issues_characterized = self.characterize_failures_by_options(self.known_issues)
+        flat_combined_known_issues = self.flatten_and_combine(known_issues_characterized, None)
+        self.save_characterized_file(flat_combined_known_issues, "known_issues")
 
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
@@ -426,37 +490,19 @@ class TestReport:
             html_map['error_section'] = 'No test errors found'
             html_map['error_summary'] = ''
 
-        unsupported_lines = []
-        if self.unsupported_cases:
-            # Create a table of all test errors.
-            for unsupported in self.unsupported_cases:
-                line = self.test_unsupported_template.safe_substitute(unsupported)
-                unsupported_lines.append(line)
-
-            unsupported_line_data = '\n'.join(unsupported_lines)
-            html_map['unsupported_section'] = self.unsupported_table_template.safe_substitute(
-                {'test_unsupported_table': unsupported_line_data}
-            )
-            unsupported_summary = self.compute_unsupported_category_summary(
-                self.unsupported_cases,
-                'unsupported_options')
-
-            unsupported_summary_lines = []
-            for key, labels in unsupported_summary.items():
-                count = len(labels)
-                sub = {'error': key, 'count': count}
-                unsupported_summary_lines.append(
-                    self.test_error_summary_template.safe_substitute(sub)
-                )
-            unsupported_table = self.templates.summary_table_template.safe_substitute(
-                {'table_content': '\n'.join(unsupported_summary_lines),
-                 'type': 'Unsupported options'}
-            )
-
-            html_map['unsupported_summary'] = unsupported_table
-        else:
-            html_map['unsupported_section'] = 'No unsupported tests found'
-            html_map['unsupported_summary'] = ''
+        # Bundle these things in one class for each type of result
+        self.fill_templates(self.unsupported_data,
+                            self.unsupported_cases,
+                            self.unsupported_table_template,
+                            self.unsupported_summary_template,
+                            html_map
+                            )
+        self.fill_templates(self.known_issue_data,
+                            self.known_issues,
+                            self.known_issue_table_template,
+                            self.known_issue_summary_template,
+                            html_map
+                            )
 
         # For each failed test base, add an HTML table element with the info
         html_output = self.report_html_template.safe_substitute(html_map)
@@ -553,7 +599,7 @@ class TestReport:
                                 results[k][value] = set()
                             results[k][value].add(label)
 
-            # Try fields in language_names
+            # Try fields in lang_names
             for key in ['language_label', 'locale_label']:
                 try:
                     if input_data.get(key):
@@ -904,6 +950,51 @@ class TestReport:
             index += 1
         return diff_count, diffs, last_diff
 
+    def fill_templates(self, result_data, result_cases, result_table_template, summary_template, html_map):
+        # For filling in templates for cases of passing, failing, errors, unsupported, known_issue
+        result_class = result_data.name
+        section_name = '%s_section' % result_class
+        summary_name = '%s_summary % result_class'
+
+        # TODO: Call this for each cases instead of duplicated lines
+        if result_cases:
+            case_lines = []
+            test_table_name = 'test_%s_' % result_class
+            options_name = '%s_options' % result_class
+            options_string = '%s options' % result_class
+
+            # Create a table of all test errors.
+            for unsupported in result_cases:
+                line = result_data.result_table_template.safe_substitute(unsupported)
+                case_lines.append(line)
+
+            case_line_data = '\n'.join(case_lines)
+            html_map[section_name] = result_data.result_table_template.safe_substitute(
+                {test_table_name: case_line_data}
+            )
+
+            case_summary = {}
+            if result_data.summary_compute_fn:
+                case_summary = result_data.summary_compute_fn(result_cases, options_name)
+
+            summary_lines = []
+            # ??? TODO: examine if "error" is correct below
+            for key, labels in case_summary.items():
+                count = len(labels)
+                sub = {'error': key, 'count': count}
+                summary_lines.append(
+                    result_data.summary_template.safe_substitute(sub)
+                )
+            case_table = result_data.summary_template.safe_substitute(
+                {'table_content': '\n'.join(summary_lines),
+                 'type': options_string}
+            )
+
+            html_map[summary_name] = case_table
+        else:
+            html_map[section_name] = 'No %s tests found' % result_class
+            html_map[summary_name] = ''
+
 
 def take_second(elem):
     return elem[1]
@@ -991,6 +1082,7 @@ class SummaryReport:
             icu_version = os.path.basename(os.path.dirname(dir_path))
             results = defaultdict(lambda: defaultdict(list))
             test_type = None
+            test_results = {}
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
@@ -1018,6 +1110,13 @@ class SummaryReport:
                     'icu_version': icu_version,
                     'platform_version': '%s %s' % (platform['platform'], platform['platformVersion'])
                 }
+
+                # Handle this sepparately for now as we add known issue support
+                try:
+                    test_results['known_issue_count'] = len(test_json['known_issue'])
+                except BaseException as err:
+                    test_results['known_issue_count'] = 0
+
             except BaseException as err:
                 logging.error('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
 
@@ -1147,6 +1246,7 @@ class SummaryReport:
             exec_json_file = open(exec_summary_json_path, mode='w', encoding='utf-8')
             summary_by_test_type = json.dumps(self.summary_by_test_type)
             exec_json_file.write(summary_by_test_type)
+            os.fsync(exec_json_file)
             exec_json_file.close()
         except BaseException as err:
             sys.stderr.write('!!! %s: Cannot write exec_summary.json' % err)
