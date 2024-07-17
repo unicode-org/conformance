@@ -1,14 +1,14 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/likely_subtags_test_schema.json'",
+ "$id": "https://github.com/unicode/conformance/_test_schema.json'",
  "title": "ICU Conformance test data description",
- "description": "This documents the format of likely_subtags test data for execution",
+ "description": "This documents the format of relative date time format test data for execution",
  "type": "object",
  "properties": {
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
      "type": "string",
-     "enum": ["likely_subtags"]
+     "enum": ["rdt_fmt"]
    },
    "Test scenario": {
      "type": "string",
@@ -65,7 +65,7 @@
      "type": "integer"
    },
    "tests": {
-     "description": "list of N tests for likely subtags",
+     "description": "list of N tests for relative date time format testing",
      "type": "array",
      "items": {
        "additionalProperties": false,
@@ -79,23 +79,37 @@
             "description": "A hexadecimal hash code for the test without the label",
             "type": "string"
           },
-         "locale": {
-           "description": "locale tag source ",
+         "unit": {
+           "description": "time interval, e.g., year, month, day, hour, etc. ",
            "type": "string"
          },
-         "option": {
+         "unit": {
+           "count": "how may of the units in past or future",
+           "type": "string"
+         },
+         "options": {
            "type": "string",
-           "description": "Type of processing requested",
-           "enum": ["maximize", "minimize",
-                    "minimizeFavorScript",
-                    "minimizeFavorRegion"]
+           "description": "Optional parameters for the output",
+           "type": "object",
+           "properties": {
+             "style": {
+               "type": "string",
+               "description": "size of formated output, e.g., long"
+             },
+             "numberingSystem": {
+               "type": "string",
+               "description": "4 letter script code of numbering system"
+             }
+           }
+
          }
        }
      },
      "required": [
        "label",
        "locale",
-       "option"
+       "count",
+       "unit"
      ]
    }
  },

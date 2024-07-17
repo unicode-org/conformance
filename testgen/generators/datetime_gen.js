@@ -13,6 +13,8 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const gen_hash = require("./generate_test_hash.js");
+
 require("temporal-polyfill/global");
 
 const fs = require('node:fs');
@@ -333,7 +335,7 @@ function generateAll(run_limit) {
           // If not, skip the test.
           if (!supported_calendars || !supported_calendars.includes(calendar)) {
             console.
-            continue;
+                continue;
           }
         } catch(error) {
           console.log('Supported calendars for %sError: %s',
@@ -415,7 +417,7 @@ function generateAll(run_limit) {
           formatter = new Intl.DateTimeFormat(locale, all_options);
         } catch (error) {
           console.error(error, ' with locale ',
-                      locale, ' and options: ', all_options);
+                        locale, ' and options: ', all_options);
           continue;
         }
 
@@ -491,8 +493,6 @@ function generateAll(run_limit) {
                 } catch(error) {
                   // This item isn't in the output. Just return the entire string.
                   result = parts.map((x) => x.value).join("");
-                  // console.error('BAD PARTS?: ', JSON.stringify(parts));
-                  // console.error(' result: ', JSON.stringify(result));
                 }
                 if (!result || debug) {
                   console.log('OK!  key = %s, %s',
@@ -529,9 +529,9 @@ function generateAll(run_limit) {
 
           const label_string = String(label_num);
 
-          let test_case = {'label': label_string,
-                           'input_string': input_string
-                          };
+          let test_case = {
+            'input_string': input_string
+          };
 
           if (skeleton) {
             test_case['skeleton'] = skeleton;
@@ -552,6 +552,11 @@ function generateAll(run_limit) {
           if (!result || debug) {
             console.debug("TEST CASE :", test_case);
           }
+
+          gen_hash.generate_hash_for_test(test_case);
+
+          test_case['label'] = label_string;
+
           test_cases.push(test_case);
 
           // Generate what we get.
@@ -566,7 +571,7 @@ function generateAll(run_limit) {
             }
           } catch (error) {
             console.error('!!! error ', error, ' in label ', label_num,
-                        ' for date = ', d);
+                          ' for date = ', d);
           }
         }
         // !!!
@@ -578,7 +583,7 @@ function generateAll(run_limit) {
 
   test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null, 2));
+    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null));
     // file written successfully
   } catch (err) {
     console.error(err);

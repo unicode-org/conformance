@@ -11,6 +11,8 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const gen_hash = require("./generate_test_hash.js");
+
 const fs = require('node:fs');
 
 const debug = false;
@@ -116,10 +118,12 @@ function generateAll() {
             }
 
             const label_string = String(label_num);
-            let test_case = {'label': label_string,
-                             'unit': unit,
-                             'count': String(count),
-                            };
+
+            // Without label
+            let test_case = {
+              'unit': unit,
+              'count': String(count),
+            };
 
             if (locale != '') {
               test_case["locale"] = locale;
@@ -132,6 +136,10 @@ function generateAll() {
             if (debug) {
               console.log("TEST CASE :", test_case);
             }
+
+            gen_hash.generate_hash_for_test(test_case);
+            test_case['label'] = label_string;
+
             test_cases.push(test_case);
 
             // Generate what we get.
@@ -158,7 +166,7 @@ function generateAll() {
 
   test_obj['tests'] = test_cases;
   try {
-    fs.writeFileSync('rdt_fmt_test.json', JSON.stringify(test_obj, null, 2));
+    fs.writeFileSync('rdt_fmt_test.json', JSON.stringify(test_obj, null));
     // file written successfully
   } catch (err) {
     console.error(err);
