@@ -44,8 +44,9 @@ def sort_dict_by_count(dict_data):
 class result_class_data():
     # Claas containing results for a type or result, e.g.,
     # for passing, failing, error, unsupported, known_issue
-    def __init__(self, class_name, summary_template, result_table_template, compute_fn):
+    def __init__(self, class_name, test_template, summary_template, result_table_template, compute_fn):
         self.name = class_name
+        self.test_template = test_template,
         self.summary_template = summary_template
         self.result_table_template = result_table_template
         self.summary_compute_fn = compute_fn
@@ -113,33 +114,57 @@ class TestReport:
 
         self.templates = templates = reportTemplate()
 
+        # For a simple template replacement
+        self.report_html_template = templates.reportOutline()
+
+        self.error_table_template = templates.error_table_template
+        self.test_error_summary_template = templates.test_error_summary_template
+        self.test_error_detail_template = templates.test_error_detail_template
+
+        self.unsupported_table_template = templates.unsupported_table_template
+        self.unsupported_summary_template = templates.unsupported_table_template
+
+        self.known_issue_table_template = templates.known_issue_table_template
+        self.known_issue_summary_template = templates.known_issue_table_template
+
+        self.fail_line_template = templates.fail_line_template
+
+
         self.passing_data = result_class_data(
             'passing',
+            None,
             None,
             None,
             None)
 
         self.failing_data = result_class_data(
             'failing',
+            None,
             templates.fail_line_template,
-            templates.test_error_summary_template, #! TODO: FIX
+            templates.test_error_summary_template,
             None)
 
         self.error_data = result_class_data(
             'errors',
+            None,
             templates.error_table_template,
             templates.test_error_summary_template,
             self.compute_test_error_summary)
 
         self.unsupported_data = result_class_data(
             'unsupported',
-            None, templates.unsupported_table_template,
+            None,  # ??self.test_unsupported_template,
+            self.test_error_summary_template,
+            templates.unsupported_table_template,
             self.compute_unsupported_category_summary)
 
-        self.known_issue_data = result_class_data('known_issues',
-                                                  templates.known_issue_table_template,
-                                                  templates.known_issue_table_template,
-                                                  self.compute_known_issue_category_summary)
+        self.known_issue_data = result_class_data(
+            'known_issues',
+            None,
+            None,  # ?? templates.known_issue_table_template,
+            templates.known_issue_table_template,
+            self.compute_known_issue_category_summary)
+
         self.known_issues = []
 
         self.test_type = None
@@ -152,24 +177,7 @@ class TestReport:
 
         self.diff_summary = DiffSummary()
 
-
         self.differ = Differ()
-
-        # For a simple template replacement
-        self.report_html_template = templates.reportOutline()
-
-        self.error_table_template = templates.error_table_template
-        self.test_error_summary_template = templates.test_error_summary_template
-
-        self.unsupported_table_template = templates.unsupported_table_template
-        self.unsupported_summary_template = templates.unsupported_table_template
-
-        self.known_issue_table_template = templates.known_issue_table_template
-        self.known_issue_summary_template = templates.known_issue_table_template
-
-        self.fail_line_template = templates.fail_line_template
-
-        self.test_error_detail_template = templates.test_error_detail_template
 
         logging.config.fileConfig("../logging.conf")
 
@@ -482,58 +490,19 @@ class TestReport:
             html_map['error_section'] = 'No test errors found'
             html_map['error_summary'] = ''
 
-        unsupported_lines = []
-
         # Bundle these things in one class for each type of result
-        self.fill_templates(
-            'unsupported',
-            self.unsupported_cases,
-            self.unsupported_table_template,
-            self.unsupported_summary_template,
-            self.compute_unsupported_category_summary,
-            html_map
-        )
-
-
-        # if self.unsupported_cases:
-        #     # Create a table of all test errors.
-        #     for unsupported in self.unsupported_cases:
-        #         line = self.unsupported_table_template.safe_substitute(unsupported)
-        #         unsupported_lines.append(line)
-        #
-        #     unsupported_line_data = '\n'.join(unsupported_lines)
-        #     html_map['unsupported_section'] = self.unsupported_table_template.safe_substitute(
-        #         {'test_unsupported_table': unsupported_line_data}
-        #     )
-        #     unsupported_summary = self.compute_unsupported_category_summary(
-        #         self.unsupported_cases,
-        #         'unsupported_options')
-        #
-        #     unsupported_summary_lines = []
-        #     # ??? TODO: examine if "error" is correct below
-        #     for key, labels in unsupported_summary.items():
-        #         count = len(labels)
-        #         sub = {'error': key, 'count': count}
-        #         unsupported_summary_lines.append(
-        #             self.unsupported_summary_template.safe_substitute(sub)
-        #         )
-        #     unsupported_table = self.templates.summary_table_template.safe_substitute(
-        #         {'table_content': '\n'.join(unsupported_summary_lines),
-        #          'type': 'Unsupported options'}
-        #     )
-        #
-        #     html_map['unsupported_summary'] = unsupported_table
-        # else:
-        #     html_map['unsupported_section'] = 'No unsupported tests found'
-        #     html_map['unsupported_summarymmary'] = ''
-
-        if self.known_issues:
-            self.fill_templates(
-                'known_issues', self.known_issues, self.known_issue_table_template,
-                self.known_issue_summary_template, self.templates.summary_table_template,
-                self.compute_known_issue_category_summary,
-                html_map
-            )
+        self.fill_templates(self.unsupported_data,
+                            self.unsupported_cases,
+                            self.unsupported_table_template,
+                            self.unsupported_summary_template,
+                            html_map
+                            )
+        self.fill_templates(self.known_issue_data,
+                            self.known_issues,
+                            self.known_issue_table_template,
+                            self.known_issue_summary_template,
+                            html_map
+                            )
 
         # For each failed test base, add an HTML table element with the info
         html_output = self.report_html_template.safe_substitute(html_map)
@@ -981,10 +950,9 @@ class TestReport:
             index += 1
         return diff_count, diffs, last_diff
 
-    def fill_templates(self, result_class, result_cases, result_table_template, summary_template,
-                       summary_compute_fn,
-                       html_map):
+    def fill_templates(self, result_data, result_cases, result_table_template, summary_template, html_map):
         # For filling in templates for cases of passing, failing, errors, unsupported, known_issue
+        result_class = result_data.name
         section_name = '%s_section' % result_class
         summary_name = '%s_summary % result_class'
 
@@ -997,15 +965,17 @@ class TestReport:
 
             # Create a table of all test errors.
             for unsupported in result_cases:
-                line = result_table_template.safe_substitute(unsupported)
+                line = result_data.result_table_template.safe_substitute(unsupported)
                 case_lines.append(line)
 
             case_line_data = '\n'.join(case_lines)
-            html_map['section_name'] = result_table_template.safe_substitute(
+            html_map[section_name] = result_data.result_table_template.safe_substitute(
                 {test_table_name: case_line_data}
             )
-            if summary_compute_fn:
-                case_summary = summary_compute_fn(result_cases, options_name)
+
+            case_summary = {}
+            if result_data.summary_compute_fn:
+                case_summary = result_data.summary_compute_fn(result_cases, options_name)
 
             summary_lines = []
             # ??? TODO: examine if "error" is correct below
@@ -1013,9 +983,9 @@ class TestReport:
                 count = len(labels)
                 sub = {'error': key, 'count': count}
                 summary_lines.append(
-                    summary_template.safe_substitute(sub)
+                    result_data.summary_template.safe_substitute(sub)
                 )
-            case_table = summary_template.safe_substitute(
+            case_table = result_data.summary_template.safe_substitute(
                 {'table_content': '\n'.join(summary_lines),
                  'type': options_string}
             )
