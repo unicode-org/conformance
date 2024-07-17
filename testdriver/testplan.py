@@ -234,6 +234,7 @@ class TestPlan:
             self.resultsFile.write(json.dumps(self.jsonOutput))
 
             self.resultsFile.flush()
+            os.fsync(self.resultsFile)
             self.resultsFile.close()
 
     def run_one_test_mode(self):
@@ -480,6 +481,7 @@ class TestPlan:
             input_file = open(self.inputFilePath,
                               encoding='utf-8', mode='r')
             file_raw = input_file.read()
+            os.fsync(input_file)
             input_file.close()
             try:
                 self.jsonData = json.loads(file_raw)

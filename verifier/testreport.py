@@ -247,6 +247,7 @@ class TestReport:
 
         report_json = self.create_report()
         file.write(report_json)
+        os.fsync(file)
         file.close()
 
         # TODO: Create subdirectory for json results of each type
@@ -272,6 +273,7 @@ class TestReport:
             try:
                 file = open(output_name, mode='w', encoding='utf-8')
                 file.write(json.dumps(case_list))
+                os.fsync(file)
                 file.close()
             except BaseException as err:
                 sys.stderr.write('!!! Cannot write report at %s\n    Error = %s' % (
@@ -469,6 +471,7 @@ class TestReport:
             return None
 
         file.write(html_output)
+        os.fsync(file)
         file.close()
 
         # TODO: write fail_characterized to output file
@@ -476,6 +479,7 @@ class TestReport:
         try:
             file = open(failure_json_path, mode='w', encoding='utf-8')
             file.write(json.dumps(flat_combined_dict))
+            os.fsync(file)
             file.close()
         except Exception as err:
             logging.warning('!! %s: Cannot write %s fail_characterized data', failure_json_path, err)
@@ -775,6 +779,7 @@ class TestReport:
             character_file_path = os.path.join(self.report_directory, file_name)
             file = open(character_file_path, mode='w', encoding='utf-8')
             file.write(json_data)
+            os.fsync(file)
             file.close()
         except BaseException as error:
             logging.error("%s: CANNOT WRITE CHARACTERIZE FILE FOR %s at ",
@@ -803,6 +808,7 @@ class TestReport:
             return None
 
         file.write(html_diff_result)
+        os.fsync(file)
         file.close()
         return html_diff_result
 
@@ -1137,6 +1143,7 @@ class SummaryReport:
             logging.debug('HTML OUTPUT =\n%s', html_output)
             logging.debug('HTML OUTPUT FILEPATH =%s', self.summary_html_path)
         file.write(html_output)
+        os.fsync(file)
         file.close()
 
         # Save the exec_summary.json
@@ -1147,6 +1154,7 @@ class SummaryReport:
             exec_json_file = open(exec_summary_json_path, mode='w', encoding='utf-8')
             summary_by_test_type = json.dumps(self.summary_by_test_type)
             exec_json_file.write(summary_by_test_type)
+            os.fsync(exec_json_file)
             exec_json_file.close()
         except BaseException as err:
             sys.stderr.write('!!! %s: Cannot write exec_summary.json' % err)

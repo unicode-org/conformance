@@ -91,6 +91,7 @@ def main(args):
         output_filename = os.path.join(test_data_path, 'test_data_validation_summary.json')
         file_out = open(output_filename, mode='w', encoding='utf-8')
         file_out.write(summary_data)
+        os.fsync(file_out)
         file_out.close()
     except BaseException as error:
         logging.warning('Error: %s. Cannot save validation summary in file %s', err, output_filename)
