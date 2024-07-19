@@ -351,12 +351,11 @@
               "unresolved-variable",
               "unknown-function",
               "unsupported-expression",
-              "invalid-expression",
-              "operand-mismatch",
-              "unsupported-statement",
-              "selection-error",
-              "formatting-error",
-              "bad-input"
+              "bad-selector",
+              "bad-operand",
+              "bad-option",
+              "bad-variant-key",
+              "unsupported-statement"
             ]
           }
         }
