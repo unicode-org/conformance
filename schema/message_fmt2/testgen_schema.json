@@ -56,6 +56,7 @@
       ]
     },
     {
+      "$comment": "Note that in a given file, either all tests must use 'src', or all tests must use 'srcs'.",
       "anyOf": [
         {
           "properties": {
@@ -68,12 +69,28 @@
         },
         {
           "properties": {
-            "tests": {
-              "type": "array",
-              "items": {
+            "defaultTestProperties": {
+              "required": [
+                "srcs"
+              ]
+            }
+          }
+        },
+        {
+          "properties": {
+             "tests": {
+               "type": "array",
+               "items": {
                 "required": [
                   "src"
                 ]
+        },
+        {
+          "properties": {
+            "tests": {
+              "type": "array",
+              "items": {
+                "required": [ "srcs" ]
               }
             }
           }
@@ -114,6 +131,9 @@
         "src": {
           "$ref": "#/$defs/src"
         },
+        "srcs": {
+          "$ref": "#/$defs/srcs"
+        },
         "params": {
           "$ref": "#/$defs/params"
         },
@@ -145,8 +165,14 @@
         "src": {
           "$ref": "#/$defs/src"
         },
+        "srcs": {
+          "$ref": "#/$defs/srcs"
+        },
         "params": {
           "$ref": "#/$defs/params"
+        },
+        "comment": {
+          "$ref": "#/$defs/comment"
         },
         "exp": {
           "$ref": "#/$defs/exp"
@@ -159,6 +185,18 @@
         },
         "expErrors": {
           "$ref": "#/$defs/expErrors"
+        },
+        "ignoreCpp": {
+          "$ref": "#/$defs/ignoreCpp"
+        },
+        "ignoreJava": {
+          "$ref": "#/$defs/ignoreJava"
+        },
+        "char": {
+          "$ref": "#/$defs/char"
+        },
+        "line": {
+          "$ref": "#/$defs/line"
         },
         "only": {
           "type": "boolean",
@@ -173,6 +211,11 @@
     "src": {
       "description": "The MF2 syntax source.",
       "type": "string"
+    },
+    "srcs": {
+      "description": "An array of strings to be concatenated to get the MF2 syntax source.",
+      "type": "array",
+      "items": { "type": "string" }
     },
     "params": {
       "description": "Parameters to pass in to the formatter for resolving external variables.",
@@ -218,6 +261,10 @@
           }
         }
       ]
+    },
+    "comment": {
+      "description": "A human-readable comment, meant to be ignored by the test runner",
+      "type": "string"
     },
     "exp": {
       "description": "The expected result of formatting the message to a string.",
@@ -361,6 +408,22 @@
           }
         }
       }
+    },
+    "ignoreCpp": {
+      "description": "If present, ignore this test when testing ICU4C. The string is an explanation of why the test doesn't pass.",
+      "type": "string"
+    },
+    "ignoreJava": {
+      "description": "If present, ignore this test when testing ICU4J. The string is an explanation of why the test doesn't pass.",
+      "type": "string"
+    },
+    "char": {
+      "description": "Optional character offset that should appear in syntax error. Only used by ICU4C currently",
+      "type": "number"
+    },
+    "line": {
+      "description": "Optional line number that should appear in syntax error. Only used by ICU4C currently",
+      "type": "number"
     },
     "anyExp": {
       "anyOf": [
