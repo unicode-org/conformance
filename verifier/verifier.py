@@ -213,7 +213,6 @@ class Verifier:
                     new_verify_plan.set_exec(executor)
                     new_verify_plan.set_report(new_report)
 
-
                     # Is this test needed?
                     if os.path.isfile(new_verify_plan.result_path):
                         self.verify_plans.append(new_verify_plan)
