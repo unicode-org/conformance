@@ -56,7 +56,6 @@
       ]
     },
     {
-      "$comment": "Note that in a given file, either all tests must use 'src', or all tests must use 'srcs'.",
       "anyOf": [
         {
           "properties": {
@@ -69,28 +68,22 @@
         },
         {
           "properties": {
-            "defaultTestProperties": {
-              "required": [
-                "srcs"
-              ]
-            }
-          }
-        },
-        {
-          "properties": {
              "tests": {
-               "type": "array",
-               "items": {
-                "required": [
-                  "src"
-                ]
+               "type": "string",
+                 "items": {
+                  "required": [
+                    "src"
+                  ]
+                 }
+             }
+          }
         },
         {
           "properties": {
             "tests": {
               "type": "array",
               "items": {
-                "required": [ "srcs" ]
+                "required": [ "src" ]
               }
             }
           }
@@ -131,9 +124,6 @@
         "src": {
           "$ref": "#/$defs/src"
         },
-        "srcs": {
-          "$ref": "#/$defs/srcs"
-        },
         "params": {
           "$ref": "#/$defs/params"
         },
@@ -164,9 +154,6 @@
         },
         "src": {
           "$ref": "#/$defs/src"
-        },
-        "srcs": {
-          "$ref": "#/$defs/srcs"
         },
         "params": {
           "$ref": "#/$defs/params"
@@ -209,13 +196,17 @@
       "type": "string"
     },
     "src": {
-      "description": "The MF2 syntax source.",
-      "type": "string"
-    },
-    "srcs": {
-      "description": "An array of strings to be concatenated to get the MF2 syntax source.",
-      "type": "array",
-      "items": { "type": "string" }
+      "oneOf": [
+        {
+          "description": "The MF2 syntax source.",
+          "type": "string"
+        },
+        {
+          "description": "The MF2 syntax source, as an array of strings to be concatenated.",
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
     },
     "params": {
       "description": "Parameters to pass in to the formatter for resolving external variables.",
