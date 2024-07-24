@@ -3,6 +3,9 @@
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
 
+# For identifying test cases that are known problems
+from check_known_issues import check_issues
+
 from collections import defaultdict
 
 from difflib import HtmlDiff
@@ -111,6 +114,7 @@ class TestReport:
         self.passing_tests = []
         self.test_errors = []
         self.unsupported_cases = []
+        self.known_issues = []
 
         self.templates = templates = reportTemplate()
 
@@ -161,7 +165,7 @@ class TestReport:
         self.known_issue_data = result_class_data(
             'known_issues',
             None,
-            None,  # ?? templates.known_issue_table_template,
+            self.known_issue_summary_template,
             templates.known_issue_table_template,
             self.compute_known_issue_category_summary)
 
@@ -195,6 +199,9 @@ class TestReport:
 
     def record_unsupported(self, test):
         self.unsupported_cases.append(test)
+
+    def record_known_issue(self, test):
+        self.known_issues.append(test)
 
     def record_missing_verify_data(self, test):
         self.missing_verify_data.append(test)
@@ -278,16 +285,22 @@ class TestReport:
         report['platform'] = self.platform_info
         report['test_environment'] = self.test_environment
         report['timestamp'] = self.timestamp
-        report['failCount'] = len(self.failing_tests)
+
         report['passCount'] = len(self.passing_tests)
         report['failingTests'] = self.failing_tests
-        report['unsupportedTests'] = len(self.unsupported_cases)
-        report['missing_verify_data'] = self.missing_verify_data
-        report['test_error_count'] = len(self.test_errors)
+        report['failCount'] = len(self.failing_tests)
 
         report['test_errors'] = self.test_errors
+        report['test_error_count'] = len(self.test_errors)
+
         report['unsupported'] = self.unsupported_cases
+        report['unsupportedTests'] = len(self.unsupported_cases)
+
         report['known_issues'] = self.known_issues
+        report['known_issue_count'] = len(self.known_issues)
+
+        report['missing_verify_data'] = self.missing_verify_data
+
         self.report = report
 
         return json.dumps(report)
@@ -361,6 +374,17 @@ class TestReport:
 
         return combined_dictionary
 
+
+    def add_known_issues(self):
+        # Call functions to identify known issues, moving things from fail, error, and unsupported
+        # to known_issues as needed
+        new_known_issues = check_issues(
+            self.test_type,
+            [self.failing_tests, self.test_errors, self.unsupported_cases])
+
+        if new_known_issues:
+            self.known_issues.extend(new_known_issues)
+
     def create_html_report(self):
         # Human-readable summary of test results
         if self.platform_info['icuVersion'] == 'unknown':
@@ -387,8 +411,8 @@ class TestReport:
                     'failing_tests': len(self.failing_tests),
                     'error_count': len(self.test_errors),
                     'unsupported_count': len(self.unsupported_cases),
-                    'known_issue_count': len(self.known_issues)
-
+                    'known_issue_count': len(self.known_issues),
+                    'known_issues': self.known_issues
                     # ...
                     }
 
@@ -405,30 +429,37 @@ class TestReport:
             line = self.fail_line_template.safe_substitute(fail)
             fail_lines.append(line)
 
-        #html_map['failure_table_lines'] = '\n'.join(fail_lines)
+        # Call functions to identify known issues, moving things from fail, error, and unsupported
+        # to known_issues as needed
+        new_known_issues = check_issues(
+            self.test_type,
+            [self.failing_tests, self.test_errors, self.unsupported_cases])
+
+        if new_known_issues:
+            self.known_issues.extend(new_known_issues)
+
 
         # Characterize successes, too.
-        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
+        pass_characterized = self.characterize_results_by_options(self.passing_tests)
         flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
         self.save_characterized_file(flat_combined_passing, "pass")
 
         # Get and save failures, errors, unsupported
-        error_characterized = self.characterize_failures_by_options(self.test_errors)
+        error_characterized = self.characterize_results_by_options(self.test_errors)
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
         self.save_characterized_file(flat_combined_errors, "error")
 
-        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
+        unsupported_characterized = self.characterize_results_by_options(self.unsupported_cases)
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
 
-
-        known_issues_characterized = self.characterize_failures_by_options(self.known_issues)
+        known_issues_characterized = self.characterize_results_by_options(self.known_issues)
         flat_combined_known_issues = self.flatten_and_combine(known_issues_characterized, None)
         self.save_characterized_file(flat_combined_known_issues, "known_issues")
 
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
-        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
+        fail_characterized = self.characterize_results_by_options(self.failing_tests)
         fail_simple_diffs = self.check_simple_text_diffs()
         flat_combined_dict = self.flatten_and_combine(fail_characterized,
                                                       fail_simple_diffs)
@@ -551,13 +582,16 @@ class TestReport:
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
         return dict(sort_dict_by_count(flat_combined_dict))
 
-    def characterize_failures_by_options(self, failing_tests):
+    def characterize_results_by_options(self, failing_tests):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
         results['locale'] = {}  # Dictionary of labels for each locale
         for test in failing_tests:
             # Get input_data, if available
-            input_data = test.get('input_data')
+            try:
+                input_data = test.get('input_data')
+            except:
+                input_data = None
 
             try:
                 label = test['label']
@@ -667,7 +701,11 @@ class TestReport:
                 options = input_data[special_key]
                 self.add_to_results_by_key(label, results, options, test, options.keys())
 
-            error_detail = test.get('error_detail')
+            try:
+                error_detail = test.get('error_detail')
+            except:
+                error_detail = None
+
             if error_detail:
                 error_keys = error_detail.keys()  # ['options']
                 self.add_to_results_by_key(label, results, error_detail, test, error_keys)
@@ -954,16 +992,16 @@ class TestReport:
         # For filling in templates for cases of passing, failing, errors, unsupported, known_issue
         result_class = result_data.name
         section_name = '%s_section' % result_class
-        summary_name = '%s_summary % result_class'
+        summary_name = '%s_summary' % result_class
 
         # TODO: Call this for each cases instead of duplicated lines
         if result_cases:
             case_lines = []
-            test_table_name = 'test_%s_' % result_class
+            test_table_name = 'test_%s' % result_class
             options_name = '%s_options' % result_class
             options_string = '%s options' % result_class
 
-            # Create a table of all test errors.
+            # Create a table of all test results in this category.
             for unsupported in result_cases:
                 line = result_data.result_table_template.safe_substitute(unsupported)
                 case_lines.append(line)
@@ -981,7 +1019,7 @@ class TestReport:
             # ??? TODO: examine if "error" is correct below
             for key, labels in case_summary.items():
                 count = len(labels)
-                sub = {'error': key, 'count': count}
+                sub = {'known_issue': key, 'count': count}
                 summary_lines.append(
                     result_data.summary_template.safe_substitute(sub)
                 )
@@ -1103,6 +1141,7 @@ class SummaryReport:
                     'pass_count': int(test_json['passCount']),
                     'error_count': int(test_json['test_error_count']),
                     'unsupported_count': len(test_json['unsupported']),
+                    'known_issue_count': int(test_json['known_issue_count']),
                     'missing_verify_count': len(test_json['missing_verify_data']),
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
@@ -1110,13 +1149,6 @@ class SummaryReport:
                     'icu_version': icu_version,
                     'platform_version': '%s %s' % (platform['platform'], platform['platformVersion'])
                 }
-
-                # Handle this sepparately for now as we add known issue support
-                try:
-                    test_results['known_issue_count'] = len(test_json['known_issue'])
-                except BaseException as err:
-                    test_results['known_issue_count'] = 0
-
             except BaseException as err:
                 logging.error('SUMMARIZE REPORTS for file %s. Error:  %s' % (filename, err))
 

@@ -249,15 +249,18 @@ class Verifier:
         vplan.setup_report_data()
 
         result = {'compare_success': True}
+
+        # Do more analysis on the failures and compute known issues
+        vplan.report.summarize_failures()
+
+        vplan.report.add_known_issues()
         # Save the results
+
         if not vplan.report.save_report():
             logging.error('!!! Could not save report for (%s, %s)',
                           vplan.test_type, vplan.exec)
         else:
             vplan.report.create_html_report()
-
-        # Do more analysis on the failures
-        vplan.report.summarize_failures()
 
         logging.debug('\nTEST RESULTS in %s for %s. %d tests found',
                           vplan.exec, vplan.test_type, len(vplan.test_results))

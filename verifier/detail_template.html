@@ -231,9 +231,9 @@ table th {
             ['Results', 'Count', {role:'style'}],
             ['Passing', test_results['pass'].json.length, '#44ff77'],
             ['Failing', test_results['fail'].json.length, '#ff0000'],
+            ['Known issues', test_results['known_issue'].json.length, '#ff8200'],
             ['Errors', test_results['error'].json.length, '#ffdd00'],
-            ['Unsupported', test_results['unsupported'].json.length, '#777777'],
-            ['Known issues', test_results['known_issue'].json.length, '#ff8200']
+            ['Unsupported', test_results['unsupported'].json.length, '#777777']
        ];
         const chart = new google.visualization.BarChart(chart_output_area);
         let chart_data = google.visualization.arrayToDataTable(input_data);
@@ -672,7 +672,7 @@ table th {
         <p><span id="total_summary_count">$total_tests</span> attempted. Pass: <span id="pass_summary_count">$passing_tests</span>,
           Fail: <span id="fail_summary_count">$failing_tests</span>,
           Errors: <span id="error_summary_count">$error_count</span>,
-          Unsupported: <span id="unsupported_summary_count">$unsupported</span>,
+          Unsupported: <span id="unsupported_summary_count">$unsupported</span></p>,
           Known issues: <span id="known_issue_summary_count">$unsupported</span></p>
         <div id='chart_div'>
         </div>
@@ -742,6 +742,31 @@ table th {
       </details>  <!-- failing tests -->
 
       <details>
+        <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
+        <div id="known_issue-pagination-container"></div>
+        <div id="known_issue-data-container"></div>
+        <div id='testKnownIssueCharacterized'>
+          <details>
+            <summary class="known_issue">Known issues characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_known_issue' name='selectedCount' class='known_issue'>0</span>
+                  <button id="showSelected_known_issue" onclick="showSelectedItems(this, 'known_issue');">Update display</button>
+                  <button id="clearSelected_known_issue" onclick="clearSelectedItems(this, 'known_issue');">Clear</button>
+                </p>
+                <div id='known_issue_characterized'>
+                </div>
+              </div>  <!-- end of checkbox div -->
+              <div bp="9">
+                <div id="characterized-pagination-container_known_issue"></div>
+                <div id="characterized-data-container_known_issue"></div>
+              </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
+      </details>      
+
+      <details>
         <summary>Test errors <span id='error_count'>($error_count)</span></summary>
         <h2 id='testErrors'>Test Errors ($error_count)</h2>
         <div id="error-pagination-container"></div>
@@ -793,30 +818,6 @@ table th {
         </div>
       </details>
 
-      <details>
-        <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
-        <div id="known_issue-pagination-container"></div>
-        <div id="known_issue-data-container"></div>
-        <div id='testKnownIssueCharacterized'>
-          <details>
-            <summary class="known_issue">Known issues characterized</summary>
-            <div bp="grid">
-              <div bp="3">
-                <p>Filtered count = <span id='selectedCount_known_issue' name='selectedCount' class='known_issue'>0</span>
-                  <button id="showSelected_known_issue" onclick="showSelectedItems(this, 'known_issue');">Update display</button>
-                  <button id="clearSelected_known_issue" onclick="clearSelectedItems(this, 'known_issue');">Clear</button>
-                </p>
-                <div id='known_issue_characterized'>
-                </div>
-              </div>  <!-- end of checkbox div -->
-              <div bp="9">
-                <div id="characterized-pagination-container_known_issue"></div>
-                <div id="characterized-data-container_known_issue"></div>
-              </div>
-            </div> <!-- grid end -->
-          </details>
-        </div>
-      </details>      
     </div>
     
   </body>
