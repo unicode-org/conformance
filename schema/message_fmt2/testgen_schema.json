@@ -69,23 +69,13 @@
         {
           "properties": {
              "tests": {
-               "type": "string",
-                 "items": {
-                  "required": [
-                    "src"
-                  ]
-                 }
+               "type": "array", // For clarity only
+               "items": {
+                 "required": [
+                   "src"
+                ]
+               }
              }
-          }
-        },
-        {
-          "properties": {
-            "tests": {
-              "type": "array",
-              "items": {
-                "required": [ "src" ]
-              }
-            }
           }
         }
       ]
