@@ -34,7 +34,7 @@
         font-size:20px;
     }
     
-    #diff_area {
+    .diff_area {
         font-size: 24px;
         font-color: blue;
     }
@@ -354,6 +354,12 @@ table th {
     function simpleTemplating(data, c_type) {
         let possible_fields = ['label', 'expected', 'result', 'error', 'error_detail',
                                'options', 'input_data', 'actual_options'];
+        // Support output to different regions, depending on the type
+        // of the data, e.g., "fail", "known_issue", etc.
+        const diff_area_name = "diff_area_" + c_type;
+        const onclick_call =
+              '"captureInputDataOnClick(this);" onmouseover="hoverDiffText(this,' + diff_area_name + ');"';
+              
         let table_opening =
             '<table id="table_' + c_type +
             '" class="class_' + c_type + '">';
@@ -377,7 +383,7 @@ table th {
                         } else {
                             output = item[key];
                         }
-                        html.push('<td onclick="captureInputDataOnClick(this);" onmouseover="hoverDiffText(this);">' + output +'</td>');
+                        html.push('<td onclick=' + onclick_call +'>' + output +'</td>');
                     }
                 }
                 html.push("</tr>");
@@ -637,8 +643,9 @@ table th {
         navigator.clipboard.writeText(output);
     }
 
-    // On hover, show the differen between expected and actual result.
-    function hoverDiffText(element) {
+    // On hover, show the difference between expected and actual result
+    // in the named area.
+    function hoverDiffText(element, diff_area) {
       // First, get the row of this item.
       const row = element.parentNode;
       const text1 = row.children[1].innerHTML;
@@ -650,9 +657,7 @@ table th {
       const diff_text = dmp.diff_main(text1, text2);
       dmp.diff_cleanupSemantic(diff_text);
       // And show the difference nicely.
-      const ds = dmp.diff_prettyHtml(diff_text);
-      const diff_area = document.getElementById("diff_area");
-      diff_area.innerHTML = ds;
+        diff_area.innerHTML = ds;
       }
   </script>
 
@@ -717,7 +722,7 @@ table th {
 
       <details>
         <summary>Failing tests <span id='fail_count'>($failing_tests)</span></summary>
-        <div id="diff_area"><p></p></div>
+        <div id="diff_area_fail" class="diff_area_class"><p></p></div>
         <div id="fail-pagination-container"></div>
         <div id="fail-data-container"></div>
         <div id='testFailuresCharacterized'>
@@ -743,6 +748,7 @@ table th {
 
       <details>
         <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
+        <div id="diff_area_known_issue" class="diff_area_class"><p></p></div>
         <div id="known_issue-pagination-container"></div>
         <div id="known_issue-data-container"></div>
         <div id='testKnownIssueCharacterized'>
