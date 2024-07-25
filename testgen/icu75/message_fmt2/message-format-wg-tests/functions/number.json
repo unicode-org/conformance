@@ -22,34 +22,34 @@
       "exp": "hello {|foo|}",
       "expErrors": [
         {
-          "type": "operand-mismatch"
+          "type": "bad-operand"
         }
       ]
     },
     {
-      "src": "invalid number literal {.1 :number}",
+      "src": "invalid number literal {|.1| :number}",
       "exp": "invalid number literal {|.1|}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-operand"
         }
       ]
     },
     {
-      "src": "invalid number literal {1. :number}",
+      "src": "invalid number literal {|1.| :number}",
       "exp": "invalid number literal {|1.|}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-operand"
         }
       ]
     },
     {
-      "src": "invalid number literal {01 :number}",
+      "src": "invalid number literal {|01| :number}",
       "exp": "invalid number literal {|01|}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-operand"
         }
       ]
     },
@@ -58,16 +58,16 @@
       "exp": "invalid number literal {|+1|}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-operand"
         }
       ]
     },
     {
-      "src": "invalid number literal {0x1 :number}",
+      "src": "invalid number literal {|0x1| :number}",
       "exp": "invalid number literal {|0x1|}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-operand"
         }
       ]
     },
@@ -76,7 +76,7 @@
       "exp": "hello {:number}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-operand"
         }
       ]
     },
@@ -139,7 +139,7 @@
       "exp": "bar {$bar}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-option"
         }
       ]
     },
@@ -154,7 +154,7 @@
       "exp": "bar {$bar}",
       "expErrors": [
         {
-          "type": "bad-input"
+          "type": "bad-operand"
         }
       ]
     },
@@ -189,7 +189,7 @@
       "exp": "bar {$foo}",
       "expErrors": [
         {
-          "type": "invalid-expression"
+          "type": "bad-option"
         }
       ]
     },
@@ -204,7 +204,7 @@
       "exp": "bar {$foo}",
       "expErrors": [
         {
-          "type": "bad-input"
+          "type": "bad-operand"
         }
       ]
     },
@@ -312,26 +312,6 @@
     },
     {
       "src": ".input {$bar :number} .match {$bar} one {{one}} * {{other}}",
-      "params": [
-        {
-          "name": "bar",
-          "value": 2
-        }
-      ],
-      "exp": "other"
-    },
-    {
-      "src": ".input {$bar} .match {$bar :number} one {{one}} * {{other}}",
-      "params": [
-        {
-          "name": "bar",
-          "value": 1
-        }
-      ],
-      "exp": "one"
-    },
-    {
-      "src": ".input {$bar} .match {$bar :number} one {{one}} * {{other}}",
       "params": [
         {
           "name": "bar",
