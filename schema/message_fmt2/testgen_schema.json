@@ -69,7 +69,8 @@
         {
           "properties": {
              "tests": {
-               "type": "array", // For clarity only
+               "$comment": "type: array provided for clarity only",
+               "type": "array",
                "items": {
                  "required": [
                    "src"
