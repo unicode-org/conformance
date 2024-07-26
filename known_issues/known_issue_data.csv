@@ -1,0 +1,6 @@
+# File of known issues in ICU/conformance matrix
+# 24-July-2024
+Issue ID,Date Added,test type,Description
+KI_nbsp_sp,2024-07-24,datetime_fmt,ASCII space used in formatting instead of narrow non-breaking space
+KI_replaced_numerals, 2024-07-24,datetime_fmt,ASCII numerals used instead of requested numerbing system
+KI_timezone_differences,2024-07-24,datetime_fmt,timezone field mismatches in offset detail

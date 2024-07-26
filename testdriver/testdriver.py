@@ -29,7 +29,7 @@ class TestDriver:
         self.test_plans = []
         self.debug = False
 
-        self.run_serially = False  # Default is to operate in parallel
+        self.run_serial = False  # Default is to operate in parallel
 
         logging.config.fileConfig("../logging.conf")
 
@@ -40,7 +40,7 @@ class TestDriver:
         self.icuVersion = arg_options.icu_version
         self.cldrVersion = arg_options.cldr
 
-        self.run_serially = arg_options.run_serially
+        self.run_serial = arg_options.run_serial
 
         # Create "test plans" for each option
         for test_type in arg_options.test_type:
@@ -125,7 +125,7 @@ def main(args):
     # print('ARGS = %s' % (args))
     driver.parse_args(args[1:])
 
-    if driver.run_serially:
+    if driver.run_serial:
         driver.run_plans()
     else:
         driver.run_plans_parallel()

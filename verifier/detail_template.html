@@ -347,7 +347,7 @@ table th {
         fill_pagination("#characterized-pagination-container_" + item_type,
                         "#characterized-data-container_" + item_type,
                         selected_json_data,
-                        "selected_" + item_type);
+                        item_type);
     }
 
     // UL Template for pagination.js
@@ -657,7 +657,8 @@ table th {
       const diff_text = dmp.diff_main(text1, text2);
       dmp.diff_cleanupSemantic(diff_text);
       // And show the difference nicely.
-        diff_area.innerHTML = ds;
+      const ds = dmp.diff_prettyHtml(diff_text);
+      diff_area.innerHTML = ds;
       }
   </script>
 

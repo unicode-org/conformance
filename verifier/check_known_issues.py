@@ -50,6 +50,8 @@ SP = '\u0020'
 known_issue_nbsp_sp = 'ASCII Space instead of NBSP'
 known_issue_replaced_numerals = 'Not creating non-ASCII numerals'
 
+# TODO! Load known issues from file of known problems rather than hardcoding
+
 class compute_known_issue():
     def __init__(self):
         return
@@ -105,17 +107,19 @@ def check_datetime(test_results):
                 is_ki = comp_ki.diff_nbsp_vs_sp(result, expected)
                 if is_ki:
                     # Mark the test with this issue
-                    test['known_issue'] = known_issue_nbsp_sp
+                    #test['known_issue'] = known_issue_nbsp_sp
+                    test['known_issue_id'] = 'KI_nbsp_sp'
 
-                    # TODO: remove this test from category
+                    #  Remove this test from category
                     indices_to_remove.add(index)
                     # Add to known_issues_list
                     known_issues_list.append(test)
 
                 is_ki = comp_ki.numerals_replaced(result, expected)
                 if is_ki:
-                    # TODO: remove this test from categoryadd_known_issues
-                    test['known_issue'] = known_issue_replaced_numerals
+                    #test['known_issue'] = known_issue_replaced_numerals
+                    test['known_issue_id'] = 'KI_replaced_numerals'
+
                     indices_to_remove.add(index)
                     # Add to known_issues_list
                     known_issues_list.append(test)
@@ -130,7 +134,7 @@ def check_datetime(test_results):
         rev_indices = sorted(indices_to_remove, reverse=True)
         for index in rev_indices:
             del category[index]
-        pass
+
     return known_issues_list
 
 def check_issues(test_type, test_results_to_check):
