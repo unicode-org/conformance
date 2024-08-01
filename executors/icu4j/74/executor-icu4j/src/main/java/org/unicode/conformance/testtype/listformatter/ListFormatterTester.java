@@ -10,10 +10,13 @@ import io.lacuna.bifurcan.Map;
 
 import java.util.Collection;
 
+import java.util.HashMap;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
+import org.unicode.conformance.testtype.numberformatter.NumberFormatterTestOptionKey;
+import org.unicode.conformance.testtype.numberformatter.StyleVal;
 
 public class ListFormatterTester implements ITestType {
 
@@ -26,10 +29,14 @@ public class ListFormatterTester implements ITestType {
     result.label = (String) inputMapData.get("label", null);
     result.locale = (String) inputMapData.get("locale", null);
 
-    java.util.Map<String,Object> options = (java.util.Map<String,Object>) inputMapData.get("options", null);
+    java.util.Map<String,Object> input_options = (java.util.Map<String,Object>) inputMapData.get("options", null);
 
-    result.list_type = (String) options.getOrDefault("list_type", "conjunction");
-    result.style = (String) options.getOrDefault("style", "long");
+    result.list_type = ListFormatterType.getFromString(
+        "" + input_options.get("list_type")
+    );
+    result.style = ListFormatterWidth.getFromString(
+        "" + input_options.get("style")
+    );
 
     result.input_list = (Collection<String>) inputMapData.get("input_list", null);
 
@@ -80,25 +87,24 @@ public class ListFormatterTester implements ITestType {
     ULocale locale = ULocale.forLanguageTag(input.locale);
 
     switch (input.list_type) {
-      case "disjunction": list_type = Type.OR;
-          break;
-      case "unit": list_type = Type.UNITS;
+      case DISJUNCTION: list_type = Type.OR;
+        break;
+      case UNIT: list_type = Type.UNITS;
         break;
       default:
-      case "conjunction": list_type = Type.AND;
+      case CONJUNCTION: list_type = Type.AND;
         break;
-
     }
 
     switch (input.style) {
-      case "narrow": list_width = Width.NARROW;
-      break;
-      case "short": list_width = Width.SHORT;
+      case NARROW: list_width = Width.NARROW;
+        break;
+      case SHORT: list_width = Width.SHORT;
         break;
       default:
-      case "long": list_width = Width.WIDE;
+      case LONG: list_width = Width.WIDE;
         break;
-      }
+    }
 
     ListFormatter lf = ListFormatter.getInstance(locale, list_type, list_width);
 

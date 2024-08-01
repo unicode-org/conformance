@@ -22,7 +22,7 @@ public class ListFormatterTest {
   @Test
   public void testDeConjunction() {
     String testInput =
-    "\t{\"input_list\":[\"katze\",\"hund\"],\"options\":{\"style\":\"long\",\"list_type\":\"disjunction\"},\"hexhash\":\"9cdda56a2d84e4cecd3f60d1a6f815ad36ea3df9\",\"label\":\"0\",\"locale\":\"de\"}";
+    "\t{\"input_list\":[\"katze\",\"hund\"],\"options\":{\"style\":\"long\",\"list_type\":\"disjunction\"},\"hexhash\":\"9cdda56a2d84e4cecd3f60d1a6f815ad36ea3df9\",\"label\":\"17\",\"locale\":\"de\"}";
 
     ListFormatterOutputJson output =
         (ListFormatterOutputJson) ListFormatterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
