@@ -61,7 +61,7 @@ class DdtArgs():
 
     self.parser.add_argument(
         '--run_serial', default=None,
-        help='Execute tests in series rather than in parallel')
+        help='Set if execution should be done serially. Parallel is the default.')
 
     self.options = self.parser.parse_args(args)
 
