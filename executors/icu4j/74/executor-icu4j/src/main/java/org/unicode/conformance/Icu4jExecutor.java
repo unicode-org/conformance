@@ -14,6 +14,7 @@ import org.unicode.conformance.testtype.ITestTypeOutputJson;
 import org.unicode.conformance.testtype.collator.CollatorTester;
 import org.unicode.conformance.testtype.langnames.LangNamesTester;
 import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
+import org.unicode.conformance.testtype.listformatter.ListFormatterTester;
 import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 
@@ -122,6 +123,8 @@ public class Icu4jExecutor {
                 testType = LangNamesTester.INSTANCE;
             } else if (testTypeStr.equals("likely_subtags")) {
                 testType = LikelySubtagsTester.INSTANCE;
+            } else if (testTypeStr.equals("list_fmt")) {
+                testType = ListFormatterTester.INSTANCE;
             } else if (testTypeStr.equals("number_fmt")) {
                 testType = NumberFormatterTester.INSTANCE;
             } else if (testTypeStr.equals("message_fmt2")) {
