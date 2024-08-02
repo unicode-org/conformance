@@ -50,6 +50,7 @@ public class PluralRulesTest {
 
     assertEquals("zero", output.result);
   }
+  
   @Test
   public void testEnOther() {
     String testInput =
