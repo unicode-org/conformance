@@ -59,6 +59,7 @@ public class PluralRulesTest {
     PluralRulesOutputJson output =
         (PluralRulesOutputJson) PluralRulesTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
+    assertEquals("other", output.result);
   }
 
   @Test
