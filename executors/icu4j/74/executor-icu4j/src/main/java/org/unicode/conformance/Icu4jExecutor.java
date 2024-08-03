@@ -17,6 +17,7 @@ import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
 import org.unicode.conformance.testtype.listformatter.ListFormatterTester;
 import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
+import org.unicode.conformance.testtype.pluralrules.PluralRulesTester;
 
 /**
  * Hello world!
@@ -129,6 +130,8 @@ public class Icu4jExecutor {
                 testType = NumberFormatterTester.INSTANCE;
             } else if (testTypeStr.equals("message_fmt2")) {
                 testType = MessageFormatTester.INSTANCE;
+            } else if (testTypeStr.equals("plural_rules")) {
+                testType = PluralRulesTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap

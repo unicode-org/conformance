@@ -320,7 +320,8 @@
         "lang_names",
         "likely_subtags",
         "list_fmt",
-        "number_fmt"
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
