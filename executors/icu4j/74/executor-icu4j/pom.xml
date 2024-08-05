@@ -36,10 +36,14 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <!-- empty value => default => run all tests matching default patterns. see:
-                 https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html
-                 Any non-empty value is an override of the default.
-                 -->
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu74/*Test.java</include>
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
               </includes>
             </configuration>
           </plugin>
