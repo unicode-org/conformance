@@ -10,6 +10,8 @@ public class RelativeDateTimeFormatInputJson implements ITestTypeInputJson {
 
   public String locale;
 
+  public String numberingSystem;
+
   public String count;
 
   public RelativeDateTimeFormatUnits unit;

@@ -27,6 +27,8 @@
       result.count = (String) inputMapData.get("count", "0");
       result.quantity = Double.parseDouble(result.count);
 
+      result.numberingSystem = (String) inputMapData.get("numbering_system", null);
+
       java.util.Map<String,Object> inputOptions =
           (java.util.Map<String,Object>) inputMapData.get("options", null);
 
