@@ -319,7 +319,10 @@
         "collation_short",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
