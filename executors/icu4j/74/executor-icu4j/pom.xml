@@ -44,6 +44,7 @@
                 <include>**/messageformat2/icu74/*Test.java</include>
                 <include>**/numberformatter/icu74/*Test.java</include>
                 <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
               </includes>
             </configuration>
           </plugin>
