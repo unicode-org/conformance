@@ -19,6 +19,30 @@
 
   <packaging>jar</packaging>
 
+  <!-- Profiles are used to set the version of ICU4J to test against -->
+  <profiles>
+    <profile>
+      <id>icu74</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>74.2</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>icu75</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>75.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -27,12 +51,8 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- ICU4J 74 (library under test) -->
-    <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>74.2</version>
-    </dependency>
+    <!-- Note: ICU4J (library under test) must be enabled via activating the desired
+     profile corresponding to the version -->
 
     <!-- JSON library -->
     <dependency>
