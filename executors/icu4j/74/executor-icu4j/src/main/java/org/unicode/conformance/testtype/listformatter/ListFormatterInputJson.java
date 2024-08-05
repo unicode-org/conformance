@@ -5,16 +5,16 @@ import org.unicode.conformance.testtype.ITestTypeInputJson;
 
 public class ListFormatterInputJson implements ITestTypeInputJson {
 
-  public String test_type;
+  public String testType;
 
   public String label;
 
   public String locale;
 
-  public ListFormatterType list_type;
+  public ListFormatterType listType;
 
   public ListFormatterWidth style;  // e.g., SHORT
 
-  public Collection<String> input_list;
+  public Collection<String> inputList;
 
 }

@@ -1,21 +1,15 @@
 package org.unicode.conformance.testtype.pluralrules;
 
 import com.ibm.icu.util.ULocale;
-import com.ibm.icu.text.PluralRules.PluralType;
 import com.ibm.icu.text.PluralRules;
 
 import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
 
-import java.util.Collection;
-
-import java.util.HashMap;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
-import org.unicode.conformance.testtype.pluralrules.PluralRulesInputJson;
-import org.unicode.conformance.testtype.pluralrules.PluralRulesOutputJson;
 
 
 public class PluralRulesTester implements ITestType {
@@ -28,14 +22,14 @@ public class PluralRulesTester implements ITestType {
     result.label = (String) inputMapData.get("label", null);
     result.locale = (String) inputMapData.get("locale", null);
 
-    result.plural_type = PluralRulesType.getFromString(
+    result.pluralType = PluralRulesType.getFromString(
         "" + inputMapData.get("plural_type", null)
     );
 
     // Consider compact number format, too.
-    String sample_string = (String) inputMapData.get("sample", null);
+    String sampleString = (String) inputMapData.get("sample", null);
     // Convert this to a number.
-    result.sample = Double.parseDouble(sample_string);
+    result.sample = Double.parseDouble(sampleString);
 
     return result;
   }
@@ -78,21 +72,21 @@ public class PluralRulesTester implements ITestType {
   }
 
   public String getPluralRulesResultString(PluralRulesInputJson input) {
-    PluralRules.PluralType plural_type;
+    PluralRules.PluralType pluralType;
     ULocale locale = ULocale.forLanguageTag(input.locale);
 
-    switch (input.plural_type) {
+    switch (input.pluralType) {
       case ORDINAL:
-        plural_type = PluralRules.PluralType.ORDINAL;
+        pluralType = PluralRules.PluralType.ORDINAL;
         break;
       default:
       case CARDINAL:
-        plural_type = PluralRules.PluralType.CARDINAL;
+        pluralType = PluralRules.PluralType.CARDINAL;
         break;
     }
 
-    PluralRules pl_rules = PluralRules.forLocale(locale, plural_type);
+    PluralRules pluralRules = PluralRules.forLocale(locale, pluralType);
 
-    return pl_rules.select(input.sample);
+    return pluralRules.select(input.sample);
   }
 }
