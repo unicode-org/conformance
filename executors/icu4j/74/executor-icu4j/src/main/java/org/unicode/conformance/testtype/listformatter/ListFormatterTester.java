@@ -10,13 +10,10 @@ import io.lacuna.bifurcan.Map;
 
 import java.util.Collection;
 
-import java.util.HashMap;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
-import org.unicode.conformance.testtype.numberformatter.NumberFormatterTestOptionKey;
-import org.unicode.conformance.testtype.numberformatter.StyleVal;
 
 public class ListFormatterTester implements ITestType {
 
@@ -29,16 +26,16 @@ public class ListFormatterTester implements ITestType {
     result.label = (String) inputMapData.get("label", null);
     result.locale = (String) inputMapData.get("locale", null);
 
-    java.util.Map<String,Object> input_options = (java.util.Map<String,Object>) inputMapData.get("options", null);
+    java.util.Map<String,Object> inputOptions = (java.util.Map<String,Object>) inputMapData.get("options", null);
 
-    result.list_type = ListFormatterType.getFromString(
-        "" + input_options.get("list_type")
+    result.listType = ListFormatterType.getFromString(
+        "" + inputOptions.get("list_type")
     );
     result.style = ListFormatterWidth.getFromString(
-        "" + input_options.get("style")
+        "" + inputOptions.get("style")
     );
 
-    result.input_list = (Collection<String>) inputMapData.get("input_list", null);
+    result.inputList = (Collection<String>) inputMapData.get("input_list", null);
 
     return result;
   }
@@ -82,32 +79,32 @@ public class ListFormatterTester implements ITestType {
   }
 
   public String getListFormatResultString(ListFormatterInputJson input) {
-    ListFormatter.Type list_type;
-    ListFormatter.Width list_width;
+    ListFormatter.Type listType;
+    ListFormatter.Width listWidth;
     ULocale locale = ULocale.forLanguageTag(input.locale);
 
-    switch (input.list_type) {
-      case DISJUNCTION: list_type = Type.OR;
+    switch (input.listType) {
+      case DISJUNCTION: listType = Type.OR;
         break;
-      case UNIT: list_type = Type.UNITS;
+      case UNIT: listType = Type.UNITS;
         break;
       default:
-      case CONJUNCTION: list_type = Type.AND;
+      case CONJUNCTION: listType = Type.AND;
         break;
     }
 
     switch (input.style) {
-      case NARROW: list_width = Width.NARROW;
+      case NARROW: listWidth = Width.NARROW;
         break;
-      case SHORT: list_width = Width.SHORT;
+      case SHORT: listWidth = Width.SHORT;
         break;
       default:
-      case LONG: list_width = Width.WIDE;
+      case LONG: listWidth = Width.WIDE;
         break;
     }
 
-    ListFormatter lf = ListFormatter.getInstance(locale, list_type, list_width);
+    ListFormatter lf = ListFormatter.getInstance(locale, listType, listWidth);
 
-    return  lf.format(input.input_list);
+    return  lf.format(input.inputList);
   }
 }
