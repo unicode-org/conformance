@@ -1,4 +1,4 @@
-package org.unicode.conformance.messageformat2;
+package org.unicode.conformance.messageformat2.icu74;
 
 import static org.junit.Assert.assertEquals;
 
