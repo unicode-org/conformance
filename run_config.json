@@ -329,6 +329,27 @@
   },
   {
     "prereq": {
+      "name": "mvn-icu4j-75-shaded",
+      "version": "75",
+      "command": "mvn -q -P icu75 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "icu4j",
+      "test_type": [
+        "collation_short",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "mvn-icu4j-74-shaded",
       "version": "75",
       "command": "mvn -q -P icu75 -f ../executors/icu4j/74/executor-icu4j/pom.xml package -DskipTests=true"
