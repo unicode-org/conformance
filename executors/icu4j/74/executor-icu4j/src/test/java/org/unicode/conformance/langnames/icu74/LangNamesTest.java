@@ -1,4 +1,4 @@
-package org.unicode.conformance.langnames;
+package org.unicode.conformance.langnames.icu74;
 
 import static org.junit.Assert.assertEquals;
 

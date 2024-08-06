@@ -1,4 +1,4 @@
-package org.unicode.conformance.pluralrules;
+package org.unicode.conformance.pluralrules.icu74;
 
 import static org.junit.Assert.assertEquals;
 

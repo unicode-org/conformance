@@ -1,4 +1,4 @@
-package org.unicode.conformance.relativedatetimeformat;
+package org.unicode.conformance.relativedatetimeformat.icu74;
 
 import static org.junit.Assert.assertEquals;
 

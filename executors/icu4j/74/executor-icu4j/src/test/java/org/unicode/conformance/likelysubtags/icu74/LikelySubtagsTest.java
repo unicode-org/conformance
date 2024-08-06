@@ -1,4 +1,4 @@
-package org.unicode.conformance.likelysubtags;
+package org.unicode.conformance.likelysubtags.icu74;
 
 import static org.junit.Assert.assertEquals;
 
