@@ -1,4 +1,4 @@
-package org.unicode.conformance.messageformat2.icu74;
+package org.unicode.conformance.messageformat2.icu75;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,11 +33,11 @@ public class MessageFormatterTest {
 
   private com.ibm.icu.util.TimeZone testStartDefaultIcuTz;
 
-  private java.util.TimeZone testStartDefaultJdkTz;
+  private TimeZone testStartDefaultJdkTz;
 
-  private com.ibm.icu.util.ULocale testStartDefaultULocale;
+  private ULocale testStartDefaultULocale;
 
-  private java.util.Locale testStartDefaultLocale;
+  private Locale testStartDefaultLocale;
 
   @Rule
   public TestName name = new TestName();
@@ -55,11 +55,11 @@ public class MessageFormatterTest {
 
     // Save starting timezones
     testStartDefaultIcuTz = com.ibm.icu.util.TimeZone.getDefault();
-    testStartDefaultJdkTz = java.util.TimeZone.getDefault();
+    testStartDefaultJdkTz = TimeZone.getDefault();
 
     // Save starting locales
-    testStartDefaultULocale = com.ibm.icu.util.ULocale.getDefault();
-    testStartDefaultLocale = java.util.Locale.getDefault();
+    testStartDefaultULocale = ULocale.getDefault();
+    testStartDefaultLocale = Locale.getDefault();
   }
 
   // Copying test teardown beahvior from ICU4J CoreTestFmwk, corresponding to
@@ -71,7 +71,7 @@ public class MessageFormatterTest {
     // Assert that timezones are in a good state
 
     com.ibm.icu.util.TimeZone testEndDefaultIcuTz = com.ibm.icu.util.TimeZone.getDefault();
-    java.util.TimeZone testEndDefaultJdkTz = java.util.TimeZone.getDefault();
+    TimeZone testEndDefaultJdkTz = TimeZone.getDefault();
 
     assertEquals("In [" + testMethodName + "] Test should keep in sync ICU & JDK TZs",
         testEndDefaultIcuTz.getID(),
@@ -84,8 +84,8 @@ public class MessageFormatterTest {
 
     // Assert that locales are in a good state
 
-    com.ibm.icu.util.ULocale testEndDefaultULocale = com.ibm.icu.util.ULocale.getDefault();
-    java.util.Locale testEndDefaultLocale = java.util.Locale.getDefault();
+    ULocale testEndDefaultULocale = ULocale.getDefault();
+    Locale testEndDefaultLocale = Locale.getDefault();
 
     assertEquals("In [" + testMethodName + "] Test should reset ICU ULocale",
         testStartDefaultULocale.toLanguageTag(), testEndDefaultULocale.toLanguageTag());
@@ -99,7 +99,7 @@ public class MessageFormatterTest {
     MessageFormatInputJson inputJson = new MessageFormatInputJson();
     inputJson.label = "00001";
     inputJson.locale = "en-GB";
-    inputJson.src = "{Hello {$name}, your card expires on {$exp :datetime skeleton=yMMMdE}!}";
+    inputJson.src = "Hello {$name}, your card expires on {$exp :datetime skeleton=yMMMdE}!";
     inputJson.test_description = "Test using the ICU4J API doc example for the MessageFormatter class";
     List<IMFInputParam> inputs = new ArrayList<>();
     MFInputParamObject nameArg = new MFInputParamObject();
@@ -115,18 +115,20 @@ public class MessageFormatterTest {
     String formattedString = MessageFormatTester.INSTANCE.getFormattedMessage(inputJson);
 
     // Expect & assert test
-    String expected = "Hello John, your card expires on Mon, 27 Mar 2023!";
+    String expected = "Hello John, your card expires on 27/03/2023, 12:42!";
     assertEquals(expected, formattedString);
 
   }
 
+  // ICU 75 impl output differs from MF2 spec defined at same time point (CLDR 45)
+  // in what to return in message for non-provided args / formatting errors
   @Test
   public void testGetFormattedMessage_usingNonProvidedArg() {
     // Setup
     MessageFormatInputJson inputJson = new MessageFormatInputJson();
     inputJson.label = "00020";
     inputJson.locale = "en-US";
-    inputJson.src = "{:date}";
+    inputJson.src = ":date";
     inputJson.test_description = "Test of formatting a pattern using an input arg that isn't provided";
     List<IMFInputParam> inputs = new ArrayList<>();
     inputJson.params = inputs;
@@ -139,15 +141,13 @@ public class MessageFormatterTest {
     assertEquals(expected, formattedString);
   }
 
-  // TODO: figure out expected output, and then reenable?
-  @Ignore
   @Test
   public void testGetFormattedMessage_numberLiteralOperand() {
     // Setup
     MessageFormatInputJson inputJson = new MessageFormatInputJson();
     inputJson.label = "00035";
     inputJson.locale = "en-US";
-    inputJson.src = "{hello {|4.2| :integer}}";
+    inputJson.src = "hello {4.2 :integer}";
     inputJson.test_description = "Test of formatting a pattern using an input arg that isn't provided";
     List<IMFInputParam> inputs = new ArrayList<>();
     inputJson.params = inputs;
