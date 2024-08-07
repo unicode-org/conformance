@@ -34,5 +34,4 @@ public class DateTimeFormatterInputJson implements ITestTypeInputJson {
   public String timeZone;
 
   public String timeZoneName;
-
 }

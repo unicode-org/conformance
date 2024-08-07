@@ -9,6 +9,28 @@ import org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterTeste
 
 public class DateTimeFormatterTest {
 
+  @Test
+  public void TestDateTime49() {
+    String testInput =
+        "{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01-08:00[America/Los_Angeles][u-ca=gregory]\",\"skeleton\":\"j\",\"locale\":\"en-US\",\"options\":{\"hour\":\"numeric\",\"calendar\":\"gregory\",\"timeZone\":\"America/Los_Angeles\",\"numberingSystem\":\"latn\"},\"hexhash\":\"30c5191c8041eb6d8afa05aab80f811753bc082f\",\"label\":\"49\"}";
+
+    DateTimeFormatterOutputJson output =
+        (DateTimeFormatterOutputJson) DateTimeFormatterTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+    assertEquals("12 AM", output.result);
+  }
+
+  @Test
+  public void TestDateTime15455() {
+    String testInput =
+        "{\"test_type\": \"datetime_fmt\", \"input_string\":\"2001-09-09T01:46:40-07:00[America/Los_Angeles]\",\"skeleton\":\"vvvv\",\"locale\":\"zu\",\"options\":{\"timeZoneName\":\"longGeneric\",\"calendar\":\"persian\",\"timeZone\":\"America/Los_Angeles\",\"numberingSystem\":\"latn\"},\"hexhash\":\"d4cfde2db66f8d4aec9254fc66ef2db298d7a0ba\",\"label\":\"15455\"}";
+
+    DateTimeFormatterOutputJson output =
+        (DateTimeFormatterOutputJson) DateTimeFormatterTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+    assertEquals("Isikhathi sase-North American Pacific", output.result);
+  }
+
   @Ignore
   @Test
   public void testDateTime0() {

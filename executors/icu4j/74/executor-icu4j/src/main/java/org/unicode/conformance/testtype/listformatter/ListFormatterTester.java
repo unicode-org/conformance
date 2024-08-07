@@ -26,7 +26,8 @@ public class ListFormatterTester implements ITestType {
     result.label = (String) inputMapData.get("label", null);
     result.locale = (String) inputMapData.get("locale", null);
 
-    java.util.Map<String,Object> inputOptions = (java.util.Map<String,Object>) inputMapData.get("options", null);
+    java.util.Map<String, Object> inputOptions = (java.util.Map<String, Object>) inputMapData.get(
+        "options", null);
 
     result.listType = ListFormatterType.getFromString(
         "" + inputOptions.get("list_type")
@@ -68,7 +69,7 @@ public class ListFormatterTester implements ITestType {
   @Override
   public IMap<String, Object> convertOutputToMap(ITestTypeOutputJson outputJson) {
     ListFormatterOutputJson output = (ListFormatterOutputJson) outputJson;
-    return new io.lacuna.bifurcan.Map<String,Object>()
+    return new io.lacuna.bifurcan.Map<String, Object>()
         .put("label", output.label)
         .put("result", output.result);
   }
@@ -84,27 +85,33 @@ public class ListFormatterTester implements ITestType {
     ULocale locale = ULocale.forLanguageTag(input.locale);
 
     switch (input.listType) {
-      case DISJUNCTION: listType = Type.OR;
+      case DISJUNCTION:
+        listType = Type.OR;
         break;
-      case UNIT: listType = Type.UNITS;
+      case UNIT:
+        listType = Type.UNITS;
         break;
       default:
-      case CONJUNCTION: listType = Type.AND;
+      case CONJUNCTION:
+        listType = Type.AND;
         break;
     }
 
     switch (input.style) {
-      case NARROW: listWidth = Width.NARROW;
+      case NARROW:
+        listWidth = Width.NARROW;
         break;
-      case SHORT: listWidth = Width.SHORT;
+      case SHORT:
+        listWidth = Width.SHORT;
         break;
       default:
-      case LONG: listWidth = Width.WIDE;
+      case LONG:
+        listWidth = Width.WIDE;
         break;
     }
 
     ListFormatter lf = ListFormatter.getInstance(locale, listType, listWidth);
 
-    return  lf.format(input.inputList);
+    return lf.format(input.inputList);
   }
 }

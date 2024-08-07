@@ -20,7 +20,7 @@ import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
 
-public class  DateTimeFormatterTester implements ITestType {
+public class DateTimeFormatterTester implements ITestType {
 
   public static DateTimeFormatterTester INSTANCE = new DateTimeFormatterTester();
 
@@ -41,22 +41,21 @@ public class  DateTimeFormatterTester implements ITestType {
     ZoneId thisZoneId;
     if (result.timeZone == null) {
       thisZoneId = ZoneId.systemDefault();
-    } else
-    {
+    } else {
       thisZoneId = ZoneId.of(result.timeZone);
     }
 
-    String inputStringDateTime = result.inputString.substring(0,25);
+    String inputStringDateTime = result.inputString.substring(0, 25);
     int indexLeftBracket = result.inputString.indexOf("[");
     int indexRightBracket = result.inputString.indexOf("]", indexLeftBracket);
-    String inputTimeZone = result.inputString.substring(indexLeftBracket,indexRightBracket);
+    String inputTimeZone = result.inputString.substring(indexLeftBracket, indexRightBracket);
 
     // For parsing the input string and converting to java.util.date
     LocalDateTime parsedLocalDateTime =
         LocalDateTime.parse(inputStringDateTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     result.myDate =
         java.util.Date.from(parsedLocalDateTime.atZone(thisZoneId)
-              .toInstant());
+            .toInstant());
 
     result.dateStyle = DateTimeFormatterDateStyle.getFromString(
         "" + inputOptions.get("dateStyle")
@@ -74,7 +73,7 @@ public class  DateTimeFormatterTester implements ITestType {
 
     result.numberingSystem = (String) inputOptions.get("numberingSystem");
 
-    result.timeZoneName =  (String) inputOptions.get("timeZoneName");
+    result.timeZoneName = (String) inputOptions.get("timeZoneName");
 
     return result;
   }
@@ -121,27 +120,35 @@ public class  DateTimeFormatterTester implements ITestType {
 
     int dateStyle;
     switch (input.dateStyle) {
-      case FULL: dateStyle = DateFormat.FULL;
+      case FULL:
+        dateStyle = DateFormat.FULL;
         break;
-      case LONG: dateStyle = DateFormat.LONG;
+      case LONG:
+        dateStyle = DateFormat.LONG;
         break;
       default:
-      case MEDIUM: dateStyle = DateFormat.MEDIUM;
+      case MEDIUM:
+        dateStyle = DateFormat.MEDIUM;
         break;
-      case SHORT: dateStyle = DateFormat.SHORT;
+      case SHORT:
+        dateStyle = DateFormat.SHORT;
         break;
     }
 
     int timeStyle;
     switch (input.timeStyle) {
-      case FULL: timeStyle = DateFormat.FULL;
+      case FULL:
+        timeStyle = DateFormat.FULL;
         break;
-      case LONG: timeStyle = DateFormat.LONG;
+      case LONG:
+        timeStyle = DateFormat.LONG;
         break;
       default:
-      case MEDIUM: timeStyle = DateFormat.MEDIUM;
+      case MEDIUM:
+        timeStyle = DateFormat.MEDIUM;
         break;
-      case SHORT: timeStyle = DateFormat.SHORT;
+      case SHORT:
+        timeStyle = DateFormat.SHORT;
         break;
 
     }
