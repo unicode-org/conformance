@@ -317,6 +317,7 @@
       "exec": "icu4j",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",

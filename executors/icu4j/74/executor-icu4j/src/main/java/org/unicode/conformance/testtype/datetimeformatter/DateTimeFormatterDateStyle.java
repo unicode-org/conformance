@@ -4,8 +4,7 @@ public enum DateTimeFormatterDateStyle {
   FULL,
   LONG,
   MEDIUM,
-  SHORT,
-  NARROW;
+  SHORT;
 
   public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle DEFAULT = MEDIUM;
 

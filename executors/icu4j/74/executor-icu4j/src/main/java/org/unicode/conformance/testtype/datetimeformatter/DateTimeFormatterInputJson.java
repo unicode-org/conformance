@@ -11,6 +11,8 @@ public class DateTimeFormatterInputJson implements ITestTypeInputJson {
 
   public String label;
 
+  public String locale;
+
   // UTC formatted time
   public String inputString;
 
