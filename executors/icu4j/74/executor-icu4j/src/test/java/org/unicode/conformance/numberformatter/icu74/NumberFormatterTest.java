@@ -1,4 +1,4 @@
-package org.unicode.conformance.numberformatter;
+package org.unicode.conformance.numberformatter.icu74;
 
 import static org.junit.Assert.assertEquals;
 
