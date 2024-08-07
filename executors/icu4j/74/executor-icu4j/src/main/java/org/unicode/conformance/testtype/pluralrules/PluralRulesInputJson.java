@@ -9,7 +9,7 @@ public class PluralRulesInputJson  implements ITestTypeInputJson {
 
   public String locale;
 
-  public PluralRulesType plural_type;
+  public PluralRulesType pluralType;
 
   public double sample;
 }
