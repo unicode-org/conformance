@@ -19,6 +19,100 @@
 
   <packaging>jar</packaging>
 
+  <!-- Profiles are used to set the version of ICU4J to test against -->
+  <profiles>
+    <profile>
+      <id>icu73</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>73.2</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <!-- <include>**/messageformat2/icu74/*Test.java</include> -->  <!-- no MF2 in v73 & earlier -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>icu74</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>74.2</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu74/*Test.java</include>
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>icu75</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>75.1</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu75/*Test.java</include>  <!-- latest MF2 version: ICU 75 -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -27,12 +121,8 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- ICU4J 74 (library under test) -->
-    <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>74.2</version>
-    </dependency>
+    <!-- Note: ICU4J (library under test) must be enabled via activating the desired
+     profile corresponding to the version -->
 
     <!-- JSON library -->
     <dependency>

@@ -1,4 +1,4 @@
-package org.unicode.conformance.listformatter;
+package org.unicode.conformance.listformatter.icu74;
 
 import static org.junit.Assert.assertEquals;
 
