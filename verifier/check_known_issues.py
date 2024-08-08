@@ -107,22 +107,22 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
         return None
 
 
-def check_datetime_known_issues(test_data):
+def check_datetime_known_issues(test):
     # Examine a single test for date/time isses
     # Returns known issues identified for this test in this category
     remove_this_one = False
     try:
-        result = test_data['result']
-        expected = test_data['expected']
+        result = test['result']
+        expected = test['expected']
         is_ki = diff_nbsp_vs_ascii_space(result, expected)
         if is_ki:
             # Mark the test with this issue
-            test_data['known_issue'] = knownIssueType.known_issue_nbsp_sp.value
+            test['known_issue'] = knownIssueType.known_issue_nbsp_sp.value
             remove_this_one = True
 
         is_ki = numerals_replaced_by_another_numbering_system(result, expected)
         if is_ki:
-            test_data['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
+            test['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
             remove_this_one = True
 
     except BaseException as err:
