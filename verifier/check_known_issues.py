@@ -77,7 +77,7 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
 
     # sm_opcodes describe the changes to turn expected string into the actual string
     # See https://docs.python.org/3/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-    # The tuple is [tag, i1, i2, j1, k2]
+    # The tuple is [tag, i1, i2, j1, j2]
     # Tag indicates the type of change.
     # i1:i2 is the range of the substring in expected
     # j1:j2 is the range of the substring in actual
