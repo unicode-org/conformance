@@ -85,7 +85,7 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
     for diff in sm_opcodes:
         tag = diff[0]  # 'replace', 'delete', 'insert', or 'equal'
         old_val = expected[diff[1]:diff[2]]
-        new_val = actual[diff[1]:diff[2]]
+        new_val = actual[diff[3]:diff[4]]
         if tag == 'replace':
             # expected[i1:i2] was replaced by actual[j1:j2]
             if old_val.isdigit() and new_val.isdigit():
