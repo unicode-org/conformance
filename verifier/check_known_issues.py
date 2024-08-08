@@ -4,6 +4,7 @@
 from report_template import reportTemplate
 
 from collections import defaultdict
+from enum import Enum
 
 from difflib import HtmlDiff
 from difflib import Differ
@@ -19,6 +20,10 @@ import os
 from string import Template
 import sys
 
+sys.path.append('../testdriver')
+import datasets as ddt_data
+
+# For information on characters and scripts
 import unicodedata
 
 # Handle known issues database
@@ -28,125 +33,142 @@ import unicodedata
 
 # E.g., NBSP vs SP in NodeJS DateTime in ICU73, ...
 
-class known_issue():
-    # Stores information on a single known issue.
-    # Ths may be stored in file or database
-    def __init__(self):
-        self.description = None
-        self.url_ref = None
-        self.test_type = None
-        self.instances = []
-        self.filter_fn = None
-        self.date_posted = None
-
-        self.issue_list = []
-
 # Constants
 NBSP = '\u202f'
 SP = '\u0020'
 
-# Global KI Info.
-# TODO: add this to a class
-known_issue_nbsp_sp = 'ASCII Space instead of NBSP'
-known_issue_replaced_numerals = 'Not creating non-ASCII numerals'
+
+# Global KnownIssue Info types and strings
+class knownIssueType(Enum):
+    known_issue_nbsp_sp = 'ASCII Space instead of NBSP'
+    known_issue_replaced_numerals = 'Not creating non-ASCII numerals'
 
 # TODO! Load known issues from file of known problems rather than hardcoding
 
-class compute_known_issue():
-    def __init__(self):
-        return
+def compute_known_issues(test_type, test, known_issue_list):
+    # Based on the type of test, check known issues against the expected vs. actual
+    # results
 
-    def diff_nbsp_vs_sp(self, actual, expected):
-        # Returns true the only difference in the two strings
-        # is NBSP in expected vs. ASCII space in the actual result
-        if not expected or not actual:
-            return None
+    # Returns list of known issues identified for this single test
+    known_issue_found = False
+    if test_type == ddt_data.testType.datetime_fmt.value:
+        known_issue_found = check_datetime_test(test, known_issue_list)
 
-        if expected.replace(NBSP, SP) == actual:
-            return True
+    # TODO: Add checks here for known issues in other test types
+
+    return known_issue_found
+
+
+# Tests for specific kinds of known issues
+def diff_nbsp_vs_sp(actual, expected_value):
+    # Returns the ID of this if the only difference in the two strings
+    # is NBSP in expected vs. ASCII space in the actual result
+    if not expected_value or not actual:
         return None
 
-    def numerals_replaced(self, expected, actual):
-        # If the only difference are one type of digit
-        # where other digits were expected, return True
-        sm = SequenceMatcher(None, expected, actual)
-        sm_opcodes = sm.get_opcodes()
+    # If replacing all the NBSP characdters in expected gives the actual result,
+    # then the only differences were with this type of space in formatted output.
+    if expected_value.replace(NBSP, SP) == actual:
+        return knownIssueType.known_issue_nbsp_sp
+    else:
+        return None
 
-        digit_replace = False
-        non_digit_replacement = False
-        for diff in sm_opcodes:
-            kind = diff[0]
-            old_val = expected[diff[1]:diff[2]]
-            new_val = actual[diff[1]:diff[2]]
-            if kind == 'replace':
-                if old_val.isdigit() and new_val.isdigit():
-                    # TODO!! : check the value of the numeral
-                    # If the same value, then its a numbering system difference
-                    if unicodedata.numeric(old_val) == unicodedata.numeric(new_val):
-                        digit_replace = True
-                    else:
-                        # Both were digits but different numeric values
-                        non_digit_replacement = True
+
+def numerals_replaced(expected, actual):
+    # If the only difference are one type of digit
+    # where other digits were expected, return True
+    # Returns and ID (or string) if the the numbering system changed
+
+    # sm_opcodes describe the change to turn expected string into the actual string
+    # See https://docs.python.org/3/library/difflib.html#difflib.SequenceMatcher.get_opcodes
+    sm = SequenceMatcher(None, expected, actual)
+    sm_opcodes = sm.get_opcodes()
+
+    digit_replace = False
+    non_digit_replacement = False
+
+    # sm_opcodes describe the changes to turn expected string into the actual string
+    # See https://docs.python.org/3/library/difflib.html#difflib.SequenceMatcher.get_opcodes
+    # The tuple is [tag, i1, i2, j1, k2]
+    # Tag indicates the type of change.
+    # i1:i2 is the range of the substring in expected
+    # j1:j2 is the range of the substring in actual
+
+    for diff in sm_opcodes:
+        tag = diff[0]  # 'replace', 'delete', 'insert', or 'equal'
+        old_val = expected[diff[1]:diff[2]]
+        new_val = actual[diff[1]:diff[2]]
+        if tag == 'replace':
+            # expected[i1:i2] was replaced by actual[j1:j2]
+            if old_val.isdigit() and new_val.isdigit():
+                # TODO!! : check the value of the numeral
+                # If the same value, then its a numbering system difference
+                if unicodedata.numeric(old_val) == unicodedata.numeric(new_val):
+                    digit_replace = True
                 else:
-                    # a digit was replaced with a non-digit
+                    # Both were digits but different numeric values
                     non_digit_replacement = True
+            else:
+                # a digit was replaced with a non-digit
+                non_digit_replacement = True
 
-        # Only true if the only changes were replacing digits
-        return digit_replace and not non_digit_replace
+    # Only true if the only changes were replacing digits
+    if digit_replace and not non_digit_replace:
+        return knownIssueType.known_issue_replaced_numerals
+    else:
+        return None
 
-def check_datetime(test_results):
+
+def check_datetime_test(test_data, known_issues_list):
+    # Examine a single test for date/time isses
+    # Returns known issues identified for this test in this category
+    remove_this_one = False
+    try:
+        result = test_data['result']
+        expected = test_data['expected']
+        is_ki = diff_nbsp_vs_sp(result, expected)
+        if is_ki:
+            # Mark the test with this issue
+            test_data['known_issue'] = knownIssueType.known_issue_nbsp_sp.value
+            remove_this_one = True
+
+        is_ki = numerals_replaced(result, expected)
+        if is_ki:
+            test_data['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
+            remove_this_one = True
+
+    except BaseException as err:
+        # Can't get the info
+        pass
+        pass
+
+    if remove_this_one:
+        known_issues_list.append(test_data)
+
+    return remove_this_one
+
+
+def check_issues(test_type, test_results_to_check):
+    # Look at the array of test result types, failure, error, unsupported
+    # Extract any tests from these that are known issues
+    # Return the list of tests that are known issues
+    #
     known_issues_list = []
-    comp_ki = compute_known_issue()
-    for category in test_results:
+
+    for category in test_results_to_check:
         indices_to_remove = set()
         index = 0
         for test in category:
-            try:
-                result = test['result']
-                expected = test['expected']
-                is_ki = comp_ki.diff_nbsp_vs_sp(result, expected)
-                if is_ki:
-                    # Mark the test with this issue
-                    #test['known_issue'] = known_issue_nbsp_sp
-                    test['known_issue_id'] = 'KI_nbsp_sp'
-
-                    #  Remove this test from category
-                    indices_to_remove.add(index)
-                    # Add to known_issues_list
-                    known_issues_list.append(test)
-
-                is_ki = comp_ki.numerals_replaced(result, expected)
-                if is_ki:
-                    #test['known_issue'] = known_issue_replaced_numerals
-                    test['known_issue_id'] = 'KI_replaced_numerals'
-
-                    indices_to_remove.add(index)
-                    # Add to known_issues_list
-                    known_issues_list.append(test)
-
-            except BaseException as err:
-                # Can't get the info
-                pass
+            is_known_issue = compute_known_issues(test_type, test, known_issues_list)
+            if is_known_issue:
+                indices_to_remove.add(index)
             index += 1
 
         # Remove those that were marked as known issues
         # Reverse order to not confuse the position while deleting
+        # Find the locations of these labels in the  category
         rev_indices = sorted(indices_to_remove, reverse=True)
         for index in rev_indices:
             del category[index]
-
-    return known_issues_list
-
-def check_issues(test_type, test_results_to_check):
-    # Look at the array of test result types.
-    # Extract
-    #
-    known_issues_list = []
-
-    if test_type == 'datetime_fmt':
-        known_issues_list = check_datetime(test_results_to_check)
-        # TODO: Add more types of tests
-    else:
-        pass
 
     return known_issues_list
