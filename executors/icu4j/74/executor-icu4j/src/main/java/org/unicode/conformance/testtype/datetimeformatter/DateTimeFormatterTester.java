@@ -45,10 +45,8 @@ public class DateTimeFormatterTester implements ITestType {
       thisZoneId = ZoneId.of(result.timeZone);
     }
 
+    // Extract ISO part of the input string to parse.
     String inputStringDateTime = result.inputString.substring(0, 25);
-    int indexLeftBracket = result.inputString.indexOf("[");
-    int indexRightBracket = result.inputString.indexOf("]", indexLeftBracket);
-    String inputTimeZone = result.inputString.substring(indexLeftBracket, indexRightBracket);
 
     // For parsing the input string and converting to java.util.date
     LocalDateTime parsedLocalDateTime =
