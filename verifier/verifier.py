@@ -47,6 +47,8 @@ class Verifier:
         self.report = None
         self.reports = []
 
+        self.run_in_parallel = True
+
         # Set of [result filepath, verify filepath, report path]
         self.result_timestamp = None
 
@@ -222,15 +224,20 @@ class Verifier:
 
     # Verify plans in parallel
     def parallel_verify_data_results(self):
-        num_processors = mp.cpu_count()
-        verify_plans = self.verify_plans
-        logging.info('JSON validation: %s processors for %s plans',
-                     num_processors, len(verify_plans))
+        if not self.options.run_serial:
+            num_processors = mp.cpu_count()
+            verify_plans = self.verify_plans
+            logging.info('JSON validation: %s processors for %s plans',
+                         num_processors, len(verify_plans))
 
-        processor_pool = mp.Pool(num_processors)
-        with processor_pool as p:
-            result = p.map(self.verify_one_plan, verify_plans)
-        return result
+            processor_pool = mp.Pool(num_processors)
+            with processor_pool as p:
+                result = p.map(self.verify_one_plan, verify_plans)
+            return result
+        else:
+            logging.info('Running serially!')
+            for vplan in self.verify_plans:
+                self.verify_one_plan(vplan)
 
     # For one VerifyPlan, get data and run verification
     def verify_one_plan(self, vplan):
@@ -249,15 +256,18 @@ class Verifier:
         vplan.setup_report_data()
 
         result = {'compare_success': True}
+
+        # Do more analysis on the failures and compute known issues
+        vplan.report.summarize_failures()
+
+        vplan.report.add_known_issues()
         # Save the results
+
         if not vplan.report.save_report():
             logging.error('!!! Could not save report for (%s, %s)',
                           vplan.test_type, vplan.exec)
         else:
             vplan.report.create_html_report()
-
-        # Do more analysis on the failures
-        vplan.report.summarize_failures()
 
         logging.debug('\nTEST RESULTS in %s for %s. %d tests found',
                           vplan.exec, vplan.test_type, len(vplan.test_results))

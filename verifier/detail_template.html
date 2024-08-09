@@ -34,7 +34,7 @@
         font-size:20px;
     }
     
-    #diff_area {
+    .diff_area {
         font-size: 24px;
         font-color: blue;
     }
@@ -231,9 +231,9 @@ table th {
             ['Results', 'Count', {role:'style'}],
             ['Passing', test_results['pass'].json.length, '#44ff77'],
             ['Failing', test_results['fail'].json.length, '#ff0000'],
+            ['Known issues', test_results['known_issue'].json.length, '#ff8200'],
             ['Errors', test_results['error'].json.length, '#ffdd00'],
-            ['Unsupported', test_results['unsupported'].json.length, '#777777'],
-            ['Known issues', test_results['known_issue'].json.length, '#ff8200']
+            ['Unsupported', test_results['unsupported'].json.length, '#777777']
        ];
         const chart = new google.visualization.BarChart(chart_output_area);
         let chart_data = google.visualization.arrayToDataTable(input_data);
@@ -347,13 +347,19 @@ table th {
         fill_pagination("#characterized-pagination-container_" + item_type,
                         "#characterized-data-container_" + item_type,
                         selected_json_data,
-                        "selected_" + item_type);
+                        item_type);
     }
 
     // UL Template for pagination.js
     function simpleTemplating(data, c_type) {
         let possible_fields = ['label', 'expected', 'result', 'error', 'error_detail',
                                'options', 'input_data', 'actual_options'];
+        // Support output to different regions, depending on the type
+        // of the data, e.g., "fail", "known_issue", etc.
+        const diff_area_name = "diff_area_" + c_type;
+        const onclick_call =
+              '"captureInputDataOnClick(this);" onmouseover="hoverDiffText(this,' + diff_area_name + ');"';
+              
         let table_opening =
             '<table id="table_' + c_type +
             '" class="class_' + c_type + '">';
@@ -377,7 +383,7 @@ table th {
                         } else {
                             output = item[key];
                         }
-                        html.push('<td onclick="captureInputDataOnClick(this);" onmouseover="hoverDiffText(this);">' + output +'</td>');
+                        html.push('<td onclick=' + onclick_call +'>' + output +'</td>');
                     }
                 }
                 html.push("</tr>");
@@ -637,8 +643,9 @@ table th {
         navigator.clipboard.writeText(output);
     }
 
-    // On hover, show the differen between expected and actual result.
-    function hoverDiffText(element) {
+    // On hover, show the difference between expected and actual result
+    // in the named area.
+    function hoverDiffText(element, diff_area) {
       // First, get the row of this item.
       const row = element.parentNode;
       const text1 = row.children[1].innerHTML;
@@ -651,7 +658,6 @@ table th {
       dmp.diff_cleanupSemantic(diff_text);
       // And show the difference nicely.
       const ds = dmp.diff_prettyHtml(diff_text);
-      const diff_area = document.getElementById("diff_area");
       diff_area.innerHTML = ds;
       }
   </script>
@@ -672,7 +678,7 @@ table th {
         <p><span id="total_summary_count">$total_tests</span> attempted. Pass: <span id="pass_summary_count">$passing_tests</span>,
           Fail: <span id="fail_summary_count">$failing_tests</span>,
           Errors: <span id="error_summary_count">$error_count</span>,
-          Unsupported: <span id="unsupported_summary_count">$unsupported</span>,
+          Unsupported: <span id="unsupported_summary_count">$unsupported</span></p>,
           Known issues: <span id="known_issue_summary_count">$unsupported</span></p>
         <div id='chart_div'>
         </div>
@@ -717,7 +723,7 @@ table th {
 
       <details>
         <summary>Failing tests <span id='fail_count'>($failing_tests)</span></summary>
-        <div id="diff_area"><p></p></div>
+        <div id="diff_area_fail" class="diff_area_class"><p></p></div>
         <div id="fail-pagination-container"></div>
         <div id="fail-data-container"></div>
         <div id='testFailuresCharacterized'>
@@ -740,6 +746,32 @@ table th {
           </details>
         </div>
       </details>  <!-- failing tests -->
+
+      <details>
+        <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
+        <div id="diff_area_known_issue" class="diff_area_class"><p></p></div>
+        <div id="known_issue-pagination-container"></div>
+        <div id="known_issue-data-container"></div>
+        <div id='testKnownIssueCharacterized'>
+          <details>
+            <summary class="known_issue">Known issues characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_known_issue' name='selectedCount' class='known_issue'>0</span>
+                  <button id="showSelected_known_issue" onclick="showSelectedItems(this, 'known_issue');">Update display</button>
+                  <button id="clearSelected_known_issue" onclick="clearSelectedItems(this, 'known_issue');">Clear</button>
+                </p>
+                <div id='known_issue_characterized'>
+                </div>
+              </div>  <!-- end of checkbox div -->
+              <div bp="9">
+                <div id="characterized-pagination-container_known_issue"></div>
+                <div id="characterized-data-container_known_issue"></div>
+              </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
+      </details>      
 
       <details>
         <summary>Test errors <span id='error_count'>($error_count)</span></summary>
@@ -793,30 +825,6 @@ table th {
         </div>
       </details>
 
-      <details>
-        <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
-        <div id="known_issue-pagination-container"></div>
-        <div id="known_issue-data-container"></div>
-        <div id='testKnownIssueCharacterized'>
-          <details>
-            <summary class="known_issue">Known issues characterized</summary>
-            <div bp="grid">
-              <div bp="3">
-                <p>Filtered count = <span id='selectedCount_known_issue' name='selectedCount' class='known_issue'>0</span>
-                  <button id="showSelected_known_issue" onclick="showSelectedItems(this, 'known_issue');">Update display</button>
-                  <button id="clearSelected_known_issue" onclick="clearSelectedItems(this, 'known_issue');">Clear</button>
-                </p>
-                <div id='known_issue_characterized'>
-                </div>
-              </div>  <!-- end of checkbox div -->
-              <div bp="9">
-                <div id="characterized-pagination-container_known_issue"></div>
-                <div id="characterized-data-container_known_issue"></div>
-              </div>
-            </div> <!-- grid end -->
-          </details>
-        </div>
-      </details>      
     </div>
     
   </body>

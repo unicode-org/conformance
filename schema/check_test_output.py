@@ -55,7 +55,7 @@ def main(args):
                 test_type = schema_files.TEST_FILE_TO_TEST_TYPE_MAP[test_file_prefix]
                 test_type_set.add(test_type)
             except BaseException as err:
-                logging.error('!!! %s for file %s', err, file
+                logging.info('No file (%s) during schema check output: %s', file, err
                               )
         for dir in icu_dirs:
             icu_version_set.add(os.path.basename(dir))
