@@ -46,6 +46,7 @@ extern const string TestLikelySubtags(json_object *json_in);
 extern const string TestListFmt(json_object *json_in);
 extern const string TestNumfmt(json_object *json_in);
 extern const string TestPluralRules(json_object *json_in);
+extern const string TestRelativeDateTimeFmt(json_object *json_in);
 
 /**
  * Main   --  process command line, call tests or return data
@@ -63,7 +64,8 @@ int main(int argc, const char** argv) {
     "list_fmt",
     "lang_names",
     "number_fmt",
-    "plural_rules"
+    "plural_rules",
+    "rdt_fmt"
   };
 
   for (std::string line; std::getline(cin, line);) {
@@ -118,6 +120,8 @@ int main(int argc, const char** argv) {
         outputLine = TestLangNames(json_input);
       } else if (test_type == "plural_rules") {
         outputLine = TestPluralRules(json_input);
+      } else if (test_type == "rdt_fmt") {
+        outputLine = TestRelativeDateTimeFmt(json_input);
       } else {
         outputLine =  "# BAD TEST " + test_type;
       }
