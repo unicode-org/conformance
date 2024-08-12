@@ -28,11 +28,32 @@ using std::cout;
 using std::endl;
 using std::string;
 
-UDateRelativeDateTimeFormatterStyle StringToRelative(string style_string) {
+UDateRelativeDateTimeFormatterStyle StringToStyleEnum(string style_string) {
   if (style_string == "long") return UDAT_STYLE_LONG;
   if (style_string == "short") return UDAT_STYLE_SHORT;
   if (style_string == "narrow") return UDAT_STYLE_NARROW;
   return UDAT_STYLE_LONG;  // Default
+}
+
+UDateRelativeUnit StringToRelativeUnitEnum(string unit_string) {
+  UDateRelativeUnit rel_unit;
+  if (unit_string == "day") {
+    return UDAT_RELATIVE_DAYS;
+  } else if (unit_string == "hour") {
+    return UDAT_RELATIVE_HOURS;
+  } else if (unit_string == "minute") {
+    return UDAT_RELATIVE_MINUTES;
+  } else if (unit_string == "month") {
+    return UDAT_RELATIVE_MONTHS;
+  } else if (unit_string == "second") {
+    return UDAT_RELATIVE_SECONDS;
+  } else if (unit_string == "week") {
+    return UDAT_RELATIVE_WEEKS;
+  } else if (unit_string == "year") {
+    return UDAT_RELATIVE_YEARS;
+  }
+  // A default
+  return UDAT_RELATIVE_DAYS;
 }
 
 const string TestRelativeDateTimeFmt(json_object *json_in) {
@@ -53,8 +74,6 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
     locale_string = "und";
   }
 
-  Locale display_locale(locale_string.c_str());
-
   json_object *unit_obj = json_object_object_get(json_in, "unit");
   string unit_string = json_object_get_string(unit_obj);
 
@@ -69,32 +88,25 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   json_object* options_obj = json_object_object_get(json_in, "options");
 
   string style_string = "long";  // Default
+  string numbering_system_string = "";  // Default
   if (options_obj) {
     json_object *style_obj = json_object_object_get(options_obj, "style");
     if (style_obj) {
       style_string = json_object_get_string(style_obj);
     }
+    json_object *ns_obj = json_object_object_get(options_obj, "numberingSystem");
+    if (ns_obj) {
+      numbering_system_string = json_object_get_string(ns_obj);
+    }
   }
 
   UDateRelativeDateTimeFormatterStyle
-      rdtf_style = StringToRelative(style_string);
+      rdtf_style = StringToStyleEnum(style_string);
 
   UDateRelativeUnit rel_unit;
-  if (unit_string == "day") {
-    rel_unit = UDAT_RELATIVE_DAYS;
-  } else if (unit_string == "hour") {
-    rel_unit = UDAT_RELATIVE_HOURS;
-  } else if (unit_string == "minute") {
-    rel_unit = UDAT_RELATIVE_MINUTES;
-  } else if (unit_string == "month") {
-    rel_unit = UDAT_RELATIVE_MONTHS;
-  } else if (unit_string == "second") {
-    rel_unit = UDAT_RELATIVE_SECONDS;
-  } else if (unit_string == "week") {
-    rel_unit = UDAT_RELATIVE_WEEKS;
-  } else if (unit_string == "year") {
-    rel_unit = UDAT_RELATIVE_YEARS;
-  } else if (unit_string == "quarter") {
+  if (unit_string != "quarter") {
+    rel_unit = StringToRelativeUnitEnum(unit_string);
+  } else {
     // This is not supported.
     json_object_object_add(
         return_json,
@@ -116,6 +128,15 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
     // This can't be processed so return now.
     return json_object_to_json_string(return_json);
   }
+
+  // Add variants to the locale.
+  string locale_selection_string = locale_string;
+  if (numbering_system_string != "") {
+    locale_selection_string =
+        locale_string + "@numbers=" + numbering_system_string;
+  }
+
+  Locale display_locale(locale_selection_string.c_str());
 
   // Construct a formatter
   RelativeDateTimeFormatter
@@ -139,7 +160,6 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   } else if (quantity > 0.0) {
     direction = UDAT_DIRECTION_NEXT;
   }
-  cout << "** direction for " << quantity << ", ENUM = " << direction << endl;
 
   // The output of the formatting
   UnicodeString formatted_result;
