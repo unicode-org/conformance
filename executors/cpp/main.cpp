@@ -44,6 +44,7 @@ extern const string TestDatetimeFmt(json_object *json_in);
 extern const string TestLangNames(json_object *json_in);
 extern const string TestLikelySubtags(json_object *json_in);
 extern const string TestListFmt(json_object *json_in);
+extern const string TestMessageFormat2(json_object *json_in);
 extern const string TestNumfmt(json_object *json_in);
 extern const string TestPluralRules(json_object *json_in);
 
@@ -108,6 +109,8 @@ int main(int argc, const char** argv) {
         outputLine = TestCollator(json_input);
       } else if (test_type == "datetime_fmt") {
          outputLine = TestDatetimeFmt(json_input);
+      } else if (test_type == "message_fmt2") {
+        outputLine = TestMessageFormat2(json_input);
       } else if (test_type == "number_fmt") {
          outputLine = TestNumfmt(json_input);
       } else if (test_type == "likely_subtags") {
