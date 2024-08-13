@@ -21,7 +21,7 @@
 #include <cstring>
 
 using icu::Locale;
-using icu::MessageFormattermessage2;
+using namespace icu::message2;
 
 using std::cout;
 using std::endl;
@@ -48,22 +48,38 @@ const string TestMessageFormat2(json_object *json_in) {
     src_string = json_object_get_string(src_obj);
   }
 
-  json_object *params_obj = json_object_object_get(json_in, "params");
+
+  // Get all the argements from test params
+  std::map<UnicodeString, message2::Formattable> argsBuilder;
+  argsBuilder["userName"] = message2::Formattable("John");
+  MessageArguments args(argsBuilder, errorCode);
+
+  json_object *param_list_obj = json_object_object_get(json_in, "params");
 
   string params_name;
   string params_value;
 
-  if (params_obj) {
-    json_object *params_name_obj = json_object_object_get(params_obj, "name");
-    if (params_name_obj) {
-      params_name = json_object_get_string(params_name_obj);
-    }
+  if (param_lis_obj) {
+    // For each item in the params list, get the name and value.
+    // Add to the builder.
+    int params_length = json_object_array_length(param_list_obj);
 
-    json_object *params_value_obj = json_object_object_get(params_obj, "value");
-    if (params_value_obj) {
-      params_value = json_object_get_string(params_value_obj);
+    // Construct the list of Unicode Strings
+    for (int i = 0; i < params_length; i++) {
+      json_object* param_obj = json_object_array_get_idx(param_list_obj, i);
+
+      json_object *params_name_obj = json_object_object_get(param_obj, "name");
+      if (params_name_obj) {
+        params_name = json_object_get_string(params_name_obj);
+      }
+      json_object *params_value_obj = json_object_object_get(param_obj, "value");
+      if (params_value_obj) {
+        params_value = json_object_get_string(params_value_obj);
+      }
+      argsBuilder[params_name] = message::Formattable(params_value);
     }
   }
+  MessageArguments args(argsBuilder, errorCode);
 
   // Start filling the return data.
   json_object *return_json = json_object_new_object();
