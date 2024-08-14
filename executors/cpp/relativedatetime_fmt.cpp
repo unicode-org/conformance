@@ -120,10 +120,18 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
         return_json,
         "unsupported",
         json_object_new_string("Bad relative date time unit"));
+
+    json_object *unit_name_obj =
+        json_object_new_string(unit_string.c_str());
+
+    // Include details about the failure
+    json_object *detail_obj = json_object_new_object();
+    json_object_object_add(detail_obj, "unsupported_unit",
+                           unit_name_obj);
     json_object_object_add(
         return_json,
         "error_detail",
-        json_object_new_string(unit_string.c_str()));
+        detail_obj);
 
     // This can't be processed so return now.
     return json_object_to_json_string(return_json);
