@@ -43,6 +43,9 @@ class knownIssueType(Enum):
     known_issue_nbsp_sp = 'ASCII Space instead of NBSP'
     known_issue_replaced_numerals = 'Not creating non-ASCII numerals'
 
+    # Relative Date Time Format
+    known_issue_unsupported_unit = 'Unsupported unit'  # https://github.com/unicode-org/conformance/issues/274
+
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
 # Tests for specific kinds of known issues
@@ -106,6 +109,13 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
     else:
         return None
 
+def unsupported_unit_quarter(test):
+    input_data = test['input_data']
+    if 'error' in test and test['error'] == 'unsupported unit':
+        return True
+
+    return None
+
 
 def check_datetime_known_issues(test):
     # Examine a single test for date/time isses
@@ -131,6 +141,30 @@ def check_datetime_known_issues(test):
 
     return remove_this_one
 
+def check_rdt_known_issues(test):
+    # ??? Do wwe need platform ID and/or icu version?
+    remove_this_one = False
+    try:
+        try:
+            result = test['result']
+        except BaseException:
+            result = None
+
+        try:
+            expected = test['expected']
+        except BaseException:
+            expected = None
+
+        is_ki = unsupported_unit_quarter(test)
+        if is_ki:
+            test['known_issue_id'] = knownIssueType.known_issue_unsupported_unit.value
+            remove_this_one = True
+
+    except BaseException as err:
+        pass
+
+    return remove_this_one
+
 
 def compute_known_issues_for_single_test(test_type, test):
     # Based on the type of test, check known issues against the expected vs. actual
@@ -140,6 +174,8 @@ def compute_known_issues_for_single_test(test_type, test):
     known_issue_found = False
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
+    elif test_type == ddt_data.testType.rdt_fmt.value:
+        known_issue_found = check_rdt_known_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 

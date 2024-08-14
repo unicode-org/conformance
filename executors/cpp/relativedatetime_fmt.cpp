@@ -133,7 +133,7 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   string locale_selection_string = locale_string;
   if (numbering_system_string != "") {
     locale_selection_string =
-        locale_string + "@numbers=" + numbering_system_string;
+        locale_string + "-u-nu-" + numbering_system_string;
   }
 
   Locale display_locale(locale_selection_string.c_str());
