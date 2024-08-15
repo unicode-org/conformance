@@ -69,6 +69,29 @@ public class RelativeDateTimeFormatTest {
     assertEquals("100s ago", output.result);
   }
 
+  @Test
+  public void testTomorrow() {
+    String testInput =
+        "\t{\"unit\":\"day\",\"count\":\"1\",\"locale\":\"en-US\",\"options\":{\"style\":\"narrow\", \"numeric\":\"auto\"},\"hexhash\":\"a57aac792\",\"label\":\"0\"}";
+
+    RelativeDateTimeFormatOutputJson output =
+        (RelativeDateTimeFormatOutputJson) RelativeDateTimeFormatTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+
+    assertEquals("tomorrow", output.result);
+  }
+
+  @Test
+  public void testIn1Day() {
+    String testInput =
+        "\t{\"unit\":\"day\",\"count\":\"1\",\"locale\":\"en-US\",\"options\":{\"style\":\"long\", \"numeric\":\"always\"},\"hexhash\":\"a57aac792\",\"label\":\"0\"}";
+
+    RelativeDateTimeFormatOutputJson output =
+        (RelativeDateTimeFormatOutputJson) RelativeDateTimeFormatTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+
+    assertEquals("in 1 day", output.result);
+  }
   @Ignore
   // This doesn't yet handle non-ASCII numbering systems
   // https://github.com/unicode-org/conformance/issues/261
