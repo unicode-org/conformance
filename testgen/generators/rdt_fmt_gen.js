@@ -204,55 +204,18 @@ function generateAll() {
               console.log('FORMATTER CREATION FAILS! ', error);
             }
 
+            // Always save the "auto" form.
             save_test(unit, count, locale, all_options_numeric_auto, result_auto, label_num, test_cases, verify_cases);
-
-            if (result_always != result_auto) {
-              diff_count += 1;
-              console.log(' DIFFERENT RESULTS: %s vs %s', result_always, result_auto);
-
-              save_test(unit, count, locale, all_options_numeric_always, result_always, label_num, test_cases, verify_cases);
-              label_num ++;
-            }
-
             label_num ++;
 
-            /* moved to save_test(...)
-               const label_string = String(label_num);
+            if (result_always != result_auto) {
+              // Since results are different, save the "always" form, too.
+              diff_count += 1;
+              // console.log(' DIFFERENT RESULTS: %s vs %s', result_always, result_auto);
 
-               // Without label
-               let test_case = {
-               'unit': unit,
-               'count': String(count),
-               };
-
-               if (locale != '') {
-               test_case["locale"] = locale;
-               }
-
-               if (all_options != null) {
-               test_case["options"] = {...all_options};
-               }
-
-               if (debug) {
-               console.log("TEST CASE :", test_case);
-               }
-
-               gen_hash.generate_hash_for_test(test_case);
-               test_case['label'] = label_string;
-
-               test_cases.push(test_case);
-
-            // Generate what we get.
-            try {
-              verify_cases.push({'label': label_string,
-                                 'verify': result});
-              if (debug) {
-                console.log('   expected = ', result);
-              }
-            } catch (error) {
-              console.log('!!! error ', error, ' in label ', label_num)
+              label_num ++;
+              save_test(unit, count, locale, all_options_numeric_always, result_always, label_num, test_cases, verify_cases);
             }
-            */
           }
         }
       }
@@ -262,7 +225,7 @@ function generateAll() {
 
   console.log('Number of relative date/time tests generated for ',
               process.versions.icu, ': ', label_num);
-  console.log('  %d different between numeric auto and always', diff_count);
+  console.log('  %d tests are different between numeric auto and always', diff_count);
 
   test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
