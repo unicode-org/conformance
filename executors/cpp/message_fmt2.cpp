@@ -8,6 +8,7 @@
 
 // This API was added in ICU75.1
 #if U_ICU_VERSION_MAJOR_NUM >= 75
+
 #include <unicode/locid.h>
 #include <unicode/messageformat2.h>
 #include <unicode/messageformat2_arguments.h>
@@ -33,12 +34,18 @@ using icu::UnicodeString;
 
 using std::string;
 
+/*
+ *  Check for ICU errors and add to output if needed.
+ */
+
+extern const bool check_icu_error(UErrorCode error_code,
+                                  json_object *return_json,
+                                  string message_to_add_if_error);
+
 /* Based on this test file:
  * https://github.com/unicode-org/icu/blob/main/icu4c/source/test/intltest/messageformat2test.cpp
  */
 const string TestMessageFormat2(json_object *json_in) {
-  UErrorCode errorCode = U_ZERO_ERROR;
-
   // label information
   json_object *label_obj = json_object_object_get(json_in, "label");
   string label_string = json_object_get_string(label_obj);
@@ -87,18 +94,20 @@ const string TestMessageFormat2(json_object *json_in) {
     for (int i = 0; i < params_length; i++) {
       json_object* param_obj = json_object_array_get_idx(param_list_obj, i);
 
+      // Get the fields from this indexed element of the param_list
       json_object *params_name_obj = json_object_object_get(param_obj, "name");
-      if (params_name_obj) {
-        params_name = json_object_get_string(params_name_obj);
-        u_params_name = params_name.c_str();
-      }
       json_object *params_value_obj =
           json_object_object_get(param_obj, "value");
-      if (params_value_obj) {
+
+      if (params_name_obj && params_value_obj) {
+        params_name = json_object_get_string(params_name_obj);
+        u_params_name = params_name.c_str();
+
         params_value = json_object_get_string(params_value_obj);
         u_params_value = params_value.c_str();
+
+        argsBuilder[u_params_name] = Formattable(u_params_value);
       }
-      argsBuilder[u_params_name] = Formattable(u_params_value);
     }
   }
 
@@ -106,75 +115,58 @@ const string TestMessageFormat2(json_object *json_in) {
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  bool no_error = true;
-
-  if (U_FAILURE(errorCode)) {
-    const char* error_name = u_errorName(errorCode);
-    json_object_object_add(
-        return_json,
-        "error", json_object_new_string("error in constructor"));
-    json_object_object_add(
-        return_json,
-        "error_detail", json_object_new_string(error_name));
-    no_error = false;
-  }
-
   UParseError parseError;
+  UErrorCode errorCode = U_ZERO_ERROR;
 
   MessageFormatter::Builder builder(errorCode);
+  if (check_icu_error(errorCode, return_json, "contructing builder")) {
+    return json_object_to_json_string(return_json);
+  }
+
   MessageFormatter mf = builder.setPattern(u_src, parseError, errorCode)
                         .setLocale(displayLocale)
                         .build(errorCode);
+  if (parseError.line > 0) {
+    /* TODO!!! Return information on this parse error */
+    string message = "Parse error on line: " +
+                     std::to_string(parseError.line) +
+                     "at offset: " +
+                     std::to_string(parseError.offset);
+    // TODO!!! Include preContext and postContext from parseError.
 
-  if (U_FAILURE(errorCode)) {
-    const char* error_name = u_errorName(errorCode);
     json_object_object_add(
         return_json,
-        "error", json_object_new_string("error in builder.setPattern"));
+        "error", json_object_new_string("parserError"));
     json_object_object_add(
         return_json,
-        "error_detail", json_object_new_string(error_name));
+        "error_detail", json_object_new_string(message.c_str()));
+  }
+  if (check_icu_error(errorCode, return_json, "build.setPattern")) {
     return json_object_to_json_string(return_json);
   }
 
   MessageArguments args(argsBuilder, errorCode);
-  if (U_FAILURE(errorCode)) {
-    const char* error_name = u_errorName(errorCode);
-    json_object_object_add(
-        return_json,
-        "error", json_object_new_string("error in constructing args"));
-    json_object_object_add(
-        return_json,
-        "error_detail", json_object_new_string(error_name));
+  if (check_icu_error(errorCode, return_json, "construction args")) {
     return json_object_to_json_string(return_json);
   }
 
   UnicodeString result_ustring = mf.formatToString(args, errorCode);
-  if (U_FAILURE(errorCode)) {
-    const char* error_name = u_errorName(errorCode);
-    json_object_object_add(
-        return_json,
-        "error", json_object_new_string("error in formatToString"));
-    json_object_object_add(
-        return_json,
-        "error_detail", json_object_new_string(error_name));
+  if (check_icu_error(errorCode, return_json, "formatToString")) {
     return json_object_to_json_string(return_json);
   }
 
   int32_t chars_out;  // Extracted characters from Unicode string
   char test_result[1000] = "";
 
-  // Get the resulting value as a string
-  result_ustring.extract(test_result, 1000, nullptr, errorCode);
+  // Get the resulting value and return JSON result.
+  string result_string;
+  result_ustring.toUTF8String(result_string);
 
-  if (U_FAILURE(errorCode)) {
-  } else {
-    // It worked!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result));
-  }
+  // It worked!
+  json_object_object_add(return_json,
+      "result", json_object_new_string(result_string.c_str()));
 
   return json_object_to_json_string(return_json);
 }
-#endif
+
+#endif  // U_ICU_VERSION_MAJOR_NUM >= 75
