@@ -679,8 +679,11 @@ class TestReport:
 
             error_detail = test.get('error_detail', None)
             if error_detail:
-                error_keys = error_detail.keys()  # ['options']
-                self.add_to_results_by_key(label, results, error_detail, test, error_keys)
+                try:
+                    error_keys = error_detail.keys()  # ['options']
+                    self.add_to_results_by_key(label, results, error_detail, test, error_keys)
+                except AttributeError:
+                    pass
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers

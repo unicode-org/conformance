@@ -108,4 +108,19 @@ public class RelativeDateTimeFormatTest {
 
     assertEquals("in 𞥑𞥐y", output.result);
   }
+
+  @Test
+  public void testArabicNumSystem() {
+
+  // Expect Eastern Arabic numerals in the output
+  String testInput =
+      "\t{\"test_type\": \"rdt_fmt\", \"unit\":\"second\",\"count\":\"-100\",\"locale\":\"en-US\",\"options\":{\"numberingSystem\":\"arab\"},\"hexhash\":\"d12df88777f8c7f60130df51d2954e18ec42b9c8\",\"label\":\"704\"}";
+
+  RelativeDateTimeFormatOutputJson output =
+      (RelativeDateTimeFormatOutputJson) RelativeDateTimeFormatTester.INSTANCE.getStructuredOutputFromInputStr(
+          testInput);
+
+  assertEquals("١٠٠ seconds ago",output.result);
+}
+
 }

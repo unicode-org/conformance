@@ -26,11 +26,16 @@ public class RelativeDateTimeFormatTester implements ITestType {
     result.locale = (String) inputMapData.get("locale", null);
     result.count = (String) inputMapData.get("count", "0");
     result.quantity = Double.parseDouble(result.count);
-
-    result.numberingSystem = (String) inputMapData.get("numbering_system", null);
+    result.numberingSystem = "";
 
     java.util.Map<String, Object> inputOptions =
         (java.util.Map<String, Object>) inputMapData.get("options", null);
+    if (inputOptions != null) {
+      result.numberingSystem = (String) inputOptions.get("numberingSystem");
+      if (result.numberingSystem != "") {
+        result.locale = result.locale + "-u-nu-" + result.numberingSystem;
+      }
+    }
 
     if (inputOptions != null) {
       result.style = RelativeDateTimeFormatStyle.getFromString(
