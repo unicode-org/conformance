@@ -36,7 +36,8 @@
         "likely_subtags",
         "list_fmt",
         "number_fmt",
-        "plural_rules"
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -57,7 +58,8 @@
         "likely_subtags",
         "list_fmt",
         "number_fmt",
-        "plural_rules"
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -78,7 +80,8 @@
         "list_fmt",
         "likely_subtags",
         "number_fmt",
-        "plural_rules"
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -100,7 +103,8 @@
         "list_fmt",
         "message_fmt2",
         "number_fmt",
-        "plural_rules"
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }

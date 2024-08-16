@@ -56,27 +56,36 @@ const string TestMessageFormat2(json_object *json_in) {
 
   string src_string;
   json_object *src_obj = json_object_object_get(json_in, "src");
+  UnicodeString u_src;
   if (src_obj) {
     src_string = json_object_get_string(src_obj);
+    u_src = src_string.c_str();
   }
 
+  string test_description_string;
+  json_object *test_description_obj = json_object_object_get(json_in, "test_description");
+  if (test_description_obj) {
+    test_description_string = json_object_get_string(test_description_obj);
+  }
 
-  // Get all the argements from test params
-  std::map<UnicodeString, Formattable> argsBuilder;
-  argsBuilder["userName"] = Formattable("John");
-  MessageArguments args(argsBuilder, errorCode);
-
-  json_object *param_list_obj = json_object_object_get(json_in, "params");
+  json_object* param_list_obj = json_object_object_get(json_in, "params");
 
   string params_name;
   UnicodeString u_params_name;
   string params_value;
   UnicodeString u_params_value;
 
+  // Get all the argements from test params
+  std::map<UnicodeString, Formattable> argsBuilder;
+
   if (param_list_obj) {
+    array_list* param_list = json_object_get_array(param_list_obj);
+
     // For each item in the params list, get the name and value.
     // Add to the builder.
+    // !!!
     int params_length = json_object_array_length(param_list_obj);
+    // cout << "Params length = " << params_length << endl;
 
     // Construct the list of Unicode Strings
     for (int i = 0; i < params_length; i++) {
@@ -92,6 +101,7 @@ const string TestMessageFormat2(json_object *json_in) {
         params_value = json_object_get_string(params_value_obj);
         u_params_value = params_value.c_str();
       }
+      // cout << "  Name = " << params_name << ", value = " << params_value << endl;
       argsBuilder[u_params_name] = Formattable(u_params_value);
     }
   }
@@ -116,8 +126,10 @@ const string TestMessageFormat2(json_object *json_in) {
   UParseError parseError;
 
   MessageFormatter::Builder builder(errorCode);
-  MessageFormatter mf = builder.setPattern(u"Hello, {$userName}!", parseError, errorCode)
+  MessageFormatter mf = builder.setPattern(u_src, parseError, errorCode)
                         .build(errorCode);
+
+  MessageArguments args(argsBuilder, errorCode);
 
   UnicodeString result_ustring = mf.formatToString(args, errorCode);
   // Call the function and return the result.
