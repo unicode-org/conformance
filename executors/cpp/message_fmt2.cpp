@@ -2,18 +2,18 @@
  * testing message format 2 in C++
  */
 
-#include <json-c/json.h>
-
-#include <unicode/locid.h>
-#include <unicode/messageformat2.h>
 #include <unicode/utypes.h>
 
+#include <json-c/json.h>
 
+// This API was added in ICU75.1
+#if U_ICU_VERSION_MAJOR_NUM >= 75
+#include <unicode/locid.h>
+#include <unicode/messageformat2.h>
 #include <unicode/messageformat2_arguments.h>
 #include <unicode/messageformat2_data_model.h>
 #include <unicode/messageformat2_function_registry.h>
 #include <unicode/messageformat2_formattable.h>
-#include <unicode/messageformat2.h>
 #include <unicode/msgfmt.h>
 #include <unicode/unistr.h>
 
@@ -63,7 +63,8 @@ const string TestMessageFormat2(json_object *json_in) {
   }
 
   string test_description_string;
-  json_object *test_description_obj = json_object_object_get(json_in, "test_description");
+  json_object *test_description_obj =
+      json_object_object_get(json_in, "test_description");
   if (test_description_obj) {
     test_description_string = json_object_get_string(test_description_obj);
   }
@@ -96,12 +97,12 @@ const string TestMessageFormat2(json_object *json_in) {
         params_name = json_object_get_string(params_name_obj);
         u_params_name = params_name.c_str();
       }
-      json_object *params_value_obj = json_object_object_get(param_obj, "value");
+      json_object *params_value_obj =
+          json_object_object_get(param_obj, "value");
       if (params_value_obj) {
         params_value = json_object_get_string(params_value_obj);
         u_params_value = params_value.c_str();
       }
-      // cout << "  Name = " << params_name << ", value = " << params_value << endl;
       argsBuilder[u_params_name] = Formattable(u_params_value);
     }
   }
@@ -127,12 +128,37 @@ const string TestMessageFormat2(json_object *json_in) {
 
   MessageFormatter::Builder builder(errorCode);
   MessageFormatter mf = builder.setPattern(u_src, parseError, errorCode)
+                        .setLocale(displayLocale)
                         .build(errorCode);
 
+  if (U_FAILURE(errorCode)) {
+    const char* error_name = u_errorName(errorCode);
+    json_object_object_add(
+        return_json,
+        "error", json_object_new_string("error in builder.setPattern"));
+    json_object_object_add(
+        return_json,
+        "error_detail", json_object_new_string(error_name));
+    return json_object_to_json_string(return_json);
+  }
+
+  // !!! TEMPORARY
+  cout << "MF2 locale = " << mf.getLocale().getLanguage() <<
+          ", country = " << mf.getLocale().getCountry() << endl;
+
   MessageArguments args(argsBuilder, errorCode);
+  if (U_FAILURE(errorCode)) {
+    const char* error_name = u_errorName(errorCode);
+    json_object_object_add(
+        return_json,
+        "error", json_object_new_string("error in constructing args"));
+    json_object_object_add(
+        return_json,
+        "error_detail", json_object_new_string(error_name));
+    return json_object_to_json_string(return_json);
+  }
 
   UnicodeString result_ustring = mf.formatToString(args, errorCode);
-  // Call the function and return the result.
   if (U_FAILURE(errorCode)) {
     const char* error_name = u_errorName(errorCode);
     json_object_object_add(
@@ -141,18 +167,15 @@ const string TestMessageFormat2(json_object *json_in) {
     json_object_object_add(
         return_json,
         "error_detail", json_object_new_string(error_name));
-    no_error = false;
+    return json_object_to_json_string(return_json);
   }
 
-
-  int32_t chars_out;  // Results of extracting characters from Unicode string
-
+  int32_t chars_out;  // Extracted characters from Unicode string
   char test_result[1000] = "";
 
   // Get the resulting value as a string
-  result_ustring.extract(test_result, 1000, nullptr, errorCode);  // ignore result
+  result_ustring.extract(test_result, 1000, nullptr, errorCode);
 
-  // Call the function and return the result.
   if (U_FAILURE(errorCode)) {
   } else {
     // It worked!
@@ -161,6 +184,6 @@ const string TestMessageFormat2(json_object *json_in) {
                            json_object_new_string(test_result));
   }
 
-  string return_string = json_object_to_json_string(return_json);
-  return return_string;
+  return json_object_to_json_string(return_json);
 }
+#endif
