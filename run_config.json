@@ -101,6 +101,7 @@
         "lang_names",
         "likely_subtags",
         "list_fmt",
+        "message_fmt2",
         "number_fmt",
         "plural_rules",
         "rdt_fmt"
