@@ -127,12 +127,21 @@ const string TestMessageFormat2(json_object *json_in) {
                         .setLocale(displayLocale)
                         .build(errorCode);
   if (parseError.line > 0) {
-    /* TODO!!! Return information on this parse error */
+    // Information on position and preContext / postContext of the error
+    string precontext_string, postcontext_string;
+    UnicodeString preContext = parseError.preContext;
+    preContext.toUTF8String(precontext_string);
+    UnicodeString postContext = parseError.postContext;
+    postContext.toUTF8String(postcontext_string);
+
     string message = "Parse error on line: " +
                      std::to_string(parseError.line) +
-                     "at offset: " +
-                     std::to_string(parseError.offset);
-    // TODO!!! Include preContext and postContext from parseError.
+                     " at offset: " +
+                     std::to_string(parseError.offset) +
+                     " precontext: " +
+                     precontext_string +
+                     " postcontext: " +
+                     postcontext_string;
 
     json_object_object_add(
         return_json,
