@@ -31,9 +31,6 @@ using icu::message2::Formattable;
 
 using icu::UnicodeString;
 
-
-using std::cout;
-using std::endl;
 using std::string;
 
 /* Based on this test file:
@@ -84,9 +81,7 @@ const string TestMessageFormat2(json_object *json_in) {
 
     // For each item in the params list, get the name and value.
     // Add to the builder.
-    // !!!
     int params_length = json_object_array_length(param_list_obj);
-    // cout << "Params length = " << params_length << endl;
 
     // Construct the list of Unicode Strings
     for (int i = 0; i < params_length; i++) {
@@ -141,10 +136,6 @@ const string TestMessageFormat2(json_object *json_in) {
         "error_detail", json_object_new_string(error_name));
     return json_object_to_json_string(return_json);
   }
-
-  // !!! TEMPORARY
-  cout << "MF2 locale = " << mf.getLocale().getLanguage() <<
-          ", country = " << mf.getLocale().getCountry() << endl;
 
   MessageArguments args(argsBuilder, errorCode);
   if (U_FAILURE(errorCode)) {
