@@ -73,6 +73,10 @@ const string TestMessageFormat2(json_object *json_in) {
     test_description_string = json_object_get_string(test_description_obj);
   }
 
+  // Start filling the return data.
+  json_object *return_json = json_object_new_object();
+  json_object_object_add(return_json, "label", label_obj);
+
   json_object* param_list_obj = json_object_object_get(json_in, "params");
 
   string params_name;
@@ -107,13 +111,16 @@ const string TestMessageFormat2(json_object *json_in) {
         u_params_value = params_value.c_str();
 
         argsBuilder[u_params_name] = Formattable(u_params_value);
+      } else {
+        // Bail out due to incomplete parameter
+        if (check_icu_error(
+                U_MESSAGE_PARSE_ERROR,
+                return_json, "incomplete param name / value")) {
+          return json_object_to_json_string(return_json);
+        }
       }
-    }
-  }
-
-  // Start filling the return data.
-  json_object *return_json = json_object_new_object();
-  json_object_object_add(return_json, "label", label_obj);
+    }  // End of parameter loop
+  }  // End parameter list processing
 
   UParseError parseError;
   UErrorCode errorCode = U_ZERO_ERROR;
@@ -127,13 +134,14 @@ const string TestMessageFormat2(json_object *json_in) {
                         .setLocale(displayLocale)
                         .build(errorCode);
   if (parseError.line > 0) {
-    // Information on position and preContext / postContext of the error
+    // Information on position and preContext / postContext of parse error
     string precontext_string, postcontext_string;
     UnicodeString preContext = parseError.preContext;
     preContext.toUTF8String(precontext_string);
     UnicodeString postContext = parseError.postContext;
     postContext.toUTF8String(postcontext_string);
 
+    // Build a message with all parsing info.
     string message = "Parse error on line: " +
                      std::to_string(parseError.line) +
                      " at offset: " +
@@ -143,13 +151,11 @@ const string TestMessageFormat2(json_object *json_in) {
                      " postcontext: " +
                      postcontext_string;
 
-    json_object_object_add(
-        return_json,
-        "error", json_object_new_string("parserError"));
-    json_object_object_add(
-        return_json,
-        "error_detail", json_object_new_string(message.c_str()));
+    if (check_icu_error(U_PARSE_ERROR, return_json, message.c_str())) {
+      return json_object_to_json_string(return_json);
+    }
   }
+
   if (check_icu_error(errorCode, return_json, "build.setPattern")) {
     return json_object_to_json_string(return_json);
   }
