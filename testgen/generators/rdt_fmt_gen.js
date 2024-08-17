@@ -213,8 +213,8 @@ function generateAll() {
               diff_count += 1;
               // console.log(' DIFFERENT RESULTS: %s vs %s', result_always, result_auto);
 
-              label_num ++;
               save_test(unit, count, locale, all_options_numeric_always, result_always, label_num, test_cases, verify_cases);
+              label_num ++;
             }
           }
         }
