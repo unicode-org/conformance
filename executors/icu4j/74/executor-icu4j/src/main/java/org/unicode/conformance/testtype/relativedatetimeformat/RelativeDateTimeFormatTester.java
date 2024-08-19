@@ -37,9 +37,13 @@ public class RelativeDateTimeFormatTester implements ITestType {
       }
     }
 
-    result.style = RelativeDateTimeFormatStyle.getFromString(
-        "" + inputOptions.get("style")
-    );
+    if (inputOptions != null) {
+      result.style = RelativeDateTimeFormatStyle.getFromString(
+          "" + inputOptions.get("style"));
+
+      result.numeric = RelativeDateFormatNumeric.getFromString(
+          "" + inputOptions.get("numeric"));
+    }
 
     String unitInput = (String) inputMapData.get("unit", "0");
     result.unit = RelativeDateTimeFormatUnits.getFromString(
@@ -136,6 +140,12 @@ public class RelativeDateTimeFormatTester implements ITestType {
     RelativeDateTimeFormatter rdtf =
         RelativeDateTimeFormatter.getInstance(locale, nf, style, dc);
 
-    return rdtf.format(input.quantity, unit);
+    String result;
+    if (input.numeric == RelativeDateFormatNumeric.ALWAYS) {
+      result = rdtf.formatNumeric(input.quantity, unit);
+    } else {
+      result = rdtf.format(input.quantity, unit);
+    }
+    return result;
   }
 }
