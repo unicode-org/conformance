@@ -163,11 +163,7 @@ const string TestDatetimeFmt(json_object *json_in) {
                                                  display_locale,
                                                  status);
     }
-    if (U_FAILURE(status)) {
-      json_object_object_add(
-          return_json,
-          "error",
-          json_object_new_string("Error in createInstanceForSkeleton"));
+    if (check_icu_error(status, return_json, "createInstanceForSkeleton")) {
       return json_object_to_json_string(return_json);
     }
   } else {
@@ -207,7 +203,7 @@ const string TestDatetimeFmt(json_object *json_in) {
 
     // SimpleDateFormat can't parse options or timezone offset
     // First, remove options starting with "["
-    std:size_t pos = input_date_string.find("[");
+ std:size_t pos = input_date_string.find("[");
     if (pos >= 0) {
       input_date_string = input_date_string.substr(0, pos);
     }
@@ -240,19 +236,8 @@ const string TestDatetimeFmt(json_object *json_in) {
     }
 
     // Get date from the parser if possible.
-
     test_date_time = iso_date_fmt.parse(date_ustring, status);
-
-    if (U_FAILURE(status)) {
-      string error_message = "# iso_date_fmt parse failure: " +
-                             input_date_string + " " +
-                             u_errorName(status);
-
-      json_object_object_add(
-          return_json,
-          "error",
-          json_object_new_string(error_message.c_str()));
-
+    if (check_icu_error(status, return_json, "# iso_date_fmt parse failure" + input_date_string)) {
       return json_object_to_json_string(return_json);
     }
   } else if (input_millis) {
@@ -267,27 +252,18 @@ const string TestDatetimeFmt(json_object *json_in) {
     return json_object_to_json_string(return_json);
   }
 
-  // The output of the formatting
+  // The output of the formatting step
   UnicodeString formatted_result;
-
   df->format(test_date_time, formatted_result);
 
   // Get the resulting value as a string
-  char test_result_string[1000] = "";
-  formatted_result.extract(
-      test_result_string, 1000, nullptr, status);  // ignore return value
+  string result_string;
+  formatted_result.toUTF8String(result_string);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("Failed extracting test result"));
-  } else {
-    // Good calls all around. Send the result!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result_string));
-  }
+  // Good calls all around. Send the result!
+  json_object_object_add(return_json,
+                         "result",
+                         json_object_new_string(result_string.c_str()));
 
   return json_object_to_json_string(return_json);
 }
