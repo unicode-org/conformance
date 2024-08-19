@@ -2,12 +2,15 @@
  * Common functions for dealing with JSON data in conformance testing
  */
 
+
 #include <json-c/json.h>
 
 #include <unicode/utypes.h>
 
 #include <string>
 #include <cstring>
+
+#include "./util.h"
 
 using std::string;
 

@@ -29,7 +29,7 @@
 #include <iostream>
 #include <string>
 
-#include "util.h"
+#include "./util.h"
 
 using std::cout;
 using std::endl;
@@ -39,8 +39,6 @@ using icu::Locale;
 using icu::UnicodeString;
 using icu::Collator;
 using icu::RuleBasedCollator;
-
-#include "util.h"
 
 const char error_message[] = "error";
 

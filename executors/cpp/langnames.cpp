@@ -17,7 +17,7 @@
 #include <string>
 #include <cstring>
 
-#include "util.h"
+#include "./util.h"
 
 using std::cout;
 using std::endl;

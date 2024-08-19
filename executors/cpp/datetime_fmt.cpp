@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <string>
-#include <regex>
 #include <cstring>
 
 #include "unicode/utypes.h"
@@ -21,7 +20,7 @@
 
 #include "unicode/uclean.h"
 
-#include "util.h"
+#include "./util.h"
 
 using icu::Calendar;
 using icu::DateFormat;
@@ -237,7 +236,9 @@ const string TestDatetimeFmt(json_object *json_in) {
 
     // Get date from the parser if possible.
     test_date_time = iso_date_fmt.parse(date_ustring, status);
-    if (check_icu_error(status, return_json, "# iso_date_fmt parse failure" + input_date_string)) {
+    if (check_icu_error(status,
+                        return_json,
+                        "# iso_date_fmt parse failure" + input_date_string)) {
       return json_object_to_json_string(return_json);
     }
   } else if (input_millis) {

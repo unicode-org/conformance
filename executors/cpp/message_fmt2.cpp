@@ -25,7 +25,7 @@
 #include <string>
 #include <cstring>
 
-#include "util.h"
+#include "./util.h"
 
 using icu::Locale;
 using icu::message2::MessageFormatter;

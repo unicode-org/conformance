@@ -18,7 +18,7 @@
 #include <string>
 #include <string_view>
 
-#include "util.h"
+#include "./util.h"
 
 using icu::ListFormatter;
 using icu::Locale;
@@ -103,7 +103,7 @@ const string TestListFmt (json_object* json_in) {
                                     format_width,
                                     status);
   if (check_icu_error(status,
-                      return_json,"construct list formatter")) {
+                      return_json, "construct list formatter")) {
     return json_object_to_json_string(return_json);
   }
 

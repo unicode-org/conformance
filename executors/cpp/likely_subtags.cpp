@@ -17,7 +17,7 @@
 #include <iostream>
 #include <string>
 
-#include "util.h"
+#include "./util.h"
 
 using std::string;
 

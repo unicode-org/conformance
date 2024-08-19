@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "util.h"
+#include "./util.h"
 
 using icu::Locale;
 using icu::PluralRules;

@@ -19,7 +19,7 @@
 #include "unicode/reldatefmt.h"
 #include "unicode/udisplaycontext.h"
 
-#include "util.h"
+#include "./util.h"
 
 using icu::Locale;
 using icu::NumberFormat;
@@ -96,7 +96,8 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
     if (style_obj) {
       style_string = json_object_get_string(style_obj);
     }
-    json_object *ns_obj = json_object_object_get(options_obj, "numberingSystem");
+    json_object *ns_obj =
+        json_object_object_get(options_obj, "numberingSystem");
     if (ns_obj) {
       numbering_system_string = json_object_get_string(ns_obj);
     }
