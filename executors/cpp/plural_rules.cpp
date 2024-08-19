@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include "util.h"
+
 using icu::Locale;
 using icu::PluralRules;
 using icu::UnicodeString;
@@ -93,16 +95,11 @@ const string TestPluralRules (json_object* json_in) {
     return  json_object_to_json_string(return_json);
   }
 
-  PluralRules* prules = icu::PluralRules::forLocale(
-      display_locale,
-      plural_type,
-      status);
+  PluralRules* prules =
+      icu::PluralRules::forLocale(display_locale, plural_type, status);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(return_json,
-                           "error",
-                           json_object_new_string("construct plural rules"));
-    return  json_object_to_json_string(return_json);
+  if (check_icu_error(status, return_json, "contruct plural rules")) {
+    return json_object_to_json_string(return_json);
   }
 
   // TODO: distinguish between ints, doubles, and compact values
@@ -126,31 +123,14 @@ const string TestPluralRules (json_object* json_in) {
     return json_object_to_json_string(return_json);
   }
 
-  char test_result_string[1000] = "";
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("calling plural rules select"));
-    return  json_object_to_json_string(return_json);
-  } else {
-    u_result.extract(
-        test_result_string, 1000, nullptr, status);  // ignore result
-  }
+  string result_string;
+  u_result.toUTF8String(result_string);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("plural rules result extract error"));
-    return  json_object_to_json_string(return_json);
-  } else {
-    // It all seems to work!
-    json_object_object_add(
-        return_json,
-        "result",
-        json_object_new_string(test_result_string));
-  }
+  // It all seems to work!
+  json_object_object_add(
+      return_json,
+      "result",
+      json_object_new_string(result_string.c_str()));
 
   // The JSON output.
   return  json_object_to_json_string(return_json);
