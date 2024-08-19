@@ -211,9 +211,9 @@ const string TestCollator(json_object *json_in) {
     }
   }
 
-  if (uni_result == UCOL_GREATER) {
-    coll_result = false;
-
+  coll_result = (uni_result != UCOL_GREATER);
+  if (!coll_result) {
+    // Test did not succeed!
     if (debug) {
       cout << "# UNI_RESULT: " << label_string << " " << uni_result <<
           "  s1: " << string1 << " s2: " << string2 << endl;
@@ -228,8 +228,6 @@ const string TestCollator(json_object *json_in) {
     // Record the actual returned value
     json_object_object_add(
         return_json, "compare", json_object_new_int64(uni_result));
-  } else {
-    coll_result = true;
   }
 
   json_object_object_add(

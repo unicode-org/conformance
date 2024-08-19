@@ -186,25 +186,13 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   }
 
   // Get the resulting value as a string
-  char test_result_string[1000] = "";
-  formatted_result.extract(
-      test_result_string, 1000, nullptr, status);  // ignore return value
+  string test_result;
+  formatted_result.toUTF8String(test_result);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("Failed extracting test result"));
-    json_object_object_add(
-        return_json,
-        "error_detail",
-        json_object_new_string("no detail available"));
-  } else {
-    // Good calls all around. Send the result!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result_string));
-  }
+  // Good calls all around. Send the result!
+  json_object_object_add(return_json,
+                         "result",
+                         json_object_new_string(test_result.c_str()));
 
   return json_object_to_json_string(return_json);
 }
