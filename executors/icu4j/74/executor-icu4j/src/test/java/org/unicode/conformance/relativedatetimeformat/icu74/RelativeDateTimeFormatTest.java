@@ -70,7 +70,7 @@ public class RelativeDateTimeFormatTest {
   }
 
   @Test
-  public void testTomorrow() {
+  public void testNumbericAutoTomorrow() {
     String testInput =
         "\t{\"unit\":\"day\",\"count\":\"1\",\"locale\":\"en-US\",\"options\":{\"style\":\"narrow\", \"numeric\":\"auto\"},\"hexhash\":\"a57aac792\",\"label\":\"0\"}";
 
@@ -82,7 +82,7 @@ public class RelativeDateTimeFormatTest {
   }
 
   @Test
-  public void testIn1Day() {
+  public void testNumericAlwaysInOneDay() {
     String testInput =
         "\t{\"unit\":\"day\",\"count\":\"1\",\"locale\":\"en-US\",\"options\":{\"style\":\"long\", \"numeric\":\"always\"},\"hexhash\":\"a57aac792\",\"label\":\"0\"}";
 

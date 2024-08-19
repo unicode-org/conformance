@@ -156,11 +156,9 @@ function generateAll() {
           all_options['numberingSystem'] = number_system;
         }
 
-        let all_options_numeric_always = {...all_options};
-        all_options_numeric_always['numeric'] = 'always';
-
-        let all_options_numeric_auto = {...all_options};
-        all_options_numeric_auto['numeric'] = 'auto';
+        // Create to sets of options
+        let all_options_numeric_always = {...all_options, 'numeric': 'always'};
+        let all_options_numeric_auto = {...all_options, 'numeric': 'auto'};
 
         let formatter_numeric_always;
         try {
