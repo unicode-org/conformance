@@ -21,6 +21,8 @@
 
 #include "unicode/uclean.h"
 
+#include "util.h"
+
 using icu::Calendar;
 using icu::DateFormat;
 using icu::Locale;

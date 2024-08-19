@@ -19,6 +19,8 @@
 #include "unicode/reldatefmt.h"
 #include "unicode/udisplaycontext.h"
 
+#include "util.h"
+
 using icu::Locale;
 using icu::NumberFormat;
 using icu::RelativeDateTimeFormatter;

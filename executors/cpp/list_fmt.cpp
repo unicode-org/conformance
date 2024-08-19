@@ -24,6 +24,8 @@ using icu::ListFormatter;
 using icu::Locale;
 using icu::UnicodeString;
 
+using std::cout;
+using std::endl;
 using std::string;
 
 /* Main test function */
@@ -61,6 +63,7 @@ const string TestListFmt (json_object* json_in) {
     }
     u_strings_size = u_strings.size();
   } else {
+    // TODO: use error return function
     json_object_object_add(
         return_json,
         "error",
@@ -117,6 +120,9 @@ const string TestListFmt (json_object* json_in) {
 
   string result_string;
   u_result_string.toUTF8String(result_string);
+  json_object_object_add(return_json,
+                           "result",
+                         json_object_new_string(result_string.c_str()));
 
   // The JSON output.
   return  json_object_to_json_string(return_json);

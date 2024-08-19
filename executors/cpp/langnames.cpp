@@ -17,6 +17,8 @@
 #include <string>
 #include <cstring>
 
+#include "util.h"
+
 using std::cout;
 using std::endl;
 using std::string;

@@ -17,6 +17,8 @@
 #include <iostream>
 #include <string>
 
+#include "util.h"
+
 using std::string;
 
 using icu::Locale;
