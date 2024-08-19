@@ -15,7 +15,6 @@
 #include "unicode/utypes.h"
 #include "unicode/unistr.h"
 #include "unicode/locid.h"
-#include "unicode/numfmt.h"
 #include "unicode/reldatefmt.h"
 #include "unicode/udisplaycontext.h"
 
