@@ -202,7 +202,7 @@ const string TestDatetimeFmt(json_object *json_in) {
 
     // SimpleDateFormat can't parse options or timezone offset
     // First, remove options starting with "["
- std:size_t pos = input_date_string.find("[");
+    std::size_t pos = input_date_string.find("[");
     if (pos >= 0) {
       input_date_string = input_date_string.substr(0, pos);
     }

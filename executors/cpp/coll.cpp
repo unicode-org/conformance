@@ -135,8 +135,9 @@ const string TestCollator(json_object *json_in) {
   RuleBasedCollator *rb_coll = nullptr;
 
   if (rules_string != "") {
-    char uni_rules_out[1000] = "";
-    uni_rules.extract(uni_rules_out, 1000, nullptr, status);  // ignore length
+    string uni_rules_string;
+    // TODO: Check if this is needed.
+    uni_rules.toUTF8String(uni_rules_string);
 
     // Make sure normalization is consistent
     rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
@@ -216,37 +217,6 @@ const string TestCollator(json_object *json_in) {
     if (debug) {
       cout << "# UNI_RESULT: " << label_string << " " << uni_result <<
           "  s1: " << string1 << " s2: " << string2 << endl;
-    }
-
-    // Check unescaped versions.
-    char char_out1[1000] = "";
-    char char_out2[1000] = "";
-    us1.extract(char_out1, 1000, nullptr, status);  // ignore result
-    if (U_FAILURE(status)) {
-      test_result = error_message;
-      json_object_object_add(
-          return_json,
-          "error", json_object_new_string("error extracting us1"));
-      if (debug) {
-        cout << "# Error in us1.extract: " <<
-            label_string << " : " <<
-            test_result << endl;
-      }
-    }
-
-    us2.extract(char_out2, 1000, nullptr, status);  // ignore result
-    if (U_FAILURE(status)) {
-      test_result = error_message;
-      // TODO: report the error in creating the instance
-      test_result = error_message;
-      json_object_object_add(
-          return_json,
-          "error", json_object_new_string("error extracting us2"));
-      if (debug) {
-        cout << "# Error in us2.extract: " <<
-            label_string << " : " <<
-            test_result << endl;
-      }
     }
 
     // Include data compared in the failing test
