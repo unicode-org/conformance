@@ -25,6 +25,8 @@
 #include <string>
 #include <cstring>
 
+#include "./util.h"
+
 using icu::Locale;
 using icu::message2::MessageFormatter;
 using icu::message2::MessageArguments;
@@ -33,14 +35,6 @@ using icu::message2::Formattable;
 using icu::UnicodeString;
 
 using std::string;
-
-/*
- *  Check for ICU errors and add to output if needed.
- */
-
-extern const bool check_icu_error(UErrorCode error_code,
-                                  json_object *return_json,
-                                  string message_to_add_if_error);
 
 /* Based on this test file:
  * https://github.com/unicode-org/icu/blob/main/icu4c/source/test/intltest/messageformat2test.cpp
@@ -169,9 +163,6 @@ const string TestMessageFormat2(json_object *json_in) {
   if (check_icu_error(errorCode, return_json, "formatToString")) {
     return json_object_to_json_string(return_json);
   }
-
-  int32_t chars_out;  // Extracted characters from Unicode string
-  char test_result[1000] = "";
 
   // Get the resulting value and return JSON result.
   string result_string;

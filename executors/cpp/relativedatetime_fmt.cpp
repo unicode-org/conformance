@@ -18,6 +18,8 @@
 #include <string>
 #include <cstring>
 
+#include "./util.h"
+
 using icu::Locale;
 using icu::NumberFormat;
 using icu::RelativeDateTimeFormatter;
@@ -101,8 +103,8 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
     if (style_obj) {
       style_string = json_object_get_string(style_obj);
     }
-    json_object *ns_obj = json_object_object_get(
-        options_obj, "numberingSystem");
+    json_object *ns_obj =
+        json_object_object_get(options_obj, "numberingSystem");
     if (ns_obj) {
       numbering_system_string = json_object_get_string(ns_obj);
     }
@@ -149,14 +151,14 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
     return json_object_to_json_string(return_json);
   }
 
-  // Get the resulting value as a string for output
-  string test_result_string;
-  formatted_result.toUTF8String(test_result_string);
+  // Get the resulting value as a string
+  string test_result;
+  formatted_result.toUTF8String(test_result);
 
   // Good calls all around. Send the result!
   json_object_object_add(return_json,
                          "result",
-                         json_object_new_string(test_result_string.c_str()));
+                         json_object_new_string(test_result.c_str()));
 
   return json_object_to_json_string(return_json);
 }
