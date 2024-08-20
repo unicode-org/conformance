@@ -4,6 +4,7 @@ use fixed_decimal::FixedDecimal;
 use icu::locid::Locale;
 use icu_provider::DataLocale;
 
+use icu::relativetime::options::Numeric;
 use icu::relativetime::{RelativeTimeError, RelativeTimeFormatter, RelativeTimeFormatterOptions};
 
 use serde::{Deserialize, Serialize};
@@ -14,6 +15,7 @@ use serde_json::{json, Value};
 struct RelativeDateTimeFormatterOptions {
     style: Option<String>,
     numbering_system: Option<String>,
+    numeric: Option<String>,
 }
 
 fn get_formatter_from_unit_style(
@@ -158,27 +160,21 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
         style = option_struct.style.as_ref().unwrap();
     }
 
-    // Update when ICU4X supports non-Latn numbering systems
-    // if option_struct.numbering_system.is_some() {
-    //     let numbering_system = option_struct.numbering_system.as_ref().unwrap();
-
-    //     if numbering_system != "latn" {
-    //         return Ok(json!({
-    //             "error": "Number system not supported",
-    //             "error_msg": numbering_system,
-    //             "label": label,
-    //             "unsupported": "non-Latn numbering system not implemented",
-    //         }));
-    //     }
-    // }
+    // Get numeric option
+    let options = if option_struct.numeric == Some(String::from("auto")) {
+        RelativeTimeFormatterOptions {
+            numeric: Numeric::Auto,
+        }
+    } else {
+        // The default
+        RelativeTimeFormatterOptions {
+            numeric: Numeric::Always,
+        }
+    };
 
     // Use unit & style to select the correct constructor.
-    let relative_time_formatter = get_formatter_from_unit_style(
-        &data_locale,
-        unit.to_string(),
-        style.to_string(),
-        RelativeTimeFormatterOptions::default(),
-    );
+    let relative_time_formatter =
+        get_formatter_from_unit_style(&data_locale, unit.to_string(), style.to_string(), options);
 
     let formatter = match relative_time_formatter {
         Ok(formatter) => formatter,
