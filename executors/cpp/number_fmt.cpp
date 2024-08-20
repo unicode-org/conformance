@@ -33,6 +33,8 @@
 #include <string>
 #include <cstring>
 
+#include "./util.h"
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -426,7 +428,6 @@ const string TestNumfmt(json_object *json_in) {
 
   int32_t chars_out;  // Results of extracting characters from Unicode string
   bool no_error = true;
-  char test_result[1000] = "";
 
   LocalizedNumberFormatter nf;
   if (notation_string == "scientific") {
@@ -498,7 +499,8 @@ const string TestNumfmt(json_object *json_in) {
     }
 
     // Get the resulting value as a string
-    number_result.extract(test_result, 1000, nullptr, status);  // ignore result
+    string test_result;
+    number_result.toUTF8String(test_result);
 
     if (U_FAILURE(status)) {
       // Report a failure
@@ -512,16 +514,19 @@ const string TestNumfmt(json_object *json_in) {
       // It worked!
       json_object_object_add(return_json,
                              "result",
-                             json_object_new_string(test_result));
+                             json_object_new_string(test_result.c_str()));
     }
   }
 
   // To see what was actually used.
   UnicodeString u_skeleton_out = nf.toSkeleton(status);
-  u_skeleton_out.extract(test_result, 1000, nullptr, status);  // result ignored
+
+  string skeleton_string;
+  u_skeleton_out.toUTF8String(skeleton_string);
+
   json_object_object_add(return_json,
                          "actual_skeleton",
-                         json_object_new_string(test_result));
+                         json_object_new_string(skeleton_string.c_str()));
 
   string return_string = json_object_to_json_string(return_json);
   return return_string;

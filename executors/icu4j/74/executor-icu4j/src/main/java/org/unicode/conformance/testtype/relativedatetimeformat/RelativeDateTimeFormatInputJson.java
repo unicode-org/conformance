@@ -12,6 +12,8 @@ public class RelativeDateTimeFormatInputJson implements ITestTypeInputJson {
 
   public String numberingSystem;
 
+  public RelativeDateFormatNumeric numeric;// always (default) or auto
+
   public String count;
 
   public RelativeDateTimeFormatUnits unit;

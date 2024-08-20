@@ -29,6 +29,8 @@
 #include <iostream>
 #include <string>
 
+#include "./util.h"
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -39,6 +41,8 @@ using icu::Collator;
 using icu::RuleBasedCollator;
 
 const char error_message[] = "error";
+
+bool debug = false;
 
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
@@ -124,7 +128,6 @@ const string TestCollator(json_object *json_in) {
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  bool no_error = true;
   int uni_result;
   // Create a C++ collator and try it.
 
@@ -132,35 +135,21 @@ const string TestCollator(json_object *json_in) {
   RuleBasedCollator *rb_coll = nullptr;
 
   if (rules_string != "") {
-    char uni_rules_out[1000] = "";
-    uni_rules.extract(uni_rules_out, 1000, nullptr, status);  // ignore length
+    string uni_rules_string;
+    // TODO: Check if this is needed.
+    uni_rules.toUTF8String(uni_rules_string);
 
     // Make sure normalization is consistent
     rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
-    if (U_FAILURE(status)) {
-      test_result = error_message;
-      // TODO: report the error in creating the instance
-      cout << "# Error in making RuleBasedCollator: " <<
-          label_string << " : " << test_result << endl;
-
-      json_object_object_add(
-          return_json,
-          "error", json_object_new_string("create rule based collator"));
-      no_error = false;
+    if (check_icu_error(status, return_json, "create RuleBasedCollator")) {
+      return json_object_to_json_string(return_json);
     }
 
     uni_result = rb_coll->compare(us1, us2, status);
-    if (U_FAILURE(status)) {
-      test_result = error_message;
-
-      json_object_object_add(
-          return_json,
-          "error", json_object_new_string("error in rb_coll->compare"));
-      no_error = false;
-      cout << "# Error in rb_coll->compare: " <<
-          label_string << " : " <<
-          test_result << endl;
+    if (check_icu_error(status, return_json, "rb_coll->compare")) {
+      return json_object_to_json_string(return_json);
     }
+
     // Don't need this anymore.
     delete rb_coll;
   } else {
@@ -171,29 +160,16 @@ const string TestCollator(json_object *json_in) {
       uni_coll = Collator::createInstance(Locale(locale_string), status);
     }
 
-    if (U_FAILURE(status)) {
-      test_result = error_message;
-      json_object_object_add(
-          return_json,
-          "error", json_object_new_string("error creating collator instance"));
-      no_error = false;
-      cout << "# Error in createInstance: " <<
-          label_string << " : " <<
-          test_result << endl;
+    if (check_icu_error(
+            status, return_json, "create collator instance")) {
+      return json_object_to_json_string(return_json);
     }
 
     // Make sure normalization is consistent
     uni_coll->setAttribute(UCOL_NORMALIZATION_MODE, UCOL_ON, status);
-    if (U_FAILURE(status)) {
-      test_result = error_message;
-      json_object_object_add(
-          return_json,
-          "error",
-          json_object_new_string("error setting normalization to UCOL_ON"));
-      no_error = false;
-      cout << "# Error in setAttribute: " <<
-          label_string << " : " <<
-          test_result << endl;
+    if (check_icu_error(
+            status, return_json, "error setting normalization to UCOL_ON")) {
+      return json_object_to_json_string(return_json);
     }
 
     if (strength_obj) {
@@ -204,89 +180,58 @@ const string TestCollator(json_object *json_in) {
       const bool ignore_punctuation_bool = json_object_get_boolean(ignore_obj);
       if (ignore_punctuation_bool) {
         uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
-        if (U_FAILURE(status)) {
-          test_result = error_message;
-          json_object_object_add(
-              return_json,
-              "error", json_object_new_string("error setAttribute"));
-          no_error = false;
-          cout << "# Error in setAttribute: " <<
-              label_string << " : " <<
-              test_result << endl;
+        if (check_icu_error(
+                status, return_json,
+                "set UCOL_ALTERNATE_HANDLING to UCOL_SHIFTED")) {
+          return json_object_to_json_string(return_json);
         }
       }
     }
 
     // Just to check the result.
     uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore return
+    if (check_icu_error(
+            status, return_json,
+            "getet UCOL_ALTERNATE_HANDLING")) {
+      return json_object_to_json_string(return_json);
+    }
 
     // Perform the string comparison
     uni_result = uni_coll->compare(us1, us2, status);
-    if (U_FAILURE(status)) {
-        json_object_object_add(
-            return_json,
-            "error", json_object_new_string("error in uni_coll_compare"));
-      no_error = false;
-      cout << "## Error in uni_coll->compare: " <<
-          label_string << " : " <<
-          error_message << endl;
+    if (check_icu_error( status, return_json, "uni_coll_compare")) {
+      return json_object_to_json_string(return_json);
     }
+
     if (uni_coll) {
       uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore result
     }
     delete uni_coll;
+    if (check_icu_error( status, return_json, "uni_coll->getATTRIBUTE")) {
+      return json_object_to_json_string(return_json);
+    }
   }
 
-  if (no_error) {
-    if (uni_result == UCOL_GREATER) {
-      coll_result = false;
-
+  coll_result = (uni_result != UCOL_GREATER);
+  if (!coll_result) {
+    // Test did not succeed!
+    if (debug) {
       cout << "# UNI_RESULT: " << label_string << " " << uni_result <<
           "  s1: " << string1 << " s2: " << string2 << endl;
-
-      // Check unescaped versions.
-      char char_out1[1000] = "";
-      char char_out2[1000] = "";
-      us1.extract(char_out1, 1000, nullptr, status);  // ignore result
-      if (U_FAILURE(status)) {
-        test_result = error_message;
-        json_object_object_add(
-            return_json,
-            "error", json_object_new_string("error extracting us1"));
-        cout << "# Error in us1.extract: " <<
-            label_string << " : " <<
-            test_result << endl;
-      }
-
-      us2.extract(char_out2, 1000, nullptr, status);  // ignore result
-      if (U_FAILURE(status)) {
-        test_result = error_message;
-        // TODO: report the error in creating the instance
-        test_result = error_message;
-        json_object_object_add(
-            return_json,
-            "error", json_object_new_string("error extracting us2"));
-        cout << "# Error in us2.extract: " <<
-            label_string << " : " <<
-            test_result << endl;
-      }
-
-      // Include data compared in the failing test
-      json_object_object_add(
-          return_json, "s1", json_object_new_string(string1.c_str()));
-      json_object_object_add(
-          return_json, "s2", json_object_new_string(string2.c_str()));
-
-      // Record the actual returned value
-      json_object_object_add(
-          return_json, "compare", json_object_new_int64(uni_result));
-    } else {
-      coll_result = true;
     }
 
+    // Include data compared in the failing test
     json_object_object_add(
-        return_json, "result", json_object_new_boolean(coll_result));
+        return_json, "s1", json_object_new_string(string1.c_str()));
+    json_object_object_add(
+        return_json, "s2", json_object_new_string(string2.c_str()));
+
+    // Record the actual returned value
+    json_object_object_add(
+        return_json, "compare", json_object_new_int64(uni_result));
   }
+
+  json_object_object_add(
+      return_json, "result", json_object_new_boolean(coll_result));
 
   return  json_object_to_json_string(return_json);
 }
