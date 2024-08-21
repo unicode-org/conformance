@@ -132,9 +132,21 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
 
     let locale_json_str: &str = json_obj["locale"].as_str().unwrap();
     let mut locale_str: String = locale_json_str.to_string();
+
     if numbering_system_str.is_some() {
-        locale_str =
-            locale_json_str.to_string() + "-u-nu-" + &numbering_system_str.as_ref().unwrap();
+       let numbering_system = numbering_system_str.as_ref().unwrap();
+       locale_str =
+            locale_json_str.to_string() + "-u-nu-" + numbering_system;
+
+        // TODO: update when ICU4X supports numbering systems.
+        if numbering_system != "latn" {
+            return Ok(json!({
+                "error": "Number system not supported",
+                "error_msg": numbering_system,
+                "label": label,
+                "unsupported": "non-Latn numbering system",
+            }));
+        }
     }
 
     let lang_id = if let Ok(lc) = locale_str.parse::<Locale>() {
