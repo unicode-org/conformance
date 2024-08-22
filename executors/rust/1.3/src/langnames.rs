@@ -7,16 +7,18 @@ use icu::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
 use icu::locid::subtags::Language;
 use icu::locid::Locale;
 
+use icu::displaynames::LanguageDisplay;
+
 // Function runs language names tests
 pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
-    let options: DisplayNamesOptions = Default::default();
+    let mut options : DisplayNamesOptions = Default::default();
 
     let language_label = json_obj["language_label"]
         .as_str()
         .unwrap()
         .replace('_', "-");
-    let input_lang_result = language_label.parse::<Language>();
+    let input_lang_result = language_label.parse::<Locale>();
     let input_lang = match input_lang_result {
         Ok(l) => l,
         Err(_e) => {
@@ -49,8 +51,20 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    let langid_result = locale_name.parse::<Locale>();
+    let language_display_result = json_obj["languageDisplay"].as_str();
+    let language_display : LanguageDisplay = match language_display_result {
+        Some(s) => match s {
+            "standard" => LanguageDisplay::Standard,
+            "dialect" => LanguageDisplay::Dialect,
+            &_ => LanguageDisplay::Standard,
+        },        
+        None => LanguageDisplay::Standard // The default
+    };
 
+    options.language_display = language_display;
+
+    let langid_result = locale_name.parse::<Locale>();
+ 
     let langid = match langid_result {
         Ok(lid) => lid,
         Err(e) => {
@@ -66,6 +80,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
             }))
         }
     };
+
 
     let display_name_formatter = LanguageDisplayNames::try_new(&langid.into(), options);
 
