@@ -2,9 +2,8 @@
 
 use serde_json::{json, Value};
 
-use icu::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
+use icu::displaynames::{DisplayNamesOptions, LocaleDisplayNamesFormatter};
 
-use icu::locid::subtags::Language;
 use icu::locid::Locale;
 
 use icu::displaynames::LanguageDisplay;
@@ -18,8 +17,8 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         .as_str()
         .unwrap()
         .replace('_', "-");
-    let input_lang_result = language_label.parse::<Locale>();
-    let input_lang = match input_lang_result {
+    let input_locale_result = language_label.parse::<Locale>();
+    let input_locale = match input_locale_result {
         Ok(l) => l,
         Err(_e) => {
             return Ok(json!({
@@ -46,7 +45,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "test_type": "display_names",
                 "unsupported": "locale name",
                 "error_type": "unsupported",
-                "error_detail": {"unsupported_locale": &locale_name_result}
+                "error_detail": {"cannot parse locale": &locale_name_result}
             }))
         }
     };
@@ -82,13 +81,13 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
     };
 
 
-    let display_name_formatter = LanguageDisplayNames::try_new(&langid.into(), options);
+    let display_name_formatter = LocaleDisplayNamesFormatter::try_new(&langid.into(), options);
 
     let json_result = match display_name_formatter {
         Ok(formatter) => {
             json!({
                 "label": label,
-                "result":  formatter.of(input_lang)
+                "result":  formatter.of(&input_locale)
             })
         }
         Err(e) => {
@@ -98,7 +97,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "error": e.to_string(),
                 "error_type": "unsupported",
                 "unsupported": e.to_string(),
-                "error_detail": {"unsupported_locale": locale_name}
+                "error_detail": {"formatting fails for": locale_name}
             })
         }
     };
