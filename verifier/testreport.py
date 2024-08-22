@@ -654,6 +654,7 @@ class TestReport:
                         'error_detail',
                         'ignorePunctuation',
                         'language_label',
+                        'languageDisplay',
                         'locale_label',
                         'locale',
                         'options',
