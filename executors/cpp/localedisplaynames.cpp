@@ -30,7 +30,7 @@ using icu::Locale;
 using icu::UnicodeString;
 using icu::LocaleDisplayNames;
 
-const string TestLangNames (json_object *json_in) {
+const string TestLocaleDisplayNames (json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -41,7 +41,7 @@ const string TestLangNames (json_object *json_in) {
       json_object_object_get(json_in, "locale_label");
   string locale_string = json_object_get_string(locale_label_obj);
 
-  // The language's name to be displayed.
+  // The locales's name to be displayed.
   json_object *language_label_obj = json_object_object_get(
       json_in, "language_label");
   string language_label_string = json_object_get_string(language_label_obj);
