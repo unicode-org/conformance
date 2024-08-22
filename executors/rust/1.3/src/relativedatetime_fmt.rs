@@ -1,7 +1,14 @@
 // https://docs.rs/icu/1.3.2/icu/relativetime/struct.RelativeTimeFormatter.html
+// https://docs.rs/icu_provider/1.3.0/icu_provider/struct.DataLocale.html#method.get_unicode_ext
 
 use fixed_decimal::FixedDecimal;
+
+use icu::locid::extensions::unicode;
+use icu::locid::extensions::unicode::key;
 use icu::locid::Locale;
+
+use std::str::FromStr;
+
 use icu_provider::DataLocale;
 
 use icu::relativetime::options::Numeric;
@@ -128,16 +135,13 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     let option_struct: RelativeDateTimeFormatterOptions =
         serde_json::from_str(&options.to_string()).unwrap();
 
-    let numbering_system_str = &option_struct.numbering_system;
+    let numbering_system_str: &Option<String> = &option_struct.numbering_system;
 
+    // Set up the locale with its options.
     let locale_json_str: &str = json_obj["locale"].as_str().unwrap();
-    let mut locale_str: String = locale_json_str.to_string();
-    if numbering_system_str.is_some() {
-        locale_str =
-            locale_json_str.to_string() + "-u-nu-" + &numbering_system_str.as_ref().unwrap();
-    }
+    let locale_str: String = locale_json_str.to_string();
 
-    let lang_id = if let Ok(lc) = locale_str.parse::<Locale>() {
+    let locale_id = if let Ok(lc) = locale_str.parse::<Locale>() {
         lc
     } else {
         return Ok(json!({
@@ -146,7 +150,31 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
             "error_type": "locale problem",
         }));
     };
-    let data_locale = DataLocale::from(lang_id);
+
+    let mut data_locale = DataLocale::from(locale_id);
+
+    if numbering_system_str.is_some() {
+        let numbering_system: &String = numbering_system_str.as_ref().unwrap();
+
+        // Set up the numbering system in the locale.
+        data_locale.set_unicode_ext(
+            key!("nu"),
+            unicode::Value::from_str(numbering_system).unwrap(),
+        );
+
+        // TODO: update when ICU4X supports numbering systems.
+        // Note that "actual_options" returns the expanded locale,
+        // e.g., "actual_options":"DataLocale{en-US-u-nu-arab}"
+        if numbering_system != "latn" {
+            return Ok(json!({
+                "error": "Number system not supported",
+                "error_msg": numbering_system,
+                "error_detail": format!("{data_locale:?}"),
+                "label": label,
+                "unsupported": "non-Latn numbering system",
+            }));
+        }
+    }
 
     let count_str: &str = json_obj["count"].as_str().unwrap();
     let count = count_str
