@@ -1,30 +1,19 @@
 /********************************************************************
- * testing icu4c for language display names
+ * testing icu4c for locale display names
  */
 
 #include <json-c/json.h>
 
 #include <unicode/utypes.h>
-#include <unicode/unistr.h>
 
 #include <unicode/locdspnm.h>
 #include <unicode/uldnames.h>
-#include "unicode/udisplaycontext.h"
+#include <unicode/unistr.h>
 
-#include <unicode/uclean.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <iostream>
 #include <string>
 #include <cstring>
 
 #include "./util.h"
-
-using std::cout;
-using std::endl;
-using std::string;
 
 using icu::Locale;
 using icu::UnicodeString;
@@ -51,17 +40,20 @@ const string TestLocaleDisplayNames (json_object *json_in) {
       json_in, "languageDisplay");
   string language_display_string = json_object_get_string(language_display_obj);
 
+  // In what language to show the locale name
   Locale displayLocale(locale_string.c_str());
 
+  // The id of the locale to be formatted.
   Locale testLocale(language_label_string.c_str());
 
-
-  // Create display names object with the kind of locale name. Default is "standard".
+  // Create display names object with the kind of locale name.
+  // Default is "standard".
   UDialectHandling display_handling = ULDN_STANDARD_NAMES;
   if (language_display_string == "dialect") {
     display_handling = ULDN_DIALECT_NAMES;
   }
-  LocaleDisplayNames* ldn = LocaleDisplayNames::createInstance(displayLocale, display_handling);
+  LocaleDisplayNames* ldn =
+      LocaleDisplayNames::createInstance(displayLocale, display_handling);
 
   // Get the resulting string for this testLocale
   UnicodeString locale_name_result;
