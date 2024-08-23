@@ -2,7 +2,7 @@
 
 module.exports = {
 
-  testLangNames: function (json) {
+  testLocaleDisplayNames: function (json) {
     let locale = 'en';  // Default
     let options = {};
     if (json['locale_label']) {
@@ -21,8 +21,6 @@ module.exports = {
     }
 
     let outputLine;
-    //console.log("langnames input: " + input +
-    //            " options: " + JSON.stringify(options) + " locale " + locale);
 
     let dn;
     try {
@@ -47,7 +45,6 @@ module.exports = {
                     "result": resultString
                    };
     } catch (error) {
-      //console.log("LangName problem: input = " + input + ", error = " + error);
       outputLine = {"label": json['label'],
                     "locale_label": locale,
                     "language_label": input,
