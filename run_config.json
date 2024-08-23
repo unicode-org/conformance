@@ -11,7 +11,6 @@
       "test_type": [
         "collation_short",
         "datetime_fmt",
-        "lang_names",
         "likely_subtags",
         "list_fmt",
         "number_fmt",
@@ -32,7 +31,6 @@
       "test_type": [
         "collation_short",
         "datetime_fmt",
-        "lang_names",
         "likely_subtags",
         "list_fmt",
         "number_fmt",
@@ -113,7 +111,7 @@
     "prereq": {
       "name": "nvm 22..0, icu75.1",
       "version": "22.1.0",
-      "command": "nvm install 22.1.0;nvm use 22.1.0"
+      "command": "nvm install 22.1.0;nvm use 22.1.0 --silent"
     },
     "run": {
       "icu_version": "icu75",
@@ -135,7 +133,7 @@
     "prereq": {
       "name": "nvm",
       "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "command": "nvm install 20.1.0;nvm use 20.1.0 --silent"
     },
     "run": {
       "icu_version": "icu73",
@@ -153,7 +151,7 @@
     "prereq": {
       "name": "nvm 21.6.0, icu74.1",
       "version": "21.6.0",
-      "command": "nvm install 21.6.0;nvm use 21.6.0"
+      "command": "nvm install 21.6.0;nvm use 21.6.0 --silent"
     },
     "run": {
       "icu_version": "icu74",
@@ -175,7 +173,7 @@
     "prereq": {
       "name": "nvm",
       "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "command": "nvm install 20.1.0;nvm use 20.1.0 --silent"
     },
     "run": {
       "icu_version": "icu73",
@@ -197,7 +195,7 @@
     "prereq": {
       "name": "nvm",
       "version": "18.14.2",
-      "command": "nvm install 18.14.2;nvm use 18.14.2"
+      "command": "nvm install 18.14.2;nvm use 18.14.2 --silent"
     },
     "run": {
       "icu_version": "icu72",
@@ -207,7 +205,6 @@
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
-        "lang_names",
         "likely_subtags",
         "rdt_fmt",
         "plural_rules"
@@ -219,7 +216,7 @@
     "prereq": {
       "name": "nvm",
       "version": "18.7.0",
-      "command": "nvm install 18.7.0;nvm use 18.7.0"
+      "command": "nvm install 18.7.0;nvm use 18.7.0 --silent"
     },
     "run": {
       "icu_version": "icu71",
@@ -239,7 +236,7 @@
     "prereq": {
       "name": "nvm",
       "version": "14.21.3",
-      "command": "nvm install 14.21.3;nvm use 14.21.3"
+      "command": "nvm install 14.21.3;nvm use 14.21.3 --silent"
     },
     "run": {
       "icu_version": "icu70",
@@ -255,7 +252,7 @@
     "prereq": {
       "name": "nvm",
       "version": "14.18.3",
-      "command": "nvm install 14.18.3;nvm use 14.18.3"
+      "command": "nvm install 14.18.3;nvm use 14.18.3 --silent"
     },
     "run": {
       "icu_version": "icu69",

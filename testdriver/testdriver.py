@@ -51,7 +51,7 @@ class TestDriver:
                 # Create a test plan based on data and options
                 test_data_info = ddt_data.testDatasets[test_type]
                 if self.debug:
-                    logging.info('$$$$$ test_type = %s test_data_info = %s',
+                    logging.debug('$$$$$ test_type = %s test_data_info = %s',
                                  test_type, test_data_info.testDataFilename)
 
                 for executor in arg_options.exec:
@@ -91,8 +91,7 @@ class TestDriver:
 
         # Get all the arguments
         argparse = ddtargs.DdtArgs(args)
-        if self.debug:
-            logging.info('TestDriver OPTIONS: %s', argparse.getOptions())
+        logging.debug('TestDriver OPTIONS: %s', argparse.getOptions())
 
         # Now use the argparse.options to set the values in the driver
         self.set_args(argparse.getOptions())
@@ -105,13 +104,13 @@ class TestDriver:
             plan.run_plan()
 
     def run_one(self, plan):
-        logging.info("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
+        logging.debug("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
         plan.run_plan()
 
     def run_plans_parallel(self):
         # Testing 15-Jan-2024
         num_processors = mp.cpu_count()
-        logging.info('There are %s processors for %s plans' % (num_processors, len(self.test_plans)))
+        logging.info('TestDriver: %s processors for %s plans' % (num_processors, len(self.test_plans)))
 
         processor_pool = mp.Pool(num_processors)
         with processor_pool as p:
@@ -124,6 +123,9 @@ def main(args):
     driver = TestDriver()
     # print('ARGS = %s' % (args))
     driver.parse_args(args[1:])
+
+    logger = logging.Logger("TEST DRIVER LOGGER")
+    logger.setLevel(logging.INFO)
 
     if driver.run_serial:
         driver.run_plans()
