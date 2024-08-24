@@ -2,7 +2,7 @@ package org.unicode.conformance.testtype.langnames;
 
 public enum LangNamesDisplayOptions {
   STANDARD,
-  DIALECT;  // DIALECT_NAMES is the ICU4J enum
+  DIALECT;  // ULDN_DIALECT_NAMES is the ICU4C enum
 
   public static org.unicode.conformance.testtype.langnames.LangNamesDisplayOptions DEFAULT = STANDARD;
 

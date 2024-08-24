@@ -25,11 +25,8 @@ public class LangNamesTester implements ITestType {
     result.locale_label = (String) inputMapData.get("locale_label", null);
 
     String lang_display_string = (String) inputMapData.get("languageDisplay", null);
-    if (lang_display_string == null || lang_display_string.equals("standard")) {
-      result.language_display = LangNamesDisplayOptions.STANDARD;
-    } else {
-      result.language_display = LangNamesDisplayOptions.DIALECT;
-    }
+    result.language_display = LangNamesDisplayOptions.getFromString(lang_display_string);
+
     return result;
   }
 

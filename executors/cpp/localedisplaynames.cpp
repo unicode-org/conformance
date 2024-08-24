@@ -31,20 +31,24 @@ const string TestLocaleDisplayNames (json_object *json_in) {
   string locale_string = json_object_get_string(locale_label_obj);
 
   // The locales's name to be displayed.
-  json_object *language_label_obj = json_object_object_get(
+  json_object *displayed_locale_label_obj = json_object_object_get(
       json_in, "language_label");
-  string language_label_string = json_object_get_string(language_label_obj);
+  string displayed_locale_label_string =
+      json_object_get_string(displayed_locale_label_obj);
 
   // Either standard or dialect names for the locale.
+  string language_display_string = "standard";
   json_object *language_display_obj = json_object_object_get(
       json_in, "languageDisplay");
-  string language_display_string = json_object_get_string(language_display_obj);
+  if (language_display_obj) {
+    language_display_string = json_object_get_string(language_display_obj);
+  }
 
   // In what language to show the locale name
   Locale displayLocale(locale_string.c_str());
 
   // The id of the locale to be formatted.
-  Locale testLocale(language_label_string.c_str());
+  Locale testLocale(displayed_locale_label_string.c_str());
 
   // Create display names object with the kind of locale name.
   // Default is "standard".
@@ -52,6 +56,7 @@ const string TestLocaleDisplayNames (json_object *json_in) {
   if (language_display_string == "dialect") {
     display_handling = ULDN_DIALECT_NAMES;
   }
+
   LocaleDisplayNames* ldn =
       LocaleDisplayNames::createInstance(displayLocale, display_handling);
 
@@ -72,5 +77,6 @@ const string TestLocaleDisplayNames (json_object *json_in) {
                          "result",
                          json_object_new_string(result_string.c_str()));
 
-  return json_object_to_json_string(return_json);
+  string return_string = json_object_to_json_string(return_json);
+  return return_string;
 }
