@@ -22,7 +22,7 @@ let numberformatter = require('./numberformat.js');
 
 let displaynames = require('./displaynames.js');
 
-let langnames = require('./langnames.js');
+let localedisplaynames = require('./localedisplaynames.js')
 
 let likely_subtags = require('./likely_subtags.js');
 
@@ -62,8 +62,8 @@ const testTypes = {
   TestDateTimeFormat : Symbol("datetime_fmt"),
   TestPluralRules : Symbol("plural_rules"),
   TestDisplayNames : Symbol("display_names"),
-  TestLangNames : Symbol("language_display_name"),
   TestListFmt : Symbol("list_fmt"),
+  TestLocaleDisplayNames : Symbol("language_display_name"),
   TestRelativeDateTimeFormat : Symbol("rdt_fmt")
 };
 
@@ -138,7 +138,7 @@ function parseJsonForTestId(parsed) {
   }
 
   if (testId == "language_display_name" || testId == "lang_names") {
-    return testTypes.TestLangNames;
+    return testTypes.TestLocaleDisplayNames;
   }
 
   if (testId == "datetime_fmt") {
@@ -231,7 +231,7 @@ rl.on('line', function(line) {
       outputLine = displaynames.testDisplayNames(parsedJson);
     } else
     if (test_type == "language_display_name" || test_type == "lang_names") {
-      outputLine = langnames.testLangNames(parsedJson);
+      outputLine = localedisplaynames.testLocaleDisplayNames(parsedJson);
     } else
     if (test_type == "likely_subtags") {
       outputLine = likely_subtags.testLikelySubtags(parsedJson);

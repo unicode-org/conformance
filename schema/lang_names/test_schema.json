@@ -49,6 +49,10 @@
            "description": "locale tag of the source language ",
            "type": "string"
          },
+         "languageDisplay": {
+           "description": "either 'standard' or 'dialect'",
+           "type": "string"
+         },
          "locale_label": {
            "description": "locale tag of the language being described ",
            "type": "string"

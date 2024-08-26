@@ -24,6 +24,9 @@ public class LangNamesTester implements ITestType {
     result.language_label = (String) inputMapData.get("language_label", null);
     result.locale_label = (String) inputMapData.get("locale_label", null);
 
+    String lang_display_string = (String) inputMapData.get("languageDisplay", null);
+    result.language_display = LangNamesDisplayOptions.getFromString(lang_display_string);
+
     return result;
   }
 
@@ -71,6 +74,10 @@ public class LangNamesTester implements ITestType {
   public String getDisplayLanguageString(LangNamesInputJson input) {
     String localeID = input.language_label;
     String displayLocaleID = input.locale_label;
-    return ULocale.getDisplayNameWithDialect(localeID, displayLocaleID);
+    if (input.language_display == LangNamesDisplayOptions.STANDARD) {
+      return ULocale.getDisplayName(localeID, displayLocaleID);
+    } else {
+      return ULocale.getDisplayNameWithDialect(localeID, displayLocaleID);
+    }
   }
 }
