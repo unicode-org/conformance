@@ -1,31 +1,38 @@
-/********************************************************************
+/*
  * testing icu4c relative datetime format
  */
 
+#include <unicode/utypes.h>
+
 #include <json-c/json.h>
 
-#include <math.h>
+#include <unicode/locid.h>
+#include <unicode/reldatefmt.h>
+#include <unicode/udisplaycontext.h>
+#include <unicode/unistr.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <cstring>
 #include <iostream>
 #include <string>
+#include <cstring>
 
-#include "unicode/utypes.h"
-#include "unicode/unistr.h"
-#include "unicode/locid.h"
-#include "unicode/reldatefmt.h"
-#include "unicode/udisplaycontext.h"
+#include "./util.h"
 
 using icu::Locale;
 using icu::NumberFormat;
 using icu::RelativeDateTimeFormatter;
 using icu::UnicodeString;
 
-using std::cout;
-using std::endl;
 using std::string;
+
+/*
+ *  Check for ICU errors and add to output if needed.
+ */
+extern const bool check_icu_error(UErrorCode error_code,
+                                  json_object *return_json,
+                                  string message_to_add_if_error);
 
 UDateRelativeDateTimeFormatterStyle StringToStyleEnum(string style_string) {
   if (style_string == "long") return UDAT_STYLE_LONG;
@@ -34,25 +41,27 @@ UDateRelativeDateTimeFormatterStyle StringToStyleEnum(string style_string) {
   return UDAT_STYLE_LONG;  // Default
 }
 
-UDateRelativeUnit StringToRelativeUnitEnum(string unit_string) {
-  UDateRelativeUnit rel_unit;
+URelativeDateTimeUnit StringToRelativeUnitEnum(string unit_string) {
+  URelativeDateTimeUnit rel_unit;
   if (unit_string == "day") {
-    return UDAT_RELATIVE_DAYS;
+    return UDAT_REL_UNIT_DAY;
   } else if (unit_string == "hour") {
-    return UDAT_RELATIVE_HOURS;
+    return UDAT_REL_UNIT_HOUR;
   } else if (unit_string == "minute") {
-    return UDAT_RELATIVE_MINUTES;
+    return UDAT_REL_UNIT_MINUTE;
   } else if (unit_string == "month") {
-    return UDAT_RELATIVE_MONTHS;
+    return UDAT_REL_UNIT_MONTH;
   } else if (unit_string == "second") {
-    return UDAT_RELATIVE_SECONDS;
+    return UDAT_REL_UNIT_SECOND;
   } else if (unit_string == "week") {
-    return UDAT_RELATIVE_WEEKS;
+    return UDAT_REL_UNIT_WEEK;
+  } else if (unit_string == "quarter") {
+    return UDAT_REL_UNIT_QUARTER;
   } else if (unit_string == "year") {
-    return UDAT_RELATIVE_YEARS;
+    return UDAT_REL_UNIT_YEAR;
   }
   // A default
-  return UDAT_RELATIVE_DAYS;
+  return UDAT_REL_UNIT_DAY;
 }
 
 const string TestRelativeDateTimeFmt(json_object *json_in) {
@@ -88,6 +97,7 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
 
   string style_string = "long";  // Default
   string numbering_system_string = "";  // Default
+  string numeric_option = "";
   if (options_obj) {
     json_object *style_obj = json_object_object_get(options_obj, "style");
     if (style_obj) {
@@ -98,44 +108,17 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
     if (ns_obj) {
       numbering_system_string = json_object_get_string(ns_obj);
     }
+    json_object *numeric_obj = json_object_object_get(options_obj, "numeric");
+    if (numeric_obj) {
+      numeric_option = json_object_get_string(numeric_obj);
+    }
   }
 
   UDateRelativeDateTimeFormatterStyle
       rdtf_style = StringToStyleEnum(style_string);
 
-  UDateRelativeUnit rel_unit;
-  if (unit_string != "quarter") {
-    rel_unit = StringToRelativeUnitEnum(unit_string);
-  } else {
-    // This is not supported.
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("unsupported unit"));
-    json_object_object_add(
-        return_json,
-        "error_type",
-        json_object_new_string("unsupported"));
-    json_object_object_add(
-        return_json,
-        "unsupported",
-        json_object_new_string("Bad relative date time unit"));
-
-    json_object *unit_name_obj =
-        json_object_new_string(unit_string.c_str());
-
-    // Include details about the failure
-    json_object *detail_obj = json_object_new_object();
-    json_object_object_add(detail_obj, "unsupported_unit",
-                           unit_name_obj);
-    json_object_object_add(
-        return_json,
-        "error_detail",
-        detail_obj);
-
-    // This can't be processed so return now.
-    return json_object_to_json_string(return_json);
-  }
+  URelativeDateTimeUnit rel_unit;
+  rel_unit = StringToRelativeUnitEnum(unit_string);
 
   // Add variants to the locale.
   string locale_selection_string = locale_string;
@@ -150,58 +133,32 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   RelativeDateTimeFormatter
       rdtf(display_locale, nf, rdtf_style, cap_context, status);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("Error creating RelativeDateTimeFormatter"));
-    json_object_object_add(
-        return_json,
-        "error_detail",
-        json_object_new_string("no detail available"));
+  if (check_icu_error(status, return_json, "Constructor")) {
     return json_object_to_json_string(return_json);
-  }
-
-  UDateDirection direction = UDAT_DIRECTION_NEXT;
-  if (quantity < 0.0) {
-    direction = UDAT_DIRECTION_LAST;
-  } else if (quantity > 0.0) {
-    direction = UDAT_DIRECTION_NEXT;
   }
 
   // The output of the formatting
   UnicodeString formatted_result;
 
-  rdtf.format(fabs(quantity), direction, rel_unit, formatted_result, status);
+  if (numeric_option == "auto") {
+    rdtf.format(quantity, rel_unit, formatted_result, status);
+  } else {
+    // Default is "always"
+    rdtf.formatNumeric(quantity, rel_unit, formatted_result, status);
+  }
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("Error calling rdtf.format"));
+  if (check_icu_error(status, return_json, "In format or formatNumeric")) {
     return json_object_to_json_string(return_json);
   }
 
   // Get the resulting value as a string
-  char test_result_string[1000] = "";
-  formatted_result.extract(
-      test_result_string, 1000, nullptr, status);  // ignore return value
+  string test_result;
+  formatted_result.toUTF8String(test_result);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("Failed extracting test result"));
-    json_object_object_add(
-        return_json,
-        "error_detail",
-        json_object_new_string("no detail available"));
-  } else {
-    // Good calls all around. Send the result!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result_string));
-  }
+  // Good calls all around. Send the result!
+  json_object_object_add(return_json,
+                         "result",
+                         json_object_new_string(test_result.c_str()));
 
   return json_object_to_json_string(return_json);
 }

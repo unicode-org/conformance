@@ -3,11 +3,11 @@
  */
 #include <json-c/json.h>
 
+#include <unicode/utypes.h>
+
 #include <unicode/listformatter.h>
 #include <unicode/locid.h>
-#include <unicode/uclean.h>
 #include <unicode/unistr.h>
-#include <unicode/utypes.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,12 +18,17 @@
 #include <string>
 #include <string_view>
 
+#include "./util.h"
+
 using icu::ListFormatter;
 using icu::Locale;
 using icu::UnicodeString;
 
+using std::cout;
+using std::endl;
 using std::string;
 
+/* Main test function */
 const string TestListFmt (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
@@ -58,6 +63,7 @@ const string TestListFmt (json_object* json_in) {
     }
     u_strings_size = u_strings.size();
   } else {
+    // TODO: use error return function
     json_object_object_add(
         return_json,
         "error",
@@ -96,10 +102,9 @@ const string TestListFmt (json_object* json_in) {
                                     format_type,
                                     format_width,
                                     status);
-  if (U_FAILURE(status)) {
-    json_object_object_add(return_json,
-                           "error",
-                           json_object_new_string("construct list formatter"));
+  if (check_icu_error(status,
+                      return_json, "construct list formatter")) {
+    return json_object_to_json_string(return_json);
   }
 
   UnicodeString *u_array = &u_strings[0];
@@ -109,28 +114,15 @@ const string TestListFmt (json_object* json_in) {
                                            u_result_string,
                                            status);
 
-  char test_result_string[1000] = "";
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("calling list format"));
-  } else {
-    u_result_string.extract(
-        test_result_string, 1000, nullptr, status);  // result ignored
+  if (check_icu_error(status, return_json, "calling format")) {
+    return json_object_to_json_string(return_json);
   }
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("list format result extract error"));
-  } else {
-    // It all seems to work!
-    json_object_object_add(return_json,
+  string result_string;
+  u_result_string.toUTF8String(result_string);
+  json_object_object_add(return_json,
                            "result",
-                           json_object_new_string(test_result_string));
-  }
+                         json_object_new_string(result_string.c_str()));
 
   // The JSON output.
   return  json_object_to_json_string(return_json);

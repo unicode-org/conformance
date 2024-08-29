@@ -427,9 +427,10 @@ function generateAll(run_limit) {
 
           let this_date = dates[date_index];
 
+          // Set up the instant in UTC.
           // Get the temporal representation, including TZ and calendar
           let temporal_date = temporal_dates[date_index];
-          temporal_date['timeZone'] = timezone;
+          temporal_date['timeZone'] = 'UTC';
 
           try {
             let vanilla_locale = 'en-US';
@@ -583,7 +584,7 @@ function generateAll(run_limit) {
 
   test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null));
+    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null, 2));
     // file written successfully
   } catch (err) {
     console.error(err);
