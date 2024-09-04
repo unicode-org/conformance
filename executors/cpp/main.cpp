@@ -41,7 +41,7 @@ using std::string;
 // Test functions
 extern const string TestCollator(json_object *json_in);
 extern const string TestDatetimeFmt(json_object *json_in);
-extern const string TestLangNames(json_object *json_in);
+extern const string TestLocaleDisplayNames(json_object *json_in);
 extern const string TestLikelySubtags(json_object *json_in);
 extern const string TestListFmt(json_object *json_in);
 
@@ -127,7 +127,7 @@ int main(int argc, const char** argv) {
       } else if (test_type == "list_fmt") {
         outputLine = TestListFmt(json_input);
       } else if (test_type == "lang_names") {
-        outputLine = TestLangNames(json_input);
+        outputLine = TestLocaleDisplayNames(json_input);
       } else if (test_type == "plural_rules") {
         outputLine = TestPluralRules(json_input);
       } else if (test_type == "rdt_fmt") {

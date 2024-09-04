@@ -60,6 +60,9 @@ class Verifier:
 
         logging.config.fileConfig("../logging.conf")
 
+        logger = logging.Logger("VERIFIER LOGGER")
+        logger.setLevel(logging.WARNING)
+
     def open_verify_files(self, vplan):
         # Get test data, verify data, and results for a case.
         try:
@@ -282,7 +285,7 @@ class Verifier:
     def setup_paths(self, executor, testfile, verify_file):
         base_dir = self.file_base
         if self.debug > 1:
-            logging.deubg('&&& FILE BASE = %s', base_dir)
+            logging.debug('&&& FILE BASE = %s', base_dir)
             # Check on the path defined here
             test_output_dir = 'testOutput'
             self.resultPath = os.path.join(
