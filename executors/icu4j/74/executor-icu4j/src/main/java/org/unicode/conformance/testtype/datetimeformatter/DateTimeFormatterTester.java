@@ -65,7 +65,7 @@ public class DateTimeFormatterTester implements ITestType {
         .setUnicodeLocaleKeyword("ca", result.calendar_string)
         .build();
 
-    result.calendar = Calendar.getInstance();
+    result.calendar = Calendar.getInstance(result.locale_with_calendar);
 
     result.numberingSystem = (String) inputOptions.get("numberingSystem");
 

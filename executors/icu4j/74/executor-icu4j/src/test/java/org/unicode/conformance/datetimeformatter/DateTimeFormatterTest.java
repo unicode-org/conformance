@@ -132,4 +132,19 @@ public class DateTimeFormatterTest {
 
     assertEquals("3/7/24", output.result);
   }
+
+  @Test
+  public void testDate217() {
+    String testInput =
+        "\t{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z[UTC][u-ca=gregory]\"," +
+            "\"locale\":\"en-US\"," +
+            "\"options\":{\"dateStyle\":\"short\",\"timeStyle\":\"short\",\"calendar\":\"buddhist\",\"timeZone\":\"America/Los_Angeles\",\"numberingSystem\":\"latn\"}," +
+            "\"hexhash\":\"d099e6a6a45df0ce89f1e60d9d5caa85fc64da28\",\"label\":\"217\"}";
+
+    DateTimeFormatterOutputJson output =
+        (DateTimeFormatterOutputJson) DateTimeFormatterTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+
+    assertEquals("3/6/2567 BE, 4:00 PM", output.result);
+  }
 }
