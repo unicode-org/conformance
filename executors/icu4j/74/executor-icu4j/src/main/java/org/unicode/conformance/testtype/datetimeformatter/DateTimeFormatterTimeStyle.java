@@ -4,7 +4,8 @@ public enum DateTimeFormatterTimeStyle {
   FULL,
   LONG,
   MEDIUM,
-  SHORT;
+  SHORT,
+  UNDEFINED;
 
   public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterTimeStyle DEFAULT = MEDIUM;
 
@@ -14,7 +15,7 @@ public enum DateTimeFormatterTimeStyle {
       return org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterTimeStyle.valueOf(
           s.toUpperCase());
     } catch (Exception e) {
-      return DEFAULT;
+      return UNDEFINED;
     }
   }
 

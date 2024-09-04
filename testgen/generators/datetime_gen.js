@@ -463,6 +463,9 @@ function generateAll(run_limit) {
           let zdt_full = Temporal.ZonedDateTime.from(temporal_date);
           input_string = zdt_full.toString();
 
+          // Hack to get parsing to work in ICU4J
+          input_string = input_string.replace("+00:00", ".00Z");
+
           // !! TEMPORARY !!
           // console.log(' TEMPORAL %s %s %s', label_num, input_string, this_date);
 
