@@ -109,15 +109,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         length::Bag::default()
     };
 
-    // Get ISO input string including offset and time zone
+    // Get ISO instant in UTC time zone
     let input_iso = &json_obj["input_string"].as_str().unwrap();
-    //    let input_iso: String = input_time_string.to_string() + "[-00:00]";
 
     let dt_iso = IxdtfParser::new(input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
     let tz_offset = dt_iso.offset.unwrap();
-    let _tz_annotation = dt_iso.tz.unwrap();
 
     let datetime_iso = DateTime::try_new_iso_datetime(
         date.year,
@@ -141,9 +139,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let mzc = MetazoneCalculator::new();
     let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
 
-    // Compute the seconds for the
+    // Compute seconds of the difference from UTC.
     let offset_seconds = GmtOffset::try_from_offset_seconds(
-        tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
+        tz_offset.sign as i32 * (
+            tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
     )
     .ok();
 
@@ -158,6 +157,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         // Defaults to UTC
         CustomTimeZone::utc()
     };
+
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.
