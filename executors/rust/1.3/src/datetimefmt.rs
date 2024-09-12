@@ -141,8 +141,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // Compute seconds of the difference from UTC.
     let offset_seconds = GmtOffset::try_from_offset_seconds(
-        tz_offset.sign as i32 * (
-            tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
+        tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
     )
     .ok();
 
@@ -157,7 +156,6 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         // Defaults to UTC
         CustomTimeZone::utc()
     };
-
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.
