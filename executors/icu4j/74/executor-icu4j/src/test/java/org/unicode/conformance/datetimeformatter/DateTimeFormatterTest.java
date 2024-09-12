@@ -12,7 +12,7 @@ public class DateTimeFormatterTest {
   @Test
   public void TestDateTime49() {
     String testInput =
-        "{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z[u-ca=gregory]\","
+        "{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z\","
             +
             "\"skeleton\":\"j\",\"locale\":\"en-US\",\"options\":{\"hour\":\"numeric\",\"calendar\":\"gregory\","
             +
@@ -43,7 +43,7 @@ public class DateTimeFormatterTest {
   @Test
   public void testDateTime0x() {
     String testInput =
-        "{\"test_type\":\"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z[UTC][u-ca=gregory]\","
+        "{\"test_type\":\"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z\","
             +
             "\"locale\":\"en-US\",\"options\":{\"dateStyle\":\"short\",\"timeStyle\":\"short\"," +
             "\"calendar\":\"gregory\",\"timeZone\":\"UTC\",\"numberingSystem\":\"latn\"}," +
@@ -59,7 +59,7 @@ public class DateTimeFormatterTest {
   @Test
   public void testDateTime3864() {
     String testInput =
-        "{\"test_type\":\"datetime_fmt\",\"input_string\":\"2024-03-07T00:00:12.00Z[UTC][u-ca=gregory]\","
+        "{\"test_type\":\"datetime_fmt\",\"input_string\":\"2024-03-07T00:00:12.00Z\","
             +
             "\"locale\":\"zh-TW\",\"options\":{\"dateStyle\":\"short\",\"timeStyle\":\"short\"," +
             "\"calendar\":\"gregory\",\"timeZone\":\"UTC\",\"numberingSystem\":\"latn\"}," +
@@ -106,7 +106,7 @@ public class DateTimeFormatterTest {
 
   @Test
   public void testDateTime0() {
-    String testInput = "\t{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z[UTC][u-ca=gregory]\"," +
+    String testInput = "\t{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z\"," +
         "\"locale\":\"en-US\",\"options\":{\"dateStyle\":\"short\",\"timeStyle\":\"short\",\"calendar\":\"gregory\"," +
         "\"timeZone\":\"UTC\",\"numberingSystem\":\"latn\"},\"hexhash\":\"048d17f248ef4f6835d6b9b3bcbfdc934f3fcad5\",\"label\":\"0\"}";
 
@@ -121,7 +121,7 @@ public class DateTimeFormatterTest {
   public void testDate35() {
     String testInput =
     "\t{\"test_type\": \"datetime_fmt\"," +
-        "\"input_string\":\"2024-03-07T00:00:01.00Z[UTC][u-ca=gregory]\"," +
+        "\"input_string\":\"2024-03-07T00:00:01.00Z\"," +
         "\"locale\":\"en-US\"," +
         "\"options\":{\"dateStyle\":\"long\",\"calendar\":\"gregory\",\"timeZone\":\"Asia/Tehran\",\"numberingSystem\":\"latn\"}," +
         "\"hexhash\":\"27b3476384c651ce0812edd378f127c1b3eb1dae\",\"label\":\"35\"}";
@@ -136,7 +136,7 @@ public class DateTimeFormatterTest {
   @Test
   public void testDate217() {
     String testInput =
-        "\t{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z[UTC][u-ca=gregory]\"," +
+        "\t{\"test_type\": \"datetime_fmt\", \"input_string\":\"2024-03-07T00:00:01.00Z\"," +
             "\"locale\":\"en-US\"," +
             "\"options\":{\"dateStyle\":\"short\",\"timeStyle\":\"short\",\"calendar\":\"buddhist\",\"timeZone\":\"America/Los_Angeles\",\"numberingSystem\":\"latn\"}," +
             "\"hexhash\":\"d099e6a6a45df0ce89f1e60d9d5caa85fc64da28\",\"label\":\"217\"}";

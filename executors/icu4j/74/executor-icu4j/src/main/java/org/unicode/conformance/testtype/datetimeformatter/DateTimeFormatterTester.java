@@ -46,8 +46,7 @@ public class DateTimeFormatterTester implements ITestType {
     }
 
     // Extract ISO part of the input string to parse.
-    String inputStringDateTime = result.inputString.substring(0, 23);
-    result.time_instant = Instant.parse(inputStringDateTime);
+    result.time_instant = Instant.parse(result.inputString);
     result.myDate = Date.from(result.time_instant);
 
     // For parsing the input string and converting to java.util.date

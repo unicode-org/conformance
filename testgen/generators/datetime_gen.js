@@ -27,15 +27,15 @@ const skip_things = false;  // To limit some options for generating tests
 let use_milliseconds = false;
 
 // Add numbering system to the test options
-// Don't test these across all other options, however.
+// Do not test these across all other options, however.
 const numbering_systems = ['latn', 'arab', 'beng']
 
 // ICU4X locales, maybe 20
 const locales = [
   'en-US', 'en-GB',
   'zh-TW', 'vi', 'ar', 'mt-MT',
-  'bn', 'zu',
-  'und'];
+  'bn', 'zu'
+];
 
 // maybe 10 calendars
 const calendars = ['gregory',
@@ -125,7 +125,7 @@ const dates = [
 
 let temporal_dates = [
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 2024,
     month: 3,
     day: 7,
@@ -138,7 +138,7 @@ let temporal_dates = [
     calendar: "gregory"
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 2001,
     month: 7,
     day: 2,
@@ -150,7 +150,7 @@ let temporal_dates = [
     nanosecond: 0
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 1984,
     month: 5,
     day: 29,
@@ -162,7 +162,7 @@ let temporal_dates = [
     nanosecond: 0
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 2030,
     month: 5,
     day: 29,
@@ -174,7 +174,7 @@ let temporal_dates = [
     nanosecond: 0
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 1969,
     month: 7,
     day: 16,
@@ -185,8 +185,8 @@ let temporal_dates = [
     microsecond: 0,
     nanosecond: 0
   },
-  {  // 1e9
-    timeZone: 'America/Los_Angeles',
+  {  // Approximately 1e9
+    timeZone: 'UTC',
     year: 1970,
     month: 1,
     day: 12,
@@ -197,8 +197,8 @@ let temporal_dates = [
     microsecond: 0,
     nanosecond: 0
   },
-  {  // 1e12
-    timeZone: 'America/Los_Angeles',
+  {  // Approximately 1e12
+    timeZone: 'UTC',
     year: 2001,
     month: 9,
     day: 9,
@@ -425,49 +425,16 @@ function generateAll(run_limit) {
         for (const date_index in dates) {
           label_num ++;
 
-          let this_date = dates[date_index];
-
           // Set up the instant in UTC.
-          // Get the temporal representation, including TZ and calendar
+          // Get the temporal representation,
           let temporal_date = temporal_dates[date_index];
-          temporal_date['timeZone'] = 'UTC';
+          let zdt = Temporal.ZonedDateTime.from(temporal_date);
+          let temporal_instant = zdt.toInstant();
 
-          try {
-            let vanilla_locale = 'en-US';
-            let vanilla_calendar = 'gregory';
-            // temporal_date['calendar'] = vanilla_calendar;
+          // Get the ISO string with 'Z'.
+          let input_string = temporal_instant.toString();
 
-            // For computing the string with Date
-            let zdt_vanilla = Temporal.ZonedDateTime.from(temporal_date);
-            try {
-              this_date = new Date(zdt_vanilla.epochMilliseconds);
-            } catch (error) {
-              console.log('new Date fail %s with %s on %s', error,
-                          temporal_date);
-              continue;
-            }
-            if (! this_date) {
-              console.log('$$$$ %s no date from zdt_to_date. %s, %s %s %s',
-                          label_num, zdt_vanilla, temporal_date,
-                          vanilla_locale, vanilla_calendar);
-              continue;
-            }
-          } catch (error) {
-            console.log(' SKIPPING %s temporal.from %s: input: %s',
-                        label_num, error, temporal_date);
-            continue;
-          }
-
-          // Get the ISO string with
-          // temporal_date['calendar'] = calendar;
-          let zdt_full = Temporal.ZonedDateTime.from(temporal_date);
-          input_string = zdt_full.toString();
-
-          // Hack to get parsing to work in ICU4J
-          input_string = input_string.replace("+00:00", ".00Z");
-
-          // !! TEMPORARY !!
-          // console.log(' TEMPORAL %s %s %s', label_num, input_string, this_date);
+          let this_date = new Date(temporal_instant.epochMilliseconds);
 
           let result;
           let parts;
