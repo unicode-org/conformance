@@ -80,7 +80,6 @@ const string TestDatetimeFmt(json_object *json_in) {
       string timezone_str = json_object_get_string(option_item);
       UnicodeString u_tz(timezone_str.c_str());
       tz = TimeZone::createTimeZone(u_tz);
-      cout << "TimeZone set to " << timezone_str << endl;
     }
 
     json_object* cal_item =
@@ -95,14 +94,10 @@ const string TestDatetimeFmt(json_object *json_in) {
   display_locale = locale_string.c_str();
 
   if (tz) {
-    cout << "TIMEZONE used " << endl;
     cal = Calendar::createInstance(tz, display_locale, status);
-    // ???    cal = Calendar::createInstance(*tz, display_locale, status);
   } else {
     cal = Calendar::createInstance(display_locale, status);
   }
-  // TRY WITHOUT TZ here.
-
   if (U_FAILURE(status)) {
     json_object_object_add(
         return_json,
