@@ -431,10 +431,22 @@ function generateAll(run_limit) {
           let zdt = Temporal.ZonedDateTime.from(temporal_date);
           let temporal_instant = zdt.toInstant();
 
+          let zone_temporal_date = temporal_dates[date_index];
+          zone_temporal_date['timeZone'] = timezone;
+          let zdt_zoned = Temporal.ZonedDateTime.from(zone_temporal_date);
+          const zoned_input_string = zdt_zoned.toString();
+          const offset_part = zoned_input_string.substring(19,25);
+          const hours = offset_part.substring(0,3);
+          const minutes = offset_part.substring(4,6)
+          const tz_offset_secs =
+              3600 * Number(hours)+ 60 * Number(minutes);
+
           // Get the ISO string with 'Z'.
           let input_string = temporal_instant.toString();
 
           let this_date = new Date(temporal_instant.epochMilliseconds);
+
+          const full_input_string = zdt.toString();
 
           let result;
           let parts;
@@ -501,7 +513,8 @@ function generateAll(run_limit) {
           const label_string = String(label_num);
 
           let test_case = {
-            'input_string': input_string
+            'input_string': input_string,
+            'tz_offset_secs': tz_offset_secs
           };
 
           if (skeleton) {
