@@ -515,7 +515,7 @@ function generateAll(run_limit) {
           let test_case = {
             'input_string': input_string,
             'tz_offset_secs': tz_offset_secs
-          };
+          }
 
           if (skeleton) {
             test_case['skeleton'] = skeleton;

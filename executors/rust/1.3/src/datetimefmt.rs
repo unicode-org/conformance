@@ -112,10 +112,12 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     // Get ISO instant in UTC time zone
     let input_iso = &json_obj["input_string"].as_str().unwrap();
 
+    // Get offset seconds for this timezone from the input data.
+    let tz_offset_seconds = json_obj["tz_offset_secs"].as_i64().unwrap() as i32;
+
     let dt_iso = IxdtfParser::new(input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
-    let tz_offset = dt_iso.offset.unwrap();
 
     let datetime_iso = DateTime::try_new_iso_datetime(
         date.year,
@@ -139,22 +141,14 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let mzc = MetazoneCalculator::new();
     let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
 
-    // Compute seconds of the difference from UTC.
-    let offset_seconds = GmtOffset::try_from_offset_seconds(
-        tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
-    )
-    .ok();
+    // Seconds of the difference from UTC.
+    let offset_seconds = GmtOffset::try_from_offset_seconds(tz_offset_seconds).ok();
 
-    let time_zone = if timezone_str.is_some() {
-        CustomTimeZone {
-            gmt_offset: offset_seconds,
-            time_zone_id: mapped_tz,
-            metazone_id: my_metazone_id,
-            zone_variant: None,
-        }
-    } else {
-        // Defaults to UTC
-        CustomTimeZone::utc()
+    let time_zone = CustomTimeZone {
+        gmt_offset: offset_seconds,
+        time_zone_id: mapped_tz,
+        metazone_id: my_metazone_id,
+        zone_variant: None,
     };
 
     // The constructor is called with the given options
@@ -185,6 +179,6 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         "label": label,
         "result": result_string,
         "actual_options":
-        format!("{tz_offset:?}, {dt_options:?}, {time_zone:?}"),  // , {dt_iso:?}"),
+        format!("{dt_options:?}, {time_zone:?}"),
     }))
 }
