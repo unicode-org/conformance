@@ -36,7 +36,7 @@ const locales = [
   'en-US', 'en-GB',
   'zh-TW', 'vi', 'ar', 'mt-MT',
   'bn', 'zu'
-]:
+];
 
       // maybe 10 calendars
 const calendars = ['gregory',
