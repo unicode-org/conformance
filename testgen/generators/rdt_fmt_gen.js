@@ -21,11 +21,12 @@ const debug = false;
 // Add numbering system to the test options
 const numbering_systems = [null, 'latn', 'arab', 'beng', 'adlm']
 
+// Don't include "und" as a locale because the behavior depends on the platform.
 const locales = [
   'en-US', 'en-GB',
   'zh-TW', 'vi', 'el', 'mt-MT',
   'bn', 'zu',
-  'und'];
+];
 
 const spec_options = [null,
                       {'style': 'long'},
