@@ -14,10 +14,11 @@ const fs = require('node:fs');
 
 let debug = false;
 
-const locales = ['und',
-                 'en-US', 'zh-TW', 'es',
-                 'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
-                 'bn', 'ar','mr', 'zu'];
+// Don't include "und" as a locale because the behavior depends on the platform.
+const locales = [
+  'en-US', 'zh-TW', 'es',
+  'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
+  'bn', 'ar','mr', 'zu'];
 
 const types = ['conjunction', 'disjunction', 'unit'];
 
@@ -122,11 +123,11 @@ function generateAll() {
           // TODO: Save this as a test case.
           let test_list;
           let test_case = {
-                           'input_list': list,
-                           'options': {...all_options}
-                          };
+            'input_list': list,
+            'options': {...all_options}
+          };
           gen_hash.generate_hash_for_test(test_case);
-            test_case['label'] = label_string;
+          test_case['label'] = label_string;
 
           if (locale != '') {
             test_case["locale"] = locale;
