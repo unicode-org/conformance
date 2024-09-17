@@ -589,6 +589,9 @@ class TestReport:
         for test in test_list:
             # Get input_data, if available
             input_data = test.get('input_data', None)
+            if not input_data:
+                # Why no data?
+                continue
 
             label = test.get('label', '')
 
