@@ -2,7 +2,7 @@
 
 module.exports = {
 
-  testLangNames: function (json) {
+  testLocaleDisplayNames: function (json) {
     let locale = 'en';  // Default
     let options = {};
     if (json['locale_label']) {
@@ -15,9 +15,12 @@ module.exports = {
     let label = json['label'];
     let input = json['language_label'].replace(/_/g, '-');
 
+    if (json['languageDisplay']) {
+      // Fix to use dash, not underscore.
+      options['languageDisplay'] = json['languageDisplay'];
+    }
+
     let outputLine;
-    //console.log("langnames input: " + input +
-    //            " options: " + JSON.stringify(options) + " locale " + locale);
 
     let dn;
     try {
@@ -42,12 +45,12 @@ module.exports = {
                     "result": resultString
                    };
     } catch (error) {
-      //console.log("LangName problem: input = " + input + ", error = " + error);
       outputLine = {"label": json['label'],
                     "locale_label": locale,
                     "language_label": input,
                     "result": resultString,
-                    "error": error.toString()
+                    "error": error.toString(),
+                    "actual_options": options.toString()
                    };
     }
     return outputLine;

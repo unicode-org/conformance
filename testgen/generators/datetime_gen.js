@@ -31,13 +31,14 @@ let use_milliseconds = false;
 const numbering_systems = ['latn', 'arab', 'beng']
 
 // ICU4X locales, maybe 20
+// Don't include "und" as a locale because the behavior depends on the platform.
 const locales = [
   'en-US', 'en-GB',
   'zh-TW', 'vi', 'ar', 'mt-MT',
-  'bn', 'zu',
-  'und'];
+  'bn', 'zu'
+];
 
-// maybe 10 calendars
+      // maybe 10 calendars
 const calendars = ['gregory',
                    'buddhist', 'hebrew', 'chinese', 'roc', 'japanese',
                    'islamic', 'islamic-umalqura', 'persian'
@@ -246,11 +247,11 @@ const dt_fields = {
   },
   'minute': {
     'numeric': 'm',
-  //  '2-digit': 'mm'
+    //  '2-digit': 'mm'
   },
   'second': {
     'numeric': 's',
-//    '2-digit': 'ss'
+    //    '2-digit': 'ss'
   },
   'fractionalSecondDigits': {
     1:'S', 2:'SS', 3:'SSS'},

@@ -13,9 +13,9 @@ public interface ITestType {
   default ITestTypeInputJson parseInputJson(String inputLine) {
     io.lacuna.bifurcan.Map<String,Object> inputMapData =
         parseInput(inputLine);
-      ITestTypeInputJson inputJson = inputMapToJson(inputMapData);
+    ITestTypeInputJson inputJson = inputMapToJson(inputMapData);
 
-      return inputJson;
+    return inputJson;
   }
 
   ITestTypeOutputJson execute(ITestTypeInputJson inputJson);

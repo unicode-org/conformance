@@ -1,4 +1,4 @@
-package org.unicode.conformance.collator;
+package org.unicode.conformance.collator.icu74;
 
 import static org.junit.Assert.assertTrue;
 

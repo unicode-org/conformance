@@ -2,22 +2,23 @@
 
 use serde_json::{json, Value};
 
-use icu::displaynames::{DisplayNamesOptions, LanguageDisplayNames};
+use icu::displaynames::{DisplayNamesOptions, LocaleDisplayNamesFormatter};
 
-use icu::locid::subtags::Language;
 use icu::locid::Locale;
 
-// Function runs language names tests
-pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
+use icu::displaynames::LanguageDisplay;
+
+// Function runs locale names tests
+pub fn run_locale_name_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
-    let options: DisplayNamesOptions = Default::default();
+    let mut options: DisplayNamesOptions = Default::default();
 
     let language_label = json_obj["language_label"]
         .as_str()
         .unwrap()
         .replace('_', "-");
-    let input_lang_result = language_label.parse::<Language>();
-    let input_lang = match input_lang_result {
+    let input_locale_result = language_label.parse::<Locale>();
+    let input_locale = match input_locale_result {
         Ok(l) => l,
         Err(_e) => {
             return Ok(json!({
@@ -44,10 +45,23 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "test_type": "display_names",
                 "unsupported": "locale name",
                 "error_type": "unsupported",
-                "error_detail": {"unsupported_locale": &locale_name_result}
+                "error_detail": {"cannot parse locale": &locale_name_result}
             }))
         }
     };
+
+    // Get either standard or dialect form of locale name.
+    let language_display_result = json_obj["languageDisplay"].as_str();
+    let language_display: LanguageDisplay = match language_display_result {
+        Some(s) => match s {
+            "standard" => LanguageDisplay::Standard,
+            "dialect" => LanguageDisplay::Dialect,
+            &_ => LanguageDisplay::Standard,
+        },
+        None => LanguageDisplay::Standard, // The default
+    };
+
+    options.language_display = language_display;
 
     let langid_result = locale_name.parse::<Locale>();
 
@@ -67,13 +81,13 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    let display_name_formatter = LanguageDisplayNames::try_new(&langid.into(), options);
+    let display_name_formatter = LocaleDisplayNamesFormatter::try_new(&langid.into(), options);
 
     let json_result = match display_name_formatter {
         Ok(formatter) => {
             json!({
                 "label": label,
-                "result":  formatter.of(input_lang)
+                "result":  formatter.of(&input_locale)
             })
         }
         Err(e) => {
@@ -83,7 +97,7 @@ pub fn run_language_name_test(json_obj: &Value) -> Result<Value, String> {
                 "error": e.to_string(),
                 "error_type": "unsupported",
                 "unsupported": e.to_string(),
-                "error_detail": {"unsupported_locale": locale_name}
+                "error_detail": {"formatting fails for": locale_name}
             })
         }
     };

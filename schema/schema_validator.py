@@ -27,7 +27,7 @@ ch.setLevel(logging.INFO)
 
 def parallel_validate_schema(validator, json_pairs):
         num_processors = mp.cpu_count()
-        loging.info('JSON validation: %s processors for %s plans' % num_processors, len(file_names))
+        logging.info('JSON validation: %s processors for %s plans' % num_processors, len(file_names))
 
         # How to get all the results
         processor_pool = mp.Pool(num_processors)
@@ -134,7 +134,7 @@ class ConformanceSchemaValidator():
                 if file_path_pair:
                     schema_test_info.append(file_path_pair)
                 else:
-                    # logging.info('No data test file  %s for %s, %s', file_path_pair, test_type, icu_version)
+                    logging.debug('No data test file  %s for %s, %s', file_path_pair, test_type, icu_version)
                     pass
         results = self.parallel_check_test_data_schema(schema_test_info)
 
@@ -148,7 +148,7 @@ class ConformanceSchemaValidator():
                 logging.warning('FAIL: Test data %s, %s. MSG=%s',
                                 test_type, icu_version, result_data['err_info'])
             else:
-                logging.info('Test data validated: %s %s', result_data['test_type'], result_data['icu_version'])
+                logging.debug('Test data validated: %s %s', result_data['test_type'], result_data['icu_version'])
             all_results.append(result_data)
         return all_results
 
@@ -207,7 +207,7 @@ class ConformanceSchemaValidator():
 
     def check_test_data_schema(self, icu_version, test_type):
         # Check the generated test data for structure agains the schema
-        logging.info('Validating %s with %s', test_type, icu_version)
+        logging.debug('Validating %s with %s', test_type, icu_version)
 
         # Check test output vs. the test data schema
         schema_verify_file = os.path.join( self.schema_base, test_type, 'test_schema.json')
@@ -238,7 +238,7 @@ class ConformanceSchemaValidator():
             test_result = result
         results['result'] = result
         if result:
-            logging.info('Test data %s validated successfully, with ICU %s', test_type, icu_version)
+            logging.debug('Test data %s validated successfully, with ICU %s', test_type, icu_version)
         else:
             logging.error('Test data %s FAILED with ICU %s: %s', test_type, icu_version, err_info)
 
@@ -265,7 +265,7 @@ class ConformanceSchemaValidator():
 
     def check_test_output_schema(self, icu_version, test_type, executor):
         # Check the output of the tests for structure against the schema
-        logging.info('Validating test output: %s %s %s', executor , test_type, icu_version)
+        logging.debug('Validating test output: %s %s %s', executor , test_type, icu_version)
 
         # Check test output vs. the schema
         schema_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['schema_file']

@@ -3,6 +3,9 @@
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
 
+# For identifying test cases that are known problems
+from check_known_issues import check_issues
+
 from collections import defaultdict
 
 from difflib import HtmlDiff
@@ -39,6 +42,17 @@ def dict_to_html(dict_data):
 def sort_dict_by_count(dict_data):
     return sorted(dict_data.items(),
                   key=lambda item: len(item[1]), reverse=True)
+
+
+class result_class_data():
+    # Claas containing results for a type or result, e.g.,
+    # for passing, failing, error, unsupported, known_issue
+    def __init__(self, class_name, test_template, summary_template, result_table_template, compute_fn):
+        self.name = class_name
+        self.test_template = test_template,
+        self.summary_template = summary_template
+        self.result_table_template = result_table_template
+        self.summary_compute_fn = compute_fn
 
 
 class DiffSummary:
@@ -100,6 +114,62 @@ class TestReport:
         self.passing_tests = []
         self.test_errors = []
         self.unsupported_cases = []
+        self.known_issues = []
+
+        self.templates = templates = reportTemplate()
+
+        # For a simple template replacement
+        self.report_html_template = templates.reportOutline()
+
+        self.error_table_template = templates.error_table_template
+        self.test_error_summary_template = templates.test_error_summary_template
+        self.test_error_detail_template = templates.test_error_detail_template
+
+        self.unsupported_table_template = templates.unsupported_table_template
+        self.unsupported_summary_template = templates.unsupported_table_template
+
+        self.known_issue_table_template = templates.known_issue_table_template
+        self.known_issue_summary_template = templates.known_issue_table_template
+
+        self.fail_line_template = templates.fail_line_template
+
+
+        self.passing_data = result_class_data(
+            'passing',
+            None,
+            None,
+            None,
+            None)
+
+        self.failing_data = result_class_data(
+            'failing',
+            None,
+            templates.fail_line_template,
+            templates.test_error_summary_template,
+            None)
+
+        self.error_data = result_class_data(
+            'errors',
+            None,
+            templates.error_table_template,
+            templates.test_error_summary_template,
+            self.compute_test_error_summary)
+
+        self.unsupported_data = result_class_data(
+            'unsupported',
+            None,  # ??self.test_unsupported_template,
+            self.test_error_summary_template,
+            templates.unsupported_table_template,
+            self.compute_unsupported_category_summary)
+
+        self.known_issue_data = result_class_data(
+            'known_issues',
+            None,
+            self.known_issue_summary_template,
+            templates.known_issue_table_template,
+            self.compute_known_issue_category_summary)
+
+        self.known_issues = []
 
         self.test_type = None
         self.exec = None
@@ -111,24 +181,7 @@ class TestReport:
 
         self.diff_summary = DiffSummary()
 
-        templates = reportTemplate()
-        self.templates = templates
-
         self.differ = Differ()
-
-        # For a simple template replacement
-        self.report_html_template = templates.reportOutline()
-
-        self.error_table_template = templates.error_table_template
-        self.test_error_summary_template = templates.test_error_summary_template
-
-        self.unsupported_table_template = templates.unsupported_table_template
-
-        self.fail_line_template = templates.fail_line_template
-
-        self.test_error_detail_template = templates.test_error_detail_template
-
-        self.test_unsupported_template = templates.test_unsupported_template
 
         logging.config.fileConfig("../logging.conf")
 
@@ -147,6 +200,9 @@ class TestReport:
     def record_unsupported(self, test):
         self.unsupported_cases.append(test)
 
+    def record_known_issue(self, test):
+        self.known_issues.append(test)
+
     def record_missing_verify_data(self, test):
         self.missing_verify_data.append(test)
 
@@ -159,21 +215,21 @@ class TestReport:
         for error in test_errors:
             try:
                 label = error['label']
-                details = error.get('error_detail')
+                details = error.get('error_detail', None)
                 if not details:
                     # Try getting the group_tag
-                    details = error.get(group_tag)
+                    details = error.get(group_tag, None)
                 if isinstance(details, str):
                     detail = details
                     group = group_tag
                 else:
-                    detail = details.get(group_tag)
+                    detail = details.get(group_tag, None)
                     group = group_tag
 
                 if group:
-                    if not groups.get(group):
+                    if not groups.get(group, None):
                         groups[group] = {detail: []}  # insert empty list
-                    if not groups[group].get(detail):
+                    if not groups[group].get(detail, None):
                         groups[group][detail] = [label]
                     else:
                         groups[group][detail].append(label)
@@ -186,22 +242,27 @@ class TestReport:
         # For the items, count messages and arguments for each
         groups = {}
         for case in unsupported_cases:
-            error_detail = case.get('error_detail')
+            error_detail = case.get('error_detail', None)
             label = case['label']
             if isinstance(error_detail, str):
                 detail = error_detail
             else:
                 if isinstance(error_detail, dict):
-                    detail = error_detail.get(group_tag)
+                    detail = error_detail.get(group_tag, None)
                 else:
                     detail = error_detail
 
             # Specific for unsupported options - count instances of the detail
             value = str(detail)
-            if groups.get(value):
+            if groups.get(value, None):
                 groups[value].append(label)
             else:
                 groups[value] = [label]
+        return groups
+
+    def compute_known_issue_category_summary(selfself, cases, group_tag):
+        # TODO: Fill in for known issues
+        groups = {}
         return groups
 
     def create_report(self):
@@ -224,15 +285,22 @@ class TestReport:
         report['platform'] = self.platform_info
         report['test_environment'] = self.test_environment
         report['timestamp'] = self.timestamp
-        report['failCount'] = len(self.failing_tests)
+
         report['passCount'] = len(self.passing_tests)
         report['failingTests'] = self.failing_tests
-        report['unsupportedTests'] = len(self.unsupported_cases)
-        report['missing_verify_data'] = self.missing_verify_data
-        report['test_error_count'] = len(self.test_errors)
+        report['failCount'] = len(self.failing_tests)
 
         report['test_errors'] = self.test_errors
+        report['test_error_count'] = len(self.test_errors)
+
         report['unsupported'] = self.unsupported_cases
+        report['unsupportedTests'] = len(self.unsupported_cases)
+
+        report['known_issues'] = self.known_issues
+        report['known_issue_count'] = len(self.known_issues)
+
+        report['missing_verify_data'] = self.missing_verify_data
+
         self.report = report
 
         return json.dumps(report)
@@ -260,7 +328,9 @@ class TestReport:
         categories = {'pass': self.passing_tests,
                       'failing_tests': self.failing_tests,
                       'test_errors': self.test_errors,
-                      'unsupported': self.unsupported_cases}
+                      'unsupported': self.unsupported_cases,
+                      'known_issues': self.known_issues
+                      }
         for category, case_list in categories.items():
             dir_name = self.report_directory
             # Put .json files in the same directory as the .html for the detail report
@@ -306,6 +376,17 @@ class TestReport:
 
         return combined_dictionary
 
+
+    def add_known_issues(self):
+        # Call functions to identify known issues, moving things from fail, error, and unsupported
+        # to known_issues as needed
+        new_known_issues = check_issues(
+            self.test_type,
+            [self.failing_tests, self.test_errors, self.unsupported_cases])
+
+        if new_known_issues:
+            self.known_issues.extend(new_known_issues)
+
     def create_html_report(self):
         # Human-readable summary of test results
         if self.platform_info['icuVersion'] == 'unknown':
@@ -331,7 +412,9 @@ class TestReport:
                     'passing_tests': len(self.passing_tests),
                     'failing_tests': len(self.failing_tests),
                     'error_count': len(self.test_errors),
-                    'unsupported_count': len(self.unsupported_cases)
+                    'unsupported_count': len(self.unsupported_cases),
+                    'known_issue_count': len(self.known_issues),
+                    'known_issues': self.known_issues
                     # ...
                     }
 
@@ -348,26 +431,38 @@ class TestReport:
             line = self.fail_line_template.safe_substitute(fail)
             fail_lines.append(line)
 
-        #html_map['failure_table_lines'] = '\n'.join(fail_lines)
+        # Call functions to identify known issues, moving things from fail, error, and unsupported
+        # to known_issues as needed
+        new_known_issues = check_issues(
+            self.test_type,
+            [self.failing_tests, self.test_errors, self.unsupported_cases])
+
+        if new_known_issues:
+            self.known_issues.extend(new_known_issues)
+
 
         # Characterize successes, too.
-        pass_characterized = self.characterize_failures_by_options(self.passing_tests)
+        pass_characterized = self.characterize_results_by_options(self.passing_tests, 'pass')
         flat_combined_passing = self.flatten_and_combine(pass_characterized, None)
         self.save_characterized_file(flat_combined_passing, "pass")
 
         # Get and save failures, errors, unsupported
-        error_characterized = self.characterize_failures_by_options(self.test_errors)
+        error_characterized = self.characterize_results_by_options(self.test_errors, 'error')
         flat_combined_errors = self.flatten_and_combine(error_characterized, None)
         self.save_characterized_file(flat_combined_errors, "error")
 
-        unsupported_characterized = self.characterize_failures_by_options(self.unsupported_cases)
+        unsupported_characterized = self.characterize_results_by_options(self.unsupported_cases, 'unsupported')
         flat_combined_unsupported = self.flatten_and_combine(unsupported_characterized, None)
         self.save_characterized_file(flat_combined_unsupported, "unsupported")
 
+        known_issues_characterized = self.characterize_results_by_options(self.known_issues, 'known_issue')
+        flat_combined_known_issues = self.flatten_and_combine(known_issues_characterized, None)
+        self.save_characterized_file(flat_combined_known_issues, "known_issues")
+
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
-        fail_characterized = self.characterize_failures_by_options(self.failing_tests)
-        fail_simple_diffs = self.check_simple_text_diffs()
+        fail_characterized = self.characterize_results_by_options(self.failing_tests, 'fail')
+        fail_simple_diffs = self.check_simple_text_diffs(self.failing_tests, 'fail')
         flat_combined_dict = self.flatten_and_combine(fail_characterized,
                                                       fail_simple_diffs)
         self.save_characterized_file(flat_combined_dict, "fail")
@@ -428,37 +523,19 @@ class TestReport:
             html_map['error_section'] = 'No test errors found'
             html_map['error_summary'] = ''
 
-        unsupported_lines = []
-        if self.unsupported_cases:
-            # Create a table of all test errors.
-            for unsupported in self.unsupported_cases:
-                line = self.test_unsupported_template.safe_substitute(unsupported)
-                unsupported_lines.append(line)
-
-            unsupported_line_data = '\n'.join(unsupported_lines)
-            html_map['unsupported_section'] = self.unsupported_table_template.safe_substitute(
-                {'test_unsupported_table': unsupported_line_data}
-            )
-            unsupported_summary = self.compute_unsupported_category_summary(
-                self.unsupported_cases,
-                'unsupported_options')
-
-            unsupported_summary_lines = []
-            for key, labels in unsupported_summary.items():
-                count = len(labels)
-                sub = {'error': key, 'count': count}
-                unsupported_summary_lines.append(
-                    self.test_error_summary_template.safe_substitute(sub)
-                )
-            unsupported_table = self.templates.summary_table_template.safe_substitute(
-                {'table_content': '\n'.join(unsupported_summary_lines),
-                 'type': 'Unsupported options'}
-            )
-
-            html_map['unsupported_summary'] = unsupported_table
-        else:
-            html_map['unsupported_section'] = 'No unsupported tests found'
-            html_map['unsupported_summary'] = ''
+        # Bundle these things in one class for each type of result
+        self.fill_templates(self.unsupported_data,
+                            self.unsupported_cases,
+                            self.unsupported_table_template,
+                            self.unsupported_summary_template,
+                            html_map
+                            )
+        self.fill_templates(self.known_issue_data,
+                            self.known_issues,
+                            self.known_issue_table_template,
+                            self.known_issue_summary_template,
+                            html_map
+                            )
 
         # For each failed test base, add an HTML table element with the info
         html_output = self.report_html_template.safe_substitute(html_map)
@@ -509,18 +586,38 @@ class TestReport:
         flat_combined_dict = self.combine_same_sets_of_labels(flat_items)
         return dict(sort_dict_by_count(flat_combined_dict))
 
-    def characterize_failures_by_options(self, failing_tests):
+    def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
         results['locale'] = {}  # Dictionary of labels for each locale
-        for test in failing_tests:
+        for test in test_list:
             # Get input_data, if available
-            input_data = test.get('input_data')
+            input_data = test.get('input_data', None)
+            if not input_data:
+                # Why no data?
+                continue
 
-            try:
-                label = test['label']
-            except:
-                label = ''
+            label = test.get('label', '')
+
+            key_list = ['locale', 'locale_label', 'option', 'options']
+            # Special case for locales
+            for key in key_list:
+                locale = input_data.get('locale', None)
+                if locale:
+                    if locale not in results['locale']:
+                        results['locale'][locale] = set()
+                    results['locale'][locale].add(label)
+
+                    options = input_data.get('options', None)
+                    if options:
+                        # Get each combo of key/value
+                        for k, value in options.items():
+                            if k not in results:
+                                results[k] = {}
+                            if value not in results[k]:
+                                results[k][value] = set()
+                            results[k][value].add(label)
+
             key_list = ['locale', 'locale_label', 'option', 'options',
                         'language_label',
                         # Collation
@@ -533,67 +630,29 @@ class TestReport:
                         # list_fmt
                         'type', 'input_list',
                         # date/time format
-                        'skeleton']
-
-            option_keys = ['notation', 'compactDisplay', 'style', 'currency', 'unit', 'roundingMode']
-
+                        'skeleton',
+                        'language_label', 'locale_label',  # in lang_names
+                        'option', 'locale',  # in likely_subtags
+                        'language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description'
+                        ]
             for key in key_list:
-                try:
-                    locale = input_data.get('locale')
-                except:
-                    locale = None
-                if locale:
-                    if locale not in results['locale']:
-                        results['locale'][locale] = set()
-                    results['locale'][locale].add(label)
+                if test.get(key, None):  # For collation results
+                    value = test[key]
+                    if key not in results:
+                        results[key] = {}
+                    if value not in results[key]:
+                        results[key][value] = set()
+                    results[key][value].add(label)
 
-                    options = input_data.get('options')
-                    if options:
-                        # Get each combo of key/value
-                        for k, value in options.items():
-                            if k not in results:
-                                results[k] = {}
-                            if value not in results[k]:
-                                results[k][value] = set()
-                            results[k][value].add(label)
-
-            # Try fields in language_names
-            for key in ['language_label', 'locale_label']:
-                try:
-                    if input_data.get(key):
-                        value = input_data[key]
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value] = set()
-                        results[key][value].add(label)
-                except:
-                    continue
-
-            # Try fields in likely_subtags
-            for key in ['option', 'locale']:
-                try:
-                    if input_data.get(key):
-                        value = input_data[key]
-                        if key not in results:
-                            results[key] = {}
-                        if value not in results[key]:
-                            results[key][value] = set()
-                        results[key][value].add(label)
-                except:
-                    continue
-
-            for key in ['language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description']:
-                try:
-                    if test.get(key):  # For collation results
-                        value = test[key]
-                        if key not in results:
-                            results[key] = {}
-                        if value not in results[key]:
-                            results[key][value] = set()
-                        results[key][value] = set(label)
-                except:
-                    continue
+            ki_key_list = ['known_issue', 'known_issue_id']
+            for key in ki_key_list:
+                if test.get(key, None):  # For collation results
+                    value = test[key]
+                    if key not in results:
+                        results[key] = {}
+                    if value not in results[key]:
+                        results[key][value] = set()
+                    results[key][value].add(label)
 
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error parts, too.
@@ -602,6 +661,7 @@ class TestReport:
                         'error_detail',
                         'ignorePunctuation',
                         'language_label',
+                        'languageDisplay',
                         'locale_label',
                         'locale',
                         'options',
@@ -621,20 +681,21 @@ class TestReport:
 
             # Special case for input_data / options.
             special_key = 'options'
-            if input_data and input_data.get(special_key):
+            if input_data and input_data.get(special_key, None):
                 options = input_data[special_key]
                 self.add_to_results_by_key(label, results, options, test, options.keys())
 
-            error_detail = test.get('error_detail')
+            error_detail = test.get('error_detail', None)
             if error_detail:
-                error_keys = error_detail.keys()  # ['options']
-                self.add_to_results_by_key(label, results, error_detail, test, error_keys)
+                try:
+                    error_keys = error_detail.keys()  # ['options']
+                    self.add_to_results_by_key(label, results, error_detail, test, error_keys)
+                except AttributeError:
+                    pass
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
             # TODO: Find the largest intersections of these sets and sort by size
-
-            pass
 
         return results
 
@@ -642,44 +703,36 @@ class TestReport:
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
             for key in key_list:
-                try:
-                    if input_data.get(key):  # For collation results
-                        value = input_data.get(key)
-                        if key == 'input_list':
-                            if 'input_size' not in results:
-                                results['input_size'] = {}
-                            else:
-                                results['input_size'].add(len(value))
-                        if key == 'rules':
-                            value = 'RULE'  # A special case to avoid over-characterization
-                        if key not in results:
-                            results[key] = {}
-                        if value in results[key]:
-                            results[key][value].add(label)
+                if input_data.get(key, None):  # For collation results
+                    value = input_data.get(key, None)
+                    if key == 'input_list':
+                        if 'input_size' not in results:
+                            results['input_size'] = {}
                         else:
+                            results['input_size'].add(len(value))
+                    if key == 'rules':
+                        value = 'RULE'  # A special case to avoid over-characterization
+                    if key not in results:
+                        results[key] = {}
+                    try:
+                        if not results[key].get(value, None):
                             results[key][value] = set()
-                            results[key][value].add(label)
-                except:
-                    continue
-
-    def check_simple_text_diffs(self):
+                        results[key][value].add(label)
+                    except TypeError as err:
+                        # value may not be hashable. This should be skipped
+                        pass
+    def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
-        results['insert'] = set()
-        results['delete'] = set()
-        results['insert_digit'] = set()
-        results['insert_space'] = set()
-        results['delete_digit'] = set()
-        results['delete_space'] = set()
-        results['replace_digit'] = set()
-        results['replace_dff'] = set()
-        results['whitespace_diff'] = set()
-        results['replace'] = set()
-        results['parens'] = set()  # Substitions of brackets for parens, etc.
+        all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
+                      'delete_space', 'replace_digit', 'replace_dff', 'whitespace_diff',
+                      'replace', 'parens']
+        for check in all_checks:
+            results[check] = set()
 
-        for fail in self.failing_tests:
+        for fail in test_list:
             label = fail['label']
-            actual = fail.get('result')
-            expected = fail.get('expected')
+            actual = fail.get('result', None)
+            expected = fail.get('expected', None)
             if (actual is None) or (expected is None):
                 continue
             # Special case for differing by a single character.
@@ -910,6 +963,51 @@ class TestReport:
             index += 1
         return diff_count, diffs, last_diff
 
+    def fill_templates(self, result_data, result_cases, result_table_template, summary_template, html_map):
+        # For filling in templates for cases of passing, failing, errors, unsupported, known_issue
+        result_class = result_data.name
+        section_name = '%s_section' % result_class
+        summary_name = '%s_summary' % result_class
+
+        # TODO: Call this for each cases instead of duplicated lines
+        if result_cases:
+            case_lines = []
+            test_table_name = 'test_%s' % result_class
+            options_name = '%s_options' % result_class
+            options_string = '%s options' % result_class
+
+            # Create a table of all test results in this category.
+            for unsupported in result_cases:
+                line = result_data.result_table_template.safe_substitute(unsupported)
+                case_lines.append(line)
+
+            case_line_data = '\n'.join(case_lines)
+            html_map[section_name] = result_data.result_table_template.safe_substitute(
+                {test_table_name: case_line_data}
+            )
+
+            case_summary = {}
+            if result_data.summary_compute_fn:
+                case_summary = result_data.summary_compute_fn(result_cases, options_name)
+
+            summary_lines = []
+            # ??? TODO: examine if "error" is correct below
+            for key, labels in case_summary.items():
+                count = len(labels)
+                sub = {'known_issue': key, 'count': count}
+                summary_lines.append(
+                    result_data.summary_template.safe_substitute(sub)
+                )
+            case_table = result_data.summary_template.safe_substitute(
+                {'table_content': '\n'.join(summary_lines),
+                 'type': options_string}
+            )
+
+            html_map[summary_name] = case_table
+        else:
+            html_map[section_name] = 'No %s tests found' % result_class
+            html_map[summary_name] = ''
+
 
 def take_second(elem):
     return elem[1]
@@ -997,6 +1095,7 @@ class SummaryReport:
             icu_version = os.path.basename(os.path.dirname(dir_path))
             results = defaultdict(lambda: defaultdict(list))
             test_type = None
+            test_results = {}
             try:
                 executor = test_environment['test_language']
                 test_type = test_environment['test_type']
@@ -1017,6 +1116,7 @@ class SummaryReport:
                     'pass_count': int(test_json['passCount']),
                     'error_count': int(test_json['test_error_count']),
                     'unsupported_count': len(test_json['unsupported']),
+                    'known_issue_count': int(test_json['known_issue_count']),
                     'missing_verify_count': len(test_json['missing_verify_data']),
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
