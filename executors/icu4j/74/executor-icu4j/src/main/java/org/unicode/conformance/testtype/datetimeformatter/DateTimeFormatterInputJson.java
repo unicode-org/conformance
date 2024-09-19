@@ -1,7 +1,12 @@
 package org.unicode.conformance.testtype.datetimeformatter;
 
+import java.time.Instant;
+
 import java.util.Date;
 import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+
+import java.util.Locale;
 
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 
@@ -11,11 +16,13 @@ public class DateTimeFormatterInputJson implements ITestTypeInputJson {
 
   public String label;
 
-  public String locale;
+  public String locale_string;
+  public Locale locale_with_calendar;
 
-  // UTC formatted time
+  // UTC formatted instant in time
   public String inputString;
 
+  public Instant time_instant;
   public Date myDate;
 
   public String skeleton;
@@ -25,13 +32,13 @@ public class DateTimeFormatterInputJson implements ITestTypeInputJson {
   public DateTimeFormatterTimeStyle timeStyle;
 
   // TODO!!!
-  public String calendarString;
-  // Set calendar from calendarString!
+  public String calendar_string;
+  // Set calendar from calendar_string!
   public Calendar calendar;
 
   public String numberingSystem;
 
-  public String timeZone;
+  public TimeZone timeZone;
 
   public String timeZoneName;
 }

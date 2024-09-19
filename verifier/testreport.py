@@ -593,6 +593,10 @@ class TestReport:
                 # Why no data?
                 continue
 
+            if not input_data:
+                # Why no data?
+                continue
+
             label = test.get('label', '')
 
             key_list = ['locale', 'locale_label', 'option', 'options']
