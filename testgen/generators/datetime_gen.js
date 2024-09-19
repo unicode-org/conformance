@@ -426,12 +426,6 @@ function generateAll(run_limit) {
         for (const date_index in dates) {
           label_num ++;
 
-          // Set up the instant in UTC.
-          // Get the temporal representation,
-          let temporal_date = temporal_dates[date_index];
-          let zdt = Temporal.ZonedDateTime.from(temporal_date);
-          let temporal_instant = zdt.toInstant();
-
           let zone_temporal_date = temporal_dates[date_index];
           zone_temporal_date['timeZone'] = timezone;
           let zdt_zoned = Temporal.ZonedDateTime.from(zone_temporal_date);
@@ -443,6 +437,12 @@ function generateAll(run_limit) {
               3600 * Number(hours)+ 60 * Number(minutes);
 
           // Get the ISO string with 'Z'.
+          // Set up the instant in UTC.
+          // Get the temporal representation,
+          let temporal_date = temporal_dates[date_index];
+          temporal_date['timeZone'] = 'UTC';
+          let zdt = Temporal.ZonedDateTime.from(temporal_date);
+          let temporal_instant = zdt.toInstant();
           let input_string = temporal_instant.toString();
 
           let this_date = new Date(temporal_instant.epochMilliseconds);
