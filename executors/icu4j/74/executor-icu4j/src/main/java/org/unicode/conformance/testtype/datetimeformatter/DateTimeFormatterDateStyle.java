@@ -7,7 +7,7 @@ public enum DateTimeFormatterDateStyle {
   SHORT,
   UNDEFINED;
 
-  public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle DEFAULT = MEDIUM;
+  public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle DEFAULT = UNDEFINED;
 
   public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle getFromString(
       String s) {
@@ -15,7 +15,7 @@ public enum DateTimeFormatterDateStyle {
       return org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle.valueOf(
           s.toUpperCase());
     } catch (Exception e) {
-      return UNDEFINED;
+      return DEFAULT;
     }
   }
 

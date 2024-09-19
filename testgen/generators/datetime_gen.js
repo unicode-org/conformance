@@ -186,7 +186,7 @@ let temporal_dates = [
     microsecond: 0,
     nanosecond: 0
   },
-  {  // Approximately 1e9
+  {  // Approximately 1e9 milliseconds, 1e6 seconds
     timeZone: 'UTC',
     year: 1970,
     month: 1,
@@ -198,7 +198,7 @@ let temporal_dates = [
     microsecond: 0,
     nanosecond: 0
   },
-  {  // Approximately 1e12
+  {  // Approximately 1e12 milliseconds, 1e9 seconds
     timeZone: 'UTC',
     year: 2001,
     month: 9,

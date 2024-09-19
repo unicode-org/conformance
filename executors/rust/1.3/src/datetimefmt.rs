@@ -142,7 +142,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         .try_into()
         .unwrap();
 
-    let gmt_offset = GmtOffset::try_from_offset_seconds(offset_seconds).ok();
+    let gmt_offset_seconds = GmtOffset::try_from_offset_seconds(offset_seconds).ok();
 
     let mut datetime_iso = DateTime::try_new_iso_datetime(
         date.year,
@@ -174,7 +174,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let time_zone = if timezone_str.is_some() {
         CustomTimeZone {
-            gmt_offset: gmt_offset,
+            gmt_offset: gmt_offset_seconds,
             time_zone_id: mapped_tz,
             metazone_id: my_metazone_id,
             zone_variant: None,

@@ -20,6 +20,7 @@ import org.unicode.conformance.testtype.ITestTypeInputJson;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
 
 public class DateTimeFormatterTester implements ITestType {
+  private static final int UNDEFINED_DATETIME_STYLE = -1;
 
   public static DateTimeFormatterTester INSTANCE = new DateTimeFormatterTester();
 
@@ -39,8 +40,7 @@ public class DateTimeFormatterTester implements ITestType {
 
     result.timeZoneName = (String) inputOptions.get("timeZone");
     if (result.timeZoneName == null) {
-      TimeZone.setDefault(TimeZone.GMT_ZONE);
-      result.timeZone = TimeZone.getDefault();
+      result.timeZone = TimeZone.GMT_ZONE;
     } else {
       result.timeZone = TimeZone.getTimeZone(result.timeZoneName);
     }
@@ -111,7 +111,7 @@ public class DateTimeFormatterTester implements ITestType {
 
     ULocale locale = ULocale.forLanguageTag(input.locale_string);
 
-    int dateStyle = -1;
+    int dateStyle = UNDEFINED_DATETIME_STYLE;
     switch (input.dateStyle) {
       case FULL:
         dateStyle = DateFormat.FULL;
@@ -126,11 +126,11 @@ public class DateTimeFormatterTester implements ITestType {
         dateStyle = DateFormat.SHORT;
         break;
       default:
-        dateStyle = -1;  // Undefined
+        dateStyle = UNDEFINED_DATETIME_STYLE;  // Undefined
         break;
     }
 
-    int timeStyle = -1;
+    int timeStyle = UNDEFINED_DATETIME_STYLE;
     switch (input.timeStyle) {
       case FULL:
         timeStyle = DateFormat.FULL;
@@ -145,7 +145,7 @@ public class DateTimeFormatterTester implements ITestType {
         timeStyle = DateFormat.SHORT;
         break;
       default:
-        timeStyle = -1;  // Undefined
+        timeStyle = UNDEFINED_DATETIME_STYLE;  // Undefined
         break;
 
     }
@@ -157,13 +157,13 @@ public class DateTimeFormatterTester implements ITestType {
     if (input.skeleton != null) {
       dtf = DateFormat.getInstanceForSkeleton(cal, input.skeleton, input.locale_with_calendar);
     } else {
-      if (dateStyle >=0 && timeStyle >= 0) {
+      if (dateStyle != UNDEFINED_DATETIME_STYLE && timeStyle != UNDEFINED_DATETIME_STYLE) {
         dtf = DateFormat.getDateTimeInstance(cal, dateStyle, timeStyle, input.locale_with_calendar);
       } else
-        if (dateStyle >= 0) {
+        if (dateStyle != UNDEFINED_DATETIME_STYLE) {
           dtf = DateFormat.getDateInstance(cal, dateStyle,input.locale_with_calendar);
         } else
-          if (timeStyle >= 0) {
+          if (timeStyle != UNDEFINED_DATETIME_STYLE) {
             dtf = DateFormat.getTimeInstance(cal, timeStyle, input.locale_with_calendar);
           } else {
             dtf = DateFormat.getInstance(cal, input.locale_with_calendar);
