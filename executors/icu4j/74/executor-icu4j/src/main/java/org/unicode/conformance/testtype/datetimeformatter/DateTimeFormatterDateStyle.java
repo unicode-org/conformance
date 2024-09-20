@@ -4,9 +4,10 @@ public enum DateTimeFormatterDateStyle {
   FULL,
   LONG,
   MEDIUM,
-  SHORT;
+  SHORT,
+  UNDEFINED;
 
-  public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle DEFAULT = MEDIUM;
+  public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle DEFAULT = UNDEFINED;
 
   public static org.unicode.conformance.testtype.datetimeformatter.DateTimeFormatterDateStyle getFromString(
       String s) {

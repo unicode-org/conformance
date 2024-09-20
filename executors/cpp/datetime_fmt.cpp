@@ -48,7 +48,9 @@ const string TestDatetimeFmt(json_object *json_in) {
   string label_string = json_object_get_string(label_obj);
 
   Calendar *cal = nullptr;
-  TimeZone *tz = nullptr;
+
+  UnicodeString u_tz_utc("UTC");
+  TimeZone *tz = nullptr;  // TimeZone::createTimeZone(u_tz_utc);
 
   // The locale for formatted output
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
@@ -65,33 +67,43 @@ const string TestDatetimeFmt(json_object *json_in) {
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  string calendar_str;
+  string calendar_str = "gregory";
 
   // Get fields out of the options if present
   json_object* options_obj = json_object_object_get(json_in, "options");
 
   if (options_obj) {
-    json_object* cal_item = json_object_object_get(options_obj, "calendar");
+    // Check for timezone and calendar
+    json_object* option_item =
+        json_object_object_get(options_obj, "timeZone");
+    if (option_item) {
+      string timezone_str = json_object_get_string(option_item);
+      UnicodeString u_tz(timezone_str.c_str());
+      tz = TimeZone::createTimeZone(u_tz);
+    }
+
+    json_object* cal_item =
+        json_object_object_get(options_obj, "calendar");
     if (cal_item) {
       calendar_str = json_object_get_string(cal_item);
-
-      // Add '@calendar=' + calendar_string to locale
-      locale_string = locale_string + "@calendar=" + calendar_str;
-      display_locale = locale_string.c_str();
-
-      if (tz) {
-        cal = Calendar::createInstance(*tz, display_locale, status);
-      } else {
-        cal = Calendar::createInstance(display_locale, status);
-      }
-      if (U_FAILURE(status)) {
-        json_object_object_add(
-            return_json,
-            "error",
-            json_object_new_string("Error in createInstance for calendar"));
-        return json_object_to_json_string(return_json);
-      }
     }
+  }
+
+  // Add '@calendar=' + calendar_string to locale
+  locale_string = locale_string + "@calendar=" + calendar_str;
+  display_locale = locale_string.c_str();
+
+  if (tz) {
+    cal = Calendar::createInstance(tz, display_locale, status);
+  } else {
+    cal = Calendar::createInstance(display_locale, status);
+  }
+  if (U_FAILURE(status)) {
+    json_object_object_add(
+        return_json,
+        "error",
+        json_object_new_string("Error in createInstance for calendar"));
+    return json_object_to_json_string(return_json);
   }
 
   DateFormat* df;
@@ -99,12 +111,11 @@ const string TestDatetimeFmt(json_object *json_in) {
 
   // Get the input data as a date object.
   // Types of input:
-  //   "input_string" parsable ISO formatted string such as
-  //       "2020-03-02 10:15:17 -08:00"
+  //   "input_string" parsable ISO formatted string of an instant
+  //       "2020-03-02 10:15:17Z
 
   string dateStyle_str;
   string timeStyle_str;
-  string timezone_str;
 
   // Expected values if neither dateStyle nor timeStyle is given explicitly.
   icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kNone;
@@ -125,17 +136,6 @@ const string TestDatetimeFmt(json_object *json_in) {
     if (option_item) {
       timeStyle_str = json_object_get_string(option_item);
       time_style = StringToEStyle(timeStyle_str);
-    }
-
-    option_item = json_object_object_get(options_obj, "timeZone");
-    if (option_item) {
-      timezone_str = json_object_get_string(option_item);
-      UnicodeString u_tz(timezone_str.c_str());
-      tz = TimeZone::createTimeZone(u_tz);
-    } else {
-      // Default is UTC
-      UnicodeString u_tz("UTC");
-      tz = TimeZone::createTimeZone(u_tz);
     }
   }
 
@@ -183,10 +183,9 @@ const string TestDatetimeFmt(json_object *json_in) {
   }
 
   // !!! IS OFFSET ALREADY CONSIDERED?
-  // if (tz) {
-  //   df->setTimeZone(*tz);
-  // }
-
+  if (tz) {
+    df->setTimeZone(*tz);
+  }
 
   // Use ISO string form of the date/time.
   json_object *input_string_obj =
@@ -219,7 +218,7 @@ const string TestDatetimeFmt(json_object *json_in) {
     UnicodeString date_ustring(input_date_string.c_str());
 
     // TODO:  handles the offset +/-
-    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:s", und_locale, status);
+    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:sZ", und_locale, status);
     if (U_FAILURE(status)) {
       string error_name = u_errorName(status);
       string error_message =

@@ -32,6 +32,10 @@
            "description": "String in ISO 8601 form, e.g. YYYY-MM-DD hh:mm:ss.sss",
            "type": "string"
          },
+         "tz_offset_secs": {
+           "description": "Offset in timezone from UTC",
+           "type": "number"
+         },
          "datetime_skeleton": {
            "description": "Skeleton for date/time format: https://unicode-org.github.io/icu/userguide/format_parse/datetime/",
            "type": "string"

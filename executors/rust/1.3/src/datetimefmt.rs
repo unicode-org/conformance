@@ -3,7 +3,11 @@
 // https://docs.rs/ixdtf/latest/ixdtf/
 
 use icu::calendar::DateTime;
-use icu::datetime::{options::length, ZonedDateTimeFormatter};
+use icu::datetime::{
+    options::components, options::length, options::DateTimeFormatterOptions, pattern::reference,
+    pattern::runtime, ZonedDateTimeFormatter,
+};
+
 use icu::locid::Locale;
 
 // https://docs.rs/icu/latest/icu/timezone/struct.CustomTimeZone.html#method.maybe_calculate_metazone
@@ -23,12 +27,22 @@ use serde_json::{json, Value};
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct DateTimeFormatOptions {
+    calendar: Option<String>,
     date_style: Option<String>,
+    numbering_system: Option<String>,
     time_style: Option<String>,
     time_zone: Option<String>,
+
     era: Option<String>,
-    calendar: Option<String>,
-    numbering_system: Option<String>,
+    year: Option<String>,
+    month: Option<String>,
+    week: Option<String>,
+    day: Option<String>,
+    weekday: Option<String>,
+    hour: Option<String>,
+    minute: Option<String>,
+    second: Option<String>,
+    fractional_second: Option<String>,
 }
 
 pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
@@ -64,70 +78,87 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let mut _unsupported_options: Vec<&str> = Vec::new();
 
-    // TODO: Get and use timeZone
-
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
     let date_style_str = &option_struct.date_style;
-    let date_style = if date_style_str == &Some("full".to_string()) {
-        length::Date::Full
-    } else if date_style_str == &Some("long".to_string()) {
-        length::Date::Long
-    } else if date_style_str == &Some("short".to_string()) {
-        length::Date::Short
-    } else if date_style_str == &Some("medium".to_string()) {
-        length::Date::Medium
-    } else {
-        length::Date::Full
+    let date_style = match date_style_str.as_deref() {
+        Some("full") => Some(length::Date::Full),
+        Some("long") => Some(length::Date::Long),
+        Some("medium") => Some(length::Date::Medium),
+        Some("short") => Some(length::Date::Short),
+        _ => None,
     };
 
     // TimeStyle long or full requires that you use ZonedDateTimeFormatter.
     // long known issue that is documented and has been filed several times.
     // Is fixed in 2.0
     let time_style_str = &option_struct.time_style;
-    let time_style = if time_style_str == &Some("full".to_string()) {
-        length::Time::Full
-    } else if time_style_str == &Some("long".to_string()) {
-        length::Time::Long
-    } else if time_style_str == &Some("short".to_string()) {
-        length::Time::Short
-    } else if time_style_str == &Some("medium".to_string()) {
-        length::Time::Medium
-    } else {
-        // !!! SET TO UNDEFINED
-        length::Time::Full
+    let time_style = match time_style_str.as_deref() {
+        Some("full") => Some(length::Time::Full),
+        Some("long") => Some(length::Time::Long),
+        Some("medium") => Some(length::Time::Medium),
+        Some("short") => Some(length::Time::Short),
+        _ => None,
     };
 
     // Set up DT option if either is set
-    let dt_options = if date_style_str.is_some() && time_style_str.is_some() {
-        length::Bag::from_date_time_style(date_style, time_style)
-    } else if date_style_str.is_none() && time_style_str.is_some() {
-        length::Bag::from_time_style(time_style)
-    } else if date_style_str.is_some() && time_style_str.is_none() {
-        length::Bag::from_date_style(date_style)
+    let mut dt_length_options = length::Bag::empty();
+    dt_length_options.date = date_style;
+    dt_length_options.time = time_style;
+
+    let dt_options = if dt_length_options != length::Bag::empty() {
+        DateTimeFormatterOptions::Length(dt_length_options)
     } else {
-        length::Bag::default()
+        // For versions 1.X, but not in 2.X.
+        // This is using an interal feature.
+        let skeleton_str = &json_obj["skeleton"].as_str().unwrap();
+        let parsed_skeleton = skeleton_str.parse::<reference::Pattern>().unwrap();
+        let mut components_bag = components::Bag::from(&runtime::PatternPlurals::SinglePattern(
+            runtime::Pattern::from(&parsed_skeleton),
+        ));
+
+        let option_struct: DateTimeFormatOptions =
+            serde_json::from_str(&options.to_string()).unwrap();
+
+        components_bag.hour = match option_struct.hour.as_deref() {
+            Some("numeric") => Some(components::Numeric::Numeric),
+            Some("2-digit") => Some(components::Numeric::TwoDigit),
+            _ => None,
+        };
+        DateTimeFormatterOptions::Components(components_bag)
     };
 
-    // Get ISO input string including offset and time zone
+    // Get ISO instant in UTC time zone
     let input_iso = &json_obj["input_string"].as_str().unwrap();
-    //    let input_iso: String = input_time_string.to_string() + "[-00:00]";
 
     let dt_iso = IxdtfParser::new(input_iso).parse().unwrap();
     let date = dt_iso.date.unwrap();
     let time = dt_iso.time.unwrap();
-    let tz_offset = dt_iso.offset.unwrap();
-    let _tz_annotation = dt_iso.tz.unwrap();
 
-    let datetime_iso = DateTime::try_new_iso_datetime(
+    // Compute the seconds for the timezone's offset
+    let offset_seconds: i32 = json_obj["tz_offset_secs"]
+        .as_i64()
+        .unwrap()
+        .try_into()
+        .unwrap();
+
+    let gmt_offset_seconds = GmtOffset::try_from_offset_seconds(offset_seconds).ok();
+
+    let mut datetime_iso = DateTime::try_new_iso_datetime(
         date.year,
         date.month,
         date.day,
         time.hour,
         time.minute,
-        time.second,
+        0, // Seconds added below.
     )
     .expect("Failed to initialize ISO DateTime instance.");
+    let mut dt_integer_minutes = datetime_iso.minutes_since_local_unix_epoch();
+    dt_integer_minutes += offset_seconds / 60;
+
+    datetime_iso = DateTime::from_minutes_since_local_unix_epoch(dt_integer_minutes);
+    datetime_iso.time.second = time.second.try_into().unwrap();
+
     let any_datetime = datetime_iso.to_any();
 
     // Testing with a default timezone
@@ -141,15 +172,9 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let mzc = MetazoneCalculator::new();
     let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
 
-    // Compute the seconds for the
-    let offset_seconds = GmtOffset::try_from_offset_seconds(
-        tz_offset.sign as i32 * (tz_offset.hour as i32 * 3600 + tz_offset.minute as i32 * 60),
-    )
-    .ok();
-
     let time_zone = if timezone_str.is_some() {
         CustomTimeZone {
-            gmt_offset: offset_seconds,
+            gmt_offset: gmt_offset_seconds,
             time_zone_id: mapped_tz,
             metazone_id: my_metazone_id,
             zone_variant: None,
@@ -161,8 +186,11 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.
-    let dtf_result =
-        ZonedDateTimeFormatter::try_new(&data_locale, dt_options.into(), Default::default());
+    let dtf_result = ZonedDateTimeFormatter::try_new_experimental(
+        &data_locale,
+        dt_options.clone(),
+        Default::default(),
+    );
 
     let datetime_formatter = match dtf_result {
         Ok(dtf) => dtf,
@@ -175,9 +203,6 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    // Note: A "classical" skeleton is used in most cases, but this version
-    // of the executor does not use it.
-
     let formatted_dt = datetime_formatter
         .format(&any_datetime, &time_zone)
         .expect("should work");
@@ -187,6 +212,6 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         "label": label,
         "result": result_string,
         "actual_options":
-        format!("{tz_offset:?}, {dt_options:?}, {time_zone:?}"),  // , {dt_iso:?}"),
+        format!("{dt_options:?}, {time_zone:?}"),
     }))
 }
