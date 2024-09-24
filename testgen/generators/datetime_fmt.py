@@ -29,7 +29,7 @@ class DateTimeFmtGenerator(DataGenerator):
         ]
 
         if self.icu_version not in icu_nvm_versions:
-            logging.error('Generating datetime data not configured for icu version %s', self.icu_version)
+            logging.warning('Generating datetime data not configured for icu version %s', self.icu_version)
             return False
 
         # Set up Node version and call the generator
