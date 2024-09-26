@@ -376,7 +376,7 @@
   },
   {
     "prereq": {
-      "name": "mvn-icu4j-74-shaded",
+      "name": "mvn-icu4j-75-shaded",
       "version": "75",
       "command": "mvn -q -P icu75 -f ../executors/icu4j/74/executor-icu4j/pom.xml package -DskipTests=true"
     },
