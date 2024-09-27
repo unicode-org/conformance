@@ -109,9 +109,9 @@
   },
   {
     "prereq": {
-      "name": "nvm 22..0, icu75.1",
-      "version": "22.1.0",
-      "command": "nvm install 22.1.0;nvm use 22.1.0 --silent"
+      "name": "nvm 22.9.0, icu75.1",
+      "version": "22.9.0",
+      "command": "nvm install 22.9.0;nvm use 22.9.0 --silent"
     },
     "run": {
       "icu_version": "icu75",
