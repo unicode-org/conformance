@@ -4,7 +4,6 @@ ALL_TEST_TYPES = ['collation_short',
                   'datetime_fmt',
                   'lang_names',
                   'likely_subtags',
-                  'lang_names',
                   'list_fmt',
                   'message_fmt2',
                   'number_format',
@@ -15,13 +14,19 @@ ALL_TEST_TYPES = ['collation_short',
 TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation_short',
     'datetime_fmt_test_file': 'datetime_fmt',
+    'datetime_fmt_test': 'datetime_fmt',
+    'lang_name_test_file': 'lang_names',
     'lang_names_test_file': 'lang_names',
     'likely_subtags_test': 'likely_subtags',
     'list_fmt_test_file': 'list_fmt',
+    'list_fmt_test': 'list_fmt',
     'message_fmt2_test_file': 'message_fmt2',
+    'message_fmt2_test': 'message_fmt2',
     'num_fmt_test_file': 'number_fmt',
     'plural_rules_test_file': 'plural_rules',
-    'rdt_fmt_test_file': 'rdt'
+    'plural_rules_test': 'plural_rules',
+    'rdt_fmt_test_file': 'rdt',
+    'rdt_fmt_test': 'rdt_fmt'
 }
 
 SCHEMA_FILE_MAP = {
@@ -46,7 +51,7 @@ SCHEMA_FILE_MAP = {
     "datetime_fmt": {
         "test_data": {
             "schema_file": "datetime_fmt/test_schema.json",
-            'prod_file': 'datetime_test_file.json'
+            'prod_file': 'datetime_fmt_test.json'
         },
         "verify_data": {
             "schema_file": "datetime_fmt/verify_schema.json",
@@ -54,7 +59,7 @@ SCHEMA_FILE_MAP = {
         },
         "result_data": {
             "schema_file": "datetime_fmt/result_schema.json",
-            "prod_file": 'datetime_test_file.json'
+            "prod_file": 'datetime_fmt_test.json'
         }
     },
 
@@ -119,7 +124,7 @@ SCHEMA_FILE_MAP = {
     "list_fmt": {
         "test_data": {
             "schema_file": "list_fmt/test_schema.json",
-            'prod_file': 'list_fmt.json'
+            'prod_file': 'list_fmt_test.json'
         },
         "verify_data": {
             "schema_file": "list_fmt/verify_schema.json",
@@ -133,7 +138,7 @@ SCHEMA_FILE_MAP = {
     "plural_rules" : {
         "test_data": {
             "schema_file": "plural_rules/test_schema.json",
-            'prod_file': 'plural_rules.json'
+            'prod_file': 'plural_rules_test.json'
         },
         "verify_data": {
             "schema_file": "plural_rules/verify_schema.json",
@@ -141,7 +146,7 @@ SCHEMA_FILE_MAP = {
         },
         "result_data": {
             "schema_file": "plural_rules/result_schema.json",
-            "prod_file": "plural_rules.json"
+            "prod_file": "plural_rules_test.json"
         }
     },
     "message_fmt2": {
@@ -161,7 +166,7 @@ SCHEMA_FILE_MAP = {
     "rdt_fmt": {
         "test_data": {
             "schema_file": "rdt_fmt/test_schema.json",
-            'prod_file': 'rdt_fmt.json'
+            'prod_file': 'rdt_fmt_test.json'
         },
         "verify_data": {
             "schema_file": "rdt_fmt/verify_schema.json",
@@ -169,7 +174,7 @@ SCHEMA_FILE_MAP = {
         },
         "result_data": {
             "schema_file": "plural_rules/result_schema.json",
-            "prod_file": "rdt_fmt.json"
+            "prod_file": "rdt_fmt_test.json"
         }
     },
     # Additional tests

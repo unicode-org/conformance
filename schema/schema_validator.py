@@ -55,6 +55,7 @@ class ConformanceSchemaValidator():
         # returns  False, error_string if there's a problem
 
         result_data = {
+            'test_type': schema_and_data_paths['test_type'],
             'result': None,
             'schema_file': schema_file_path,
             'data_path': data_file_path,
@@ -128,14 +129,31 @@ class ConformanceSchemaValidator():
     def validate_test_data_with_schema(self):
         all_results = []
         schema_test_info = []
+
+        # Check for all the possible files
+        json_file_pattern = os.path.join(self.test_data_base, '*', '*.json')
+        verify_pattern = os.path.join(self.test_data_base, '*', '*verify.json')
+        json_verify_files_list = glob.glob(verify_pattern)
+        json_files_list = glob.glob(json_file_pattern)
+        json_test_list = []
+        for file in json_files_list:
+            if file not in json_verify_files_list:
+                json_test_list.append(file)
+
+        test_data_files_not_found = []
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
                 file_path_pair = self.get_schema_data_info(icu_version, test_type)
                 if file_path_pair:
                     schema_test_info.append(file_path_pair)
                 else:
+                    test_data_files_not_found.append([icu_version, test_type])
                     logging.debug('No data test file  %s for %s, %s', file_path_pair, test_type, icu_version)
                     pass
+
+        if test_data_files_not_found:
+            logging.warning('%d test data not checked', len(test_data_files_not_found))
+
         results = self.parallel_check_test_data_schema(schema_test_info)
 
         for result_data in results:
@@ -166,9 +184,9 @@ class ConformanceSchemaValidator():
 
     def get_schema_data_info(self, icu_version, test_type):
         # Gets pairs of schema and file names for test_type
-        schema_verify_file = os.path.join( self.schema_base, test_type, 'test_schema.json')
+        schema_verify_file = os.path.join(self.schema_base, test_type, 'test_schema.json')
         filename_map = SCHEMA_FILE_MAP[test_type]
-        result_file_name = SCHEMA_FILE_MAP[test_type]['test_data']['prod_file']
+        result_file_name = filename_map['test_data']['prod_file']
         test_file_name = os.path.join(self.test_data_base, icu_version, result_file_name)
         if os.path.exists(test_file_name):
             return {
@@ -250,8 +268,12 @@ class ConformanceSchemaValidator():
         # Check test output vs. the schema
         schema_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['schema_file']
         schema_verify_file = os.path.join(self.schema_base, schema_file_name)
+        result_dir_path = os.path.join(self.test_output_base, executor, icu_version)
+        if not os.path.exists(result_dir_path):
+            return None
+
         result_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['prod_file']
-        test_result_file = os.path.join(self.test_output_base, executor, icu_version, result_file_name)
+        test_result_file = os.path.join(result_dir_path, result_file_name)
 
         if not os.path.exists(test_result_file):
                 return None
@@ -298,20 +320,20 @@ class ConformanceSchemaValidator():
         return results
 
     def validate_schema_file(self, schema_file_path):
+        test_type = os.path.basename(os.path.dirname(schema_file_path))
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
             return_error = err
             logging.error('  Cannot open data file %s.\n   Err = %s', schema_file_path, err)
-            return False, err, schema_file_path
+            return False, err, schema_file_path, test_type
 
         # Get the schema file and validate the data against it
         try:
             schema = json.load(schema_file)
         except json.decoder.JSONDecodeError as err:
-            logging.error('Bad JSON schema: %s', schema_file_path)
-            logging.error('  Error is %s', err)
-            return False, err, schema_file_path
+            logging.error('Error: %s Bad JSON schema: %s', err, schema_file_path)
+            return False, err, schema_file_path, test_type
 
         try:
             validate(None, schema)
@@ -319,7 +341,7 @@ class ConformanceSchemaValidator():
             return False, err
         except jsonschema.exceptions.ValidationError as err:
             # This is OK since it's only checking the schema's structure
-            return True, '', schema_file_path
+            return True, '', schema_file_path, test_type
 
         return True, None
 
@@ -353,7 +375,7 @@ class ConformanceSchemaValidator():
         with processor_pool as p:
             results = p.map(self.validate_json_file, test_validation_plans)
 
-        return results
+        return results, test_validation_plans
 
     def get_test_validation_plans(self):
         all_results = []
@@ -367,8 +389,7 @@ class ConformanceSchemaValidator():
         return test_validation_plans
 
     def validate_test_output_with_schema(self):
-        all_results = self.validate_test_output_parallel()
-        return all_results
+        return self.validate_test_output_parallel()
 
 def set_up_args():
     parser = argparse.ArgumentParser(prog='schema')

@@ -50,8 +50,8 @@ def main(args):
         json_files = glob.glob(test_output_json_path)
 
         for file in json_files:
+            test_file_prefix = os.path.splitext(os.path.basename(file))[0]
             try:
-                test_file_prefix = os.path.splitext(os.path.basename(file))[0]
                 test_type = schema_files.TEST_FILE_TO_TEST_TYPE_MAP[test_file_prefix]
                 test_type_set.add(test_type)
             except BaseException as err:
@@ -77,8 +77,20 @@ def main(args):
     schema_data_results = []
     schema_count = 0
 
-    all_results = validator.validate_test_output_with_schema()
+    all_results, test_validation_plans = validator.validate_test_output_with_schema()
     logging.info('  %d results for test output', len(all_results))
+
+    # Check if any files in the expected list were not validated.
+    test_paths = []
+    for plan in test_validation_plans:
+        test_paths.append(plan['test_result_file'])
+    unvalidated_json = []
+    for json_file in json_files:
+        if json_file not in test_paths:
+            logging.warning('JSON file %s was not verified against a schema', json_file)
+            unvalidated_json.append(json_file)
+    if unvalidated_json:
+        logging.warning(' %s json files not validated', len(unvalidated_json))
 
     schema_errors = 0
     failed_validations = []

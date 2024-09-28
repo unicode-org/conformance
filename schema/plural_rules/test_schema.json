@@ -1,14 +1,14 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/_test_schema.json'",
+ "$id": "https://github.com/unicode/conformance/likely_subtags_test_schema.json'",
  "title": "ICU Conformance test data description",
- "description": "This documents the format of relative date time format test data for execution",
+ "description": "This documents the format of likely_subtags test data for execution",
  "type": "object",
  "properties": {
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
      "type": "string",
-     "enum": ["rdt_fmt"]
+     "enum": ["plural_rules"]
    },
    "Test scenario": {
      "type": "string",
@@ -65,7 +65,7 @@
      "type": "integer"
    },
    "tests": {
-     "description": "list of N tests for relative date time format testing",
+     "description": "list of N tests for plural rules",
      "type": "array",
      "items": {
        "additionalProperties": false,
@@ -75,45 +75,33 @@
            "description": "A numeric ID, unique for the set of tests",
            "type": "string"
          },
-         "locale": {
-           "description": "locale tag source ",
-           "type": "string"
-         },
           "hexhash": {
             "description": "A hexadecimal hash code for the test without the label",
             "type": "string"
           },
-         "unit": {
-           "description": "time interval, e.g., year, month, day, hour, etc. ",
+         "locale": {
+           "description": "locale tag source ",
            "type": "string"
          },
-         "count": {
-           "count": "how may of the units in past or future",
+         "plural_type": {
+           "description": "cardinal or ordinal",
            "type": "string"
          },
-         "options": {
-           "type": "string",
-           "description": "Optional parameters for the output",
-           "type": "object",
-           "properties": {
-             "style": {
-               "type": "string",
-               "description": "size of formated output, e.g., long"
-             },
-             "numberingSystem": {
-               "type": "string",
-               "description": "4 letter script code of numbering system"
-             }
-           }
-
+         "type": {
+           "description": "cardinal or ordinal - duplicat of plural_type",
+           "type": "string"
+         },
+         "sample": {
+           "description": "the numeric value for how many - integer or float or compact ",
+           "type": "string"
          }
        }
      },
      "required": [
        "label",
        "locale",
-       "count",
-       "unit"
+       "plural_type",
+       "sample"
      ]
    }
  },

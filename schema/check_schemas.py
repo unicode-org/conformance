@@ -98,7 +98,7 @@ def main(args):
     results = parallel_validate_schema(validator, schema_file_paths)
 
     for outcome in results:
-        result, err, file_path = outcome[0], outcome[1], outcome[2]
+        result, err, file_path, test_type = outcome[0], outcome[1], outcome[2], outcome[3]
         schema_file = os.path.basename(file_path)
         validation_status.append({"test_type": test_type,
                                   "schema_path": file_path,

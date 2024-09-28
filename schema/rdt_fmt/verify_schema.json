@@ -1,0 +1,30 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/rdt_fmt_verify_schema.json'",
+ "title": "ICU Relative Date Time Format verify data description",
+ "description": "This documents format of relative date time format verify data",
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+   "verifications": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "string"
+         }
+       },
+       "required": [
+         "label",
+         "verify" 
+       ]       
+     }
+   }
+ }
+}

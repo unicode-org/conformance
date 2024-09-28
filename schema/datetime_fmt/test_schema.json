@@ -130,7 +130,8 @@
        },
        "required": [
          "label",
-         "input"
+         "input_string",
+         "locale"
        ]       
      }
    }
