@@ -183,6 +183,7 @@ class TestPlan:
                                                    self.testData.testDataFilename)
             except (KeyError, IndexError) as error:
                 logging.error("Encountered error processing executor JSON values: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 return None
         return True
 
