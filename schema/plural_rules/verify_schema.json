@@ -5,6 +5,10 @@
  "type": "object",
  "additionalProperties": false,
  "properties": {
+   "test_type": {
+     "description": "The name of the test",
+     "const": "plural_rules"
+   },
    "verifications": {
      "type": "array",
      "items": {
@@ -26,5 +30,6 @@
        ]       
      }
    }
- }
+ },
+ "required": ["test_type", "verifications"]
 }

@@ -26,6 +26,7 @@ TEST_FILE_TO_TEST_TYPE_MAP = {
     'plural_rules_test_file': 'plural_rules',
     'plural_rules_test': 'plural_rules',
     'rdt_fmt_test_file': 'rdt',
+    'rdt_fmt_test_file': 'rdt',
     'rdt_fmt_test': 'rdt_fmt'
 }
 
@@ -39,7 +40,7 @@ SCHEMA_FILE_MAP = {
             # For, eventually, checking the expected output created by the test generator.
 
             "schema_file": "collation_short/verify_schema.json",
-            "prod_file": "pass.json"
+            "prod_file": "collation_verify.json"
         },
         "result_data": {
             # For checking test outputs.
@@ -55,7 +56,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "datetime_fmt/verify_schema.json",
-            'prod_file': 'pass.json'
+            'prod_file': 'datetime_fmt_verify.json'
         },
         "result_data": {
             "schema_file": "datetime_fmt/result_schema.json",
@@ -70,7 +71,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "number_format/verify_schema.json",
-            'prod_file': 'pass.json'
+            'prod_file': 'num_fmt_verify_file.json'
         },
         "result_data": {
             "schema_file": "number_format/result_schema.json",
@@ -85,7 +86,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "number_format/verify_schema.json",
-            'prod_file': 'pass.json'
+            'prod_file': 'num_fmt_verify_file.json'
         },
         "result_data": {
             "schema_file": "number_format/result_schema.json",
@@ -100,7 +101,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "lang_names/verify_schema.json",
-            'prod_file': 'pass.json'
+            'prod_file': 'lang_name_verify_file.json'
         },
         "result_data": {
             "schema_file": "lang_names/result_schema.json",
@@ -128,7 +129,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "list_fmt/verify_schema.json",
-            'prod_file': 'list_fmt.json'
+            'prod_file': 'list_fmt_Verify.json'
         },
         "result_data": {
             "schema_file": "list_fmt/result_schema.json",
@@ -142,7 +143,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "plural_rules/verify_schema.json",
-            'prod_file': 'plural_rules.json'
+            'prod_file': 'plural_rules_verify.json'
         },
         "result_data": {
             "schema_file": "plural_rules/result_schema.json",
@@ -170,10 +171,10 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "rdt_fmt/verify_schema.json",
-            'prod_file': 'rdt_fmt.json'
+            'prod_file': 'rdt_fmt2_verify.json'
         },
         "result_data": {
-            "schema_file": "plural_rules/result_schema.json",
+            "schema_file": "rdt_fmt/result_schema.json",
             "prod_file": "rdt_fmt_test.json"
         }
     },

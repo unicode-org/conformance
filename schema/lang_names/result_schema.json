@@ -7,8 +7,7 @@
  "properties": {
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["lang_names"]
+     "const": "lang_names"
    },
    "platform": {
      "description": "information about the run environment for the test",
@@ -114,14 +113,21 @@
          },
          "error_detail": {
            "description": "Even more information about an error",
-           "type": "object",
-           "additionalProperties": true,
-           "properties": {
-             "unsupported_locale": {
-               "description": "The given locale tag",
-               "type": "string"
+           "anyOf": [
+             {
+               "type": "object",
+               "additionalProperties": true,
+               "properties": {
+                 "unsupported_locale": {
+                   "description": "The given locale tag",
+                   "type": "string"
+                 }
+               }
+             }, {
+               "type": "string",
+               "description": "An informative string about the error"
              }
-           }
+           ]
          }
        },
        "required": [
@@ -129,5 +135,6 @@
        ]       
      }
    }
- }
+ },
+ "required": ["tests", "test_type"]
 }

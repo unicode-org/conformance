@@ -6,7 +6,6 @@ from datetime import datetime
 import glob
 import json
 
-
 import logging
 import logging.config
 import os.path
@@ -36,6 +35,7 @@ def main(args):
     executor_set = set()
     icu_version_set = set()
     test_type_set = set()
+    json_files = []
     if os.path.exists(test_output_path):
         executor_path = os.path.join(test_output_path, '*')
         executor_paths = glob.glob(executor_path)
@@ -81,16 +81,17 @@ def main(args):
     logging.info('  %d results for test output', len(all_results))
 
     # Check if any files in the expected list were not validated.
-    test_paths = []
+    test_paths = set()
     for plan in test_validation_plans:
-        test_paths.append(plan['test_result_file'])
-    unvalidated_json = []
+        test_paths.add(plan['test_result_file'])
+
+    unvalidated_json = set()
     for json_file in json_files:
         if json_file not in test_paths:
-            logging.warning('JSON file %s was not verified against a schema', json_file)
-            unvalidated_json.append(json_file)
+            logging.error('JSON file %s was not verified against a schema', json_file)
+            unvalidated_json.add(json_file)
     if unvalidated_json:
-        logging.warning(' %s json files not validated', len(unvalidated_json))
+        logging.fatal(' %s json files not validated: %s', len(unvalidated_json), unvalidated_json)
 
     schema_errors = 0
     failed_validations = []
@@ -133,7 +134,7 @@ def main(args):
 
 
     if schema_errors:
-        logging.error('Test data file files: %d fail out of %d:', 
+        logging.error('Test data file files: %d fail out of %d:',
             len(schema_errors, schema_count))
         for failure in schema_errors:
             logging.error('  %s', failure)

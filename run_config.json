@@ -264,6 +264,22 @@
       "per_execution": 10000
     }
   },
+ {
+    "prereq": {
+      "name": "nvm",
+      "version": "12.22.12",
+      "command": "nvm install 12.22.12;nvm use 12.22.12 --silent"
+    },
+    "run": {
+      "icu_version": "icu67",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+ }, 
   {
     "prereq": {
       "name": "rust1.3",
@@ -298,10 +314,10 @@
       "test_type": [
         "collation_short",
         "datetime_fmt",
-        "lang_names",
-        "list_fmt",
-        "likely_subtags",
         "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
         "plural_rules",
         "rdt_fmt"
       ],

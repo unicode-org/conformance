@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["datetime_fmt"]
+     "const": "datetime_fmt"
    },
    "tests": {
      "type": "array",
@@ -79,5 +78,6 @@
        "label"
      ]       
    }
- }
+ },
+ "required": ["tests", "test_type"]
 }

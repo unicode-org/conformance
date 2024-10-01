@@ -7,8 +7,7 @@
  "properties": {
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["rdt_fmt"]
+     "const": "rdt_fmt"
    },
    "Test scenario": {
      "type": "string",
@@ -135,5 +134,6 @@
        ]
      }
    }
- }
+ },
+ "required": ["tests", "test_type"]
 }

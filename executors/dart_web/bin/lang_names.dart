@@ -22,8 +22,9 @@ String testLangNames(String jsonEncoded) {
         'error': 'locale_label: ' + error.toString(),
         'label': json['label'],
         'test_type': 'display_names',
-        'error_type': 'unsupported',
-        'error_detail': 'locale_label',
+        'error_type': {
+          'unsupported'
+        'error_detail': {'unsupported_locale': locale.toLanguageTag()},
         'error_retry': false // Do not repeat
     });
     return jsonEncode(outputLine);
@@ -50,7 +51,7 @@ String testLangNames(String jsonEncoded) {
         'language_label': languageLabel,
         'test_type': 'display_names',
         'error_type': 'unsupported',
-        'error_detail': languageLabel,
+        'error_detail': {'unsupported_locale': locale.toLanguageTag()},
         'error_retry': false // Do not repeat
     });
   }

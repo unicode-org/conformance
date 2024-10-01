@@ -109,8 +109,13 @@ class TestDriver:
 
     def run_plans_parallel(self):
         # Testing 15-Jan-2024
+        if not self.test_plans or len(self.test_plans) == 0:
+            return
         num_processors = mp.cpu_count()
-        logging.info('TestDriver: %s processors for %s plans' % (num_processors, len(self.test_plans)))
+
+        plan_info = '%s, %s' % (self.test_plans[0].test_type, self.test_plans[0].exec_command)
+        logging.info('TestDriver: %s processors for %s plans. %s' %
+                     (num_processors, len(self.test_plans), plan_info))
 
         processor_pool = mp.Pool(num_processors)
         with processor_pool as p:

@@ -320,7 +320,7 @@ class ConformanceSchemaValidator():
         return results
 
     def validate_schema_file(self, schema_file_path):
-        test_type = os.path.basename(os.path.dirname(schema_file_path))
+        test_type = None
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
@@ -334,6 +334,14 @@ class ConformanceSchemaValidator():
         except json.decoder.JSONDecodeError as err:
             logging.error('Error: %s Bad JSON schema: %s', err, schema_file_path)
             return False, err, schema_file_path, test_type
+
+        # Get the actual test type from the schema file.
+        try:
+            test_type_property = schema['properties']['test_type']
+            test_type = test_type_property['const']
+        except KeyError as error:
+            test_type = None
+            logging.error('%s for %s. Cannot get test_type value', error, schema_file_path, test_type_property)
 
         try:
             validate(None, schema)

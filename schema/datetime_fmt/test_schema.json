@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of these tests",
-     "type": "string",
-     "enum": ["datetime_fmt"]
+     "const": "datetime_fmt"
    },
    "tests": {
      "description": "list of N tests for date time formatting",

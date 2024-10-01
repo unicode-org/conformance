@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["plural_rules"]
+     "const": "plural_rules"
    },
    "Test scenario": {
      "type": "string",
