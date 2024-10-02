@@ -1,5 +1,7 @@
 package org.unicode.conformance;
 
+import com.ibm.icu.util.LocaleData;
+import com.ibm.icu.util.VersionInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,10 +27,13 @@ import org.unicode.conformance.testtype.relativedatetimeformat.RelativeDateTimeF
 public class Icu4jExecutor {
 
     public static final String PLATFORM = "ICU4J";
-    public static final String PLATFORM_VERSION = "74.2";
-    public static final String ICU_VERSION = "74";
 
-    public static final String CLDR_VERSION = "44";
+    private static final VersionInfo latestIcuVersion = VersionInfo.ICU_VERSION;
+
+    public static final String PLATFORM_VERSION = latestIcuVersion.getMajor() + "." + latestIcuVersion.getMinor();
+
+    public static final String ICU_VERSION = String.valueOf(latestIcuVersion.getMajor());
+    public static final String CLDR_VERSION = String.valueOf(LocaleData.getCLDRVersion().getMajor());
 
     /**
      * Entry point for the executor.
