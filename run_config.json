@@ -251,11 +251,11 @@
   {
     "prereq": {
       "name": "nvm",
-      "version": "12.22.12",
-      "command": "nvm install 12.22.12;nvm use 12.22.12 --silent"
+      "version": "14.18.3",
+      "command": "nvm install 14.18.3;nvm use 14.18.3 --silent"
     },
     "run": {
-      "icu_version": "icu67",
+      "icu_version": "icu69",
       "exec": "node",
       "test_type": [
         "collation_short",
@@ -263,7 +263,7 @@
       ],
       "per_execution": 10000
     }
- }, 
+  },
   {
     "prereq": {
       "name": "rust1.3",
