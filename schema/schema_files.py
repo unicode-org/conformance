@@ -129,7 +129,7 @@ SCHEMA_FILE_MAP = {
         },
         "verify_data": {
             "schema_file": "list_fmt/verify_schema.json",
-            'prod_file': 'list_fmt_Verify.json'
+            'prod_file': 'list_fmt_verify.json'
         },
         "result_data": {
             "schema_file": "list_fmt/result_schema.json",
