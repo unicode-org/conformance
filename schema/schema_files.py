@@ -161,7 +161,7 @@ SCHEMA_FILE_MAP = {
         },
         "result_data": {
             "schema_file": "message_fmt2/result_schema.json",
-            'prod_file': 'message_fmt2_result.json'
+            'prod_file': 'message_fmt2_test.json'
         }
     },
     "rdt_fmt": {
