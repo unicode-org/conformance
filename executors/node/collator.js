@@ -25,7 +25,7 @@ module.exports = {
 
     let compare_type = undefined;
     if ('compare_type' in json) {
-      compare_type = json['rules'];
+      compare_type = json['compare_type'];
     }
 
     // Set up collator object with optional locale and testOptions.
@@ -44,11 +44,12 @@ module.exports = {
         result_bool = false;
       }
       outputLine = {'label':json['label'],
-                    'result': result_bool,
-                    'compare_result': compared,
                    }
-
-      if (result != true) {
+      if (result == true) {
+        // Only output result field if result is true.
+        outputLine['result'] = result_bool;
+        outputLine['compare_result'] = compared;
+      } else {
         // Additional info for the comparison
         outputLine['compare'] = compared;
         if (rules) {
