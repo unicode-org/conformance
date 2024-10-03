@@ -25,8 +25,7 @@ TEST_FILE_TO_TEST_TYPE_MAP = {
     'num_fmt_test_file': 'number_fmt',
     'plural_rules_test_file': 'plural_rules',
     'plural_rules_test': 'plural_rules',
-    'rdt_fmt_test_file': 'rdt',
-    'rdt_fmt_test_file': 'rdt',
+    'rdt_fmt_test_file': 'rdt_fmt',
     'rdt_fmt_test': 'rdt_fmt'
 }
 
