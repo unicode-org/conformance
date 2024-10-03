@@ -23,6 +23,11 @@ module.exports = {
       rules = json['rules'];
     }
 
+    let compare_type = undefined;
+    if ('compare_type' in json) {
+      compare_type = json['rules'];
+    }
+
     // Set up collator object with optional locale and testOptions.
     let coll;
     try {
@@ -46,6 +51,16 @@ module.exports = {
       if (result != true) {
         // Additional info for the comparison
         outputLine['compare'] = compared;
+        if (rules) {
+          outputLine['unsupported'] = 'Collator rules not available';
+          outputLine['error_detail'] = 'No rules';
+          outputLine['error'] = 'rules';
+        }
+        else if (compare_type) {
+          outputLine['unsupported'] = 'Compare type not supported';
+          outputLine['error_detail'] = 'No comparison';
+          outputLine['error'] = 'compare_type';
+        }
       }
 
     } catch (error) {
