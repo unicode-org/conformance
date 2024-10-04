@@ -1,7 +1,6 @@
 # Run schema validation on all test outputs for all tests.
 
 # For ICU Conformance project, Data Driven Testing
-import argparse
 from datetime import datetime
 import glob
 import json
@@ -13,8 +12,8 @@ import sys
 
 import schema_validator
 import schema_files
-from schema_files import SCHEMA_FILE_MAP
 from schema_files import ALL_TEST_TYPES
+
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
@@ -57,8 +56,8 @@ def main(args):
             except BaseException as err:
                 logging.debug('No file (%s) during schema check output: %s', file, err
                               )
-        for dir in icu_dirs:
-            icu_version_set.add(os.path.basename(dir))
+        for dir_nane in icu_dirs:
+            icu_version_set.add(os.path.basename(dir_nane))
 
     icu_versions = sorted(list(icu_version_set))
     logging.debug('ICU directories = %s', icu_versions)
@@ -73,9 +72,6 @@ def main(args):
     validator.test_types = list(test_type_set)
     validator.executors = list(executor_set)
     validator.debug = 1
-    schema_base = '.'
-    schema_data_results = []
-    schema_count = 0
 
     all_results, test_validation_plans = validator.validate_test_output_with_schema()
     logging.info('  %d results for test output', len(all_results))
@@ -85,15 +81,12 @@ def main(args):
     for plan in test_validation_plans:
         test_paths.add(plan['test_result_file'])
 
-    unvalidated_json = set()
     for json_file in json_files:
         if json_file not in test_paths:
-            logging.error('JSON file %s was not verified against a schema', json_file)
-            unvalidated_json.add(json_file)
-    if unvalidated_json:
-        logging.fatal(' %s json files not validated: %s', len(unvalidated_json), unvalidated_json)
+            logging.fatal('JSON file %s was not verified against a schema', json_file)
+            # Bail out right away!
+            exit(1)
 
-    schema_errors = 0
     failed_validations = []
     passed_validations = []
     schema_count = len(all_results)
@@ -116,32 +109,29 @@ def main(args):
             }
         }
     except BaseException as error:
-        summary_json = {}
+        logging.fatal('Cannot create summary_jsonL %s', error)
+        exit(1)
 
     # Create outputs from these results.
     try:
         summary_data = json.dumps(summary_json)
-    except TypeError as err :
-        logging.error('Error: %s\n  Cannot dump JSON for %s: ',
-                      err, summary_json)
+    except TypeError as err:
+        logging.fatal('Error: %s\n  Cannot dump JSON for %s: ', err, summary_json)
+        exit(1)
+
+    output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
     try:
-        output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
         file_out = open(output_filename, mode='w', encoding='utf-8')
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.warning('Error: %s. Cannot save validation summary in file %s', error, output_filename)
-
-
-    if schema_errors:
-        logging.error('Test data file files: %d fail out of %d:',
-            len(schema_errors, schema_count))
-        for failure in schema_errors:
-            logging.error('  %s', failure)
+        logging.error('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        # Don't continue after this problem.
         exit(1)
-    else:
-        logging.info("All %d test output files match with schema", schema_count)
-        exit(0)
+
+    logging.info("All %d test output files match with schema", schema_count)
+    return
+
 
 if __name__ == "__main__":
     main(sys.argv)

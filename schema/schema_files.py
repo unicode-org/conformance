@@ -135,7 +135,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": "list_fmt_test.json"
         }
     },
-    "plural_rules" : {
+    "plural_rules": {
         "test_data": {
             "schema_file": "plural_rules/test_schema.json",
             'prod_file': 'plural_rules_test.json'
