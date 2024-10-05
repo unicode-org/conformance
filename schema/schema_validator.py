@@ -5,7 +5,7 @@ import json
 
 import jsonschema.exceptions
 from jsonschema import validate
-from jsonschema import ValidationError
+from jsonschema import validate
 from jsonschema import exceptions
 
 import logging
@@ -117,7 +117,6 @@ class ConformanceSchemaValidator:
             result_data['error'] = err
             logging.error('SchemaError: Cannot validate with test output %s and schema %s. ',
                           data_file_path, schema_file_path)
-            logging.error('  Error = %s', err)
             logging.fatal('Another failure: %s', err)
             exit(1)
 
@@ -325,29 +324,31 @@ class ConformanceSchemaValidator:
         try:
             schema = json.load(schema_file)
         except json.decoder.JSONDecodeError as err:
-            logging.error('Error: %s Bad JSON schema: %s', err, schema_file_path)
-            return False, err, schema_file_path, test_type
-
+            logging.fatal('Error: %s Bad JSON schema: %s', err, schema_file_path)
+            exit(1)
         # Get the actual test type from the schema file.
         try:
             test_type_property = schema['properties']['test_type']
             test_type = test_type_property['const']
         except KeyError as error:
             test_type = None
-            logging.error('%s for %s. Cannot get test_type value', error, schema_file_path, test_type)
+            logging.fatal('%s for %s. Cannot get test_type value', error, schema_file_path, test_type)
+            exit(1)
 
+        logging.warning(schema_file_path)
         try:
+            # With just a schema, it validates the schem.
+            # However Validator.check_schema doesn't fail as expected.
             validate(None, schema)
         except jsonschema.exceptions.SchemaError:
-            return False
-        except jsonschema.exceptions.ValidationError:
-            # This is OK since it's only checking the schema's structure
-            return True, '', schema_file_path, test_type
+            logging.fatal('Cannot validate schema %s', schema_file_path)
+            exit(1)
 
-        return True, None
+        # Wow, made it through the gauntlet!
+        return True, None, schema_file_path, test_type
 
     def check_schema_files(self):
-        # First, check all the schema files for correct formatting.
+        # First, check all the schema files for correct formatting.]
         schema_errors = []
         schema_count = 0
         for test_type in self.test_types:
@@ -357,9 +358,9 @@ class ConformanceSchemaValidator:
                 result, err = self.validate_schema_file(schema_file_path)
                 if not result:
                     schema_errors.append([schema_file_path, result, err])
-                    logging.error('Bad Schema at %s', schema_file_path)
+                    logging.fatal('Bad Schema at %s', schema_file_path)
                     # Kaboom!
-                    # exit(1)
+                    exit(1)
 
         if schema_errors:
             logging.warning('SCHEMA failures: %s' % schema_errors)

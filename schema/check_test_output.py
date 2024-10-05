@@ -109,14 +109,14 @@ def main(args):
             }
         }
     except BaseException as error:
-        logging.fatal('Cannot create summary_jsonL %s', error)
+        logging.fatal('Cannot create summary_json %s', error)
         exit(1)
 
     # Create outputs from these results.
     try:
         summary_data = json.dumps(summary_json)
     except TypeError as err:
-        logging.fatal('Error: %s\n  Cannot dump JSON for %s: ', err, summary_json)
+        logging.fatal('Error: %s\n  Cannot dump JSON for %s', err, summary_json)
         exit(1)
 
     output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
@@ -125,7 +125,7 @@ def main(args):
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.error('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        logging.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
         # Don't continue after this problem.
         exit(1)
 

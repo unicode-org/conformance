@@ -421,6 +421,7 @@ def run_verifier_tests():
         tester_display_names = Tester()
         tester_display_names.display_names_exec(executor)
 
+
 # For running verifications of test output vs. expected values.
 def main(args):
     # Initialize verifier using commandline args
