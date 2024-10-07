@@ -318,7 +318,7 @@ class ConformanceSchemaValidator:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
             logging.error('  Cannot open data file %s.\n   Err = %s', schema_file_path, err)
-            return False, err, schema_file_path, test_type
+            return [False, err, schema_file_path, test_type]
 
         # Get the schema file and validate the data against it
         try:
@@ -335,7 +335,7 @@ class ConformanceSchemaValidator:
             logging.fatal('%s for %s. Cannot get test_type value', error, schema_file_path, test_type)
             exit(1)
 
-        logging.warning(schema_file_path)
+        logging.info('Checking schema %s', schema_file_path)
         try:
             # With just a schema, it validates the schem.
             # However Validator.check_schema doesn't fail as expected.
@@ -343,9 +343,11 @@ class ConformanceSchemaValidator:
         except jsonschema.exceptions.SchemaError:
             logging.fatal('Cannot validate schema %s', schema_file_path)
             exit(1)
-
+        except jsonschema.exceptions.ValidationError:
+            # This is not an error because this is just validating a schema.
+            pass
         # Wow, made it through the gauntlet!
-        return True, None, schema_file_path, test_type
+        return [True, None, schema_file_path, test_type]
 
     def check_schema_files(self):
         # First, check all the schema files for correct formatting.]

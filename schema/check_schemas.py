@@ -7,7 +7,8 @@ import json
 
 import logging
 import logging.config
-import multiprocessing as mp
+from multiprocessing.dummy import Pool
+import multiprocessing
 import os.path
 import sys
 
@@ -61,13 +62,16 @@ class ValidateSchema:
 
 
 def parallel_validate_schema(validator, file_names):
-    num_processors = mp.cpu_count()
-    logging.info('Schema validation: %s processors for %s plans', num_processors, len(file_names))
+    num_processors = multiprocessing.cpu_count()
+    logging.info('Schema validation: %s processors for %s schema validations', num_processors, len(file_names))
 
-    processor_pool = mp.Pool(num_processors)
+    processor_pool = multiprocessing.Pool(num_processors)
     # How to get all the results
-    with processor_pool as p:
-        result = p.map(validator.validate_schema_file, file_names)
+    result = None
+    try:
+        result = processor_pool.map(validator.validate_schema_file, file_names)
+    except multiprocessing.pool.MaybeEncodingError as error:
+        pass
     return result
 
 
@@ -97,6 +101,7 @@ def main(args):
         schema_test_json_files = os.path.join(schema_test_base, '*.json')
         schema_file_names = glob.glob(schema_test_json_files)
         schema_file_paths.extend(schema_file_names)
+
     results = parallel_validate_schema(validator, schema_file_paths)
 
     for outcome in results:
