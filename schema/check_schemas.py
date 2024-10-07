@@ -103,6 +103,9 @@ def main(args):
         schema_file_paths.extend(schema_file_names)
 
     results = parallel_validate_schema(validator, schema_file_paths)
+    if not results:
+        # This should stop the whole thing!
+        exit(1)
 
     for outcome in results:
         result, err, file_path, test_type = outcome[0], outcome[1], outcome[2], outcome[3]

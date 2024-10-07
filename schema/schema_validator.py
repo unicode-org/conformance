@@ -325,24 +325,24 @@ class ConformanceSchemaValidator:
             schema = json.load(schema_file)
         except json.decoder.JSONDecodeError as err:
             logging.fatal('Error: %s Bad JSON schema: %s', err, schema_file_path)
-            exit(1)
+            return [False, err, schema_file_path, test_type]
         # Get the actual test type from the schema file.
         try:
             test_type_property = schema['properties']['test_type']
             test_type = test_type_property['const']
-        except KeyError as error:
+        except KeyError as err:
             test_type = None
-            logging.fatal('%s for %s. Cannot get test_type value', error, schema_file_path, test_type)
-            exit(1)
+            logging.fatal('%s for %s. Cannot get test_type value', err, schema_file_path, test_type)
+            return [False, err, schema_file_path, test_type]
 
         logging.info('Checking schema %s', schema_file_path)
         try:
             # With just a schema, it validates the schema.
             # However Validator.check_schema doesn't fail as expected.
             validate(None, schema)
-        except jsonschema.exceptions.SchemaError:
+        except jsonschema.exceptions.SchemaError as err:
             logging.fatal('Cannot validate schema %s', schema_file_path)
-            exit(1)
+            return [False, err, schema_file_path, test_type]
         except jsonschema.exceptions.ValidationError:
             # This is not an error because this is just validating a schema.
             pass
