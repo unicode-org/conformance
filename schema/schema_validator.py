@@ -337,7 +337,7 @@ class ConformanceSchemaValidator:
 
         logging.info('Checking schema %s', schema_file_path)
         try:
-            # With just a schema, it validates the schem.
+            # With just a schema, it validates the schema.
             # However Validator.check_schema doesn't fail as expected.
             validate(None, schema)
         except jsonschema.exceptions.SchemaError:
