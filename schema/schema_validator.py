@@ -350,7 +350,7 @@ class ConformanceSchemaValidator:
         return [True, None, schema_file_path, test_type]
 
     def check_schema_files(self):
-        # First, check all the schema files for correct formatting.]
+        # First, check all the schema files for correct formatting.
         schema_errors = []
         schema_count = 0
         for test_type in self.test_types:
