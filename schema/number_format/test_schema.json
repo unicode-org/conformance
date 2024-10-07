@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["number_fmt"]
+     "const": "number_fmt"
    },
    "Test scenario": {
      "type": "string",

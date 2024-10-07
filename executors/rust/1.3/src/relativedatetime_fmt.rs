@@ -169,7 +169,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
             return Ok(json!({
                 "error": "Number system not supported",
                 "error_msg": numbering_system,
-                "error_detail": format!("{data_locale:?}"),
+                "error_detail": {"locale": format!("{data_locale:?}")},
                 "label": label,
                 "unsupported": "non-Latn numbering system",
             }));

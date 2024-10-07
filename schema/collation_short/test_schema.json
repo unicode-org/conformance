@@ -11,8 +11,7 @@
     },
     "test_type": {
       "description": "The name of this test",
-      "type": "string",
-     "enum": ["collation_short"]
+      "const": "collation_short"
     },
     "Test scenario": {
       "type": "string",
@@ -95,5 +94,7 @@
         "type": "array"
       }
     }
-  }
+  },
+  "required": ["tests", "test_type"]
 }
+

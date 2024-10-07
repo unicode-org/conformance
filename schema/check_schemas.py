@@ -1,20 +1,22 @@
 # Schema checker for the schemas in Conformance Testing
 # For ICU Conformance project, Data Driven Testing
-import argparse
+
 from datetime import datetime
 import glob
 import json
 
 import logging
 import logging.config
-import multiprocessing as mp
+from multiprocessing.dummy import Pool
+import multiprocessing
 import os.path
 import sys
 
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
-class ValidateSchema():
+
+class ValidateSchema:
     def __init__(self, schema_base='.'):
         self.schema_base = schema_base
         logging.config.fileConfig("../logging.conf")
@@ -35,7 +37,6 @@ class ValidateSchema():
             'description': 'Results of checking schema files for correct syntax',
             'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
             'schema_validation_base': self.schema_base,
-            'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
             'validations': {
                 'failed': failed_validations,
                 'passed': passed_validations
@@ -48,26 +49,31 @@ class ValidateSchema():
             logging.error('%s: Cannot create JSON summary: %s', err, summary_json)
             return None
 
+        output_filename = os.path.join(self.schema_base, 'schema_validation_summary.json')
         try:
-            output_filename = os.path.join(self.schema_base, 'schema_validation_summary.json')
             file_out = open(output_filename, mode='w', encoding='utf-8')
             file_out.write(summary_data)
             file_out.close()
         except BaseException as error:
-            logging.warning('Error: %s. Cannot save validation summary in file %s', err, output_filename)
+            logging.warning('Error: %s. Cannot save validation summary in file %s', error, output_filename)
             return None
 
         return output_filename
 
-def parallel_validate_schema(validator, file_names):
-        num_processors = mp.cpu_count()
-        logging.info('Schema valiation: %s processors for %s plans' , num_processors, len(file_names))
 
-        processor_pool = mp.Pool(num_processors)
-        # How to get all the results
-        with processor_pool as p:
-            result = p.map(validator.validate_schema_file, file_names)
-        return result
+def parallel_validate_schema(validator, file_names):
+    num_processors = multiprocessing.cpu_count()
+    logging.info('Schema validation: %s processors for %s schema validations', num_processors, len(file_names))
+
+    processor_pool = multiprocessing.Pool(num_processors)
+    # How to get all the results
+    result = None
+    try:
+        result = processor_pool.map(validator.validate_schema_file, file_names)
+    except multiprocessing.pool.MaybeEncodingError as error:
+        pass
+    return result
+
 
 def main(args):
     logger = logging.Logger("TEST SCHEMAS LOGGER")
@@ -95,10 +101,14 @@ def main(args):
         schema_test_json_files = os.path.join(schema_test_base, '*.json')
         schema_file_names = glob.glob(schema_test_json_files)
         schema_file_paths.extend(schema_file_names)
+
     results = parallel_validate_schema(validator, schema_file_paths)
+    if not results:
+        # This should stop the whole thing!
+        exit(1)
 
     for outcome in results:
-        result, err, file_path = outcome[0], outcome[1], outcome[2]
+        result, err, file_path, test_type = outcome[0], outcome[1], outcome[2], outcome[3]
         schema_file = os.path.basename(file_path)
         validation_status.append({"test_type": test_type,
                                   "schema_path": file_path,
@@ -110,19 +120,19 @@ def main(args):
             logging.error('Bad Schema at %s', schema_file)
         schema_count += 1
 
-    ok = val_schema.save_schema_validation_summary(validation_status)
+    output_filename = val_schema.save_schema_validation_summary(validation_status)
 
     if schema_errors:
         logging.error('SCHEMA: %d fail out of %d:', 
-            len(schema_errors), schema_count)
+                      len(schema_errors), schema_count)
         for failure in schema_errors:
             logging.error('  %s', failure)
         exit(1)
     else:
-        logging.info("All %d schema are valid", schema_count)
+        logging.info("All %d schema are valid in file %s", schema_count, output_filename)
         exit(0)
 
 
-    # Add validation results to test data with validation.
+# Add validation results to test data with validation.
 if __name__ == "__main__":
     main(sys.argv)

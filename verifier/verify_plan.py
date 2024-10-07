@@ -74,11 +74,10 @@ class VerifyPlan:
         report_dir = os.path.dirname(self.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            logging.error('    !!! Cannot create directory %s for report file %s',
-                          report_dir, self.report_path)
-            logging.error('   !!! Error = %s', err)
+            logging.error('    !!! %s. Cannot create directory %s for report file %s',
+                          err, eport_dir, self.report_path)
             return None
 
 

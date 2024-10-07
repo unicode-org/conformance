@@ -84,12 +84,8 @@ class Verifier:
         report_dir = os.path.dirname(vplan.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            sys.stderr.write('    !!! Cannot create directory %s for report file %s' %
-                             (report_dir, vplan.report_path))
-            sys.stderr.write('   !!! Error = %s' % err)
-
             logging.error('    !!! Cannot create directory %s for report file %s',
                              report_dir, vplan.report_path)
             logging.error('   !!! Error = %s', err)
@@ -344,7 +340,6 @@ class Verifier:
         test_output_validation = os.path.join(self.file_base, 'testOutput', test_output_validation_name)
         if os.path.exists(test_output_validation):
             # Copy to report path
-            # Copy to report path
             validation_copy = os.path.join(self.file_base, self.report_file_name, test_output_validation_name)
             try:
                 shutil.copyfile(test_output_validation, validation_copy)
@@ -425,6 +420,7 @@ def run_verifier_tests():
 
         tester_display_names = Tester()
         tester_display_names.display_names_exec(executor)
+
 
 # For running verifications of test output vs. expected values.
 def main(args):
