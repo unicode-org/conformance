@@ -16,6 +16,9 @@ gh-cache/
 schema/schema_validation_summary.json
 
 **/__pycache__/
+
+DDT_DATA/testData/*
+!DDT_DATA/testData/examples/
 DDT_DATA/testOutput*/*
 DDT_DATA/testReports*/*
 
