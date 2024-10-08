@@ -1,13 +1,13 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/number_format__verify_schema.json'",
- "title": "ICU Number format verify data description",
- "description": "This documents format of number format verify data",
+ "$id": "https://github.com/unicode/conformance/plural_rules_verify_schema.json'",
+ "title": "ICU Plural Rules verify data description",
+ "description": "This documents format of plural rules verify data",
  "type": "object",
+ "additionalProperties": false,
  "properties": {
-   "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "const": "number_fmt"
+     "const": "plural_rules"
    },
    "verifications": {
      "type": "array",

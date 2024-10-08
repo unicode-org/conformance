@@ -5,6 +5,10 @@
  "type": "object",
  "additionalProperties": false,
  "properties": {
+   "test_type": {
+     "description": "the name language_display_name",
+     "const": "lang_names"
+   },
    "verifications": {
      "type": "array",
      "items": {
@@ -26,5 +30,6 @@
        ]       
      }
    }
- }
+ },
+ "required": ["test_type", "verifications"]
 }

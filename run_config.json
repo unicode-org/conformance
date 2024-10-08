@@ -298,10 +298,10 @@
       "test_type": [
         "collation_short",
         "datetime_fmt",
-        "lang_names",
-        "list_fmt",
-        "likely_subtags",
         "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
         "plural_rules",
         "rdt_fmt"
       ],

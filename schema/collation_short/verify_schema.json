@@ -5,6 +5,10 @@
  "type": "object",
  "properties": {
    "additionalProperties": false,
+   "test_type": {
+     "description": "The name of these tests",
+     "const": "datetime_fmt"
+   },
    "verifications": {
      "type": "array",
      "items": {
@@ -26,5 +30,6 @@
        "verify"
      ]
    }
- }
+ },
+ "required": ["test_type", "verifications"]
 }

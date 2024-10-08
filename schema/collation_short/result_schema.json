@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["collation_short"]
+     "const": "collation_short"
    },
    "tests": {
      "type": "array",
@@ -99,5 +98,6 @@
        "result"
      ]
    }
- }
+ },
+  "required": ["tests", "test_type"]
 }

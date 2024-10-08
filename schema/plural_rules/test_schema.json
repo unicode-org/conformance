@@ -1,13 +1,13 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/list_fmt_test_schema.json'",
+ "$id": "https://github.com/unicode/conformance/likely_subtags_test_schema.json'",
  "title": "ICU Conformance test data description",
- "description": "This documents the format of list_fmt test data for execution",
+ "description": "This documents the format of likely_subtags test data for execution",
  "type": "object",
  "properties": {
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "const": "list_fmt"
+     "const": "plural_rules"
    },
    "Test scenario": {
      "type": "string",
@@ -21,7 +21,7 @@
      "description": "version of conformance data",
      "type": "string"
    },
-   "test_environmment": {
+   "test_ environmment": {
      "test_language":  {
        "description": "Programming language of execution",
        "type": "string"
@@ -64,10 +64,11 @@
      "type": "integer"
    },
    "tests": {
-     "description": "list of N tests for list format",
-     "list_type": "array",
+     "description": "list of N tests for plural rules",
+     "type": "array",
      "items": {
-       "additionalProperties": true,
+       "additionalProperties": false,
+       "type": "object",
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
@@ -81,42 +82,28 @@
            "description": "locale tag source ",
            "type": "string"
          },
-         "input_list": {
-           "description": "strings to be formatted as a list ",
-           "type": "array",
-           "items": {
-             "type": "string"
-           }
+         "plural_type": {
+           "description": "cardinal or ordinal",
+           "type": "string"
          },
-         "options": {
-           "description": "Details of processing requested",
-           "type": "object",
-           "additionalProperties": false,
-           "properties": {
-             "style": {
-               "description": "size of the output for list connectors",
-               "type": "string",
-               "enum": ["long", "short", "narrow"]
-             }, 
-             "list_type": {
-               "description": "The kind of connection between list items, e.g., and/or/none",
-               "type": "string",
-               "enum": ["conjunction", "disjunction", "unit"]
-             },
-            "type": {
-               "description": "Deprecated form of list_type",
-               "type": "string",
-               "enum": ["conjunction", "disjunction", "unit"]
-             }
-           }
+         "type": {
+           "description": "cardinal or ordinal - duplicat of plural_type",
+           "type": "string"
+         },
+         "sample": {
+           "description": "the numeric value for how many - integer or float or compact ",
+           "type": "string"
          }
-       },
-       "required": [
-         "label",
-         "input_list"
-       ]
-     }
+       }
+     },
+     "required": [
+       "label",
+       "locale",
+       "plural_type",
+       "sample"
+     ]
    }
- }
+ },
+ "required": ["test_type"]
 }
-     
+

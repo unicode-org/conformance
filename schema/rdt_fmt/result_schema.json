@@ -1,13 +1,13 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/likely_subtags_verify_schema.json'",
- "title": "ICU Likely subtags verify data description",
- "description": "This documents format of likely subtags verify data",
+ "$id": "https://github.com/unicode/conformance/rdtf_fmt_verify_schema.json'",
+ "title": "ICU Relative Date Time Format verify data description",
+ "description": "This documents format of rdt_fmt verify data",
  "type": "object",
  "additionalProperties": true,
  "properties": {
    "test_type": {
      "description": "The name of the test",
-     "const": "likely_subtags"
+     "const": "rdt_fmt"
    },
    "Test scenario": {
      "type": "string",
@@ -79,7 +79,7 @@
      "type": "array",
      "items": {
        "type": "object",
-       "additionalProperties": false,
+       "additionalProperties": true,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
