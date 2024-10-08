@@ -56,13 +56,14 @@ module.exports = {
                     "locale_label": locale,
                     "language_label": input,
                     "result": resultString,
-                    "error": error.toString(),
+                    "error": error_string
                     "actual_options": options.toString(),
+                    "result": "error"
                    };
+      outputLine["error_type"] = 'unsupported';
+      outputLine["unsupported"] = error_string;
       if (error instanceof RangeError) {
         // The locale can't be handled for some reason!
-        outputLine["error_type"] = 'unsupported';
-        outputLine["unsupported"] = error_string;
         outputLine["error_detail"] = 'unsupported locale';
       }
     }
