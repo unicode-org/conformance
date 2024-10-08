@@ -17,6 +17,7 @@ import datasets as ddt_data
 import ddtargs
 
 from testplan import TestPlan
+from config import paths
 
 
 # TODO: Separate TestPlan into another module.
@@ -31,7 +32,7 @@ class TestDriver:
 
         self.run_serial = False  # Default is to operate in parallel
 
-        logging.config.fileConfig("../logging.conf")
+        logging.config.fileConfig(paths["logging_config"])
 
         return
 

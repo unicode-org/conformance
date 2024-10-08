@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import time
+from config import paths
 
 
 # Set up and execute a testing plan for DDT
@@ -57,7 +58,7 @@ class TestPlan:
 
         self.verifier = None
 
-        logging.config.fileConfig("../logging.conf")
+        logging.config.fileConfig(paths["logging_config"])
 
     def set_options(self, options):
         self.options = options
@@ -345,7 +346,7 @@ class TestPlan:
 
             if self.progress_interval and test_num % self.progress_interval == 0:
                 formatted_num = '{:,}'.format(test_num)
-                logging.debug('Testing %s / %s. %s of %s', 
+                logging.debug('Testing %s / %s. %s of %s',
                     self.exec_list[0], self.testScenario, formatted_num, formatted_count)
 
             # Accumulate tests_per_execution items into a single outline
