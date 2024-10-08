@@ -55,10 +55,8 @@ module.exports = {
       outputLine = {"label": json['label'],
                     "locale_label": locale,
                     "language_label": input,
-                    "result": resultString,
-                    "error": error_string
+                    "error": error_string,
                     "actual_options": options.toString(),
-                    "result": "error"
                    };
       outputLine["error_type"] = 'unsupported';
       outputLine["unsupported"] = error_string;
