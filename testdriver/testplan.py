@@ -159,6 +159,7 @@ class TestPlan:
                 self.jsonOutput["platform"] = json.loads(result)
             except json.JSONDecodeError as error:
                 logging.error("Encountered error in parsing executor result string as JSON: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 logging.error("Result string received from executor: [%s]", result)
                 return None
 
@@ -182,6 +183,7 @@ class TestPlan:
                                                    self.testData.testDataFilename)
             except (KeyError, IndexError) as error:
                 logging.error("Encountered error processing executor JSON values: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 return None
         return True
 
@@ -217,6 +219,7 @@ class TestPlan:
             "test_count": len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment
+        self.jsonOutput['test_type'] = self.test_type
         return test_environment
 
     def complete_output_file(self, error_info):

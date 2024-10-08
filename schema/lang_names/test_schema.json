@@ -6,8 +6,7 @@
  "properties": {
    "test_type": {
      "description": "the name language_display_name",
-     "type": "string",
-     "enum": ["lang_names"]
+     "const": "lang_names"
    },
    "Test scenario": {
      "type": "string",

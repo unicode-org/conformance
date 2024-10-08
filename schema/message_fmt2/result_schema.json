@@ -1,13 +1,13 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/list_format_verify_schema.json'",
- "title": "ICU list format verify data description",
- "description": "This documents format of number format verify data",
+ "$id": "https://github.com/unicode/conformance/message_fmt2_verify_schema.json'",
+ "title": "ICU message format2 verify data description",
+ "description": "This documents format of message format2 verify data",
  "type": "object",
  "properties": {
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "const": "list_fmt"
+     "const": "message_fmt2"
    },
    "tests": {
      "type": "array",
@@ -18,6 +18,25 @@
          "label": {
            "description": "A numeric ID, unique for the set of tests",
            "type": "string"
+         },
+         "actual_options": {
+           "description": "what was passed to executor function",
+           "type": ["object", "string"],
+           "additionalProperties": true,
+           "properties": {
+             "locale": {
+               "description": "language tag for formatting the output",
+               "type": "string"
+             },
+             "input": {
+               "description": "date time specification in XYZ format",
+               "type": "string"
+             },
+             "and_more": {
+               "description": "a placeholder for now",
+               "type": "string"
+             }
+           }
          },
          "unsupported": {
            "description": "More about the failure",
