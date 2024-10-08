@@ -45,23 +45,7 @@ class DdtArgs():
         description='Process DDT Test Driver arguments')
 
     setCommonArgs(self.parser)
-
-    self.parser.add_argument(
-        '--start_test', default=0,
-        help='number of tests to skip at start of the test data')
-
-    self.parser.add_argument(
-        '--per_execution', default=1,
-        help='How many tests are run in each invocation of an executor')
-
-    # For handling verification
-    self.parser.add_argument('--verifyonly', default=None)
-    self.parser.add_argument('--noverify', default=None)  #
-    self.parser.add_argument('--custom_verifier', default=None)  #
-
-    self.parser.add_argument(
-        '--run_serial', default=None,
-        help='Set if execution should be done serially. Parallel is the default.')
+    setup_args(self.parser)
 
     self.options = self.parser.parse_args(args)
 
@@ -101,6 +85,26 @@ class VerifyArgs():
 
   def getOptions(self):
     return self.options
+
+
+# Set up arguments for testDriver
+def setup_args(parser):
+    parser.add_argument(
+        '--start_test', default=0,
+        help='number of tests to skip at start of the test data')
+
+    parser.add_argument(
+        '--per_execution', default=1,
+        help='How many tests are run in each invocation of an executor')
+
+    # For handling verification
+    parser.add_argument('--verifyonly', default=None)
+    parser.add_argument('--noverify', default=None)  #
+    parser.add_argument('--custom_verifier', default=None)  #
+
+    parser.add_argument(
+        '--run_serial', default=None,
+        help='Set if execution should be done serially. Parallel is the default.')
 
 
 # Set up arguments common to both testDriver and verifier
