@@ -4,6 +4,7 @@ import json
 import logging
 import logging.config
 from string import Template
+import os
 import sys
 
 class reportTemplate():
@@ -16,9 +17,11 @@ class reportTemplate():
         try:
             template_file = open(filename, mode='r')
             detail_template = template_file.read()
+            os.fsync(template_file)
             template_file.close()
-        except:
-            logging.error('Cannot open detail template %s', filename)
+        except BaseException as error:
+            logging.error('report_template %s : Cannot open detail template %s',
+                          error,filename)
 
         self.html_template =  Template(detail_template)
 
@@ -27,9 +30,11 @@ class reportTemplate():
         try:
             template_file = open(filename, mode='r')
             summary_template = template_file.read()
+            os.fsync(template_file)
             template_file.close()
-        except:
-            logging.error('Cannot open summary template %s', filename)
+        except BaseException as error:
+            logging.error('report_template: %s, Cannot open summary template %s',
+                          error, filename)
 
         self.summary_html_template = Template(summary_template)
 

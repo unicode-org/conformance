@@ -51,6 +51,7 @@ class NumberFmtGenerator(DataGenerator):
             # TODO: Change these saves to use saveJsonFile with output_path ??
             num_fmt_verify_file = open(output_path, "w", encoding="UTF-8")
             json.dump(json_verify, num_fmt_verify_file, indent=1)
+            os.fsync(num_fmt_verify_file)
             num_fmt_verify_file.close()
 
             logging.info(
