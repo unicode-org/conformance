@@ -43,27 +43,6 @@ const { dartVersion } = require('./version.js')
 let doLogInput = 0;
 let doLogOutput = 0;
 
-// Test type support. Add new items as they are implemented
-const testTypes = {
-  TestCollShiftShort: Symbol("coll_shift_short"),
-  TestCollationShort: Symbol("collation_short"),
-  TestDecimalFormat: Symbol("decimal_fmt"),
-  TestNumberFormat: Symbol("number_fmt"),
-  TestDateTimeFormat: Symbol("datetime_fmtl"),
-  TestRelativeDateTimeFormat: Symbol("relative_datetime_fmt"),
-  TestPluralRules: Symbol("plural_rules"),
-  TestDisplayNames: Symbol("display_names"),
-  TestLangNames: Symbol("language_display_name"),
-}
-
-const supported_test_types = [
-  Symbol("coll_shift_short"),
-  Symbol("collation_short"),
-  Symbol("decimal_fmt"),
-  Symbol("number_fmt"),
-  Symbol("display_names"),
-  Symbol("language_display_name")
-];
 const supported_tests_json = {
   "supported_tests":
     [
@@ -85,36 +64,6 @@ let rl = readline.createInterface({
   output: process.stdout,
   terminal: false
 });
-
-/**
- * Given a JSON data structure, check for "test_type". If not present, then
- * infer the test ID from the label
- * !!! Not used now.
- */
-function parseJsonForTestId(parsed) {
-  let testId = parsed["test_type"];
-
-  if (testId == "coll_shift_short") {
-    return testTypes.TestCollShiftShort;
-  }
-  if (testId == "coll_shift_short") {
-    return testTypes.TestCollationShort;
-  }
-  if (testId == "decimal_fmt" || testId == "number_fmt") {
-    return testTypes.TestDecimalFormat;
-  }
-  if (testId == "display_names") {
-    return testTypes.TestDisplayNames;
-  }
-  if (testId == "language_display_name") {
-    return testTypes.TestLangNames;
-  }
-  console.log("#*********** NODE Unknown test type = " + testId);
-  return null;
-
-  // No test found.
-  return null;
-}
 
 // Read JSON tests, each on a single line.
 // Process the test and output a line of JSON results.
@@ -176,7 +125,6 @@ rl.on('line', function (line) {
           console.log("#----- PARSED JSON: " + JSON.stringify(parsedJson));
         }
 
-        // testId = parseJsonForTestId(parsedJson);
         // Handle the string directly to  call the correct function.
         const test_type = parsedJson["test_type"];
         if (test_type == "collation_short") {
