@@ -272,11 +272,9 @@ class TestPlan:
         try:
             result_dir = os.path.dirname(self.outputFilePath)
             if not os.path.isdir(result_dir):
-                os.makedirs(result_dir)
+                os.makedirs(result_dir, exist_ok=True)
         except BaseException as error:
-            sys.stderr.write('!!!%s:  Cannot create directory %sfor report file %s' %
-                             (error, result_dir, self.outputFilePath))
-            return None
+            logging.error('testplay.py: %s for %s / %s', error, result_dir, self.outputFilePath)
 
         # Create results file
         try:
