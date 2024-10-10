@@ -24,7 +24,7 @@ fi
 if [[ $CI == "true" ]] && ! [ -x "$(command -v nvm)" ]
 then
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-    export NVM_DIR="$HOME/.config/nvm
+    export NVM_DIR="$HOME/.config/nvm"
 else
     export NVM_DIR=$HOME/.nvm
 fi
