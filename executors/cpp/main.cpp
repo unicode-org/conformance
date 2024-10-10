@@ -41,11 +41,18 @@ using std::string;
 // Test functions
 extern const string TestCollator(json_object *json_in);
 extern const string TestDatetimeFmt(json_object *json_in);
-extern const string TestLangNames(json_object *json_in);
+extern const string TestLocaleDisplayNames(json_object *json_in);
 extern const string TestLikelySubtags(json_object *json_in);
 extern const string TestListFmt(json_object *json_in);
+
+// This API was added in ICU75.1
+#if U_ICU_VERSION_MAJOR_NUM >= 75
+extern const string TestMessageFormat2(json_object *json_in);
+#endif
+
 extern const string TestNumfmt(json_object *json_in);
 extern const string TestPluralRules(json_object *json_in);
+extern const string TestRelativeDateTimeFmt(json_object *json_in);
 
 /**
  * Main   --  process command line, call tests or return data
@@ -63,7 +70,8 @@ int main(int argc, const char** argv) {
     "list_fmt",
     "lang_names",
     "number_fmt",
-    "plural_rules"
+    "plural_rules",
+    "rdt_fmt"
   };
 
   for (std::string line; std::getline(cin, line);) {
@@ -108,6 +116,10 @@ int main(int argc, const char** argv) {
         outputLine = TestCollator(json_input);
       } else if (test_type == "datetime_fmt") {
          outputLine = TestDatetimeFmt(json_input);
+#if U_ICU_VERSION_MAJOR_NUM >= 75
+      } else if (test_type == "message_fmt2") {
+        outputLine = TestMessageFormat2(json_input);
+#endif
       } else if (test_type == "number_fmt") {
          outputLine = TestNumfmt(json_input);
       } else if (test_type == "likely_subtags") {
@@ -115,9 +127,11 @@ int main(int argc, const char** argv) {
       } else if (test_type == "list_fmt") {
         outputLine = TestListFmt(json_input);
       } else if (test_type == "lang_names") {
-        outputLine = TestLangNames(json_input);
+        outputLine = TestLocaleDisplayNames(json_input);
       } else if (test_type == "plural_rules") {
         outputLine = TestPluralRules(json_input);
+      } else if (test_type == "rdt_fmt") {
+        outputLine = TestRelativeDateTimeFmt(json_input);
       } else {
         outputLine =  "# BAD TEST " + test_type;
       }

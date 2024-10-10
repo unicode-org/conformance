@@ -98,7 +98,7 @@ class TestPlan:
             # Test data versions are given as "icu" + primary number, e.g., "73"
             # TODO: Consider sorting with possible dotted versions, e.g., 73.1.3
             newest_version = sorted(icu_test_dirs, reverse=True)[0]
-            logging.info('** Replacing proposed icu version of %s with version %s',
+            logging.warning('** Replacing proposed icu version of %s with version %s',
                          self.icu_version, newest_version)
             self.icu_version = newest_version
 
@@ -130,12 +130,10 @@ class TestPlan:
 
         if self.options.run_limit:
             self.run_limit = int(self.options.run_limit)
-            if self.debug:
-                logging.debug('!!! RUN LIMIT SET: %d', self.run_limit)
+            logging.debug('!!! RUN LIMIT SET: %d', self.run_limit)
 
-        if self.debug:
-            logging.debug('Running plan %s on data %s',
-                self.exec_command, self.inputFilePath)
+        logging.debug('Running plan %s on data %s',
+                      self.exec_command, self.inputFilePath)
 
         if self.options.exec_mode == 'one_test':
             self.run_one_test_mode()
@@ -155,13 +153,13 @@ class TestPlan:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
         else:
-            if self.debug:
-                logging.debug('EXECUTOR INFO = %s', result)
+            logging.debug('EXECUTOR INFO = %s', result)
 
             try:
                 self.jsonOutput["platform"] = json.loads(result)
             except json.JSONDecodeError as error:
                 logging.error("Encountered error in parsing executor result string as JSON: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 logging.error("Result string received from executor: [%s]", result)
                 return None
 
@@ -185,6 +183,7 @@ class TestPlan:
                                                    self.testData.testDataFilename)
             except (KeyError, IndexError) as error:
                 logging.error("Encountered error processing executor JSON values: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 return None
         return True
 
@@ -199,9 +198,8 @@ class TestPlan:
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
         else:
-            if self.debug:
-                logging.debug('TERMINATION INFO = %s', result)
-                self.jsonOutput["platform"] = json.loads(result)
+            logging.debug('TERMINATION INFO = %s', result)
+            self.jsonOutput["platform"] = json.loads(result)
 
     def generate_header(self):
         # TODO: Create JSON versions of each of these rather than printing
@@ -221,6 +219,7 @@ class TestPlan:
             "test_count": len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment
+        self.jsonOutput['test_type'] = self.test_type
         return test_environment
 
     def complete_output_file(self, error_info):
@@ -237,9 +236,8 @@ class TestPlan:
             self.resultsFile.close()
 
     def run_one_test_mode(self):
-        if self.debug:
-            logging.debug('  Running OneTestMode %s on data %s',
-                  self.exec_command, self.inputFilePath)
+        logging.debug('  Running OneTestMode %s on data %s',
+                      self.exec_command, self.inputFilePath)
 
         # Set up calls for version data --> results
 
@@ -252,17 +250,15 @@ class TestPlan:
             # The test data was not found. Skip this test.
             return None
 
-        if self.debug:
-            logging.info('@@@ %d tests found', len(tests))
+        logging.debug('@@@ %d tests found', len(tests))
 
         # Initialize JSON output headers --> results
 
         self.exec_list = self.exec_command.split()
         # TODO: get other things about the exec
-        if self.debug:
-            logging.info('EXEC info: exec_command %s, exec_list >%s<',
-                         self.exec_command,
-                         self.exec_list)
+        logging.debug('EXEC info: exec_command %s, exec_list >%s<',
+                     self.exec_command,
+                     self.exec_list)
 
         # Start the JSON output
         # Set up calls for version data --> results
@@ -284,9 +280,8 @@ class TestPlan:
 
         # Create results file
         try:
-            if self.debug:
-                logging.debug('++++++ Results file path = %s', self.outputFilePath)
-                self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
+            logging.debug('++++++ Results file path = %s', self.outputFilePath)
+            self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
         except BaseException as error:
             logging.error('*** Cannot open results file at %s. Err = %s',
                   self.outputFilePath, error)
@@ -375,7 +370,7 @@ class TestPlan:
 
             test_num += 1
             if self.run_limit and test_num > self.run_limit:
-                logging.info('** Stopped after %d tests', (test_num - 1))
+                logging.debug('** Stopped after %d tests', (test_num - 1))
                 break
 
         # PROCESS THE LAST BATCH, if any

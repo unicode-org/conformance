@@ -4,12 +4,14 @@ import logging
 import logging.config
 import multiprocessing as mp
 import re
-from enum import Enum
 
+from test_type import TestType, test_types
 from generators.collation_short import CollationShortGenerator
 from generators.datetime_fmt import DateTimeFmtGenerator
 from generators.lang_names import LangNamesGenerator
+from generators.localeDisplayNames import LocaleNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
+from generators.message_fmt2 import MessageFmt2Generator
 from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
 from generators.plurals import PluralGenerator
@@ -18,23 +20,11 @@ from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 reblankline = re.compile("^\s*$")
 
 
-class TestType(str, Enum):
-    COLLATION_SHORT = "collation_short"
-    DATETIME_FMT = "datetime_fmt"
-    LANG_NAMES = "lang_names"
-    LIKELY_SUBTAGS = "likely_subtags"
-    LIST_FMT = "list_fmt"
-    NUMBER_FMT = "number_fmt"
-    RELATIVE_DATETIME_FMT = "rdt_fmt"
-    PLURAL_RULES = "plural_rules"
-
-
 def setupArgs():
     parser = argparse.ArgumentParser(prog="testdata_gen")
     parser.add_argument("--icu_versions", nargs="*", default=[])
-    all_test_types = [t.value for t in TestType]
     parser.add_argument(
-        "--test_types", nargs="*", choices=all_test_types, default=all_test_types
+        "--test_types", nargs="*", choices=test_types, default=test_types
     )
     # -1 is no limit
     parser.add_argument("--run_limit", nargs="?", type=int, default=-1)
@@ -91,11 +81,24 @@ def generate_versioned_data(version_info):
 
     if TestType.LANG_NAMES in args.test_types:
         # This is slow
-        generator = LangNamesGenerator(icu_version, args.run_limit)
-        generator.process_test_data()
+
+        # First try with the new source of data. If not found, then use the older
+        # lang names generator.
+        generator = LocaleNamesGenerator(icu_version, args.run_limit)
+        if not generator:
+            logging.info('lang generated from old LangNames data in %s', icu_version)
+            generator = LangNamesGenerator(icu_version, args.run_limit)
+        else:
+            logging.info('lang generated from new LocaleNames data in %s', icu_version)
+        if generator:
+            generator.process_test_data()
 
     if TestType.LIKELY_SUBTAGS in args.test_types:
         generator = LikelySubtagsGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
+    if TestType.MESSAGE_FMT2 in args.test_types:
+        generator = MessageFmt2Generator(icu_version, args.run_limit)
         generator.process_test_data()
 
     if TestType.NUMBER_FMT in args.test_types:

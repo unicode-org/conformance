@@ -139,6 +139,7 @@ class PluralGenerator(DataGenerator):
                             'locale': locale,
                             'label': str(self.label_num),
                             'type': num_type,
+                            'plural_type': num_type,
                             'sample': sample
                         }
                         verify_item = {

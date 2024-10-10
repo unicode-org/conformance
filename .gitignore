@@ -5,6 +5,7 @@
 
 .pylintrc
 .idea
+.devcontainer
 
 executors/rust/target/
 executors/cpp/executor
@@ -30,14 +31,25 @@ testgen/icu*/*.json
 
 *~
 
+# JS deps
+**/node_modules
+
 # C / CPP compiled
 *.o
 
 testdriver/.local-chrome/
 testgen/*.json
+testgen/generators/*.json
 
 TEMP_DATA/*
+TEMP_DATA_100/*
 
 # log files (including logrotate state and file backups)
 debug.log*
 logrotate.state
+
+# Maven
+dependency-reduced-pom.xml
+
+# Dart
+executors/dart/.dart_tool/

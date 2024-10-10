@@ -12,4 +12,6 @@ public class LangNamesInputJson implements ITestTypeInputJson {
 
   public String locale_label;
 
+  public LangNamesDisplayOptions language_display;  // For standard or dialect
+
 }

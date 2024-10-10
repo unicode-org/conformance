@@ -23,20 +23,20 @@ class ListFmtGenerator(DataGenerator):
         }
 
         run_list = [
-            ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0'],
+            ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0 --silent'],
             ['node generators/list_fmt_gen.js'],
             ['mv list_fmt*.json icu74']
         ]
 
         if self.icu_version not in icu_nvm_versions:
-            logging.error('Generating list_fmt data not configured for icu version %s', self.icu_version)
+            logging.warning('Generating list_fmt data not configured for icu version %s', self.icu_version)
             return False
 
         # Set up Node version and call the generator
         nvm_version = icu_nvm_versions[self.icu_version]
-        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s; node generators/list_fmt_gen.js' % (nvm_version, nvm_version)
+        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; node generators/list_fmt_gen.js' % (nvm_version, nvm_version)
 
-        logging.info('Running this command: %s', generate_command)
+        logging.debug('Running this command: %s', generate_command)
         result = result = subprocess.run(generate_command, shell=True)
 
         # Move results to the right directory

@@ -1,0 +1,71 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/language_names_test_schema.json'",
+ "title": "ICU Conformance test data description",
+ "description": "This documents the format of language names test data for execution",
+ "type": "object",
+ "properties": {
+   "test_type": {
+     "description": "the name language_display_name",
+     "const": "lang_names"
+   },
+   "Test scenario": {
+     "type": "string",
+     "description":" Obsolete tag to be removed and replaced with test Type"
+   },
+   "source": {
+     "description": "origin of conformance data",
+     "type": "object",
+     "properties": {
+       "repository": {
+         "description": "Reference to the repository",
+         "type": "string"
+       },
+       "url": {
+         "description": "Reference to the source of this conformance data",
+         "type": "string"
+       },
+       "source_version": {
+         "description": "version of conformance data",
+         "type": "string"
+       }
+     }
+   },
+   "tests": {
+     "description": "list of N tests for language names",
+     "type": "array",
+     "items": {
+       "type": "object",
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+          "hexhash": {
+            "description": "A hexadecimal hash code for the test without the label",
+            "type": "string"
+          },
+         "language_label": {
+           "description": "locale tag of the source language ",
+           "type": "string"
+         },
+         "languageDisplay": {
+           "description": "either 'standard' or 'dialect'",
+           "type": "string"
+         },
+         "locale_label": {
+           "description": "locale tag of the language being described ",
+           "type": "string"
+         }
+       },
+       "additionalProperties": false
+     },
+     "required": [
+       "label",
+       "language_label",
+       "locale_label"
+     ]
+   },
+   "additionalProperties": false
+ },
+ "required": ["test_type", "tests"]
+}

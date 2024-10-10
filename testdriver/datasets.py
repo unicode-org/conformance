@@ -105,6 +105,7 @@ class testType(Enum):
   likely_subtags = 'likely_subtags'
   list_fmt = 'list_fmt'
   local_info = 'local_info'
+  message_fmt2 = 'message_fmt2'
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
   plural_rules = 'plural_rules'
@@ -151,6 +152,12 @@ testDatasets[testName] = DataSet(testType.likely_subtags.value,
                                  'likely_subtags_test.json',
                                  'likely_subtags_verify.json',
                                  CLDRVersion.CLDR43, ICUVersion.ICU73)
+
+testName = 'message_fmt2'
+testDatasets[testName] = DataSet(testType.message_fmt2.value,
+                                 'message_fmt2_test.json',
+                                 'message_fmt2_verify.json',
+                                 CLDRVersion.CLDR45, ICUVersion.ICU75)
 
 testName = 'number_fmt'
 testDatasets[testName] = DataSet(testType.number_fmt.value,
@@ -199,7 +206,7 @@ ExecutorCommands = {
     "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
-    "icu4j" : "mvn -f ../executors/icu4j/74/executor-icu4j/pom.xml compile exec:java -Dexec.mainClass=org.unicode.conformance.Icu4jExecutor"
+    "icu4j" : "java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar"
     }
 
 class ParallelMode(Enum):
@@ -405,7 +412,11 @@ system = ExecutorLang.ICU4J.value
 
 allExecutors.addSystem(system, '74',
                        'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
-                       CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
+                       CLDRVersion.CLDR44, versionICU=ICUVersion.ICU74)
+
+allExecutors.addSystem(system, '75',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+                       CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75)
 
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,

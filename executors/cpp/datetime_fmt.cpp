@@ -20,6 +20,8 @@
 
 #include "unicode/uclean.h"
 
+#include "./util.h"
+
 using icu::Calendar;
 using icu::DateFormat;
 using icu::Locale;
@@ -46,7 +48,9 @@ const string TestDatetimeFmt(json_object *json_in) {
   string label_string = json_object_get_string(label_obj);
 
   Calendar *cal = nullptr;
-  TimeZone *tz = nullptr;
+
+  UnicodeString u_tz_utc("UTC");
+  TimeZone *tz = nullptr;  // TimeZone::createTimeZone(u_tz_utc);
 
   // The locale for formatted output
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
@@ -63,33 +67,43 @@ const string TestDatetimeFmt(json_object *json_in) {
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
 
-  string calendar_str;
+  string calendar_str = "gregory";
 
   // Get fields out of the options if present
   json_object* options_obj = json_object_object_get(json_in, "options");
 
   if (options_obj) {
-    json_object* cal_item = json_object_object_get(options_obj, "calendar");
+    // Check for timezone and calendar
+    json_object* option_item =
+        json_object_object_get(options_obj, "timeZone");
+    if (option_item) {
+      string timezone_str = json_object_get_string(option_item);
+      UnicodeString u_tz(timezone_str.c_str());
+      tz = TimeZone::createTimeZone(u_tz);
+    }
+
+    json_object* cal_item =
+        json_object_object_get(options_obj, "calendar");
     if (cal_item) {
       calendar_str = json_object_get_string(cal_item);
-
-      // Add '@calendar=' + calendar_string to locale
-      locale_string = locale_string + "@calendar=" + calendar_str;
-      display_locale = locale_string.c_str();
-
-      if (tz) {
-        cal = Calendar::createInstance(*tz, display_locale, status);
-      } else {
-        cal = Calendar::createInstance(display_locale, status);
-      }
-      if (U_FAILURE(status)) {
-        json_object_object_add(
-            return_json,
-            "error",
-            json_object_new_string("Error in createInstance for calendar"));
-        return json_object_to_json_string(return_json);
-      }
     }
+  }
+
+  // Add '@calendar=' + calendar_string to locale
+  locale_string = locale_string + "@calendar=" + calendar_str;
+  display_locale = locale_string.c_str();
+
+  if (tz) {
+    cal = Calendar::createInstance(tz, display_locale, status);
+  } else {
+    cal = Calendar::createInstance(display_locale, status);
+  }
+  if (U_FAILURE(status)) {
+    json_object_object_add(
+        return_json,
+        "error",
+        json_object_new_string("Error in createInstance for calendar"));
+    return json_object_to_json_string(return_json);
   }
 
   DateFormat* df;
@@ -97,12 +111,11 @@ const string TestDatetimeFmt(json_object *json_in) {
 
   // Get the input data as a date object.
   // Types of input:
-  //   "input_string" parsable ISO formatted string such as
-  //       "2020-03-02 10:15:17 -08:00"
+  //   "input_string" parsable ISO formatted string of an instant
+  //       "2020-03-02 10:15:17Z
 
   string dateStyle_str;
   string timeStyle_str;
-  string timezone_str;
 
   // Expected values if neither dateStyle nor timeStyle is given explicitly.
   icu::DateFormat::EStyle date_style = icu::DateFormat::EStyle::kNone;
@@ -123,13 +136,6 @@ const string TestDatetimeFmt(json_object *json_in) {
     if (option_item) {
       timeStyle_str = json_object_get_string(option_item);
       time_style = StringToEStyle(timeStyle_str);
-    }
-
-    option_item = json_object_object_get(options_obj, "timeZone");
-    if (option_item) {
-      timezone_str = json_object_get_string(option_item);
-      UnicodeString u_tz(timezone_str.c_str());
-      tz = TimeZone::createTimeZone(u_tz);
     }
   }
 
@@ -156,11 +162,7 @@ const string TestDatetimeFmt(json_object *json_in) {
                                                  display_locale,
                                                  status);
     }
-    if (U_FAILURE(status)) {
-      json_object_object_add(
-          return_json,
-          "error",
-          json_object_new_string("Error in createInstanceForSkeleton"));
+    if (check_icu_error(status, return_json, "createInstanceForSkeleton")) {
       return json_object_to_json_string(return_json);
     }
   } else {
@@ -180,10 +182,10 @@ const string TestDatetimeFmt(json_object *json_in) {
     return json_object_to_json_string(return_json);
   }
 
+  // !!! IS OFFSET ALREADY CONSIDERED?
   if (tz) {
     df->setTimeZone(*tz);
   }
-
 
   // Use ISO string form of the date/time.
   json_object *input_string_obj =
@@ -197,9 +199,26 @@ const string TestDatetimeFmt(json_object *json_in) {
 
     string input_date_string = json_object_get_string(input_string_obj);
 
+    // SimpleDateFormat can't parse options or timezone offset
+    // First, remove options starting with "["
+    std::size_t pos = input_date_string.find("[");
+    if (pos >= 0) {
+      input_date_string = input_date_string.substr(0, pos);
+    }
+    // Now remove the explicit offset
+    pos = input_date_string.find("+");
+    if (pos >= 0) {
+      input_date_string = input_date_string.substr(0, pos);
+    }
+    pos = input_date_string.rfind("-");
+    if (pos >= 10) {
+      // DOn't clip in the date fields
+      input_date_string = input_date_string.substr(0, pos);
+    }
     UnicodeString date_ustring(input_date_string.c_str());
 
-    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:s.SSSZ", und_locale, status);
+    // TODO:  handles the offset +/-
+    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:sZ", und_locale, status);
     if (U_FAILURE(status)) {
       string error_name = u_errorName(status);
       string error_message =
@@ -216,17 +235,9 @@ const string TestDatetimeFmt(json_object *json_in) {
 
     // Get date from the parser if possible.
     test_date_time = iso_date_fmt.parse(date_ustring, status);
-
-    if (U_FAILURE(status)) {
-      string error_message = "# iso_date_fmt parse failure: " +
-                             input_date_string + " " +
-                             u_errorName(status);
-
-      json_object_object_add(
-          return_json,
-          "error",
-          json_object_new_string(error_message.c_str()));
-
+    if (check_icu_error(status,
+                        return_json,
+                        "# iso_date_fmt parse failure" + input_date_string)) {
       return json_object_to_json_string(return_json);
     }
   } else if (input_millis) {
@@ -241,27 +252,18 @@ const string TestDatetimeFmt(json_object *json_in) {
     return json_object_to_json_string(return_json);
   }
 
-  // The output of the formatting
+  // The output of the formatting step
   UnicodeString formatted_result;
-
   df->format(test_date_time, formatted_result);
 
   // Get the resulting value as a string
-  char test_result_string[1000] = "";
-  formatted_result.extract(
-      test_result_string, 1000, nullptr, status);  // ignore return value
+  string result_string;
+  formatted_result.toUTF8String(result_string);
 
-  if (U_FAILURE(status)) {
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("Failed extracting test result"));
-  } else {
-    // Good calls all around. Send the result!
-    json_object_object_add(return_json,
-                           "result",
-                           json_object_new_string(test_result_string));
-  }
+  // Good calls all around. Send the result!
+  json_object_object_add(return_json,
+                         "result",
+                         json_object_new_string(result_string.c_str()));
 
   return json_object_to_json_string(return_json);
 }

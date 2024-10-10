@@ -1,6 +1,6 @@
 # Checks test data generated against schema in Conformance Testing
 # For ICU Conformance project, Data Driven Testing
-import argparse
+
 from datetime import datetime
 import glob
 import json
@@ -8,14 +8,12 @@ import json
 
 import logging
 import logging.config
-import multiprocessing as mp
 import os.path
 import sys
 
 import schema_validator
-import schema_files
-from schema_files import SCHEMA_FILE_MAP
 from schema_files import ALL_TEST_TYPES
+
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
@@ -34,13 +32,12 @@ def main(args):
 
     # TODO: get ICU versions
     icu_versions = []
-    test_type_set = set()
     if os.path.exists(test_data_path):
         check_path = os.path.join(test_data_path, 'icu*')
         icu_dirs = glob.glob(check_path)
         logging.debug('ICU DIRECTORIES = %s', icu_dirs)
-        for dir in icu_dirs:
-            icu_versions.append(os.path.basename(dir))
+        for dir_name in icu_dirs:
+            icu_versions.append(os.path.basename(dir_name))
 
     logging.debug('ICU directories = %s', icu_versions)
     logging.debug('test types = %s', ALL_TEST_TYPES)
@@ -53,19 +50,15 @@ def main(args):
     validator.icu_versions = sorted(icu_versions)
     validator.test_types = ALL_TEST_TYPES
     validator.debug = 1
-    schema_base = '.'
-    schema_data_results = []
-    schema_count = 0
 
     all_results = validator.validate_test_data_with_schema()
     logging.info('  %d results for generated test data', len(all_results))
 
-    schema_errors = 0
+    schema_errors = []
     failed_validations = []
     passed_validations = []
     schema_count = len(all_results)
     for result in all_results:
-        #print(result)
         if result['result']:
             passed_validations.append(result)
         else:
@@ -74,7 +67,7 @@ def main(args):
     # Create .json
     summary_json = {
         'validation_type': 'Generated test data files',
-        'description': 'Results of validating generated test data agains schema',
+        'description': 'Results of validating generated test data against schema',
         'when_processed': datetime.now().strftime('%Y-%m-%d T%H%M%S.%f'),
         'validations': {
             'failed': failed_validations,
@@ -82,26 +75,32 @@ def main(args):
         }
     }
 
-    summary_data = json.dumps(summary_json)
-
     try:
-        output_filename = os.path.join(test_data_path, 'test_data_validation_summary.json')
+        summary_data = json.dumps(summary_json)
+    except BaseException as error:
+        logging.error('json.dumps Summary data problem: %s at %s', error, error)
+        exit(1)
+
+    output_filename = os.path.join(test_data_path, 'test_data_validation_summary.json')
+    try:
         file_out = open(output_filename, mode='w', encoding='utf-8')
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.warning('Error: %s. Cannot save validation summary in file %s', err, output_filename)
-
+        schema_errors.append(output_filename)
+        logging.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        exit(1)
 
     if schema_errors:
         logging.critical('Test data file files: %d fail out of %d:',
-            len(schema_errors, schema_count))
+                         len(schema_errors), schema_count)
         for failure in schema_errors:
             logging.critical('  %s', failure)
         exit(1)
     else:
         logging.info("All %d generated test data files match with schema", schema_count)
         exit(0)
+
 
 if __name__ == "__main__":
     main(sys.argv)

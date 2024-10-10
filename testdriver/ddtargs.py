@@ -35,7 +35,7 @@ class DdtOptions():
 type_options = ['collation_short', 'datetime_fmt',
                 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt',
-                'rdt_fmt', 'plural_rules', 'ALL']
+                'message_fmt2', 'rdt_fmt', 'plural_rules', 'ALL']
 
 class DdtArgs():
   def __init__(self, args):
@@ -60,8 +60,8 @@ class DdtArgs():
     self.parser.add_argument('--custom_verifier', default=None)  #
 
     self.parser.add_argument(
-        '--run_serially', default=None,
-        help='Execute tests in series rather than in parallel')
+        '--run_serial', default=None,
+        help='Set if execution should be done serially. Parallel is the default.')
 
     self.options = self.parser.parse_args(args)
 
@@ -92,6 +92,9 @@ class VerifyArgs():
 
     self.parser.add_argument('--test_verifier',
                              help='Flag to run in test mode', default=None)
+
+    self.parser.add_argument('--run_serial', default=None,
+                             help='Set if execution should be done serially. Parallel is the default.')
 
     self.options = self.parser.parse_args(args)
     return

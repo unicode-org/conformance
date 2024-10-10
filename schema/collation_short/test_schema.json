@@ -11,8 +11,7 @@
     },
     "test_type": {
       "description": "The name of this test",
-      "type": "string",
-     "enum": ["collation_short"]
+      "const": "collation_short"
     },
     "Test scenario": {
       "type": "string",
@@ -27,6 +26,10 @@
         "properties": {
           "label": {
             "description": "A numeric ID, unique for the set of tests",
+            "type": "string"
+          },
+          "hexhash": {
+            "description": "A hexadecimal hash code for the test without the label",
             "type": "string"
           },
           "s1": {
@@ -91,5 +94,7 @@
         "type": "array"
       }
     }
-  }
+  },
+  "required": ["tests", "test_type"]
 }
+
