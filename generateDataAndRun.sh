@@ -18,9 +18,13 @@ then
   bash setup.sh
 fi
 
-# Enable seting the version of NodeJS
-export NVM_DIR=$HOME/.nvm;
-source $NVM_DIR/nvm.sh;
+# Enable seting the version of NodeJS, but only locally; 
+# CI will have already installed `nvm` and put it in the path 
+if [[ $CI != "true" ]]
+then
+    export NVM_DIR=$HOME/.nvm;
+    source $NVM_DIR/nvm.sh;
+fi
 
 ##########
 # Regenerate test data and verify against schema
