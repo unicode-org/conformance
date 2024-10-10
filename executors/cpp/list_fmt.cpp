@@ -9,8 +9,8 @@
 #include <unicode/locid.h>
 #include <unicode/unistr.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <vector>
 
 #include <cstring>
@@ -29,7 +29,7 @@ using std::endl;
 using std::string;
 
 /* Main test function */
-const string TestListFmt (json_object* json_in) {
+string TestListFmt (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");
@@ -38,7 +38,7 @@ const string TestListFmt (json_object* json_in) {
   // The locale in which the name is given.
   string locale_string = "und";
   json_object* locale_label_obj = json_object_object_get(json_in, "locale");
-  if (locale_label_obj) {
+  if (locale_label_obj != nullptr) {
     locale_string = json_object_get_string(locale_label_obj);
   }
   Locale displayLocale(locale_string.c_str());
@@ -51,7 +51,7 @@ const string TestListFmt (json_object* json_in) {
 
   std::vector<UnicodeString> u_strings;
   int u_strings_size = 0;
-  if (input_list_obj) {
+  if (input_list_obj != nullptr) {
     int input_length = json_object_array_length(input_list_obj);
 
     // Construct the list of Unicode Strings
@@ -78,22 +78,28 @@ const string TestListFmt (json_object* json_in) {
   UListFormatterType format_type = ULISTFMT_TYPE_AND;
   UListFormatterWidth format_width = ULISTFMT_WIDTH_WIDE;
 
-  if (option_list_obj) {
+  if (option_list_obj != nullptr) {
     json_object* style_obj = json_object_object_get(
         option_list_obj, "style");
-    if (style_obj) {
+    if (style_obj != nullptr) {
       style_string = json_object_get_string(style_obj);
-      if (style_string == "long") format_width = ULISTFMT_WIDTH_WIDE;
-      if (style_string == "short") format_width = ULISTFMT_WIDTH_SHORT;
-      if (style_string == "narrow") format_width = ULISTFMT_WIDTH_NARROW;
+      if (style_string == "long") { format_width = ULISTFMT_WIDTH_WIDE;
+}
+      if (style_string == "short") { format_width = ULISTFMT_WIDTH_SHORT;
+}
+      if (style_string == "narrow") { format_width = ULISTFMT_WIDTH_NARROW;
+}
     }
     json_object* type_obj = json_object_object_get(
         option_list_obj, "type");
-    if (type_obj) {
+    if (type_obj != nullptr) {
       type_string = json_object_get_string(type_obj);
-      if (type_string == "conjunction") format_type = ULISTFMT_TYPE_AND;
-      if (type_string == "disjunction") format_type = ULISTFMT_TYPE_OR;
-      if (type_string == "unit") format_type = ULISTFMT_TYPE_UNITS;
+      if (type_string == "conjunction") { format_type = ULISTFMT_TYPE_AND;
+}
+      if (type_string == "disjunction") { format_type = ULISTFMT_TYPE_OR;
+}
+      if (type_string == "unit") { format_type = ULISTFMT_TYPE_UNITS;
+}
     }
   }
 
