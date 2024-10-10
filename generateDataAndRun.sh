@@ -111,9 +111,6 @@ mkdir -p $TEMP_DIR/testOutput
 # Change to directory of `testdriver` (which will be used to invoke each platform executor)
 pushd testdriver
 
-# Set to use NVM
-source "$HOME/.nvm/nvm.sh"
-
 # Invoke all tests
 jq -c '.[]' ../$source_file | while read i; do
     if jq -e 'has("prereq")' <<< $i > /dev/null
