@@ -18,13 +18,16 @@ then
   bash setup.sh
 fi
 
-# Enable seting the version of NodeJS, but only locally; 
-# CI will have already installed `nvm` and put it in the path 
-if [[ $CI != "true" ]]
+# Enable seting the version of NodeJS
+# Install NVM if it is not install in CI
+
+if [[ $CI == "true" ] && [ -x "$(command -v nvm)" ]]
 then
-    export NVM_DIR=$HOME/.nvm;
-    source $NVM_DIR/nvm.sh;
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 fi
+
+export NVM_DIR=$HOME/.nvm;
+source $NVM_DIR/nvm.sh;
 
 ##########
 # Regenerate test data and verify against schema
