@@ -85,6 +85,7 @@ class DataGenerator(ABC):
         output_path = os.path.join(self.icu_version, filename)
         output_file = open(output_path, "w", encoding="UTF-8")
         json.dump(data, output_file, indent=indent)
+        os.fsync(output_file)
         output_file.close()
 
     def getTestDataFromGitHub(self, datafile_name, version):

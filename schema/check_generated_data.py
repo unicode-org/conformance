@@ -85,6 +85,7 @@ def main(args):
     try:
         file_out = open(output_filename, mode='w', encoding='utf-8')
         file_out.write(summary_data)
+        os.fsync(file_out)
         file_out.close()
     except BaseException as error:
         schema_errors.append(output_filename)
