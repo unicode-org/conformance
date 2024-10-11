@@ -189,15 +189,21 @@ UNumberSignDisplay set_sign_display(json_object* options_obj) {
       signDisplay_setting = UNUM_SIGN_ALWAYS;
     } else if (signDisplay_string == "never") {
       signDisplay_setting = UNUM_SIGN_NEVER;
+#ifdef UNUM_SIGN_NEGATIVE
+      // This is ICU-version dependent
     } else if (signDisplay_string == "negative") {
       signDisplay_setting = UNUM_SIGN_NEGATIVE;
-    }else if (signDisplay_string == "accounting") {
+#endif
+    } else if (signDisplay_string == "accounting") {
       signDisplay_setting = UNUM_SIGN_ACCOUNTING;
     } else if (signDisplay_string == "accounting_exceptZero") {
       signDisplay_setting = UNUM_SIGN_ACCOUNTING_EXCEPT_ZERO;
-    }else if (signDisplay_string == "accounting_negative") {
+    }
+#ifdef UNUM_SIGN_ACCOUNTING_NEGATIVE
+    else if (signDisplay_string == "accounting_negative") {
       signDisplay_setting = UNUM_SIGN_ACCOUNTING_NEGATIVE;
     }
+#endif
   }
   return signDisplay_setting;
 }

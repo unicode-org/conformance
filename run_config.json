@@ -1,6 +1,23 @@
 [
   {
     "prereq": {
+      "name": "Get ICU4C 67",
+      "version": "67.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-67_1-Ubuntu18.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu67",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "number_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "Get ICU4C 71",
       "version": "71.1",
       "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-71_1-Ubuntu20.04-x64.tgz"
@@ -260,6 +277,23 @@
       "test_type": [
         "collation_short",
         "number_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm use 12",
+      "version": "12.22.12",
+      "command": "nvm install 12.22.12;nvm use 12.22.12 --silent"
+    },
+    "run": {
+      "icu_version": "icu67",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "number_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
