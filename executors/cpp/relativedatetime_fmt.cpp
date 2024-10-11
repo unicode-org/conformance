@@ -11,8 +11,8 @@
 #include <unicode/udisplaycontext.h>
 #include <unicode/unistr.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <iostream>
 #include <string>
@@ -30,22 +30,25 @@ using std::string;
 /*
  *  Check for ICU errors and add to output if needed.
  */
-extern const bool check_icu_error(UErrorCode error_code,
+extern auto check_icu_error(UErrorCode error_code,
                                   json_object *return_json,
-                                  string message_to_add_if_error);
+                                  string message_to_add_if_error) -> const bool;
 
-UDateRelativeDateTimeFormatterStyle StringToStyleEnum(string style_string) {
-  if (style_string == "long") return UDAT_STYLE_LONG;
-  if (style_string == "short") return UDAT_STYLE_SHORT;
-  if (style_string == "narrow") return UDAT_STYLE_NARROW;
+auto StringToStyleEnum(string style_string) -> UDateRelativeDateTimeFormatterStyle {
+  if (style_string == "long") { return UDAT_STYLE_LONG;
+}
+  if (style_string == "short") { return UDAT_STYLE_SHORT;
+}
+  if (style_string == "narrow") { return UDAT_STYLE_NARROW;
+}
   return UDAT_STYLE_LONG;  // Default
 }
 
-URelativeDateTimeUnit StringToRelativeUnitEnum(string unit_string) {
+auto StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
   URelativeDateTimeUnit rel_unit;
   if (unit_string == "day") {
     return UDAT_REL_UNIT_DAY;
-  } else if (unit_string == "hour") {
+  } if (unit_string == "hour") {
     return UDAT_REL_UNIT_HOUR;
   } else if (unit_string == "minute") {
     return UDAT_REL_UNIT_MINUTE;
@@ -64,7 +67,7 @@ URelativeDateTimeUnit StringToRelativeUnitEnum(string unit_string) {
   return UDAT_REL_UNIT_DAY;
 }
 
-const string TestRelativeDateTimeFmt(json_object *json_in) {
+string TestRelativeDateTimeFmt(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -76,7 +79,7 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   // The locale for formatted output
   json_object *locale_label_obj = json_object_object_get(json_in, "locale");
   string locale_string;
-  if (locale_label_obj) {
+  if (locale_label_obj != nullptr) {
     locale_string = json_object_get_string(locale_label_obj);
   } else {
     locale_string = "und";
@@ -98,18 +101,18 @@ const string TestRelativeDateTimeFmt(json_object *json_in) {
   string style_string = "long";  // Default
   string numbering_system_string = "";  // Default
   string numeric_option = "";
-  if (options_obj) {
+  if (options_obj != nullptr) {
     json_object *style_obj = json_object_object_get(options_obj, "style");
-    if (style_obj) {
+    if (style_obj != nullptr) {
       style_string = json_object_get_string(style_obj);
     }
     json_object *ns_obj =
         json_object_object_get(options_obj, "numberingSystem");
-    if (ns_obj) {
+    if (ns_obj != nullptr) {
       numbering_system_string = json_object_get_string(ns_obj);
     }
     json_object *numeric_obj = json_object_object_get(options_obj, "numeric");
-    if (numeric_obj) {
+    if (numeric_obj != nullptr) {
       numeric_option = json_object_get_string(numeric_obj);
     }
   }

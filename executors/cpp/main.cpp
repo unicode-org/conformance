@@ -60,7 +60,7 @@ extern const string TestRelativeDateTimeFmt(json_object *json_in);
  *            commands start with "#"
  *            test data is JSON format
  */
-int main(int argc, const char** argv) {
+auto main(int argc, const char** argv) -> int {
   // All the currently supported test types.
   std::vector <string> supported_tests;
   supported_tests = {

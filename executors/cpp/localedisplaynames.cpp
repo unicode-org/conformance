@@ -19,7 +19,7 @@ using icu::Locale;
 using icu::UnicodeString;
 using icu::LocaleDisplayNames;
 
-const string TestLocaleDisplayNames (json_object *json_in) {
+string TestLocaleDisplayNames (json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -40,7 +40,7 @@ const string TestLocaleDisplayNames (json_object *json_in) {
   string language_display_string = "standard";
   json_object *language_display_obj = json_object_object_get(
       json_in, "languageDisplay");
-  if (language_display_obj) {
+  if (language_display_obj != nullptr) {
     language_display_string = json_object_get_string(language_display_obj);
   }
 

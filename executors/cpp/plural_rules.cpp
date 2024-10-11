@@ -22,7 +22,7 @@ using icu::UnicodeString;
 
 using std::string;
 
-const string TestPluralRules (json_object* json_in) {
+string TestPluralRules (json_object* json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");
@@ -33,7 +33,7 @@ const string TestPluralRules (json_object* json_in) {
   string type_string = "";
 
   json_object* locale_label_obj = json_object_object_get(json_in, "locale");
-  if (locale_label_obj) {
+  if (locale_label_obj != nullptr) {
     locale_string = json_object_get_string(locale_label_obj);
   }
   Locale display_locale(locale_string.c_str());
@@ -53,7 +53,7 @@ const string TestPluralRules (json_object* json_in) {
 
   std::vector<UnicodeString> u_strings;
   int u_strings_size = 0;
-  if (sample_obj) {
+  if (sample_obj != nullptr) {
     // Get the number
     string sample_string = json_object_get_string(sample_obj);
 
@@ -78,7 +78,7 @@ const string TestPluralRules (json_object* json_in) {
 
   // Get option fields
   json_object* type_obj = json_object_object_get(json_in, "type");
-  if (type_obj) {
+  if (type_obj != nullptr) {
     type_string = json_object_get_string(type_obj);
   }
   UPluralType plural_type;
