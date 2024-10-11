@@ -80,6 +80,14 @@ function download_75_1() {
 }
 
 
+function download_76_1() {
+  if [[ ! -f icu4c-76_1rc-Ubuntu22.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-76-rc/icu4c-76_1rc-Ubuntu22.04-x64.tgz
+  fi
+}
+
+
  pushd gh-cache
 
  download_71_1
@@ -88,5 +96,6 @@ function download_75_1() {
  download_74_1
  download_74_2
  download_75_1
+ download_76_1
 
  popd

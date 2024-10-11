@@ -50,6 +50,7 @@ class ICUVersion(Enum):
   ICU73 = "73"
   ICU74 = "74"
   ICU75 = "75"
+  ICU76 = "76"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
@@ -74,6 +75,7 @@ class CLDRVersion(Enum):
   CLDR43 = "43"
   CLDR44 = "44"
   CLDR45 = "45"
+  CLDR46 = "46"
 
 def latestCldrVersion():
   return CLDRVersion.CLDR43  # TODO: Fix this
@@ -93,6 +95,7 @@ cldr_icu_map = {
     CLDRVersion.CLDR43: [ICUVersion.ICU73],
     CLDRVersion.CLDR44: [ICUVersion.ICU74],
     CLDRVersion.CLDR45: [ICUVersion.ICU75],
+    CLDRVersion.CLDR46: [ICUVersion.ICU76],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -402,6 +405,12 @@ allExecutors.addSystem(
     CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75,
     env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu75/bin'})
 
+allExecutors.addSystem(
+    system, CppVersion.Cpp,
+    '../executors/cpp/executor',
+    CLDRVersion.CLDR46, versionICU=ICUVersion.ICU76,
+    env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu76/bin'})
+
 system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',
                        '/bin/newExecutor',
@@ -418,6 +427,10 @@ allExecutors.addSystem(system, '75',
                        'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
                        CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75)
 
+allExecutors.addSystem(system, '76',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+                       CLDRVersion.CLDR46, versionICU=ICUVersion.ICU76)
+
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,
                        'node ../executors/dart_web/out/executor.js',
@@ -426,7 +439,7 @@ allExecutors.addSystem(system,  NodeVersion.Node19,
 allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/dart_web/out/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
-                       
+
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
                        '../executors/dart_native/bin/executor/executor.exe',
