@@ -51,13 +51,12 @@ class DateTimeFmtGenerator(DataGenerator):
                 # TODO: Generate input string with "Z" and compute tz_offset_secs
                 # TODO: Generate hash of the data without the label
                 new_test = {
-                            "locale": test_item['locale'],
+                    "locale": test_item['locale'],
+                    "input_string": test_item['input'],
                             "options": options
-                            }
+                }
                 # TODO: Generate hash of the data without the label
-                new_test[' "tz_offset_secs":'] = 0  # COMPUTE THIS FOR THE TIMEZONE
-                hex_hash = ''
-                new_test['hexhash'] = hex_hash
+                new_test['tz_offset_secs'] = 0  # COMPUTE THIS FOR THE TIMEZONE
                 new_test['label'] = label_str
 
                 new_verify = {"label": label_str,
@@ -66,9 +65,12 @@ class DateTimeFmtGenerator(DataGenerator):
                 test_cases.append(new_test)
                 verify_cases.append(new_verify)
                 label_num += 1
+
             # Save output as: datetime_fmt_test.json and datetime_fmt_verify.json
-            test_obj['verification'] = test_cases
-            verify_obj['verification'] = verify_cases
+            test_obj['tests'] = test_cases
+            verify_obj['verifications'] = verify_cases
+            # Create the hex hash values
+            self.generateTestHashValues(test_obj)
 
             base_path = ''
             dt_test_path = os.path.join(base_path, 'datetime_fmt_test.json')
