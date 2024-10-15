@@ -1,0 +1,8 @@
+[project]
+name = "conformance"
+version = "0.0.0"
+requires-python = ">= 3.4"
+dependencies = ["jsonschema==4.23.0", "requests==2.32.3"]
+
+[tool.setuptools]
+py-modules = ["conformance_cli", "testgen", "testdriver", "verifier", "schema"]

@@ -3,9 +3,9 @@
 if __name__ == "__main__":
     import sys
 
-    if sys.version_info < (3, 10):
+    if sys.version_info < (3, 4):
         # Github Actions uses Python 3.10 as of Feb 2024
-        sys.stderr.write("conformance requires Python 3.10 or higher\n")
+        sys.stderr.write("conformance requires Python 3.4 or higher\n")
         sys.exit(1)
 
     sys.path.append("testgen")
