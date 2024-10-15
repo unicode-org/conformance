@@ -8,6 +8,7 @@ import logging.config
 import math
 import os
 import requests
+from config import paths
 
 
 def remove_none(obj):
@@ -34,7 +35,7 @@ class DataGenerator(ABC):
         # If set, this is the maximum number of tests generated for each.
         self.run_limit = run_limit
 
-        logging.config.fileConfig("../logging.conf")
+        logging.config.fileConfig(paths["logging_config"])
 
     @abstractmethod
     def process_test_data(self):
@@ -82,7 +83,7 @@ class DataGenerator(ABC):
                 logging.error('### Problems generating hash codes for file %s',
                               filename)
 
-        output_path = os.path.join(self.icu_version, filename)
+        output_path = os.path.join(paths["default_input"], self.icu_version, filename)
         output_file = open(output_path, "w", encoding="UTF-8")
         json.dump(data, output_file, indent=indent)
         output_file.close()

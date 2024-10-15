@@ -4,6 +4,7 @@ import logging
 import logging.config
 import multiprocessing as mp
 import re
+import sys
 
 from test_type import TestType, test_types
 from generators.collation_short import CollationShortGenerator
@@ -20,16 +21,13 @@ from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 reblankline = re.compile("^\s*$")
 
 
-def setupArgs():
-    parser = argparse.ArgumentParser(prog="testdata_gen")
+def setup_args(parser):
     parser.add_argument("--icu_versions", nargs="*", default=[])
     parser.add_argument(
         "--test_types", nargs="*", choices=test_types, default=test_types
     )
     # -1 is no limit
     parser.add_argument("--run_limit", nargs="?", type=int, default=-1)
-    new_args = parser.parse_args()
-    return new_args
 
 
 def generate_versioned_data_parallel(args):
@@ -86,10 +84,10 @@ def generate_versioned_data(version_info):
         # lang names generator.
         generator = LocaleNamesGenerator(icu_version, args.run_limit)
         if not generator:
-            logging.info('lang generated from old LangNames data in %s', icu_version)
+            logging.info("lang generated from old LangNames data in %s", icu_version)
             generator = LangNamesGenerator(icu_version, args.run_limit)
         else:
-            logging.info('lang generated from new LocaleNames data in %s', icu_version)
+            logging.info("lang generated from new LocaleNames data in %s", icu_version)
         if generator:
             generator.process_test_data()
 
@@ -117,8 +115,10 @@ def generate_versioned_data(version_info):
     logging.info("++++ Data generation for %s is complete.", icu_version)
 
 
-def main():
-    new_args = setupArgs()
+def main(args):
+    parser = argparse.ArgumentParser(prog="testdata_gen")
+    setup_args(parser)
+    new_args = parser.parse_args(args[1:])
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
     logger.setLevel(logging.INFO)
@@ -128,4 +128,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

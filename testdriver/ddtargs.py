@@ -22,6 +22,7 @@
 import argparse
 import logging
 import sys
+from config import paths
 
 class DdtOptions():
   def __init__(self):
@@ -44,24 +45,8 @@ class DdtArgs():
     self.parser = argparse.ArgumentParser(
         description='Process DDT Test Driver arguments')
 
-    setCommonArgs(self.parser)
-
-    self.parser.add_argument(
-        '--start_test', default=0,
-        help='number of tests to skip at start of the test data')
-
-    self.parser.add_argument(
-        '--per_execution', default=1,
-        help='How many tests are run in each invocation of an executor')
-
-    # For handling verification
-    self.parser.add_argument('--verifyonly', default=None)
-    self.parser.add_argument('--noverify', default=None)  #
-    self.parser.add_argument('--custom_verifier', default=None)  #
-
-    self.parser.add_argument(
-        '--run_serial', default=None,
-        help='Set if execution should be done serially. Parallel is the default.')
+    setup_common_args(self.parser)
+    setup_testdriver_args(self.parser)
 
     self.options = self.parser.parse_args(args)
 
@@ -77,7 +62,7 @@ class VerifyArgs():
     self.parser = argparse.ArgumentParser(
         description='Process DDT Verifier arguments')
 
-    setCommonArgs(self.parser)
+    setup_common_args(self.parser)
 
     # Specific for verifier
     self.parser.add_argument(
@@ -103,16 +88,35 @@ class VerifyArgs():
     return self.options
 
 
+def setup_testdriver_args(parser):
+    parser.add_argument(
+        '--start_test', default=0,
+        help='number of tests to skip at start of the test data')
+
+    parser.add_argument(
+        '--per_execution', default=1,
+        help='How many tests are run in each invocation of an executor')
+
+    # For handling verification
+    parser.add_argument('--verifyonly', default=None)
+    parser.add_argument('--noverify', default=None)  #
+    parser.add_argument('--custom_verifier', default=None)  #
+
+    parser.add_argument(
+        '--run_serial', default=None,
+        help='Set if execution should be done serially. Parallel is the default.')
+
+
 # Set up arguments common to both testDriver and verifier
-def setCommonArgs(parser):
+def setup_common_args(parser):
 
   # What data and executor(s) to run verify
   parser.add_argument('--test_type', '--type', '-t', '--test',
-                      action='extend', nargs='*',
-                      choices=type_options)
+                      action='extend', nargs='+',
+                      choices=type_options, required=True)
   # All more than one item in exec list
-  parser.add_argument('--exec', action='extend', nargs='*',
-                      help='Execution platforms') #, default='ALL')
+  parser.add_argument('--exec', action='extend', nargs='+',
+                      help='Execution platforms', required=True)
 
   parser.add_argument('--environment', help="Environment variables, e.g., 'a=x;b=y'")
 
@@ -124,9 +128,9 @@ def setCommonArgs(parser):
   parser.add_argument(
       '--file_base', default="",
       help='Base directory for input, output, and report paths')
-  parser.add_argument('--input_path', default='testData')
-  parser.add_argument('--output_path', default='testOutput')
-  parser.add_argument('--report_path', default='testReports')
+  parser.add_argument('--input_path', default=paths["default_input"])
+  parser.add_argument('--output_path', default=paths["default_output"])
+  parser.add_argument('--report_path', default=paths["default_report"])
 
   parser.add_argument('--exec_mode', default='one_test')
   parser.add_argument('--parallel_mode', default=None)

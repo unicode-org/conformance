@@ -9,6 +9,7 @@ from enum import Enum
 import sys
 import logging
 import logging.config
+from config import paths
 
 
 # Describes dataset and its versions.
@@ -24,7 +25,7 @@ class DataSet:
         self.status = None
         self.debug = False
 
-        logging.config.fileConfig("../logging.conf")
+        logging.config.fileConfig(paths["logging_config"])
 
 
 def dataSetsForCldr(dataSets, cldr_version):
@@ -109,7 +110,7 @@ class testType(Enum):
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
   plural_rules = 'plural_rules'
-  
+
 # Returns default value for a key not defined.
 def def_value():
   return "Not present"
@@ -426,7 +427,7 @@ allExecutors.addSystem(system,  NodeVersion.Node19,
 allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/dart_web/out/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
-                       
+
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
                        '../executors/dart_native/bin/executor/executor.exe',
@@ -461,7 +462,7 @@ def printCldrIcuMap():
 
 def main(args):
 
-  logging.config.fileConfig("../logging.conf")
+  logging.config.fileConfig(paths["logging_config"])
 
   printCldrIcuMap()
   printDatasets(testDatasets)
