@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, timezone
+# import pytz
+
 import os
 import json
 import re
@@ -50,6 +53,17 @@ class DateTimeFmtGenerator(DataGenerator):
                 options = {}
                 # TODO: Generate input string with "Z" and compute tz_offset_secs
                 # TODO: Generate hash of the data without the label
+                raw_input = test_item['input']
+                start_index = raw_input.find('[')
+                tz_str = raw_input[start_index+1:-1]
+                #3z_pattern = re.compile(r'(\[\s\\]*\])')
+                #tz_name = tz_pattern.search(raw_input)
+                raw_time = datetime.fromisoformat(raw_input[0:start_index])
+
+                dt = datetime.fromisoformat(test_item['input'])
+                if dt.tzinfo is None:
+                    tzinfo = tt.tzinfo
+                    dt = dt.replace(tzinfo=timezone.utc)
                 new_test = {
                     "locale": test_item['locale'],
                     "input_string": test_item['input'],
