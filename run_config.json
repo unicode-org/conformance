@@ -10,6 +10,7 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "lang_names",
         "likely_subtags",
         "message_fmt2",
         "number_fmt",
