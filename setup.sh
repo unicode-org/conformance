@@ -81,9 +81,9 @@ function download_75_1() {
 
 
 function download_76_1() {
-  if [[ ! -f icu4c-76_1rc-Ubuntu22.04-x64.tgz ]]
+  if [[ ! -f icu4c-76_1-Ubuntu22.04-x64.tgz ]]
   then
-    wget https://github.com/unicode-org/icu/releases/download/release-76-rc/icu4c-76_1rc-Ubuntu22.04-x64.tgz
+    wget https://github.com/unicode-org/icu/releases/download/release-76-1/icu4c-76_1-Ubuntu22.04-x64.tgz
   fi
 }
 
