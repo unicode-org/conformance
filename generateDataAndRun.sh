@@ -21,6 +21,19 @@ fi
 # Enable seting the version of NodeJS
 # Install NVM if it is not install in CI
 
+echo "test whether nvm is on the command line"
+
+if [ -x "$(command -v nvm)" ]
+then
+  echo "nvm is in the path"
+  echo "output from running nvm without args"
+  nvm
+else
+  echo "nvm is NOT in the PATH"
+fi
+
+
+
 export NVM_DIR=$HOME/.nvm
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -32,8 +45,6 @@ then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
-
-source $NVM_DIR/nvm.sh;
 
 ##########
 # Regenerate test data and verify against schema
