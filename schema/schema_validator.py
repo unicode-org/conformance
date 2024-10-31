@@ -105,7 +105,7 @@ class ConformanceSchemaValidator:
             validate(data_to_check, schema)
             # Everything worked!
             result_data['result'] = True
-        except ValidationError as err:
+        except exceptions.ValidationError as err:
             result_data['result'] = False
             result_data['error'] = err
             logging.error('ValidationError for test output %s and schema %s',
