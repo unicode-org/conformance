@@ -23,6 +23,11 @@ module.exports = {
       rules = json['rules'];
     }
 
+    let compare_type = undefined;
+    if ('compare_type' in json) {
+      compare_type = json['compare_type'];
+    }
+
     // Set up collator object with optional locale and testOptions.
     let coll;
     try {
@@ -39,13 +44,24 @@ module.exports = {
         result_bool = false;
       }
       outputLine = {'label':json['label'],
-                    'result': result_bool,
-                    'compare_result': compared,
                    }
-
-      if (result != true) {
+      if (result == true) {
+        // Only output result field if result is true.
+        outputLine['result'] = result_bool;
+        outputLine['compare_result'] = compared;
+      } else {
         // Additional info for the comparison
         outputLine['compare'] = compared;
+        if (rules) {
+          outputLine['unsupported'] = 'Collator rules not available';
+          outputLine['error_detail'] = 'No rules';
+          outputLine['error'] = 'rules';
+        }
+        else if (compare_type) {
+          outputLine['unsupported'] = 'Compare type not supported';
+          outputLine['error_detail'] = 'No comparison';
+          outputLine['error'] = 'compare_type';
+        }
       }
 
     } catch (error) {
