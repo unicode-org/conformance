@@ -38,6 +38,15 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
             toolchain: 1.73
+      - name: Run Clang Tidy Review
+        uses: ZedThree/clang-tidy-review@v0.14.0
+        id: review
+      - name: Clang Tidy Review Artifact Upload
+        uses: ZedThree/clang-tidy-review/upload@v0.14.0
+        id: upload-review
+      - name: Clang Tidy Fail If Errors Found
+        if: steps.review.outputs.total_comments > 0
+        run: exit 1
       - name: Run End-to-end script
         run: bash generateDataAndRun.sh
       - name: Setup Pages
