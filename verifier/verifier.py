@@ -71,7 +71,7 @@ class Verifier:
             vplan.result_time_stamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
             vplan.report.timestamp = vplan.result_time_stamp
         except BaseException as err:
-            logging.error('    *** Cannot open results file %s:\n        %s', vplan.result_path, err)
+            logging.error('    *** CANNOT OPEN RESULTS FILE %s:\n        %s', vplan.result_path, err)
             return None
 
         try:

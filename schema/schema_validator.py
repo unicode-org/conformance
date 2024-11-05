@@ -105,7 +105,7 @@ class ConformanceSchemaValidator:
             validate(data_to_check, schema)
             # Everything worked!
             result_data['result'] = True
-        except ValidationError as err:
+        except exceptions.ValidationError as err:
             result_data['result'] = False
             result_data['error'] = err
             logging.error('ValidationError for test output %s and schema %s',
@@ -154,7 +154,6 @@ class ConformanceSchemaValidator:
         results = self.parallel_check_test_data_schema(schema_test_info)
 
         for result_data in results:
-            logging.debug('test result data = %s', result_data)
             if not result_data['data_file_name']:
                 # This is not an error but simply a test that wasn't run.
                 continue
@@ -192,7 +191,6 @@ class ConformanceSchemaValidator:
                 'test_result_file': test_file_name
             }
         else:
-            # logging.warning('## get_schema_data_info. No file at test_file_name: %s', test_file_name);
             return None
 
     def check_test_data_against_schema(self, schema_info):
@@ -459,13 +457,12 @@ def main(args):
     schema_validator.schema_base = '.'
     schema_validator.test_data_base = os.path.split(base_folders[0])[0]
     schema_validator.test_output_base = os.path.split(os.path.split(result_folders[0])[0])[0]
-    schema_validator.icu_versions = ['icu71', 'icu72', 'icu73', 'icu74', 'icu75']
+    schema_validator.icu_versions = ['icu71', 'icu72', 'icu73', 'icu74', 'icu75',
+                                     'icu76']
     schema_validator.executors = ['node', 'rust', 'dart_web', 'dart_native', 'icu4j']
 
     logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
-    for result in all_test_out_results:
-        logging.debug('  %s', result)
 
     # Check all schema files for correctness.
     schema_errors = schema_validator.check_schema_files()
@@ -476,13 +473,10 @@ def main(args):
 
     logging.info('Checking generated data')
     all_test_data_results = schema_validator.validate_test_data_with_schema()
-    for result in all_test_data_results:
-        logging.debug('  %s', result)
 
     logging.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
-    for result in all_test_out_results:
-        logging.debug('  %s', result)
+
     return
 
 
