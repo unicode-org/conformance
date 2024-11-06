@@ -46,6 +46,7 @@ jobs:
           config_file: './executors/cpp/clang-tidy-config.yml'
           # Action-specific config
           split_workflow: true
+          apt_packages: "libjson-c-dev"
         id: review
       # - name: Clang Tidy Review Artifact Upload
       #   uses: ZedThree/clang-tidy-review/upload@v0.14.0
