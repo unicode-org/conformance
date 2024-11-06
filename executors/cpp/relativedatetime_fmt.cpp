@@ -48,19 +48,26 @@ auto StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
   URelativeDateTimeUnit rel_unit;
   if (unit_string == "day") {
     return UDAT_REL_UNIT_DAY;
-  } if (unit_string == "hour") {
+  }
+  if (unit_string == "hour") {
     return UDAT_REL_UNIT_HOUR;
-  } else if (unit_string == "minute") {
+  }
+  if (unit_string == "minute") {
     return UDAT_REL_UNIT_MINUTE;
-  } else if (unit_string == "month") {
+  }
+  if (unit_string == "month") {
     return UDAT_REL_UNIT_MONTH;
-  } else if (unit_string == "second") {
+  }
+  if (unit_string == "second") {
     return UDAT_REL_UNIT_SECOND;
-  } else if (unit_string == "week") {
+  }
+  if (unit_string == "week") {
     return UDAT_REL_UNIT_WEEK;
-  } else if (unit_string == "quarter") {
-    return UDAT_REL_UNIT_QUARTER;
-  } else if (unit_string == "year") {
+  }
+  if (unit_string == "quarter") {
+    UDAT_REL_UNIT_QUARTER;
+  }
+  if (unit_string == "year") {
     return UDAT_REL_UNIT_YEAR;
   }
   // A default
