@@ -40,9 +40,13 @@ jobs:
             toolchain: 1.73
       - name: Run Clang Tidy Review
         uses: ZedThree/clang-tidy-review@v0.14.0
+        with:
+          build_dir: './executors/cpp'
         id: review
       - name: Clang Tidy Review Artifact Upload
         uses: ZedThree/clang-tidy-review/upload@v0.14.0
+        with:
+          build_dir: './executors/cpp'
         id: upload-review
       - name: Clang Tidy Fail If Errors Found
         if: steps.review.outputs.total_comments > 0
