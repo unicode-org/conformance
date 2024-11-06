@@ -41,14 +41,18 @@ jobs:
       - name: Run Clang Tidy Review
         uses: ZedThree/clang-tidy-review@v0.14.0
         with:
+          # clang-tidy specific configs
           build_dir: './executors/cpp'
           config_file: './executors/cpp/clang-tidy-config.yml'
+          # Action-specific config
+          split_workflow: true
         id: review
       # - name: Clang Tidy Review Artifact Upload
       #   uses: ZedThree/clang-tidy-review/upload@v0.14.0
       #   with:
       #     build_dir: './executors/cpp'
       #   id: upload-review
+      - uses: ZedThree/clang-tidy-review/upload@v0.14.0
       - name: Clang Tidy Fail If Errors Found
         if: steps.review.outputs.total_comments > 0
         run: exit 1
