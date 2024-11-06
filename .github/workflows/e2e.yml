@@ -42,6 +42,7 @@ jobs:
         uses: ZedThree/clang-tidy-review@v0.14.0
         with:
           build_dir: './executors/cpp'
+          config_file: './executors/cpp/clang-tidy-config.yml'
         id: review
       - name: Clang Tidy Review Artifact Upload
         uses: ZedThree/clang-tidy-review/upload@v0.14.0
