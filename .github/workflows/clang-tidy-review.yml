@@ -21,5 +21,10 @@ jobs:
         # Action-specific config
         split_workflow: true
         apt_packages: "libjson-c-dev,libicu-dev"
+      id: review
 
     - uses: ZedThree/clang-tidy-review/upload@v0.14.0
+
+    # If there are any comments, fail the check
+    - if: steps.review.outputs.total_comments > 0
+      run: exit 1
