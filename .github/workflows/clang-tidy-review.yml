@@ -1,0 +1,24 @@
+name: clang-tidy-review
+
+# You can be more specific, but it currently only works on pull requests
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Optionally generate compile_commands.json
+
+    - uses: ZedThree/clang-tidy-review@v0.14.0
+      with:
+        # clang-tidy specific configs
+        build_dir: './executors/cpp'
+        config_file: './executors/cpp/clang-tidy-config.yml'
+        # Action-specific config
+        split_workflow: true
+        apt_packages: "libjson-c-dev,libicu-dev"
+
+    - uses: ZedThree/clang-tidy-review/upload@v0.14.0
