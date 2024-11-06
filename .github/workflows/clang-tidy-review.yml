@@ -5,6 +5,7 @@ on: [pull_request]
 
 jobs:
   build:
+    name: Lint ICU4C C++ executor
     runs-on: ubuntu-latest
 
     steps:
