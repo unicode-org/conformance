@@ -13,6 +13,12 @@ jobs:
 
     # Optionally generate compile_commands.json
 
+    # Run clang-tidy
+    # Note: when running locally at the command line, use the equivalent
+    # command when in the directory `executors/cpp`:
+    #     clang-tidy  *.cpp --fix-errors --config-file="clang-tidy-config.yml" -p .
+    # Note: you must run setup.sh and also run install_icu4c_binary.sh (for a given ICU4C version) first
+    # before running the above clang-tidy command
     - uses: ZedThree/clang-tidy-review@v0.14.0
       with:
         # clang-tidy specific configs
