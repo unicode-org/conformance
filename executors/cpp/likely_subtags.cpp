@@ -10,8 +10,8 @@
 #include <unicode/unistr.h>
 #include <unicode/utypes.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <cstring>
 #include <iostream>
@@ -25,7 +25,7 @@ using icu::Locale;
 using icu::StringByteSink;
 using icu::UnicodeString;
 
-const string TestLikelySubtags(json_object *json_in) {
+string TestLikelySubtags(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -55,12 +55,12 @@ const string TestLikelySubtags(json_object *json_in) {
     Locale maximized(displayLocale);
     maximized.addLikelySubtags(status);
 
-    if (U_FAILURE(status)) {
+    if (U_FAILURE(status) != 0) {
       test_result = "error in maximize";
     } else {
       maximized.toLanguageTag(byteSink, status);
 
-      if (U_FAILURE(status)) {
+      if (U_FAILURE(status) != 0) {
         json_object_object_add(
             return_json,
             "error",
@@ -72,14 +72,14 @@ const string TestLikelySubtags(json_object *json_in) {
              option_string == "minimizeFavorRegion") {
     // Minimize
     displayLocale.minimizeSubtags(status);
-    if (U_FAILURE(status)) {
+    if (U_FAILURE(status) != 0) {
       const string error_message_min = "error in minimize";
       test_result = error_message_min;
     } else {
       displayLocale.toLanguageTag(byteSink, status);
       test_result = name_string;
 
-      if (U_FAILURE(status)) {
+      if (U_FAILURE(status) != 0) {
         json_object_object_add(
             return_json,
             "error",
@@ -120,7 +120,7 @@ const string TestLikelySubtags(json_object *json_in) {
         json_object_new_string(option_string.c_str()));
   }
 
-  if (U_FAILURE(status)) {
+  if (U_FAILURE(status) != 0) {
     json_object_object_add(
         return_json,
         "error",

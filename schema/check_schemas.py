@@ -26,7 +26,6 @@ class ValidateSchema:
         failed_validations = []
         passed_validations = []
         for result in validation_status:
-            logging.debug(result)
             if result['result']:
                 passed_validations.append(result)
             else:

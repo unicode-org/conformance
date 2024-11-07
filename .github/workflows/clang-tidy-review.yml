@@ -1,0 +1,36 @@
+name: clang-tidy-review
+
+# You can be more specific, but it currently only works on pull requests
+on: [pull_request]
+
+jobs:
+  build:
+    name: Lint ICU4C C++ executor
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Optionally generate compile_commands.json
+
+    # Run clang-tidy
+    # Note: when running locally at the command line, use the equivalent
+    # command when in the directory `executors/cpp`:
+    #     clang-tidy  *.cpp --fix-errors --config-file="clang-tidy-config.yml" -p .
+    # Note: you must run setup.sh and also run install_icu4c_binary.sh (for a given ICU4C version) first
+    # before running the above clang-tidy command
+    - uses: ZedThree/clang-tidy-review@v0.14.0
+      with:
+        # clang-tidy specific configs
+        build_dir: './executors/cpp'
+        config_file: './executors/cpp/clang-tidy-config.yml'
+        # Action-specific config
+        split_workflow: true
+        apt_packages: "libjson-c-dev,libicu-dev"
+      id: review
+
+    - uses: ZedThree/clang-tidy-review/upload@v0.14.0
+
+    # If there are any comments, fail the check
+    - if: steps.review.outputs.total_comments > 0
+      run: exit 1
