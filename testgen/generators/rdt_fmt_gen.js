@@ -12,6 +12,7 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const common_fns = require("./common.js");
 const gen_hash = require("./generate_test_hash.js");
 
 const fs = require('node:fs');
@@ -48,22 +49,6 @@ const numeric = ['auto', 'always'];
 
 const counts = [-100, -4, -2, -1, 0, 1, 1.3, 2, 3, 4, 10];
 
-function sample_tests(all_tests, run_limit) {
-  // Gets a sampling of the data based on total and the expected number.
-
-  if (run_limit < 0 || all_tests.length <= run_limit) {
-    return all_tests;
-  }
-
-  let size_all = all_tests.length;
-  let increment = Math.floor(size_all / run_limit);
-  let samples = [];
-  for (let index = 0; index < size_all; index += increment) {
-    samples.push(all_tests[index]);
-  }
-  return samples;
-}
-
 // Create the test and verify JSON data for this case.
 function save_test(unit, count, locale, all_options, result, label_num,
                    test_cases, verify_cases) {
@@ -99,11 +84,11 @@ function save_test(unit, count, locale, all_options, result, label_num,
       console.log('   expected = ', result);
     }
   } catch (error) {
-    console.log('!!! error ', error, ' in label ', label_num);
+    console.log('!!! Problem pushing verify case. Error: ',
+                error, ' in label ', label_num);
   }
 
 }
-
 
 
 function generateAll() {
@@ -166,7 +151,8 @@ function generateAll() {
           formatter_numeric_always =
               new Intl.RelativeTimeFormat(locale, all_options_numeric_always);
         } catch (error) {
-          console.log(error, ' with locale ',
+          console.log('Error creating RelativeTimeFormat: ',
+                      error, ' with locale ',
                       locale, ' and options: ', all_options_numeric_always);
           continue;
         }
@@ -182,7 +168,8 @@ function generateAll() {
         }
 
         if (debug) {
-          console.log("resolved options: ", formatter.resolvedOptions());
+          console.log("resolved options: ",
+                      formatter_numeric_auto.resolvedOptions());
         }
 
         for (const unit of units) {
@@ -222,11 +209,13 @@ function generateAll() {
   }
 
 
-  console.log('Number of relative date/time tests generated for ',
-              process.versions.icu, ': ', label_num);
-  console.log('  %d tests are different between numeric auto and always', diff_count);
+  if (debug) {
+    console.log('Number of relative date/time tests generated for ',
+                process.versions.icu, ': ', label_num);
+    console.log('  %d tests are different between numeric auto and always', diff_count);
+  }
 
-  test_obj['tests'] = sample_tests(test_cases, run_limit);
+  test_obj['tests'] = common_fns.sample_tests(test_cases, run_limit);
   try {
     fs.writeFileSync('rdt_fmt_test.json', JSON.stringify(test_obj, null, 2));
     // file written successfully
@@ -234,7 +223,12 @@ function generateAll() {
     console.error(err);
   }
 
-  verify_obj['verifications'] = sample_tests(verify_cases, run_limit);
+  verify_obj['verifications'] = common_fns.sample_tests(verify_cases, run_limit);
+  if (debug) {
+    console.log('VERIFICATION COUNT: ', verify_obj['verifications'].length,
+                ' run_limit: ', run_limit);
+  }
+
   try {
     fs.writeFileSync('rdt_fmt_verify.json', JSON.stringify(verify_obj, null, 2));
     // file written successfully
@@ -243,11 +237,14 @@ function generateAll() {
   }
 }
 
-/* Call the generator */
+  if (debug) {
+    console.log('RDT_FMT argv: ', process.argv);
+  }
+
 let run_limit = -1;
-if (process.argv.length >= 5) {
-  if (process.argv[3] == '-run_limit') {
-    run_limit = Number(process.argv[4]);
+if (process.argv.length >= 4) {
+  if (process.argv[2] == '-run_limit') {
+    run_limit = Number(process.argv[3]);
   }
 }
 
