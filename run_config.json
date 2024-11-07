@@ -1,6 +1,26 @@
 [
   {
     "prereq": {
+      "name": "Get ICU4C 76",
+      "version": "76.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-76_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "lang_names",
+        "likely_subtags",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "Get ICU4C 71",
       "version": "71.1",
       "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-71_1-Ubuntu20.04-x64.tgz"

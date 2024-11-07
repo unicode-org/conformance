@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   run_all:
-    name: End-to-end (Gen data, run tests, gen GH Pages)
+    name: End-to-end
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
