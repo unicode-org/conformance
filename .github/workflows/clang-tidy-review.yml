@@ -25,6 +25,13 @@ jobs:
       run: |
         bash setup.sh
         sudo apt-get install libicu-dev
+    
+    - name: Debug
+      run: |
+        echo "GITHUB_WORKSPACE:"
+        echo "$GITHUB_WORKSPACE"
+        echo "pwd:"
+        pwd
 
     # Optionally generate compile_commands.json
 
