@@ -1,4 +1,4 @@
-name: clang-tidy-review
+name: Run C++ Tests
 
 on:
   push:
@@ -24,18 +24,22 @@ jobs:
     #     clang-tidy  *.cpp --fix-errors --config-file="clang-tidy-config.yml" -p .
     # Note: you must run setup.sh and also run install_icu4c_binary.sh (for a given ICU4C version) first
     # before running the above clang-tidy command
-    - uses: ZedThree/clang-tidy-review@v0.14.0
+    - uses: cpp-linter/cpp-linter-action@v2
       with:
-        # clang-tidy specific configs
-        build_dir: './executors/cpp'
-        config_file: './executors/cpp/clang-tidy-config.yml'
-        # Action-specific config
-        split_workflow: true
-        apt_packages: "libjson-c-dev,libicu-dev"
-      id: review
-
-    - uses: ZedThree/clang-tidy-review/upload@v0.14.0
-
+        repo-root: "./executors/cpp"
+        style: 'file'  # Use .clang-format config file
+        tidy-checks: '' # Use .clang-tidy config file
+        # only 'update' a single comment in a pull request thread.
+        thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+        extra-args: '--config-file="clang-tidy-config.yml" -p .'
+        
+        # # clang-tidy specific configs
+        # build_dir: './executors/cpp'
+        # config_file: './executors/cpp/clang-tidy-config.yml'
+        # # Action-specific config
+        # split_workflow: true
+        # apt_packages: "libjson-c-dev,libicu-dev"
+      id: linter
     # If there are any comments, fail the check
-    - if: steps.review.outputs.total_comments > 0
+    - if: steps.linter.outputs.checks-failed > 0
       run: exit 1
