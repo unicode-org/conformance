@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 # import pytz
 
 import os
@@ -45,40 +45,63 @@ class DateTimeFmtGenerator(DataGenerator):
                 'cldrVersion': '??'
             }
             # Get each entry and assemble the test data and verify data.
-            label_num = 0
+            label_num = -1
             desired_width = math.ceil(math.log10(len(json_data)))  # Based the size of json_data
+
+            input_index = -1
+            input_increment = 1
+            if self.run_limit > 0:
+                input_increment = math.floor(len(json_data) / self.run_limit)
+
             for test_item in json_data:
+                input_index += 1
+                label_num += 1
+
+                if input_index % input_increment != 0:
+                    continue
+
                 label_str = str(label_num).rjust(desired_width, "0")
                 # Construct options
                 options = {}
-                # TODO: Generate input string with "Z" and compute tz_offset_secs
-                # TODO: Generate hash of the data without the label
+                # Generate input string with "Z" and compute tz_offset_secs
                 raw_input = test_item['input']
                 start_index = raw_input.find('[')
-                tz_str = raw_input[start_index+1:-1]
-                #3z_pattern = re.compile(r'(\[\s\\]*\])')
-                #tz_name = tz_pattern.search(raw_input)
+                end_index = raw_input.find(']')
                 raw_time = datetime.fromisoformat(raw_input[0:start_index])
 
-                dt = datetime.fromisoformat(test_item['input'])
-                if dt.tzinfo is None:
-                    tzinfo = tt.tzinfo
-                    dt = dt.replace(tzinfo=timezone.utc)
-                new_test = {
-                    "locale": test_item['locale'],
-                    "input_string": test_item['input'],
-                            "options": options
-                }
-                # TODO: Generate hash of the data without the label
-                new_test['tz_offset_secs'] = 0  # COMPUTE THIS FOR THE TIMEZONE
-                new_test['label'] = label_str
+                if start_index >= 0 and end_index > start_index:
+                    timeZone = raw_input[start_index+1:end_index]
+                    options['timeZone'] = timeZone
+
+                # Set the options
+                if 'dateLength' in test_item:
+                    options['dateStyle'] = test_item['dateLength']
+                else:
+                    options['dateStyle'] = 'short'
+                if 'timeLength' in test_item:
+                    options['timeStyle'] = test_item['timeLength']
+                else:
+                    options['timeStyle'] = 'short'
+                if 'calendar' in test_item:
+                    options['calendar'] = test_item['calendar']
+                    if options['calendar'] == 'gregorian':
+                        options['calendar'] = 'gregory'
+
+                # Generate UTC time equivalent and get the offset in seconds
+                u_time = raw_time.astimezone(UTC)
+                input_string = u_time.isoformat().replace('+00:00', 'Z')
+                tz_offset_secs = raw_time.utcoffset().total_seconds()
+
+                new_test = {"locale": test_item['locale'], "input_string": input_string, "options": options,
+                            'tz_offset_secs': tz_offset_secs, 'label': label_str,
+                            'original_input': raw_input}
 
                 new_verify = {"label": label_str,
                               "verify": test_item['expected']
                 }
                 test_cases.append(new_test)
                 verify_cases.append(new_verify)
-                label_num += 1
+
 
             # Save output as: datetime_fmt_test.json and datetime_fmt_verify.json
             test_obj['tests'] = test_cases
