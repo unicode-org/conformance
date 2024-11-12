@@ -21,6 +21,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
+      run: bash setup.sh
+
     # Optionally generate compile_commands.json
 
     # Run clang-tidy
