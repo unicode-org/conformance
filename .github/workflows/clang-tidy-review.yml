@@ -25,13 +25,6 @@ jobs:
       run: |
         bash setup.sh
         sudo apt-get install libicu-dev
-    
-    - name: Debug
-      run: |
-        echo "GITHUB_WORKSPACE:"
-        echo "$GITHUB_WORKSPACE"
-        echo "pwd:"
-        pwd
 
     # Optionally generate compile_commands.json
 
@@ -48,7 +41,7 @@ jobs:
         tidy-checks: '' # Use .clang-tidy config file
         # not enough permissions in default GITHUB_TOKEN to post on public fork PRs
         # thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
-        extra-args: '--config-file="clang-tidy-config.yml" -p .'
+        # extra-args: '--config-file="clang-tidy-config.yml" -p=.'
       id: linter
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
