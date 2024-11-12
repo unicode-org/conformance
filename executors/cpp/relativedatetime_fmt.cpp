@@ -65,7 +65,7 @@ auto StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
     return UDAT_REL_UNIT_WEEK;
   }
   if (unit_string == "quarter") {
-    return UDAT_REL_UNIT_QUARTER;
+    UDAT_REL_UNIT_QUARTER;
   }
   if (unit_string == "year") {
     return UDAT_REL_UNIT_YEAR;
