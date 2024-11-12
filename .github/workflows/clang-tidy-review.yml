@@ -13,6 +13,11 @@ jobs:
     name: Lint ICU4C C++ executor
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read  # change to write for thread comments
+      # metadata: read # for thread comments
+      pull-requests: write # for pull request reviews
+
     steps:
     - uses: actions/checkout@v4
 
@@ -40,6 +45,8 @@ jobs:
         # split_workflow: true
         # apt_packages: "libjson-c-dev,libicu-dev"
       id: linter
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # If there are any comments, fail the check
     - if: steps.linter.outputs.checks-failed > 0
       run: exit 1
