@@ -25,6 +25,10 @@ jobs:
       run: |
         bash setup.sh
         sudo apt-get install libicu-dev
+    - name: Run clang-tidy
+      run: |
+        pushd executors/cpp
+        clang-tidy  *.cpp --config-file="clang-tidy-config.yml" -p .
 
     # Optionally generate compile_commands.json
 
