@@ -135,6 +135,11 @@ class PluralGenerator(DataGenerator):
                 # Parse this text to get samples
                 for locale in tags:
                     for sample in samples:
+                        # Ignore "root" locale.
+                        if locale == 'root':
+                            logging.info('Plural rules: root locale ignored for %s, %s, %s',
+                                         locale, num_type, sample)
+                            continue
                         test = {
                             'locale': locale,
                             'label': str(self.label_num),

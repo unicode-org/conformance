@@ -99,6 +99,11 @@ class LocaleNamesGenerator(DataGenerator):
                     )
                     continue
                 else:
+                    # Ignore the root locale
+                    if locale_label == 'root':
+                        logging.info('root locale ignored for %s, %s, %s',
+                                     test_data[0], locale_label, language_display)
+                        continue
                     label = str(count).rjust(max_digits, "0")
                     test_json = {
                         "label": label,
