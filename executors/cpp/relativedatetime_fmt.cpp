@@ -44,7 +44,7 @@ auto StringToStyleEnum(string style_string) -> UDateRelativeDateTimeFormatterSty
   return UDAT_STYLE_LONG;  // Default
 }
 
-auto StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
+int StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
   URelativeDateTimeUnit rel_unit;
   if (unit_string == "day") {
     return UDAT_REL_UNIT_DAY;
@@ -65,7 +65,7 @@ auto StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
     return UDAT_REL_UNIT_WEEK;
   }
   if (unit_string == "quarter") {
-    UDAT_REL_UNIT_QUARTER;
+    return UDAT_REL_UNIT_QUARTER;
   }
   if (unit_string == "year") {
     return UDAT_REL_UNIT_YEAR;
