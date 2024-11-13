@@ -59,6 +59,7 @@ string TestPluralRules (json_object* json_in) {
 
     if (sample_string.find('c') != std::string::npos) {
       // TODO: Handle compact numbers
+      input_is_compact = true;
     }
 
     if (sample_string.find('.') != std::string::npos) {
