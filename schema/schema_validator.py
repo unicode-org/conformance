@@ -45,7 +45,6 @@ class ConformanceSchemaValidator:
         self.test_types = schema_files.ALL_TEST_TYPES
         self.executors = []
         self.icu_versions = []
-        self.debug_leve = 0
 
         logging.config.fileConfig("../logging.conf")
 
@@ -145,7 +144,6 @@ class ConformanceSchemaValidator:
                     schema_test_info.append(file_path_pair)
                 else:
                     test_data_files_not_found.append([icu_version, test_type])
-                    logging.debug('No data test file  %s for %s, %s', file_path_pair, test_type, icu_version)
                     pass
 
         if test_data_files_not_found:
@@ -161,7 +159,8 @@ class ConformanceSchemaValidator:
                 logging.warning('FAIL: Test data %s, %s. MSG=%s',
                                 result_data['test_type'], result_data['icu_version'], result_data['err_info'])
             else:
-                logging.debug('Test data validated: %s %s', result_data['test_type'], result_data['icu_version'])
+                pass
+
             all_results.append(result_data)
         return all_results
 
@@ -217,7 +216,7 @@ class ConformanceSchemaValidator:
 
     def check_test_data_schema(self, icu_version, test_type):
         # Check the generated test data for structure against the schema
-        logging.debug('Validating %s with %s', test_type, icu_version)
+        logging.info('Validating %s with %s', test_type, icu_version)
 
         # Check test output vs. the test data schema
         schema_verify_file = os.path.join(self.schema_base, test_type, 'test_schema.json')
@@ -247,7 +246,7 @@ class ConformanceSchemaValidator:
 
         results['result'] = result
         if result:
-            logging.debug('Test data %s validated successfully, with ICU %s', test_type, icu_version)
+            logging.info('Test data %s validated with ICU %s', test_type, icu_version)
         else:
             logging.error('Test data %s FAILED with ICU %s: %s', test_type, icu_version, err_info)
 
@@ -278,7 +277,7 @@ class ConformanceSchemaValidator:
 
     def check_test_output_schema(self, icu_version, test_type, executor):
         # Check the output of the tests for structure against the schema
-        logging.debug('Validating test output: %s %s %s', executor, test_type, icu_version)
+        logging.info('Validating test output: %s %s %s', executor, test_type, icu_version)
 
         # Check test output vs. the schema
         schema_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['schema_file']
@@ -333,7 +332,6 @@ class ConformanceSchemaValidator:
             logging.fatal('%s for %s. Cannot get test_type value', err, schema_file_path, test_type)
             return [False, err, schema_file_path, test_type]
 
-        logging.info('Checking schema %s', schema_file_path)
         try:
             # With just a schema, it validates the schema.
             # However Validator.check_schema doesn't fail as expected.
@@ -461,20 +459,20 @@ def main(args):
                                      'icu76']
     schema_validator.executors = ['node', 'rust', 'dart_web', 'dart_native', 'icu4j']
 
-    logging.info('Checking test outputs')
+    logger.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
 
     # Check all schema files for correctness.
     schema_errors = schema_validator.check_schema_files()
     if schema_errors:
-        logging.error('INVALID SCHEMA: %s', schema_errors)
+        logger.error('INVALID SCHEMA: %s', schema_errors)
     else:
-        logging.info('All schemas are valid: %s', schema_errors)
+        logger.info('All schemas are valid: %s', schema_errors)
 
-    logging.info('Checking generated data')
+    logger.info('Checking generated data')
     all_test_data_results = schema_validator.validate_test_data_with_schema()
 
-    logging.info('Checking test outputs')
+    logger.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
 
     return

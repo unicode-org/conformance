@@ -14,20 +14,20 @@ import sys
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
+logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
+logger.setLevel(logging.INFO)
+
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
     if len(args) <= 1:
-        logging.error('Please specify the path to test data directory')
+        logger.error('Please specify the path to test data directory')
         return
     else:
         test_data_path = args[1]
 
-    logging.debug('TEST DATA PATH = %s', test_data_path)
 
-    logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
-    logger.setLevel(logging.INFO)
     logger.info('+++ Test Generated test data vs. schemas  files')
 
     # TODO: get ICU versions
@@ -38,8 +38,8 @@ def main(args):
         for dir_name in icu_dirs:
             icu_versions.append(os.path.basename(dir_name))
 
-    logging.debug('ICU directories = %s', icu_versions)
-    logging.debug('test types = %s', ALL_TEST_TYPES)
+    logger.debug('ICU directories = %s', icu_versions)
+    logger.debug('test types = %s', ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
 
@@ -51,7 +51,7 @@ def main(args):
     validator.debug = 1
 
     all_results = validator.validate_test_data_with_schema()
-    logging.info('  %d results for generated test data', len(all_results))
+    logger.debug('  %d results for generated test data', len(all_results))
 
     schema_errors = []
     failed_validations = []
@@ -77,7 +77,7 @@ def main(args):
     try:
         summary_data = json.dumps(summary_json)
     except BaseException as error:
-        logging.error('json.dumps Summary data problem: %s at %s', error, error)
+        logger.error('json.dumps Summary data problem: %s at %s', error, error)
         exit(1)
 
     output_filename = os.path.join(test_data_path, 'test_data_validation_summary.json')
@@ -87,17 +87,17 @@ def main(args):
         file_out.close()
     except BaseException as error:
         schema_errors.append(output_filename)
-        logging.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        logger.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
         exit(1)
 
     if schema_errors:
-        logging.critical('Test data file files: %d fail out of %d:',
+        logger.critical('Test data file files: %d fail out of %d:',
                          len(schema_errors), schema_count)
         for failure in schema_errors:
-            logging.critical('  %s', failure)
+            logger.critical('  %s', failure)
         exit(1)
     else:
-        logging.info("All %d generated test data files match with schema", schema_count)
+        logger.info("All %d generated test data files match with schema", schema_count)
         exit(0)
 
 
