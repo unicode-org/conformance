@@ -76,12 +76,9 @@ class DateTimeFmtGenerator(DataGenerator):
                 # Set the options
                 if 'dateLength' in test_item:
                     options['dateStyle'] = test_item['dateLength']
-                else:
-                    options['dateStyle'] = 'short'
                 if 'timeLength' in test_item:
                     options['timeStyle'] = test_item['timeLength']
-                else:
-                    options['timeStyle'] = 'short'
+
                 if 'calendar' in test_item:
                     options['calendar'] = test_item['calendar']
                     if options['calendar'] == 'gregorian':
@@ -161,4 +158,3 @@ class DateTimeFmtGenerator(DataGenerator):
         result = subprocess.run(mv_command, shell=True)
 
         return result
-

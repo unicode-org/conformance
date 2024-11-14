@@ -46,6 +46,10 @@ class knownIssueType(Enum):
     # Relative Date Time Format
     known_issue_unsupported_unit = 'Unsupported unit'  # https://github.com/unicode-org/conformance/issues/274
 
+    # Datetime format
+    datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
+
+
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
 # Tests for specific kinds of known issues
@@ -117,6 +121,32 @@ def unsupported_unit_quarter(test):
     return None
 
 
+def dt_check_for_alternate_long_form(actual, expected):
+    # For datetime_fmt, check if the word for "at" is inserted
+    # in the actual vs. the expected.
+    at_inserts = ['at ', 'এ ', 'lúc ', ',', ' এ']
+    replacements = {',': ' at', '،': ' في',
+                    }
+
+    sm = SequenceMatcher(None, expected, actual)
+    sm_opcodes = sm.get_opcodes()
+    for diff in sm_opcodes:
+        tag = diff[0]  # 'replace', 'delete', 'insert', or 'equal'
+        old_val = expected[diff[1]:diff[2]]
+        new_val = actual[diff[3]:diff[4]]
+        if tag == 'replace':
+            if old_val in replacements:
+                if new_val == replacements[old_val]:
+                    return knownIssueType.datetime_fmt_at_inserted
+        # Does this handle inserts properly?
+        if tag == 'insert':
+            if new_val in at_inserts:
+                return knownIssueType.datetime_fmt_at_inserted
+            else:
+                pass
+    return None
+
+
 def check_datetime_known_issues(test):
     # Examine a single test for date/time isses
     # Returns known issues identified for this test in this category
@@ -133,6 +163,11 @@ def check_datetime_known_issues(test):
         is_ki = numerals_replaced_by_another_numbering_system(result, expected)
         if is_ki:
             test['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
+            remove_this_one = True
+
+        is_ki = dt_check_for_alternate_long_form(result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
     except BaseException as err:
