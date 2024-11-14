@@ -591,6 +591,7 @@ class TestReport:
         if test_list:
             if self.test_type == 'plural_rules':
                 self.characterize_plural_rules_tests(test_list, results)
+
         if self.test_type == 'datetime_fmt':
                 self.characterize_datetime_tests(test_list, results)
 
@@ -725,6 +726,7 @@ class TestReport:
             else:
                 results[sample_type] = [label]
         return
+
 
     def characterize_datetime_tests(self, test_list, results):
         # look for consistencies with datetime_fmt testa
