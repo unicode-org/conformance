@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timezone, UTC
+from datetime import datetime, timezone
 # import pytz
 
 import os
@@ -85,7 +85,7 @@ class DateTimeFmtGenerator(DataGenerator):
                         options['calendar'] = 'gregory'
 
                 # Generate UTC time equivalent and get the offset in seconds
-                u_time = raw_time.astimezone(UTC)
+                u_time = raw_time.astimezone(timezone.utc)
                 input_string = u_time.isoformat().replace('+00:00', 'Z')
                 tz_offset_secs = raw_time.utcoffset().total_seconds()
 
@@ -98,6 +98,7 @@ class DateTimeFmtGenerator(DataGenerator):
                 }
                 test_cases.append(new_test)
                 verify_cases.append(new_verify)
+
 
 
             # Save output as: datetime_fmt_test.json and datetime_fmt_verify.json
