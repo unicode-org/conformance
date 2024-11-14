@@ -586,6 +586,12 @@ class TestReport:
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
         results['locale'] = {}  # Dictionary of labels for each locale
+
+        # Look at particular test types
+        if test_list:
+            if self.test_type == 'plural_rules':
+                self.characterize_plural_rules_tests(test_list, results)
+
         for test in test_list:
             # Get input_data, if available
             input_data = test.get('input_data', None)
@@ -698,6 +704,25 @@ class TestReport:
             # TODO: Find the largest intersections of these sets and sort by size
 
         return results
+
+
+    def characterize_plural_rules_tests(self, test_list, results):
+        # look for consistencies with plural rules test
+        for test in test_list:
+            label = test['label']
+            sample = test['input_data']['sample']
+            sample_type = 'integer sample'
+            if sample.find('c') >= 0:
+                sample_type = 'compact sample'
+            elif sample.find('.') >= 0:
+                sample_type = 'float sample'
+            elif sample.find('.e') >= 0:
+                sample_type = 'exponential sample'
+            if sample_type in results:
+                results[sample_type].append(label)
+            else:
+                results[sample_type] = [label]
+        return
 
     # TODO: Use the following function to update lists.
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
