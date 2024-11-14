@@ -586,6 +586,14 @@ class TestReport:
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
         results['locale'] = {}  # Dictionary of labels for each locale
+
+        # Look at particular test types
+        if test_list:
+            if self.test_type == 'plural_rules':
+                self.characterize_plural_rules_tests(test_list, results)
+        if self.test_type == 'datetime_fmt':
+                self.characterize_datetime_tests(test_list, results)
+
         for test in test_list:
             # Get input_data, if available
             input_data = test.get('input_data', None)
@@ -699,6 +707,37 @@ class TestReport:
 
         return results
 
+
+    def characterize_plural_rules_tests(self, test_list, results):
+        # look for consistencies with plural rules test
+        for test in test_list:
+            label = test['label']
+            sample = test['input_data']['sample']
+            sample_type = 'integer sample'
+            if sample.find('c') >= 0:
+                sample_type = 'compact sample'
+            elif sample.find('.') >= 0:
+                sample_type = 'float sample'
+            elif sample.find('.e') >= 0:
+                sample_type = 'exponential sample'
+            if sample_type in results:
+                results[sample_type].append(label)
+            else:
+                results[sample_type] = [label]
+        return
+
+    def characterize_datetime_tests(self, test_list, results):
+        # look for consistencies with datetime_fmt testa
+        for test in test_list:
+            label = test['label']
+            if 'skeleton' in  test['input_data']:
+                skeleton = 'skeleton: ' + test['input_data']['skeleton']
+                if skeleton in results:
+                    results[skeleton].append(label)
+                else:
+                    results[skeleton] = [label]
+        return
+
     # TODO: Use the following function to update lists.
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
@@ -724,8 +763,8 @@ class TestReport:
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
-                      'delete_space', 'replace_digit', 'replace_dff', 'whitespace_diff',
-                      'replace', 'parens']
+                      'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
+                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
         for check in all_checks:
             results[check] = set()
 
@@ -765,7 +804,7 @@ class TestReport:
                             # Difference is in type of white space
                             results['whitespace_diff'].add(label)
                         else:
-                            results['replace_dff'].add(label)
+                            results['replace_diff'].add(label)
 
                     elif kind == "delete":
                         if old_val.isdigit():
@@ -804,6 +843,7 @@ class TestReport:
 
                                 elif x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
+                                    # Check if replacement is entirely within parentheses
                                 else:
                                     results['insert'].add(label)
                             if x[0] == '-':
@@ -814,11 +854,11 @@ class TestReport:
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].add(label)
+                        results['() --> []'].add(label)
                 elif '(' in expected and '[' in actual:
                     actual_parens = actual.replace('[', '(').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].add(label)
+                        results['[]--> ()'].add(label)
             except KeyError:
                 # a non-string result
                 continue
