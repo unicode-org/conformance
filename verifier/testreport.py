@@ -588,11 +588,11 @@ class TestReport:
         results['locale'] = {}  # Dictionary of labels for each locale
 
         # Look at particular test types
-        if test_list:
-            if self.test_type == 'plural_rules':
-                self.characterize_plural_rules_tests(test_list, results)
-        if self.test_type == 'datetime_fmt':
-                self.characterize_datetime_tests(test_list, results)
+        if self.test_type == 'plural_rules' and test_list:
+            self.characterize_plural_rules_tests(test_list, results)
+
+        if self.test_type == 'datetime_fmt' and test_list:
+            self.characterize_datetime_tests(test_list, results)
 
         for test in test_list:
             # Get input_data, if available
@@ -718,24 +718,20 @@ class TestReport:
                 sample_type = 'compact sample'
             elif sample.find('.') >= 0:
                 sample_type = 'float sample'
-            elif sample.find('.e') >= 0:
+            elif sample.find('e') >= 0:
                 sample_type = 'exponential sample'
-            if sample_type in results:
-                results[sample_type].append(label)
-            else:
-                results[sample_type] = [label]
+            results.setdefault(sample_type, []).append(label)
         return
 
+
     def characterize_datetime_tests(self, test_list, results):
-        # look for consistencies with datetime_fmt testa
+        # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
             if 'skeleton' in  test['input_data']:
-                skeleton = 'skeleton: ' + test['input_data']['skeleton']
-                if skeleton in results:
-                    results[skeleton].append(label)
-                else:
-                    results[skeleton] = [label]
+                skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
+                results.setdefault(skeleton_str, []).append(label)
+
         return
 
     # TODO: Use the following function to update lists.
