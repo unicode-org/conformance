@@ -121,29 +121,12 @@ def unsupported_unit_quarter(test):
     return None
 
 
-def dt_check_for_alternate_long_form(actual, expected):
-    # For datetime_fmt, check if the word for "at" is inserted
-    # in the actual vs. the expected.
-    at_inserts = ['at ', 'এ ', 'lúc ', ',', ' এ']
-    replacements = {',': ' at', '،': ' في',
-                    }
-
-    sm = SequenceMatcher(None, expected, actual)
-    sm_opcodes = sm.get_opcodes()
-    for diff in sm_opcodes:
-        tag = diff[0]  # 'replace', 'delete', 'insert', or 'equal'
-        old_val = expected[diff[1]:diff[2]]
-        new_val = actual[diff[3]:diff[4]]
-        if tag == 'replace':
-            if old_val in replacements:
-                if new_val == replacements[old_val]:
-                    return knownIssueType.datetime_fmt_at_inserted
-        # Does this handle inserts properly?
-        if tag == 'insert':
-            if new_val in at_inserts:
-                return knownIssueType.datetime_fmt_at_inserted
-            else:
-                pass
+def dt_check_for_alternate_long_form(test, actual, expected):
+    # For datetime_fmt, is the format type "standard"?
+    if actual == expected:
+        return None
+    if 'dateTimeFormatType' in test['input_data'] and test['input_data'] ['dateTimeFormatType'] == 'standard':
+        return knownIssueType.datetime_fmt_at_inserted
     return None
 
 
@@ -165,7 +148,7 @@ def check_datetime_known_issues(test):
             test['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
             remove_this_one = True
 
-        is_ki = dt_check_for_alternate_long_form(result, expected)
+        is_ki = dt_check_for_alternate_long_form(test, result, expected)
         if is_ki:
             test['known_issue_id'] = is_ki.value
             remove_this_one = True

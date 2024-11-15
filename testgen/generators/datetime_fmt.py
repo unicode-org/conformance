@@ -92,6 +92,8 @@ class DateTimeFmtGenerator(DataGenerator):
                 new_test = {"locale": test_item['locale'], "input_string": input_string, "options": options,
                             'tz_offset_secs': tz_offset_secs, 'label': label_str,
                             'original_input': raw_input}
+                if 'dateTimeFormatType' in test_item:
+                    new_test['dateTimeFormatType'] = test_item['dateTimeFormatType']
 
                 new_verify = {"label": label_str,
                               "verify": test_item['expected']

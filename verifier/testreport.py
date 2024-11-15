@@ -731,7 +731,8 @@ class TestReport:
             if 'skeleton' in  test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
-
+            if 'dateTimeFormatType' in test:
+                results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], [])
         return
 
     # TODO: Use the following function to update lists.
