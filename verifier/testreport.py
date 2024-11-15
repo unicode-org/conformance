@@ -854,7 +854,7 @@ class TestReport:
                 elif '(' in expected and '[' in actual:
                     actual_parens = actual.replace('[', '(').replace(')', ']')
                     if actual_parens == expected:
-                        results['[]--> ()'].add(label)
+                        results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
                 continue
