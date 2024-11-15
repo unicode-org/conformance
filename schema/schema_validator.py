@@ -5,8 +5,8 @@ import json
 
 import jsonschema.exceptions
 from jsonschema import validate
-from jsonschema import validate
 from jsonschema import exceptions
+from jsonschema import ValidationError
 
 import logging
 import logging.config
