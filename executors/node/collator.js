@@ -17,6 +17,7 @@ module.exports = {
         ignorePunctuation:json['ignorePunctuation']}
     }
 
+
     // Get other fields if provided
     let rules = undefined;
     if ('rules' in json) {
@@ -38,23 +39,27 @@ module.exports = {
 
       // Should we check with < or <=?
       const compared = coll.compare(d1, d2);
-      let result = compared<= 0 ? true : false;
-      let result_bool = true;
-      if (compared > 0) {
-        result_bool = false;
+
+      let result = undefined;
+      // Check for strict equality comparison
+      if (compare_type && compare_type == '=' && compared == 0) {
+        result = true;
+      } else {
+        result = (compared == 0);
       }
+
       outputLine = {'label':json['label'],
                    }
       if (result == true) {
         // Only output result field if result is true.
-        outputLine['result'] = result_bool;
+        outputLine['result'] = result;
         outputLine['compare_result'] = compared;
       } else {
         // Additional info for the comparison
         outputLine['compare'] = compared;
         if (rules) {
           outputLine['unsupported'] = 'Collator rules not available';
-          outputLine['error_detail'] = 'No rules';
+          outputLine['error_detail'] = 'Rules not supported';
           outputLine['error'] = 'rules';
         }
         else if (compare_type) {
@@ -65,10 +70,11 @@ module.exports = {
       }
 
     } catch (error) {
-      outputLine =  {'label': json['label'],
-                     'error_message': 'LABEL: ' + json['label'] + ' ' + error.message,
-                     'error': 'Collator compare failed'
-                 };
+      outputLine =  {
+        'label': json['label'],
+        'error_message': 'LABEL: ' + json['label'] + ' ' + error.message,
+        'error': 'Collator compare failed'
+      };
     }
     return outputLine;
   }
