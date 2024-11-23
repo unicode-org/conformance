@@ -585,13 +585,17 @@ class TestReport:
     def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
+        if not test_list:
+            # no test --> no characterizations
+            return results
+
         results['locale'] = {}  # Dictionary of labels for each locale
 
         # Look at particular test types
-        if self.test_type == 'plural_rules' and test_list:
+        if self.test_type == 'plural_rules':
             self.characterize_plural_rules_tests(test_list, results)
 
-        if self.test_type == 'datetime_fmt' and test_list:
+        if self.test_type == 'datetime_fmt':
             self.characterize_datetime_tests(test_list, results)
 
         for test in test_list:
@@ -739,8 +743,14 @@ class TestReport:
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
             for key in key_list:
+                value = None
+                if test.get(key, None):
+                    value = test.get(key, None)
                 if input_data.get(key, None):  # For collation results
                     value = input_data.get(key, None)
+
+                if value:
+                    # FOund something
                     if key == 'input_list':
                         if 'input_size' not in results:
                             results['input_size'] = {}

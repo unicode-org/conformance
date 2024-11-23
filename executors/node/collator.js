@@ -26,7 +26,12 @@ module.exports = {
 
     let compare_type = undefined;
     if ('compare_type' in json) {
-      compare_type = json['compare_type'];
+      compare_type = json['compare_type'].trim();
+    }
+
+    let reoder;
+    if ('reorder' in json) {
+      reorder = json['reorder'];
     }
 
     // Set up collator object with optional locale and testOptions.
@@ -42,17 +47,23 @@ module.exports = {
 
       let result = undefined;
       // Check for strict equality comparison
-      if (compare_type && compare_type == '=' && compared == 0) {
-        result = true;
+      if (compare_type) {
+        compare_type = compare_type.replace('&lt;', '<');
+        // console.log('COMPARE_TYPE: |', compare_type, '| compared =', compared);
+        if (compare_type == '=' && compared == 0) {
+          result = true;
+        } else
+        if (compare_type == '<' && compared < 0) {
+          result = true;
+        }
       } else {
-        result = (compared == 0);
+        result = (compared <=  0);
       }
 
       outputLine = {'label':json['label'],
                    }
+      outputLine['result'] = result;
       if (result == true) {
-        // Only output result field if result is true.
-        outputLine['result'] = result;
         outputLine['compare_result'] = compared;
       } else {
         // Additional info for the comparison
@@ -60,12 +71,10 @@ module.exports = {
         if (rules) {
           outputLine['unsupported'] = 'Collator rules not available';
           outputLine['error_detail'] = 'Rules not supported';
-          outputLine['error'] = 'rules';
         }
         else if (compare_type) {
           outputLine['unsupported'] = 'Compare type not supported';
           outputLine['error_detail'] = 'No comparison';
-          outputLine['error'] = 'compare_type';
         }
       }
 

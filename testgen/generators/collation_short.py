@@ -68,8 +68,8 @@ class CollationShortGenerator(DataGenerator):
         # TODO: Store data errors with the tests
 
         # And write the files
-        self.saveJsonFile("collation_test.json", json_test)
-        self.saveJsonFile("collation_verify.json", json_verify)
+        self.saveJsonFile("collation_test.json", json_test, 1)
+        self.saveJsonFile("collation_verify.json", json_verify, 1)
 
     def insert_collation_header(self, test_objs):
         for obj in test_objs:
@@ -77,6 +77,12 @@ class CollationShortGenerator(DataGenerator):
             obj["description"] = (
                 "UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error."
             )
+
+    def reset_test_data(self, rules, locale, attributes, strength):
+        rules = []
+        locale = ""
+        attributes = []
+        strength = None
 
     def generateCollTestData2(self, filename, icu_version, start_count=0):
         # Read raw data from complex test file, e.g., collation_test.txt
@@ -101,7 +107,12 @@ class CollationShortGenerator(DataGenerator):
         test_line = re.compile("^\*\* test:(.*)")
         rule_header_pattern = re.compile("^@ rules")
         rule_pattern = re.compile("^&.*")
-        strength_pattern = re.compile("% strength=(\S)")
+        strength_pattern = re.compile("% strength=(\S+)")
+        alternate_pattern = re.compile("% alternate=(\S+)")
+        reorder_pattern = re.compile("^\% reorder(.*)")
+        numeric_pattern = re.compile("% numeric=(\S+)")
+        case_level_pattern = re.compile("% caseLevel=(\S+)*")
+        case_first_pattern = re.compile("% caseFirst=(\S+)*")
         compare_pattern = re.compile("^\* compare(.*)")
 
         comparison_pattern = re.compile(
@@ -111,6 +122,10 @@ class CollationShortGenerator(DataGenerator):
         attribute_test = re.compile("^\% (\S+)\s*=\s*(\S+)")
         rules = ""
         strength = None
+        alternate = None
+        reorder = None
+        case_first = None
+        case_level = None
 
         # Ignore comment lines
         string1 = ""
@@ -127,11 +142,11 @@ class CollationShortGenerator(DataGenerator):
         # Handle compre options =, <, <1, <2, <3, <4
 
         locale = ""
-        line_number = 0
+        line_number = 0  # Starts at one for actual lines
         num_lines = len(raw_testdata_list)
         while line_number < num_lines:
-            line_in = raw_testdata_list[line_number]
             line_number += 1
+            line_in = raw_testdata_list[line_number]
 
             is_comment = recommentline.match(line_in)
             if line_in[0:1] == "#" or is_comment or reblankline.match(line_in):
@@ -139,7 +154,7 @@ class CollationShortGenerator(DataGenerator):
 
             if root_locale.match(line_in):
                 # Reset the parameters for collation
-                locale = "und"
+                # locale = "und"
                 rules = []
                 locale = ""
                 attributes = []
@@ -156,10 +171,11 @@ class CollationShortGenerator(DataGenerator):
                 strength = None
                 continue
 
-            # Find "** test" section
-            is_test = test_line.match(line_in)
-            if is_test:
-                test_description = is_test.group(1)
+            # Find "** test" section. Simply reset the description but leave rules alone.
+            is_test_line = test_line.match(line_in)
+            if is_test_line:
+                # Get the description for subsequent tests
+                test_description = is_test_line.group(1)
                 continue
 
             # Handle rules, to be applied in subsequent tests
@@ -172,36 +188,75 @@ class CollationShortGenerator(DataGenerator):
                 locale = ""
                 attributes = []
                 strength = None
+                numeric = None
+                compare_type = None
 
-                # Skip comment and empty lines
+                # Proces rule lines, Skip comments
+                # Terminate the rule on empty lines or lines with '*' or '%'
                 while line_number < num_lines:
+                    # Increment line_number here?
+                    line_number += 1
                     if line_number >= num_lines:
                         break
                     line_in = raw_testdata_list[line_number]
                     if len(line_in) == 0 or line_in[0] == "#":
-                        line_number += 1
+                        # Keep building the rule
                         continue
-                    if line_in[0] == "*":
+                    is_compare = compare_pattern.match(line_in)
+                    if is_compare or line_in[0] == "%":
                         break
+
+                    is_test_line = test_line.match(line_in)
+                    if is_test_line:
+                        # Update the description, but don't add to rule
+                        test_description = is_test_line.group(1)
+                        continue
+
                     # Remove any comments in the line preceded by '#'
                     comment_start = line_in.find("#")
                     if comment_start >= 0:
+                        # ignore comment at end of this rule line
                         line_in = line_in[0:comment_start]
                     rules.append(line_in.strip())
-                    line_number += 1
+                # Done getting the rule parts.
+                pass
+            if len(line_in) == 0:
                 continue
 
             is_strength = strength_pattern.match(line_in)
             if is_strength:
                 strength = is_strength.group(1)
 
+            is_alternate = alternate_pattern.match(line_in)
+            if is_alternate:
+                altername = is_alternate.group(1)
+
+            is_reorder = reorder_pattern.match(line_in)
+            if is_reorder:
+                reorder = is_reorder.group(1)
+
+            is_case_first = case_first_pattern.match(line_in)
+            if is_case_first:
+                case_first = is_case_first.group(1)
+
+            is_case_level = case_level_pattern.match(line_in)
+            if is_case_level:
+                case_level = is_case_level.group(1)
+
+            is_reorder = reorder_pattern.match(line_in)
+            if is_reorder:
+                reorder = is_reorder.group(1)
+
+            # TODO: Use this!
+            is_numeric = numeric_pattern.match(line_in)
+            if is_numeric:
+                use_numeric = is_numeric.group(1)
+
             is_compare = compare_pattern.match(line_in)
-            compare_type = None
             if is_compare:
+                compare_type = None
                 # Initialize string1 to the empty string.
                 string1 = ""
-                compare_mode = True
-                info = is_compare.group(1)
                 while line_number < num_lines:
                     line_number += 1
                     if line_number >= num_lines:
@@ -247,6 +302,9 @@ class CollationShortGenerator(DataGenerator):
                         # Add info to the test case.
                         if locale:
                             test_case["locale"] = locale
+                        # To match test output to specific tests
+                        test_case['line'] = line_number
+
                         if compare_type:
                             if type(compare_type) in [list, tuple]:
                                 test_case["compare_type"] = compare_type[0]
@@ -264,6 +322,21 @@ class CollationShortGenerator(DataGenerator):
 
                         if strength:
                             test_case["strength"] = strength
+
+                        if alternate:
+                            test_case["alternate"] = alternate
+
+                        if numeric:
+                            test_case["numeric"] = numeric
+
+                        if reorder:
+                            test_case["reorder"] = reorder
+
+                        if case_first:
+                            test_case["case_first"] = case_first
+
+                        if case_level:
+                            test_case["case_level"] = case_level
 
                         test_list.append(test_case)
                         # We always expect True as the result
