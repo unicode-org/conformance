@@ -1,6 +1,6 @@
 // The Collator used for the actual testing.
 
-const debug = None;
+const debug = null;
 
 // Collation: determine the sensitivity that corresponds to the strength.
 module.exports = {
