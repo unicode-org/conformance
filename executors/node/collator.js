@@ -1,5 +1,7 @@
 // The Collator used for the actual testing.
 
+const debug = None;
+
 // Collation: determine the sensitivity that corresponds to the strength.
 module.exports = {
 
@@ -13,10 +15,27 @@ module.exports = {
     }
     let testCollOptions = {};
     if ('ignorePunctuation' in json) {
-      testCollOptions = {
-        ignorePunctuation:json['ignorePunctuation']}
+      testCollOptions['ignorePunctuation'] = json['ignorePunctuation'];
     }
 
+    if ('numeric' in json) {
+      testCollOptions['numeric'] = true;
+    }
+    if ('caseFirst' in json) {
+      testCollOptions['caseFirst'] = json['case_first'];
+    }
+    const strength = json['strength'];
+    if (strength) {
+      if (strength == 'primary') {
+        testCollOptions['sensitivity'] = 'base';
+      } else
+      if (strength == 'secondary') {
+        testCollOptions['sensitivity'] = 'accent';
+      } else
+      if (strength == 'tertiary') {
+        testCollOptions['sensitivity'] = 'case';
+      }
+    }
 
     // Get other fields if provided
     let rules = undefined;
@@ -49,11 +68,14 @@ module.exports = {
       // Check for strict equality comparison
       if (compare_type) {
         compare_type = compare_type.replace('&lt;', '<');
-        // console.log('COMPARE_TYPE: |', compare_type, '| compared =', compared);
+        if (debug) {
+          console.log('COMPARE_TYPE: |', compare_type, '| compared =', compared);
+        }
         if (compare_type == '=' && compared == 0) {
           result = true;
         } else
-        if (compare_type == '<' && compared < 0) {
+        // Check results with different compare types
+        if (compare_type[0] == '<' && compared < 0) {
           result = true;
         }
       } else {
@@ -73,7 +95,8 @@ module.exports = {
           outputLine['error_detail'] = 'Rules not supported';
         }
         else if (compare_type) {
-          outputLine['unsupported'] = 'Compare type not supported';
+          outputLine['unsupported'] = 'Compare type ' + compare_type + ' not supported';
+          // outputLine['options'] = testCollOptions;
           outputLine['error_detail'] = 'No comparison';
         }
       }

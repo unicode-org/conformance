@@ -645,7 +645,8 @@ class TestReport:
                         'skeleton',
                         'language_label', 'locale_label',  # in lang_names
                         'option', 'locale',  # in likely_subtags
-                        'language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description'
+                        'language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description',
+                        'strength', 'caseFirst'
                         ]
             for key in key_list:
                 if test.get(key, None):  # For collation results

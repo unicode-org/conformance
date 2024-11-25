@@ -95,7 +95,7 @@ string TestCollator(json_object *json_in) {
       strength_type = Collator::TERTIARY;
     } else if (strength_string == "quaternary") {
       strength_type = Collator::QUATERNARY;
-    } else if (strength_string == "IDENTICAL") {
+    } else if (strength_string == "identical") {
       strength_type = Collator::IDENTICAL;
     }
   }

@@ -333,7 +333,7 @@ class CollationShortGenerator(DataGenerator):
                             test_case["reorder"] = reorder
 
                         if case_first:
-                            test_case["case_first"] = case_first
+                            test_case["caseFirst"] = case_first
 
                         if case_level:
                             test_case["case_level"] = case_level
