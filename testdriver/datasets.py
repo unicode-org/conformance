@@ -218,7 +218,8 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
-  Node22 = "22.1.0"
+  Node23 = "23.3.0"
+  Node22 = "22.9.0"
   Node21 = "21.6.0"
   Node19 = "19.7.0"
   Node18_7 = "18.7.0"
@@ -248,7 +249,8 @@ class ICU4XVersion(Enum):
 # TODO: combine the version info
 IcuVersionToExecutorMap = {
     'node': {
-        '75': ["22.1.0"],
+        '76': ["23.3.0"],
+        '75': ["22.9.0"],
         '74': ["21.6.0"],
         '73': ["20.1.0"],
         '72': ['18.14.2'],
@@ -272,7 +274,8 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    '22.1.0': '75.1',
+    '23.3.0': '76.1',
+    '22.9.0': '75.1',
     '21.6.0': '74.1',
     '20.1.0': '73.1',
     '18.14.2': '72.1',
