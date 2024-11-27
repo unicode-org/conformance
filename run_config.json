@@ -130,6 +130,28 @@
   },
   {
     "prereq": {
+      "name": "nvm 23.3.0, icu76.1",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "nvm 22.9.0, icu75.1",
       "version": "22.9.0",
       "command": "nvm install 22.9.0;nvm use 22.9.0 --silent"
