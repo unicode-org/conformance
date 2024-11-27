@@ -94,4 +94,14 @@ public class PluralRulesTest {
 
     assertEquals("many", output.result);
   }
+
+  public void testCompactSample() {
+    String testInput =
+        "{\t\"locale\": \"fr\", \"label\": \"4007\", \"plural_type\": \"cardinal\", \"sample\": \"1c6\", \"hexhash\": \"1dd05e1e6479f1d8ce7e261d94d22b96e1d01238\"}";
+
+    PluralRulesOutputJson output =
+        (PluralRulesOutputJson) PluralRulesTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertEquals("many", output.result);
+  }
 }

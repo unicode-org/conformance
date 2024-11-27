@@ -11,6 +11,7 @@
 #include <unicode/plurrule.h>
 #include <unicode/unistr.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,8 @@ using icu::Locale;
 using icu::PluralRules;
 using icu::UnicodeString;
 
+using std::cout;
+using std::endl;
 using std::string;
 
 string TestPluralRules (json_object* json_in) {
@@ -53,13 +56,29 @@ string TestPluralRules (json_object* json_in) {
 
   std::vector<UnicodeString> u_strings;
   int u_strings_size = 0;
+
+  string sample_string;
   if (sample_obj != nullptr) {
     // Get the number
-    string sample_string = json_object_get_string(sample_obj);
+    sample_string = json_object_get_string(sample_obj);
 
     if (sample_string.find('c') != std::string::npos) {
       // TODO: Handle compact numbers
       input_is_compact = true;
+
+      json_object_object_add(
+          return_json,
+          "error",
+          json_object_new_string("compact not yet supported"));
+      json_object_object_add(
+          return_json,
+          "unsupported",
+          json_object_new_string("compact not yet supported"));
+      json_object_object_add(
+          return_json,
+          "error_detail",
+          json_object_new_string(sample_string.c_str()));
+      return json_object_to_json_string(return_json);
     }
 
     if (sample_string.find('.') != std::string::npos) {
@@ -103,29 +122,19 @@ string TestPluralRules (json_object* json_in) {
     return json_object_to_json_string(return_json);
   }
 
+  string result_string;
+
   // TODO: distinguish between ints, doubles, and compact values
   UnicodeString u_result;
   if (input_is_double) {
     u_result = prules->select(input_double_sample);
+    u_result.toUTF8String(result_string);
   } else if (input_is_integer) {
     u_result = prules->select(input_int_sample);
+    u_result.toUTF8String(result_string);
   } else if (input_is_compact) {
-    // TODO: Handle compact and other possible options
-    u_result = "Not yet handled";
-    json_object_object_add(
-        return_json,
-        "error",
-        json_object_new_string("compact not yet supported"));
-    json_object_object_add(
-        return_json,
-        "unsupported",
-        json_object_new_string("compact not yet supported"));
-
-    return json_object_to_json_string(return_json);
+    // TODO: Handle compact numbers
   }
-
-  string result_string;
-  u_result.toUTF8String(result_string);
 
   // It all seems to work!
   json_object_object_add(

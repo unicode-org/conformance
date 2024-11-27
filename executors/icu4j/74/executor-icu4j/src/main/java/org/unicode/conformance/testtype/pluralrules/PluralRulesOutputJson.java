@@ -13,4 +13,8 @@ public class PluralRulesOutputJson implements ITestTypeOutputJson {
   public String error;
 
   public String error_message;
+
+  public String error_detail;
+
+  public String unsupported;
 }

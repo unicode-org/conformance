@@ -45,8 +45,9 @@ public class PluralRulesTester implements ITestType {
     try {
       output.result = getPluralRulesResultString(input);
     } catch (Exception e) {
-      output.error = e.getMessage();
-      output.error_message = e.getMessage();
+      output.error = "unsupported";
+      output.unsupported = "Compact values";
+      output.error_detail = e.getMessage();
       return output;
     }
 
