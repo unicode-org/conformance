@@ -30,4 +30,15 @@ public class CollatorTest {
     assertTrue(output.result);
   }
 
+  @Test
+  public void testAttributesAsArrayList() {
+    String testInput =
+        "{\"test_type\": \"collation_short\", \"label\":\"00099\",\"s1\":\"\",\"s2\":\"a\",\"line\":293,\"compare_type\":\"&lt;1\",\"test_description\":\" discontiguous contractions\",\"attributes\":[[\"strength\",\"primary\"],[\"strength\",\"secondary\"],[\"strength\",\"tertiary\"],[\"strength\",\"quaternary\"],[\"strength\",\"identical\"]],\"strength\":\"primary\",\"hexhash\":\"4c4c61ac18e9c222aaa457daa5d72a72ce0490d2\"}";
+
+    CollatorOutputJson output =
+        (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
 }

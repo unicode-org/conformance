@@ -151,7 +151,7 @@ public class Icu4jExecutor {
 
             try {
                 return testType.getFinalOutputFromInput(parsedInputPersistentMap);
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 ITestTypeOutputJson defaultOutput = testType.getDefaultOutputJson();
                 return ExecutorUtils.formatAsJson(
                     testType.convertOutputToMap(defaultOutput)

@@ -5,6 +5,7 @@ import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
@@ -46,12 +47,12 @@ public class CollatorTester implements ITestType {
     result.test_description = (String) inputMapData.get("test_description", null);
 
     // TODO: implement this correctly recursively (either using APIs or else DIY)
-    String[] attrs;
-    Optional<Object> attrsString = inputMapData.get("attributes");
-    if (attrsString.isPresent()) {
-      attrs = new String[]{ (String) attrsString.get() };
+    ArrayList<String> attrs;
+    Optional<Object> attrsListOpt = inputMapData.get("attributes");
+    if (attrsListOpt.isPresent()) {
+      attrs = (ArrayList<String>) attrsListOpt.get();
     } else {
-      attrs = new String[]{};
+      attrs = new ArrayList<>();
     }
     result.attributes = attrs;
 
