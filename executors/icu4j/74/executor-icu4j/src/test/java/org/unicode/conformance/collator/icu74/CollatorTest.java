@@ -41,4 +41,13 @@ public class CollatorTest {
     assertTrue(output.result);
   }
 
+/*  @Test
+  public void testCompareLT2() {
+    String testInput =
+        "{\"test_type\": \"collation_short\", \"label\":\"00115\",\"s1\":\"cote\",\"s2\":\"cotÃ©\",\"line\":329,\"source_file\":\"collationtest.txt\",\"compare_type\":\"&lt;2\",\"test_description\":\" discontiguous contractions\",\"hexhash\":\"b56b2f345f58f7044c14e392ea94304c075cbaf5\"}";
+    CollatorOutputJson output =
+        (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }*/
 }

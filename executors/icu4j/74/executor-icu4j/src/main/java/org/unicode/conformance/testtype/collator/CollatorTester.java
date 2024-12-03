@@ -43,7 +43,15 @@ public class CollatorTester implements ITestType {
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
 
+    // Resolve "&lt;"
     result.compare_type = (String) inputMapData.get("compare_type", null);
+    if (result.compare_type != null && ! result.compare_type.equals("") && result.compare_type.length() > 4) {
+      String first_part = result.compare_type.substring(0,4);
+      if (first_part.equals("&lt;")) {
+        String next_part = result.compare_type.substring(4,5);
+        result.compare_type = "<" + next_part;
+      }
+    }
     result.test_description = (String) inputMapData.get("test_description", null);
 
     // TODO: implement this correctly recursively (either using APIs or else DIY)
@@ -91,6 +99,7 @@ public class CollatorTester implements ITestType {
 
     try {
       int collResult = coll.compare(input.s1, input.s2);
+      // TODO! Use compare_type to check for <= or ==.
       if (collResult > 0) {
         // failure
         output.result = false;
@@ -138,7 +147,7 @@ public class CollatorTester implements ITestType {
   public Collator getCollatorForInput(CollatorInputJson input) {
     RuleBasedCollator result = null;
 
-    if (input.locale == null) {
+    if (input.locale == null || input.locale == "root") {
       if (input.rules == null) {
         result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {

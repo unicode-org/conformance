@@ -156,8 +156,8 @@ public class Icu4jExecutor {
                 return ExecutorUtils.formatAsJson(
                     testType.convertOutputToMap(defaultOutput)
                         .put("label", parsedInputPersistentMap.get("label", null))
-                        .put("error", "Error in input" + e.getMessage())
-                        .put("error_message", "Error in handling test case: " + e.getMessage())
+                        .put("error", "Error in input" + t.getMessage())
+                        .put("error_message", "Error in handling test case: " + t.getMessage())
                 );
             }
         }

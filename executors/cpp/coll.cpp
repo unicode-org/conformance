@@ -54,6 +54,7 @@ string TestCollator(json_object *json_in) {
   json_object *str1 = json_object_object_get(json_in, "s1");
   json_object *str2 = json_object_object_get(json_in, "s2");
 
+  // Unescape the input strings?
   string string1 = json_object_get_string(str1);
   string string2 = json_object_get_string(str2);
 
@@ -78,6 +79,11 @@ string TestCollator(json_object *json_in) {
   string compare_type_string = "";
   if (compare_type_obj != nullptr) {
     compare_type_string = json_object_get_string(compare_type_obj);
+    if (compare_type_string.substr(0,4) == "&lt;") {
+      compare_type_string = "<" + compare_type_string.substr(4,1);
+    }
+    // !!!
+    cout << "COMPARE_TYPE_STRING: " << compare_type_string << endl;
   }
 
   // Strength of comparison
@@ -107,13 +113,6 @@ string TestCollator(json_object *json_in) {
     rules_string = json_object_get_string(rules_obj);
   }
   UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string);
-
-  // Allow for different levels or types of comparison.
-  json_object *compare_type = json_object_object_get(json_in, "compare_type");
-  if (compare_type != nullptr) {
-    // TODO: Apply this in tests.
-    const char *comparison_type = json_object_get_string(compare_type);
-  }
 
   // Handle some options
   json_object *ignore_obj =
@@ -153,9 +152,20 @@ string TestCollator(json_object *json_in) {
   } else {
     // Not a rule-based collator.
     if (strlen(locale_string) <= 0) {
+      // Uses the default Locale.
       uni_coll = Collator::createInstance(status);
     } else {
-      uni_coll = Collator::createInstance(Locale(locale_string), status);
+      Locale this_locale;
+      if (locale_string == "root") {
+        // !!!
+        cout << "&& ROOT LOCAL: " << locale_string << endl;
+        this_locale = Locale::getRoot();
+      } else {
+        // !!!
+        cout << "&& OTHER LOCAL: " << locale_string << endl;
+        this_locale = Locale(locale_string);
+      }
+      uni_coll = Collator::createInstance(this_locale, status);
     }
 
     if (check_icu_error(
@@ -209,7 +219,16 @@ string TestCollator(json_object *json_in) {
     }
   }
 
-  coll_result = (uni_result != UCOL_GREATER);
+  // Use the compare_type to see if "<" or "=" should be applied.
+  if (compare_type_string == "" || compare_type_string.substr(0, 1) == "<") {
+    // Default checking for <= 0.
+    coll_result = (uni_result != UCOL_GREATER);
+  } else {
+    // !!!
+    cout << "CHECK for EQUAL: " << compare_type_string << endl;
+    coll_result = (uni_result == UCOL_EQUAL);
+  }
+
   if (!coll_result) {
     // Test did not succeed!
     // Include data compared in the failing test
