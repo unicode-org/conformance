@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf_8 -*-
 from abc import ABC, abstractmethod
 import copy
 import hashlib
@@ -69,7 +69,7 @@ class DataGenerator(ABC):
 
             # Create the 32 byte hasn, consisten with Javascript
             hasher = hashlib.sha1()
-            hasher.update(test_no_label_string.encode("utf-8"))
+            hasher.update(test_no_label_string.encode("utf_8"))
             hex_digest = hasher.hexdigest()
             test['hexhash'] = hex_digest
 
@@ -83,7 +83,7 @@ class DataGenerator(ABC):
                               filename)
 
         output_path = os.path.join(self.icu_version, filename)
-        output_file = open(output_path, "w", encoding="UTF-8")
+        output_file = open(output_path, "w", encoding="utf_8")
         json.dump(data, output_file, indent=indent)
         output_file.close()
 
@@ -133,7 +133,7 @@ class DataGenerator(ABC):
         if version:
             path = os.path.join(version, filename)
         try:
-            with open(path, "r", encoding="utf-8") as testdata:
+            with open(path, "r", encoding="utf_8") as testdata:
                 return json.load(testdata) if filetype == "json" else testdata.read()
         except BaseException as err:
             logging.warning("** readFile: %s", err)
