@@ -8,6 +8,8 @@ public class PluralRulesOutputJson implements ITestTypeOutputJson {
 
   public String label;
 
+  public String locale;
+
   public String result;
 
   public String error;

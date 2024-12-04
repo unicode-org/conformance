@@ -85,9 +85,11 @@ string TestPluralRules (json_object* json_in) {
       // Convert into an integer, decimal, or compact decimal
       input_double_sample = std::stod(sample_string);
       input_is_double = true;
+      cout << "Double sample: " << input_double_sample << endl;
     } else {
       input_int_sample = std::stoi(sample_string);
       input_is_integer = true;
+      cout << "Integer sample: " << input_int_sample << endl;
     }
   } else {
     json_object_object_add(return_json,
@@ -129,9 +131,11 @@ string TestPluralRules (json_object* json_in) {
   if (input_is_double) {
     u_result = prules->select(input_double_sample);
     u_result.toUTF8String(result_string);
+    cout << "DOUBLE result: " << result_string << endl;
   } else if (input_is_integer) {
     u_result = prules->select(input_int_sample);
     u_result.toUTF8String(result_string);
+    cout << "Integer result: " << result_string << endl;
   } else if (input_is_compact) {
     // TODO: Handle compact numbers
   }
