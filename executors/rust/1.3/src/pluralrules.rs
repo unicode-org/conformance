@@ -32,9 +32,9 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
         // Report an unexpected result.
         return Ok(json!({
             "label": label,
-            "error_detail": {"option": input_number},
+            "error_detail": {"sample number": input_number},
             "error_type": "parsing sample",
-            "unsupported": "problem with input number"
+            "unsupported": "input number"
         }));
     };
 

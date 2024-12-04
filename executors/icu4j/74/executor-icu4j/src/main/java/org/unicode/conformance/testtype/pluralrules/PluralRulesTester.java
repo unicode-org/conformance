@@ -27,9 +27,7 @@ public class PluralRulesTester implements ITestType {
     );
 
     // Consider compact number format, too.
-    String sampleString = (String) inputMapData.get("sample", null);
-    // Convert this to a number.
-    result.sample = Double.parseDouble(sampleString);
+    result.sampleString = (String) inputMapData.get("sample", null);
 
     return result;
   }
@@ -41,12 +39,23 @@ public class PluralRulesTester implements ITestType {
     // partially construct output
     PluralRulesOutputJson output = (PluralRulesOutputJson) getDefaultOutputJson();
     output.label = input.label;
+    // Convert this to a number.
+    try {
+      input.sample = Double.parseDouble(input.sampleString);
+    } catch (Exception e) {
+      output.error = "unsupported";
+      output.unsupported = "Compact values";
+      output.error_message = input.sampleString;
+      output.error_detail = e.getMessage();
+      return output;
+    }
 
     try {
       output.result = getPluralRulesResultString(input);
     } catch (Exception e) {
-      output.error = e.getMessage();
-      output.error_message = e.getMessage();
+      output.error = "unsupported";
+      output.unsupported = "Compact values";
+      output.error_detail = e.getMessage();
       return output;
     }
 
