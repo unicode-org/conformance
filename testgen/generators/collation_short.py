@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+from enum import Enum
 import re
 import logging
 from generators.base import DataGenerator
 
 reblankline = re.compile("^\s*$")
 
+class ParseResults(Enum):
+    NO_RESULT = 0
+    RULE_RESET = 1
 
 class CollationShortGenerator(DataGenerator):
 
@@ -206,9 +210,9 @@ class CollationShortGenerator(DataGenerator):
                 rule_comments.append(rule_match.group(2).strip())
 
         rules = ' '.join(rule_list)
-        # How to indicate that rules are reset?
+        # If there's @rule, but no rules, we need to  indicate that rules should be reset.
         if rules == '':
-            rules = ' '
+            rules = ParseResults.RULE_RESET
         return rules, ', '.join(rule_comments), line_index
 
     def generateCollTestData2(self, filename, icu_version, start_count=0):
@@ -245,11 +249,14 @@ class CollationShortGenerator(DataGenerator):
             # line_number += 1
             line_in = raw_testdata_list[line_number]
 
-            is_comment = recommentline.match(line_in)
-            if line_in[0:1] == "#" or is_comment or reblankline.match(line_in):
+            if recommentline.match(line_in) or line_in[0:1] == "#" or reblankline.match(line_in):
+                # Just skip this line
                 line_number += 1
                 continue
 
+            # According to collationtest.txt, resetting the locale creates
+            # a new collator instance with @root or @locale.
+            # Same goes for a new @rule section.
             if self.root_locale.match(line_in):
                 # Reset the parameters for collation
                 locale = 'root'
@@ -258,9 +265,7 @@ class CollationShortGenerator(DataGenerator):
                 line_number += 1
                 continue
 
-            locale_match = self.locale_string.match(line_in)
-            if locale_match:
-                # Reset the parameters for collation
+            if locale_match:= self.locale_string.match(line_in):
                 locale = locale_match.group(1)
                 rules = None
                 attributes = {}
@@ -268,8 +273,7 @@ class CollationShortGenerator(DataGenerator):
                 continue
 
             # Find "** test" section. Simply reset the description but leave rules alone.
-            is_test_line = self.test_line.match(line_in)
-            if is_test_line:
+            if is_test_line:= self.test_line.match(line_in):
                 # Get the description for subsequent tests
                 test_description = is_test_line.group(1).strip()
                 line_number += 1
@@ -279,7 +283,7 @@ class CollationShortGenerator(DataGenerator):
             rules, rule_comments, line_number = self.check_parse_rule(line_number, raw_testdata_list)
             if rules:
                 # Reset test parameters
-                if rules == ' ':
+                if rules == ParseResults.RULE_RESET:
                     rules = None
                 line_in = raw_testdata_list[line_number]
                 locale = ""
