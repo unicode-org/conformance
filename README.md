@@ -48,7 +48,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 
 ## Architectural Overview
 
-Conceptually, there are three main functional units of the DDT implementation:
+Conceptually, there are four main functional units of the DDT implementation:
 
 ![Conceptual model of Data Driven Testing](./ddt_concept_model.png)
 
@@ -92,6 +92,114 @@ parameters to be set for computing a result.
       "verify": "True"
     },
   ```
+
+## Checking data using schemas
+
+Several types of JSON formatted data are created and used by Conformance
+processing, and the integity of this information must be maintained.
+
+Data Driven Testing uses [JSON Schema
+Validation](https://python-jsonschema.readthedocs.io/en/latest/validate/) to
+insure the structure of data files. JSON schema make sure that needed parameters
+and other information are present as required and that the type of each data
+item is as specified.
+
+In addition, schema specification can restrict the range of data fields to those
+expected, allowing only those data that are expected in JSON output files. This
+gives a measure of confidence in the data exchanged between the phases of
+Conformance Testing.
+
+The types of data include:
+
+* **Generated test data** including all parameters and settings as well as
+  ancilliary descriptive information for each test. This data depends only on
+  the type of test (component) and the ICU version. It does not depend on the
+  particular execution platorm, i.e., programming languages.
+
+* **Expected results** of running each test running with the specified ICU
+  version. This does not depend on the platform.
+
+* **Actual results** from executing each test in the input. This contains actual
+  results from the execution of each test in a given platform. This data may
+  include output from the executor including platform-specific parameters and
+  settings derived from the input data. It may also include data on errors
+  encountered during the run of the platform executor.
+
+* **Schema files** describing the expected JSON format of each type of files for
+  the components.
+
+Schema validation is performed at these times in standard processing:
+
+1. After test data generation, all generated test data and expected result data
+   files are checked for correct structure.
+
+2. Before test execution, the schema files themselves are checked for correct
+   schema structure..
+
+3. After test executors are run, all resuulting test output files are checked
+   for correct structure.
+
+
+Top level directory `schema` contains the following:
+
+* One subdirectory for each component such as "collation". This contains schema.json files for generated tests, expected results, and test output structure.
+
+* Python routines for checking these types of data.
+
+* A Python routine for validating the structure of the .json schema files.
+
+```
+$ ls schema/*.py
+schema/check_generated_data.py  schema/check_test_output.py  schema/__init__.py      schema/schema_validator.py
+schema/check_schemas.py         schema/check_verify_data.py  schema/schema_files.py
+
+$ tree schema/*
+
+schema/collation_short
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/datetime_fmt
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/lang_names
+├── #result_schema.json#
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/likely_subtags
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/list_fmt
+├── #result_schema.json#
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/message_fmt2
+├── README.md
+├── result_schema.json
+├── testgen_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/number_format
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/plural_rules
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/rdt_fmt
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+```
+
+Note also that the schema validation creates a file
+**schema/schema_validation_summary.json**
+which is used in the summary presentation of the Conformance results.
 
 ## Text Execution
 
