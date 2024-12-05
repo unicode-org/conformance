@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+from enum import Enum
 import re
 import logging
 from generators.base import DataGenerator
 
 reblankline = re.compile("^\s*$")
 
+class ParseResults(Enum):
+    NO_RESULT = 0
+    RULE_RESET = 1
 
 class CollationShortGenerator(DataGenerator):
 
@@ -15,9 +19,11 @@ class CollationShortGenerator(DataGenerator):
         self.test_line = re.compile("^\*\* test:(.*)")
         self.rule_header_pattern = re.compile("^@ rules")
         self.compare_pattern = re.compile("^\* compare(.*)")
+
+        # A comparison line begins with the type of compare function.
         self.comparison_line = re.compile("^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
 
-        self.rule_pattern_with_comment = re.compile("^([^#]+)#?(.*)")
+        self.input_pattern_with_comment = re.compile("^([^#]+)#?(.*)")
         self.attribute_test = re.compile("^% (\S+)\s*=\s*(.+)")
         self.reorder_test = re.compile("^% (reorder)\s+(.+)")
 
@@ -124,14 +130,11 @@ class CollationShortGenerator(DataGenerator):
             if any([p.match(line_in) for p in breakout_patterns]):
                 break
 
-            # It's a blank line, comment, or a comparison
-            # ignore comment at end of this comment
+            # Ignore a blank line or a comment-only line
             if line_in == '' or line_in[0] == '#':
-                # Skip blank and comment lines
                 line_index += 1
                 continue
 
-            # A comparison line starts with either "<" or "="
             is_comparison_match = self.comparison_line.match(line_in)
             if is_comparison_match:
                 compare_type = is_comparison_match.group(1)
@@ -201,14 +204,14 @@ class CollationShortGenerator(DataGenerator):
                 continue
 
             # Detect comment at end of this rule line and keep it
-            if rule_match := self.rule_pattern_with_comment.match(line_in):
+            if rule_match := self.input_pattern_with_comment.match(line_in):
                 rule_list.append(rule_match.group(1).rstrip())
                 rule_comments.append(rule_match.group(2).strip())
 
         rules = ' '.join(rule_list)
-        # How to indicate that rules are reset?
+        # If there's @rule, but no rules, we need to  indicate that rules should be reset.
         if rules == '':
-            rules = ' '
+            rules = ParseResults.RULE_RESET
         return rules, ', '.join(rule_comments), line_index
 
     def generateCollTestData2(self, filename, icu_version, start_count=0):
@@ -245,11 +248,14 @@ class CollationShortGenerator(DataGenerator):
             # line_number += 1
             line_in = raw_testdata_list[line_number]
 
-            is_comment = recommentline.match(line_in)
-            if line_in[0:1] == "#" or is_comment or reblankline.match(line_in):
+            if recommentline.match(line_in) or line_in[0:1] == "#" or reblankline.match(line_in):
+                # Just skip this line
                 line_number += 1
                 continue
 
+            # According to collationtest.txt, resetting the locale creates
+            # a new collator instance with @root or @locale.
+            # Same goes for a new @rule section.
             if self.root_locale.match(line_in):
                 # Reset the parameters for collation
                 locale = 'root'
@@ -258,9 +264,7 @@ class CollationShortGenerator(DataGenerator):
                 line_number += 1
                 continue
 
-            locale_match = self.locale_string.match(line_in)
-            if locale_match:
-                # Reset the parameters for collation
+            if locale_match:= self.locale_string.match(line_in):
                 locale = locale_match.group(1)
                 rules = None
                 attributes = {}
@@ -268,8 +272,7 @@ class CollationShortGenerator(DataGenerator):
                 continue
 
             # Find "** test" section. Simply reset the description but leave rules alone.
-            is_test_line = self.test_line.match(line_in)
-            if is_test_line:
+            if is_test_line:= self.test_line.match(line_in):
                 # Get the description for subsequent tests
                 test_description = is_test_line.group(1).strip()
                 line_number += 1
@@ -279,7 +282,7 @@ class CollationShortGenerator(DataGenerator):
             rules, rule_comments, line_number = self.check_parse_rule(line_number, raw_testdata_list)
             if rules:
                 # Reset test parameters
-                if rules == ' ':
+                if rules == ParseResults.RULE_RESET:
                     rules = None
                 line_in = raw_testdata_list[line_number]
                 locale = ""
@@ -396,7 +399,8 @@ class CollationShortGenerator(DataGenerator):
             line_number += 1
             if recommentline.match(item) or reblankline.match(item):
                 continue
-            # It's a data lin# Already joined!e.
+
+            # It's a data line. Include in testing.
             if not prev:
                 # Just getting started.
                 prev = self.parseCollTestData(item)
