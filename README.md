@@ -488,6 +488,43 @@ Make sure that your new executor can be run from a debugging environment or from
 
 * Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
 
+
+** TDB **
+
+See [Add Dart to executors PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
+
+See also the 
+[Rust executor for ICU4x 1.3 in PR#108](https://github.com/unicode-org/conformance/pull/108)
+
+Adding a new platform involves several changes to the DDT system:
+* Change the workflow to reference the new platform
+
+* Create a new directory structure under executors/. Add .gitignore as needed.
+
+* Add configuration specific to the platform in the new directory under executors/
+
+* Set up a main program that will receive instructions on the STDIN command line
+
+** Parse the incoming JSON data to determine test type
+
+** Build separate files for running each type of test
+
+** Return results from each testing routine in JSON format
+
+** Support the commands for information:
+*** #VERSION
+*** #TEST
+*** etc.
+
+* Update testdriver/datasets.py to include the new executor platform.
+
+
+Note: it is very helpful to include sets of tests for the new platform for each supported component. The ICU4J model with Intellij is a good example.
+
+Make sure that your new executor can be run from a debugging environment or from the command line. This should be done before adding it to the test drive.
+
+* Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
+
 ** TDB **
 
 # How to use DDT
@@ -581,7 +618,54 @@ as the result from each test. As an example, collation test results from the
     ...
   ]
 }
-```
+````
+
+````
+And the overall structure:
+**toplevel**/testOutput/
+├── cpp
+│   ├── icu71
+│   ├── icu72
+│   ├── icu73
+│   ├── icu74
+│   ├── icu75
+│   └── icu76
+├── dart_web
+│   └── icu73
+├── icu4j
+│   ├── icu73
+│   ├── icu74
+│   ├── icu75
+│   └── icu76
+├── node
+│   ├── icu69
+│   ├── icu70
+│   ├── icu71
+│   ├── icu72
+│   ├── icu73
+│   ├── icu74
+│   ├── icu75
+│   └── icu76
+├── rust
+│   ├── icu73
+│   └── icu74
+└── test_output_validation_summary.json
+````
+
+And showing details for the icu76 output from ICU4J:
+
+````
+**toplevel**/testOutput/icu4j/icu76
+├── collation_test.json
+├── datetime_fmt_test.json
+├── lang_name_test_file.json
+├── likely_subtags_test.json
+├── list_fmt_test.json
+├── message_fmt2_test.json
+├── num_fmt_test_file.json
+├── plural_rules_test.json
+└── rdt_fmt_test.json
+````
 
 ## Directory `testReports`
 This directory stores summary results from verifying the tests performed by each executor. Included in the `testReports` directory are:
@@ -617,6 +701,27 @@ The `verifier_test_report.json` file contains information on tests run and compa
 * Analysis of test failures, if available. This may include summaries of string
   differences such as missing or extra characters or substitutions found in
   output data.
+
+Example for details of ICU4C, version 76 of root directory **toplevel**:
+
+
+````
+**toplevel**/testReports/cpp/icu76/number_fmt/
+├── error_characterized.json
+├── fail_characterized.json
+├── failing_tests.json
+├── failure_parameters.json
+├── known_issues_characterized.json
+├── known_issues.json
+├── pass_characterized.json
+├── pass.json
+├── test_errors.json
+├── unsupported_characterized.json
+├── unsupported.json
+├── verifier_test_report.html
+└── verifier_test_report.json
+
+````
 
 ## Running Data Driven Test
 
