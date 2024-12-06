@@ -420,6 +420,42 @@ For reference, [PR#183](https://github.com/unicode-org/conformance/pull/183/file
 
 ## Adding new test platforms, e.g., types of libraries
 
+See [Add Dart to executors PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
+
+See also the 
+[Rust executor for ICU4x 1.3 in PR#108](https://github.com/unicode-org/conformance/pull/108)
+
+Adding a new platform involves several changes to the DDT system:
+* Change the workflow to reference the new platform
+
+* Create a new directory structure under executors/. Add .gitignore as needed.
+
+* Add configuration specific to the platform in the new directory under executors/
+
+* Set up a main program that will receive instructions on the STDIN command line
+
+** Parse the incoming JSON data to determine test type
+
+** Build separate files for running each type of test
+
+** Return results from each testing routine in JSON format
+
+** Support the commands for information:
+*** #VERSION
+*** #TEST
+*** etc.
+
+* Update testdriver/datasets.py to include the new executor platform.
+
+
+Note: it is very helpful to include sets of tests for the new platform for each supported component. The ICU4J model with Intellij is a good example.
+
+Make sure that your new executor can be run from a debugging environment or from the command line. This should be done before adding it to the test drive.
+
+* Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
+
+
+
 ** TDB **
 
 
