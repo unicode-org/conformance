@@ -622,7 +622,7 @@ as the result from each test. As an example, collation test results from the
 
 ````
 And the overall structure:
-**toplevel**/testOutput/
+toplevel/testOutput/
 ├── cpp
 │   ├── icu71
 │   ├── icu72
@@ -655,7 +655,7 @@ And the overall structure:
 And showing details for the icu76 output from ICU4J:
 
 ````
-**toplevel**/testOutput/icu4j/icu76
+toplevel/testOutput/icu4j/icu76
 ├── collation_test.json
 ├── datetime_fmt_test.json
 ├── lang_name_test_file.json
@@ -706,7 +706,7 @@ Example for details of ICU4C, version 76 of root directory **toplevel**:
 
 
 ````
-**toplevel**/testReports/cpp/icu76/number_fmt/
+toplevel/testReports/cpp/icu76/number_fmt/
 ├── error_characterized.json
 ├── fail_characterized.json
 ├── failing_tests.json
