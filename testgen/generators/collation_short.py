@@ -205,10 +205,10 @@ class CollationShortGenerator(DataGenerator):
 
             # Detect comment at end of this rule line and keep it
             if rule_match := self.input_pattern_with_comment.match(line_in):
-                rule_list.append(rule_match.group(1).rstrip())
+                rule_list.append(rule_match.group(1).strip())
                 rule_comments.append(rule_match.group(2).strip())
 
-        rules = ' '.join(rule_list)
+        rules = ''.join(rule_list)  # Try combining without a space
         # If there's @rule, but no rules, we need to  indicate that rules should be reset.
         if rules == '':
             rules = ParseResults.RULE_RESET
