@@ -228,12 +228,18 @@ results. A report of the test results is generated. Several kinds of status
 values are possible for each test item:
 
 * **Success**: the actual result agrees with expected results
-* **Failure**: a result is generated, but the result is not the same as the expected
-value.
+
+* **Failure**: a result is generated, but the result is not the same as the
+expected value.  item
+
+* **Error**: the test resulted in an exception or other behavior not anticipated
+for the test case
+
+* **Known issue**: The test failure or error is known for the version of the
+  platform and ICU. Note that each type of known issue should reference a
+  publicly documented issue in ICU or CLDR.
+
 * **No test run**: The test was not executed by the test implementation for the data
-item
-* **Error**: the test resulted in an exception or other behavior not anticipated for
-the test case
 
 ### Open questions for the verifier
 * What should be done if the test driver fails to complete? How can this be
@@ -242,6 +248,180 @@ the test case
     * Proposal: each test execution shall output a completion message,
 indicating that the test driver finished its execution normally, i.e., did not
 crash.
+
+
+# How to update Conformance Test: ICU versions, platforms, components
+
+Data Driven Testing is meant to stay current with ICU programs and data. It is also designed to support new testing platforms such as ICU4X, Dart, etc. And new types of testing, i.e., "components", may be added to Conformance testing.
+
+This section describes the process for keeping DDT up to date with needed test types and required programming platforms
+
+## Incorporating new ICU  / CLDR versions into DDT
+
+ICU releases are usually made twice each calendar year, incorporating new data,
+fixes, and new test files. ICU versions may also add new types of data
+processing. A recent example is Message Format 2.
+
+Because Data Driven Testing operations with multiple ICU and CLDR versions, this system should be updated with each new ICU release. Here are several pull requests for recent ICU updates:
+
+* [ICU 76 for C++](https://github.com/unicode-org/conformance/pull/325/)
+
+* [ICU76 for NodeJS](https://github.com/unicode-org/conformance/pull/348)
+
+### ICU4C updates
+
+These are usually the first changes to be made because ICU4C includes both code and test data updates for many components.
+
+1. Test Driver:
+* Add new ICU version data in several places in testdriver/datasets.py
+
+2. testgen:
+* Add a new directory for the icu version under testgen, e.g., icu76
+
+* In this directory, copy test data from sources including icu4c/source. Thes files includ collation tests, number format data, and others.
+
+!!! Add details on the sources.
+
+* Add new CLDR test data generated from CLDR sources (!!! details !!!)
+
+3. schema: Add any new parameters in test data sources to test schema files.
+
+4. Add a function in setup.sh to download the new ICU4C release.
+
+5. Update run_config.json to reference new versions of executors and tests to run
+
+### NodeJS and some data updates
+
+NodeJS is usually updated several weeks after an ICU public release. Check on
+the site [Node.js Releases](https://nodejs.org/en/about/previous-releases) for
+the latest versions of NodeJS. Under each entry, the "changelog" will indicate
+any updates to icu, e.g., [Version 23.3.0 on 2024-11-20]
+(https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V23.md#23.3.0) which includes ICU76.1.
+
+#### Add references in testdriver/datasets.py
+
+In this file, add new Enum values to variables:
+* NodeVersion
+
+* IcuVersionToExecutorMap
+
+* NodeICUVersionMap
+
+#### Update run_config.json
+Add the new NodeJS version to the run configurations. This includes the command to install and use the latest NodeJS versions. Here's the new entry for ICU76.1 in NodeJS 23.3.0.
+
+Be sure to add the new version number in both the `nvm install` and `nvm use` parts of `command`.
+
+Also, include all the tests to be run with this version of NodeJS.
+
+````
+  {
+    "prereq": {
+      "name": "nvm 23.3.0, icu76.1",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+````
+
+### Update ICU4J /Java to new ICU version
+
+** TBD **
+This requires referencing the new ICU4J versions in Maven Central (!!! REFERENCE NEEDED !!!)
+
+#### run_config.json additions for Java
+
+Updates to this file are straightforward.
+
+### Update ICU4X / Rust to new ICU version
+
+** TBD **
+
+ICU4X is actively updating APIs in each new version. ICU4X releases are not closely coordinated with ICU versions.
+
+Adding a new ICU4X version after 1.4 may require significant changes to existing 
+#### run_config.json additions for ICU4X
+
+Updates to this file are straightforward.
+
+### Update Dart with new ICU versions
+
+** TBD **
+
+
+#### Test generator updates
+Note that two types of test data are currently generated by NodeJS functions:
+* list format
+* relative date time format
+
+Because of this, ICU version updated tests for these two components cannot be run before adding a version of NodeJS that includes the new ICU version.
+
+When the new NodeJS is incorporated into DDT, add the new NodeJS reference to the list `icu_nvm_versions` in these files:
+
+1. testgen/generators/list_fmt.py
+2. testgen/generators/relativedatetime_fmt.py
+
+
+## Adding new test types / components
+
+
+Tis pull request [PR#183](https://github.com/unicode-org/conformance/pull/183/files) added datetime, list format, and relative date time format to test generation, executors and test driver, schema, verifier, and run configuration. 
+
+Also, see [ICU4J and relative date time format PR#262](https://github.com/unicode-org/conformance/pull/262/files) showing the details of adding a component to the ICU4J platform.
+
+Note also that the above PR added an [executor file for the Rust / ICU4X](https://github.com/unicode-org/conformance/pull/262/files#diff-f2bce2a303cd07f48c087c798a457ff78eeefbde853adb6a8c331f35b1b5571d) version or relative date time format.
+
+These are the main updatessteps for adding a new type of testing:
+
+1. Add methods to add the test data in testgen/icu* and testgen/generators. tests should be installed in icuXX directories as needed.
+
+* Create python modules in testgen/generators/ to read raw test data, then create .json file with tests and expected resuls.
+
+* Update testgen/tesdata_gen.py with:
+** Import new test generator modules
+** Add new Enum values
+** Add code to execute the new generator modules
+
+2. Define new test types in testdriver files:
+* datasets.py
+* ddtargs.py
+* testdriver.py
+* testplan.py
+
+3. Executors: For each executor to run the new tests:
+* Add a new code file to run the tests in the executor directory, e.g., `executors/cpp`
+
+* Update makefile and configuration information to include the new testing code
+
+* Include calling the new test routines in the main program, e.g,. `main.cpp`
+
+Hint: Run the executor as a standalone test version, giving sample tests on the command line or in structured test code (i.e., ICU4J's framework.)
+
+Once the executor is working with the new test type, it can be incorporated into the full execution pipline.
+
+4. Update run_config.json to reference the new test_type in each executor that supports the component.
+
+For reference, [PR#183](https://github.com/unicode-org/conformance/pull/183/files)included datetime, list format, and relative date time format.
+
+## Adding new test platforms, e.g., types of libraries
+
+** TDB **
+
 
 # How to use DDT
 
