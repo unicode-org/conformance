@@ -639,9 +639,18 @@ class TestReport:
                         'type', 'input_list',
                         # date/time format
                         'skeleton',
-                        'language_label', 'locale_label',  # in lang_names
+                        # locale names as described in various languages
+                        'language_label',  # the locale being described, e.g. es-MX for Mexican Spanish
+                        'locale_label',  # the language in which this locale should be given, e.g., German words for "Mexican Spanish"
                         'option', 'locale',  # in likely_subtags
-                        'language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description'
+                        'language_label',
+                        # Some items for collation testing
+                        'compare_result', 'compare_type',
+                        'ignorePunctuation',
+                        'test_description',
+                        'strength', 'caseFirst', 'backwards',
+                        'reorder', 'maxVariable',
+                        'source_file'
                         ]
             for key in key_list:
                 if test.get(key, None):  # For collation results
