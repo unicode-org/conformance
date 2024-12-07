@@ -1,4 +1,4 @@
-# -*- coding: utf_8 -*-
+# -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 import copy
 import hashlib
@@ -8,7 +8,6 @@ import logging.config
 import math
 import os
 import requests
-
 
 def remove_none(obj):
     # Recursively removes any parts with None as value
