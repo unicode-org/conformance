@@ -174,12 +174,12 @@ class CollationShortGenerator(DataGenerator):
     def check_parse_rule(self, line_index, lines):
         # Given the lines, process a rule and return the rule string,
         # rule comments, and the new line index
-        # ignore comment at end of this rulrule_match.group(1)e line
 
         # Check if it's really the start of rules
         line_in = lines[line_index]
         if not self.rule_header_pattern.match(line_in):
-            return None, None, line_index
+            # Not a reset to the rules.
+            return False, None, None, line_index
 
         rule_list = []
         rule_comments = []
@@ -212,7 +212,8 @@ class CollationShortGenerator(DataGenerator):
         # If there's @rule, but no rules, we need to  indicate that rules should be reset.
         if rules == '':
             rules = ParseResults.RULE_RESET
-        return rules, ', '.join(rule_comments), line_index
+        # Yes, the rules are reset.
+        return True, rules, ', '.join(rule_comments), line_index
 
     def generateCollTestData2(self, filename, icu_version, start_count=0):
         # Read raw data from complex test file, e.g., collation_test.txt
@@ -279,11 +280,18 @@ class CollationShortGenerator(DataGenerator):
                 continue
 
             # Handle rules section, to be applied in subsequent tests
-            rules, rule_comments, line_number = self.check_parse_rule(line_number, raw_testdata_list)
-            if rules:
+            # reset_rules will only be TRUE if  new rule set is returned
+            # Otherwise, the line didn't include "@ rules"
+            reset_rules, new_rules, new_rule_comments, line_number = self.check_parse_rule(line_number, raw_testdata_list)
+            if reset_rules:
                 # Reset test parameters
-                if rules == ParseResults.RULE_RESET:
+                rule_comments = new_rule_comments  # Not used!
+                if new_rules == ParseResults.RULE_RESET:
+                    # Clear it
                     rules = None
+                else:
+                    # A non-empty set of rules
+                    rules = new_rules
                 line_in = raw_testdata_list[line_number]
                 locale = ""
                 attributes = {}
