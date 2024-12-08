@@ -48,7 +48,7 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 
 ## Architectural Overview
 
-Conceptually, there are three main functional units of the DDT implementation:
+Conceptually, there are four main functional units of the DDT implementation:
 
 ![Conceptual model of Data Driven Testing](./ddt_concept_model.png)
 
@@ -93,6 +93,114 @@ parameters to be set for computing a result.
     },
   ```
 
+## Checking data using schemas
+
+Several types of JSON formatted data are created and used by Conformance
+processing, and the integity of this information must be maintained.
+
+Data Driven Testing uses [JSON Schema
+Validation](https://python-jsonschema.readthedocs.io/en/latest/validate/) to
+insure the structure of data files. JSON schema make sure that needed parameters
+and other information are present as required and that the type of each data
+item is as specified.
+
+In addition, schema specification can restrict the range of data fields to those
+expected, allowing only those data that are expected in JSON output files. This
+gives a measure of confidence in the data exchanged between the phases of
+Conformance Testing.
+
+The types of data include:
+
+* **Generated test data** including all parameters and settings as well as
+  ancilliary descriptive information for each test. This data depends only on
+  the type of test (component) and the ICU version. It does not depend on the
+  particular execution platorm, i.e., programming languages.
+
+* **Expected results** of running each test running with the specified ICU
+  version. This does not depend on the platform.
+
+* **Actual results** from executing each test in the input. This contains actual
+  results from the execution of each test in a given platform. This data may
+  include output from the executor including platform-specific parameters and
+  settings derived from the input data. It may also include data on errors
+  encountered during the run of the platform executor.
+
+* **Schema files** describing the expected JSON format of each type of files for
+  the components.
+
+Schema validation is performed at these times in standard processing:
+
+1. After test data generation, all generated test data and expected result data
+   files are checked for correct structure.
+
+2. Before test execution, the schema files themselves are checked for correct
+   schema structure.
+
+3. After test executors are run, all resulting test output files are checked
+   for correct structure.
+
+
+Top level directory `schema` contains the following:
+
+* One subdirectory for each component such as "collation". This contains schema .json files for generated tests, expected results, and test output structure.
+
+* Python routines for checking these types of data.
+
+* A Python routine for validating the structure of the .json schema files.
+
+```
+$ ls schema/*.py
+schema/check_generated_data.py  schema/check_test_output.py  schema/__init__.py      schema/schema_validator.py
+schema/check_schemas.py         schema/check_verify_data.py  schema/schema_files.py
+
+$ tree schema/*
+
+schema/collation_short
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/datetime_fmt
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/lang_names
+├── #result_schema.json#
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/likely_subtags
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/list_fmt
+├── #result_schema.json#
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/message_fmt2
+├── README.md
+├── result_schema.json
+├── testgen_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/number_format
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/plural_rules
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+schema/rdt_fmt
+├── result_schema.json
+├── test_schema.json
+└── verify_schema.json
+```
+
+Note also that schema validation creates a file
+**schema/schema_validation_summary.json**
+which is used in the summary presentation of Conformance results.
+
 ## Text Execution
 
 Test execution consists of a Test Driver script and implementation-specific
@@ -115,17 +223,27 @@ See [executors/README](./executors/README.md) for more details
 
 ## Verification
 
-Each test is matched with the corresponding data from the required test
-results. A report of the test results is generated. Several kinds of status
-values are possible for each test item:
+In the final phase of Conformance Testing, each individual test is matched with
+the corresponding data from the required test results. A report of the test
+results is generated. Several kinds of status values are possible for each test
+item:
 
 * **Success**: the actual result agrees with expected results
-* **Failure**: a result is generated, but the result is not the same as the expected
-value.
+
+* **Failure**: a result is generated, but the result is not the same as the
+expected value.  item
+
+* **Error**: the test resulted in an exception or other behavior not anticipated
+for the test case
+
+* **Known issue**: The test failure or error is known for the version of the
+  platform and ICU. Note that each type of known issue should reference a
+  publicly documented issue in ICU or CLDR.
+
+* **Unsupported**: Some aspect of the requested test is not yet supported by the
+  platform and ICU version.
+
 * **No test run**: The test was not executed by the test implementation for the data
-item
-* **Error**: the test resulted in an exception or other behavior not anticipated for
-the test case
 
 ### Open questions for the verifier
 * What should be done if the test driver fails to complete? How can this be
@@ -135,20 +253,330 @@ the test case
 indicating that the test driver finished its execution normally, i.e., did not
 crash.
 
+
+# How to update Conformance Testing: ICU versions, platforms, components
+
+Data Driven Testing is expected to remain current with ICU programs and data
+updates. It is also designed to support new testing platforms in addition to the
+current set of Dart, ICU4C, ICU4J, ICU4X, and NodeJS. And new types of tests,
+i.e., "components", may be added to Conformance testing.
+
+This section describes the process for keeping DDT up to date with needed test
+types and required programming platforms
+
+## Incorporating new ICU  / CLDR versions into DDT
+
+ICU releases are usually made twice each calendar year, incorporating new data,
+fixes, and new test files. ICU versions may also add new types of data
+processing. A recent example is Message Format 2.
+
+Because Data Driven Testing operations with multiple ICU and CLDR versions, this
+system should be updated with each new ICU release. Here are several pull
+requests for recent ICU updates:
+
+* [ICU 76 for C++](https://github.com/unicode-org/conformance/pull/325/)
+
+* [ICU 76 for Java](https://github.com/unicode-org/conformance/pull/344)
+
+* [ICU76 for NodeJS](https://github.com/unicode-org/conformance/pull/348)
+
+### ICU4C updates
+
+These are usually the first changes to be made because ICU4C includes both code and test data updates for many components.
+
+1. Test Driver:
+* Add new ICU version data in several places in testdriver/datasets.py
+
+2. testgen:
+* Add a new directory for the icu version under testgen, e.g., icu76
+
+* In this directory, copy test data from sources including icu4c/source. Thes files includ collation tests, number format data, and others.
+
+!!! Add details on the sources.
+
+* Add new CLDR test data generated from CLDR sources (!!! details !!!)
+
+3. schema: Add any new parameters in test data sources to test schema files.
+
+4. Add a function in setup.sh to download the new ICU4C release.
+
+5. Update run_config.json to reference new versions of executors and tests to run
+
+### NodeJS and some data updates
+
+NodeJS is usually updated several weeks after an ICU public release. Check on
+the site [Node.js Releases](https://nodejs.org/en/about/previous-releases) for
+the latest versions of NodeJS. Under each entry, the "changelog" will indicate
+any updates to icu, e.g., [Version 23.3.0 on 2024-11-20]
+(https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V23.md#23.3.0) which includes ICU76.1.
+
+#### Add references in testdriver/datasets.py
+
+In this file, add new Enum values to variables:
+* NodeVersion
+
+* IcuVersionToExecutorMap
+
+* NodeICUVersionMap
+
+#### Update run_config.json
+Add the new NodeJS version to the run configurations. This includes the command to install and use the latest NodeJS versions. Here's the new entry for ICU76.1 in NodeJS 23.3.0.
+
+Be sure to add the new version number in both the `nvm install` and `nvm use` parts of `command`.
+
+Also, include all the tests to be run with this version of NodeJS.
+
+````
+  {
+    "prereq": {
+      "name": "nvm 23.3.0, icu76.1",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+````
+
+### Update ICU4J /Java to new ICU version
+
+** TBD **
+This requires referencing the new ICU4J versions in Maven Central (!!! REFERENCE NEEDED !!!)
+
+#### run_config.json additions for Java
+
+Updates to this file are straightforward.
+
+### Update ICU4X / Rust to new ICU version
+
+** TBD **
+
+ICU4X is actively updating APIs in each new version. ICU4X releases are not closely coordinated with ICU versions.
+
+Adding a new ICU4X version after 1.4 may require significant changes to existing 
+#### run_config.json additions for ICU4X
+
+Updates to this file are straightforward.
+
+### Update Dart with new ICU versions
+
+** TBD **
+
+
+#### Test generator updates
+Note that two types of test data are currently generated by NodeJS functions:
+* list format
+* relative date time format
+
+Because of this, ICU version updated tests for these two components cannot be run before adding a version of NodeJS that includes the new ICU version.
+
+When the new NodeJS is incorporated into DDT, add the new NodeJS reference to the list `icu_nvm_versions` in these files:
+
+* testgen/generators/list_fmt.py
+* testgen/generators/relativedatetime_fmt.py
+
+
+## Adding New Test Types / Components
+
+ICU supports a wide range of formatting and other functions. Many are candidates
+for Cornformance Testing. Although each has specific needs for testing, this
+section presents an overview on adding new test types.
+
+As an example, pull request
+[PR#183](https://github.com/unicode-org/conformance/pull/183/files) added
+datetime, list format, and relative date time format to test generation, test
+executors, test driver, schema, verifier, and runtime configuration.
+
+Also, see [ICU4J and relative date time format
+PR#262](https://github.com/unicode-org/conformance/pull/262/files) for
+details of adding a component to the ICU4J platform.
+
+Note also that the above PR added an [executor file for the Rust / ICU4X](https://github.com/unicode-org/conformance/pull/262/files#diff-f2bce2a303cd07f48c087c798a457ff78eeefbde853adb6a8c331f35b1b5571d) version or relative date time format.
+
+These are the main parts needed to add a component:
+
+1. Add methods to create the test data in testgen/icu* and
+   testgen/generators. Resulting .json files with test and verification data
+   should be installed in testgen/icuXX directories as needed.
+
+* Create python modules in testgen/generators/ to read raw test data, then
+  create .json file with tests and expected resuls.
+
+* Update testgen/tesdata_gen.py with:
+* Import new test generator modules
+* Add new Enum values
+* Add code to execute* the new generator modules
+
+2. Define new test types in these testdriver files:
+* datasets.py
+* ddtargs.py
+* testdriver.py
+* testplan.py
+
+3. Executors: For each executor to run the new tests:
+* Add a new code file to run the tests in the executor directory, e.g.,
+  `executors/cpp`
+
+* Update configuration information such as makefiles to include the new testing
+  code
+
+* Include calling the new test routines in the main program, e.g,. `main.cpp`
+
+Hint: Run the executor as a standalone test version, giving sample tests on the
+command line or in structured test code (i.e., ICU4J's framework.)
+
+Once the executor is working with the new test type, incorporated it into
+the full execution pipeline.
+
+4. Update run_config.json with the new test_type in each executor supporting
+   the component.
+
+For reference,
+[PR#183](https://github.com/unicode-org/conformance/pull/183/files)added these
+components for datetime, list format, and relative date time format.
+
+## Adding new test platforms, e.g., types of libraries
+
+As additional test platforms and libraries support all or part of the ICU / CLDR
+functions, including them in Conformance Testing will show the degree of
+compatibility of actual execution.
+
+See [Add Dart to executors PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
+
+See also the 
+[Rust executor for ICU4x 1.3 in PR#108](https://github.com/unicode-org/conformance/pull/108)
+
+Adding a new platform involves several changes to the DDT system:
+* Change the workflow to reference the new platform
+
+* Create a new directory structure under executors/. Add .gitignore as needed.
+
+* Add configuration specific to the platform in the new directory under executors/
+
+* Set up a main program that will receive instructions on the STDIN command line
+
+** Parse the incoming JSON data to determine test type
+
+** Build separate files for running each type of test
+
+** Return results from each testing routine in JSON format
+
+** Support the commands for information:
+*** #VERSION
+*** #TEST
+*** etc.
+
+* Update testdriver/datasets.py to include the new executor platform.
+
+
+Note: it is very helpful to include sets of tests for the new platform for each supported component. The ICU4J model with Intellij is a good example.
+
+Make sure that your new executor can be run from a debugging environment or from the command line. This should be done before adding it to the test drive.
+
+* Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
+
+
+** TDB **
+
+See [Add Dart to executors PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
+
+See also the 
+[Rust executor for ICU4x 1.3 in PR#108](https://github.com/unicode-org/conformance/pull/108)
+
+Adding a new platform involves several changes to the DDT system:
+* Change the workflow to reference the new platform
+
+* Create a new directory structure under executors/. Add .gitignore as needed.
+
+* Add configuration specific to the platform in the new directory under executors/
+
+* Set up a main program that will receive instructions on the STDIN command line
+
+** Parse the incoming JSON data to determine test type
+
+** Build separate files for running each type of test
+
+** Return results from each testing routine in JSON format
+
+** Support the commands for information:
+*** #VERSION
+*** #TEST
+*** etc.
+
+* Update testdriver/datasets.py to include the new executor platform.
+
+
+Note: it is very helpful to include sets of tests for the new platform for each supported component. The ICU4J model with Intellij is a good example.
+
+Make sure that your new executor can be run from a debugging environment or from the command line. This should be done before adding it to the test drive.
+
+* Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
+
+** TDB **
+
 # How to use DDT
 
-In its first implementation, Data Driven Test uses data files formatted with
-JSON structures describing tests and parameters. The data directory string is
-set up as follows:
+In its current implementation, Data Driven Test uses JSON formatted data files
+describing tests and parameters. The data directory created contains the following:
 
-## A directory `testData` containing
-  * Test data files for each type of test, e.g., collation, numberformat,
-  displaynames, etc. Each file contains tests with a label, input, and
-  parameters.
-  * Verify files for each test type. Each contains a list of test labels and
-  expected results from the corresponding tests.
+## Directory **testData**:
 
-## Directory `testOutput`
+Test generation creates the test and verify data files for each version of ICU in .json format:
+
+  * A test data file for each type of test. Each contains a list of labeled
+  tests with parameters, options, and input values for computing output
+  strings.
+  
+  * Verify files for each test type. Each contains expected results for each
+    test case.
+
+For example, here is the structore for directory **toplevel**:
+
+```
+toplevel/testData/
+├── icu67
+│   └── ...
+├── icu68
+│   └── ...
+...
+├── icu76
+│   ├── collation_test.json
+│   ├── collation_verify.json
+│   ├── datetime_fmt_test.json
+│   ├── datetime_fmt_verify.json
+│   ├── lang_name_test_file.json
+│   ├── lang_name_verify_file.json
+│   ├── likely_subtags_test.json
+│   ├── likely_subtags_verify.json
+│   ├── list_fmt_test.json
+│   ├── list_fmt_verify.json
+│   ├── message_fmt2_test.json
+│   ├── message_fmt2_verify.json
+│   ├── numberformattestspecification.txt
+│   ├── numberpermutationtest.txt
+│   ├── num_fmt_test_file.json
+│   ├── num_fmt_verify_file.json
+│   ├── plural_rules_test.json
+│   ├── plural_rules_verify.json
+│   ├── rdt_fmt_test.json
+│   └── rdt_fmt_verify.json
+
+```
+
+## Directory **testOutput**
 
 This contains a subdirectory for each executor. The output file from each test
 is stored in the appropriate subdirectory. Each test result contains the label
@@ -190,7 +618,54 @@ as the result from each test. As an example, collation test results from the
     ...
   ]
 }
-```
+````
+
+````
+And the overall structure:
+toplevel/testOutput/
+├── cpp
+│   ├── icu71
+│   ├── icu72
+│   ├── icu73
+│   ├── icu74
+│   ├── icu75
+│   └── icu76
+├── dart_web
+│   └── icu73
+├── icu4j
+│   ├── icu73
+│   ├── icu74
+│   ├── icu75
+│   └── icu76
+├── node
+│   ├── icu69
+│   ├── icu70
+│   ├── icu71
+│   ├── icu72
+│   ├── icu73
+│   ├── icu74
+│   ├── icu75
+│   └── icu76
+├── rust
+│   ├── icu73
+│   └── icu74
+└── test_output_validation_summary.json
+````
+
+And showing details for the icu76 output from ICU4J:
+
+````
+toplevel/testOutput/icu4j/icu76
+├── collation_test.json
+├── datetime_fmt_test.json
+├── lang_name_test_file.json
+├── likely_subtags_test.json
+├── list_fmt_test.json
+├── message_fmt2_test.json
+├── num_fmt_test_file.json
+├── plural_rules_test.json
+└── rdt_fmt_test.json
+````
 
 ## Directory `testReports`
 This directory stores summary results from verifying the tests performed by each executor. Included in the `testReports` directory are:
@@ -227,7 +702,28 @@ The `verifier_test_report.json` file contains information on tests run and compa
   differences such as missing or extra characters or substitutions found in
   output data.
 
-## Contributor setup
+Example for details of ICU4C, version 76 of root directory **toplevel**:
+
+
+````
+toplevel/testReports/cpp/icu76/number_fmt/
+├── error_characterized.json
+├── fail_characterized.json
+├── failing_tests.json
+├── failure_parameters.json
+├── known_issues_characterized.json
+├── known_issues.json
+├── pass_characterized.json
+├── pass.json
+├── test_errors.json
+├── unsupported_characterized.json
+├── unsupported.json
+├── verifier_test_report.html
+└── verifier_test_report.json
+
+````
+
+## Running Data Driven Test
 
 Requirements to run Data Driven Testing code locally:
 
