@@ -32,9 +32,14 @@ module.exports = {
         "locale_label": locale,
         "language_label": input,
         "test_type": "display_names",
-        "error_type": "unsupported",
+        "error_detail": "Bad constructor for locale: " + locale + ' ' + options,
         "error_retry": false  // Do not repeat
       };
+      if (error instanceof RangeError) {
+        // The locale can't be handled for some reason!
+        outputLine["error_type"] = 'unsupported';
+        outputLine["unsupported"] = error.toString();
+      }
       return outputLine;
     }
 
@@ -45,13 +50,21 @@ module.exports = {
                     "result": resultString
                    };
     } catch (error) {
+      const error_string = error.toString();
       outputLine = {"label": json['label'],
                     "locale_label": locale,
                     "language_label": input,
                     "result": resultString,
                     "error": error.toString(),
+                    "error_detail": "Bad input language: " + input,
                     "actual_options": options.toString()
                    };
+      outputLine["error_type"] = 'unsupported';
+      outputLine["unsupported"] = error_string;
+      if (error instanceof RangeError) {
+        // The locale can't be handled for some reason!
+        outputLine["error_detail"] = 'unsupported locale';
+      }
     }
     return outputLine;
   }
