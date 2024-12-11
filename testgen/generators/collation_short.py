@@ -142,7 +142,7 @@ class CollationShortGenerator(DataGenerator):
                 raw_string2 = is_comparison_match.group(3)
                 string2 = ''
                 try:
-                    string2 = raw_string2.encode().decode("unicode_escape")
+                    string2 = raw_string2  # Don't do any unescaping
                 except Exception as err:
                     # Catch an error. What should be done here ???
                     string2_errors.append([line_index, raw_string2, err])
