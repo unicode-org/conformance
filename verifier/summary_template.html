@@ -191,6 +191,7 @@
                   let data = [data_groups];
                   let details = [];
                   for (const report of tests) {
+                      background_color = null;
                       if (report['version']['platform'] == exec) {
                           reports.push(report);
                           // Add data for this report.
@@ -208,7 +209,6 @@
                           ];
                           data.push(report_data);
                           // Set the link background color based on status.
-                          background_color = null;
                           // Check if everything is passing to make a visual note
                           if (report['fail_count'] == 0 && report['error_count'] == 0) {
                             // No failures or errors
@@ -268,10 +268,6 @@
                   }
                   td = tr.insertCell();
                   td.innerHTML = details.join('');
-                  if (background_color && td.firstChild) {
-                      // Modify the link's appearance
-                      td.firstChild.style.backgroundColor = background_color;
-                  }        
               }
               }
           }
