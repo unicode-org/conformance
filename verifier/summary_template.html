@@ -178,8 +178,7 @@
               td.innerHTML = "Details";
           }
 
-          let tr;
-          td;
+          let background_color;
           for (const test_type of test_types) {
               tr = table.insertRow();
               td = tr.insertCell();
@@ -192,6 +191,7 @@
                   let data = [data_groups];
                   let details = [];
                   for (const report of tests) {
+                      background_color = null;
                       if (report['version']['platform'] == exec) {
                           reports.push(report);
                           // Add data for this report.
@@ -208,12 +208,35 @@
                               ''
                           ];
                           data.push(report_data);
-                          let link = '<a href="' +
+                          // Set the link background color based on status.
+                          // Check if everything is passing to make a visual note
+                          if (report['fail_count'] == 0 && report['error_count'] == 0) {
+                            // No failures or errors
+                            if (report['known_issue_count'] == 0) {
+                              if (report['unsupported_count'] == 0) {
+                                  background_color = '#00ee88';
+                              } else {
+                                  // No failures, but there are unsupported items
+                                  background_color = '#aaaaaa';
+                              }
+                            } else if (report['unsupported_count'] == 0) {
+                                // Only known issues are present
+                                background_color = '#ffa400';
+                            }
+                         }
+                       // Insert the background color to the link if needed.
+                       let color_part = '';
+                       if (background_color) {
+                           color_part = 'style="background-color:' + background_color + '" ';
+                       }
+                       let href_part = 'href="' +
                               report['html_file_name'] + '"' +
                               ' target="_blank">' +
                               report['icu_version'] +
                               '</a><br />';
-                          details.push(link);
+
+                         let link = '<a ' + color_part + href_part;
+                         details.push(link);
                       }
                   }
                   td = tr.insertCell();
