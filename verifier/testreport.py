@@ -651,15 +651,22 @@ class TestReport:
                         'strength', 'caseFirst', 'backwards',
                         'reorder', 'maxVariable',
                         'source_file'
+                        # TODO!!! Characterize by actual_options keys & values
                         ]
             for key in key_list:
                 if test.get(key, None):  # For collation results
                     value = test[key]
+                    if not isinstance(value, str):
+                        # Make this a string for comparison
+                        value = str(value)
                     if key not in results:
                         results[key] = {}
-                    if value not in results[key]:
-                        results[key][value] = set()
-                    results[key][value].add(label)
+                    try:
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                    except:
+                        pass
 
             ki_key_list = ['known_issue', 'known_issue_id']
             for key in ki_key_list:
@@ -674,27 +681,30 @@ class TestReport:
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error parts, too.
             key_list = [
-                        'compare_type',
-                        'error_detail',
-                        'ignorePunctuation',
-                        'language_label',
-                        'languageDisplay',
-                        'locale_label',
-                        'locale',
-                        'options',
-                        'rules',
-                        'test_description',
-                        'unsupported_options',
-                        'style',
-                        'type',
-                        'dateStyle',
-                        'timeStyle,'
-                        'calendar',
-                        'unit',
-                        'count'
-                        ]
+                'compare_type',
+                'error_detail',
+                'ignorePunctuation',
+                'language_label',
+                'languageDisplay',
+                'locale_label',
+                'locale',
+                'options',
+                'rules',
+                'test_description',
+                'unsupported_options',
+                'style',
+                'type',
+                'dateStyle',
+                'timeStyle,'
+                'calendar',
+                'unit',
+                'count',
+                'source_file'
+            ]
 
             self.add_to_results_by_key(label, results, input_data, test, key_list)
+            if 'actual_options' in test:
+                self.add_to_results_by_key(label, results, test['actual_options'], test, key_list)
 
             # Special case for input_data / options.
             special_key = 'options'
@@ -748,24 +758,28 @@ class TestReport:
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
             for key in key_list:
-                if input_data.get(key, None):  # For collation results
-                    value = input_data.get(key, None)
-                    if key == 'input_list':
-                        if 'input_size' not in results:
-                            results['input_size'] = {}
-                        else:
-                            results['input_size'].add(len(value))
-                    if key == 'rules':
-                        value = 'RULE'  # A special case to avoid over-characterization
-                    if key not in results:
-                        results[key] = {}
-                    try:
-                        if not results[key].get(value, None):
-                            results[key][value] = set()
-                        results[key][value].add(label)
-                    except TypeError as err:
-                        # value may not be hashable. This should be skipped
-                        pass
+                try:
+                    if input_data.get(key, None):  # For collation results
+                        value = input_data.get(key, None)
+                        if key == 'input_list':
+                            if 'input_size' not in results:
+                                results['input_size'] = {}
+                            else:
+                                results['input_size'].add(len(value))
+                        if key == 'rules':
+                            value = 'RULE'  # A special case to avoid over-characterization
+                        if key not in results:
+                            results[key] = {}
+                        try:
+                            if not results[key].get(value, None):
+                                results[key][value] = set()
+                            results[key][value].add(label)
+                        except TypeError as err:
+                            # value may not be hashable. This should be skipped
+                            pass
+                except:
+                    pass
+                
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
