@@ -657,7 +657,7 @@ class TestReport:
                 if test.get(key, None):  # For collation results
                     value = test[key]
                     if not isinstance(value, str):
-                        # MAke this a string for comparison
+                        # Make this a string for comparison
                         value = str(value)
                     if key not in results:
                         results[key] = {}
