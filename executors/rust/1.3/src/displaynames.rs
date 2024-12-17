@@ -2,7 +2,7 @@
 
 use serde_json::{json, Value};
 
-use icu::displaynames::*;
+use crate::icu::displaynames::*;
 use icu::locid::Locale;
 
 // Function runs comparison using displaynames
