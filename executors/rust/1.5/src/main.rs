@@ -40,9 +40,9 @@ mod relativedatetime_fmt;
 mod run_all_tests;
 
 mod icu {
+    pub use ::icu::experimental::compactdecimal;
     pub use ::icu::experimental::displaynames;
     pub use ::icu::experimental::relativetime;
-    pub use ::icu::experimental::compactdecimal;
 }
 
 fn main() -> io::Result<()> {

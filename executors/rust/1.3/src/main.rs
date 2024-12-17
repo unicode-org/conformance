@@ -6,9 +6,9 @@
 use std::io;
 
 mod icu {
+    pub use ::icu::compactdecimal;
     pub use ::icu::displaynames;
     pub use ::icu::relativetime;
-    pub use ::icu::compactdecimal;
 }
 
 mod collator;
