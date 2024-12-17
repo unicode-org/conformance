@@ -353,6 +353,28 @@
   },
   {
     "prereq": {
+      "name": "rust1.5",
+      "version": "1.5",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/1.5/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "rust",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "mvn-icu4j-73-shaded",
       "version": "73",
       "command": "mvn -q -P icu73 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
