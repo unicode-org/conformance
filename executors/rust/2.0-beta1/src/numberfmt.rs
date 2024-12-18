@@ -150,12 +150,14 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let result_string = if is_compact {
         // We saw compact!
-        let cdf = if compact_type == "short" {
-            CompactDecimalFormatter::try_new_short(langid.into(), Default::default()).unwrap()
-        } else {
-            println!("#{:?}", "   LONG");
-            CompactDecimalFormatter::try_new_long(langid.into(), Default::default()).unwrap()
-        };
+        let cdf = crate::try_or_return_error!(label, langid, {
+            if compact_type == "short" {
+                CompactDecimalFormatter::try_new_short((&langid).into(), Default::default())
+            } else {
+                println!("#{:?}", "   LONG");
+                CompactDecimalFormatter::try_new_long((&langid).into(), Default::default())
+            }
+        });
         // input.parse().map_err(|e| e.to_string())?;
 
         let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
@@ -168,18 +170,9 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     } else {
         // FixedDecimal
         // Can this fail with invalid options?
-        let fdf = match FixedDecimalFormatter::try_new((&langid).into(), options.clone()) {
-            Ok(fdf) => fdf,
-            Err(e) => {
-                let locale_str = langid.to_string();
-                return Ok(json!({
-                    "label": label,
-                    "locale_label": locale_str,
-                    "error": e.to_string(),
-                    "error_type": "panic",
-                }));
-            }
-        };
+        let fdf = crate::try_or_return_error!(label, langid, {
+            FixedDecimalFormatter::try_new((&langid).into(), options.clone())
+        });
 
         // Apply relevant options for digits.
         if let Some(x) = option_struct.maximum_fraction_digits {
