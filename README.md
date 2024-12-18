@@ -363,6 +363,7 @@ Updates to this file are straightforward.
 ### Update ICU4X / Rust to new ICU version
 
 ** TBD **
+`
 
 ICU4X is actively updating APIs in each new version. ICU4X releases are not closely coordinated with ICU versions.
 
@@ -525,9 +526,163 @@ Make sure that your new executor can be run from a debugging environment or from
 
 * Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
 
-** TDB **
 
-# How to use DDT
+# How to use Conformance Testing on your computer
+
+## Installing Comformance Testing
+
+The Conformance projectis publicly available. It can be installed and executed
+on most computer systems. Using GitHub, developers can investigate how the
+executors run each of the components. And developers can make changes and create
+pull requests to suggest updates to the projectd.
+
+### Get the source from GitHub
+
+1. Create a directory on the computer for installing and running
+   Conformance. Note that this may require more that 4 Gbytes when all the tests
+   are executed.
+
+1. Next, get the code and data from the [Unicode Conformance GitHub
+   site](https://github.com/unicode-org/conformance):
+
+1. From the green Code button on Git but, select one of the options for cloning the
+project, or download the project as a ZIP file.
+
+1. Unzip if needed. Then make sure that the directory contains directories for testdriver, testgen, schema, executors, verifier.
+
+
+### Set up tools and execution environments
+
+TODO!
+
+### Running the end-to-end process
+
+Running conformance is easy. Simply execute the script that generates data, then
+runs executors, then runs the verifier, creating the dashboard.
+
+The standard script runs all components on all platforms with all ICU
+version. Note that this takes a few minutes.
+
+`` bash generateDataAndRun.sh ``
+
+Output will be created in the directory TEMP_DATA.
+
+To run a quicker version that uses only 100 test cases for each instance, run this:
+
+``
+bash genData100.sh
+``
+which does the same thing much faster, resulting in the directory TEMP_DATA_100.
+
+### Viewing conformance results in a browser
+HTML output is found in the subdirectory testReports. To visualize this on your computer, start a webserver. For example:
+
+``
+python3 -m http.server 9000 &
+``
+
+Then open the file testResults/index.html under the testReports folder in either TEMP_DATA or TEMP_DATA_100 or in a custom folder.
+
+
+### How this works
+
+Two main pieces are used to create conformance output:
+* run_config.json which describes the platoforms and components to be executed
+* .sh files that run all the steps of conformance testing. This file extracts configurations from run_config
+
+#### run_config.json
+
+This file is referenced by the execution scripts.
+
+The bash scripts do several things in sequence:
+
+1. Set up ICU4C versions that will be used as platforms
+
+1. Set up NodeJS
+
+1. Set the output directory as TEMP_DIR. Remove old data and create new output areas.
+
+1. Generate all test data based on run_config's requirements
+   1. This includes checking each generated test set and expected results against schema.
+
+1. Check all the schema files for correct structure
+
+1. Special configuration set up test environments for
+
+    1. ICU4X using Rust
+
+    1. Dart native and Dart web
+
+1. Execute all specified tests using testdriver with the executors.
+
+1. Evaluate all test output files against schema for test results.
+
+1. Run the verifier on all testOutputs, creating testReports
+
+
+
+### Running individual executors and debugging
+
+Running all of the steps above may not be needed for development and debugging. To facilitate quicker coding and testing, it may be useful to:
+
+
+The file run_config.json is simply a list of configuration information for running selected versions of a platform with selected test types (components). Here's an entry for ICU4C in version 76 that runs 7 components:
+
+````
+[
+  {
+    "prereq": {
+      "name": "Get ICU4C 76",
+      "version": "76.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-76_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "cpp",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  ...
+]
+````
+
+The section *prereq* is run before this particular executor `cpp` is run under
+`testdriver`. The value of `per_execution` deteremines how many tests are passed
+to a single instantiation of a test executor.
+
+To use quicker development mode, do the following:
+
+1. Clone run_config.json. Then include only the executors and/or components that
+   are being developed. Also consider setting the ICU version or versions
+   needed.
+
+1. Create a custom version of the end-to-end script. Change the reference from
+   `run_config.json` to the modified custom run_config.json. Note that `export
+   TEST_LIMIT=` may be changed to test a smaller set of cases. Note that this
+   may also point to a custom directory for the output under the conformance
+   directory.
+
+To use this, simply execute the custom script using `bash` or equivalent in the
+environment, e.g.:
+
+
+````
+bash my_custom_script.sh
+````
+
+Then point the browser to `index.html` in the custom output folder.
+
+
+## Conformance Data models
 
 In its current implementation, Data Driven Test uses JSON formatted data files
 describing tests and parameters. The data directory created contains the following:
@@ -737,6 +892,9 @@ Requirements to run Data Driven Testing code locally:
         ```
         sudo apt-get install python-jsonschema
         ```
+        
+Note: Setting up Python modules or other software may be better done using a virtual environment such as usning `pip env` for installation.
+
 - Install the minimum version supported by ICU4X
     * The latest minimum supported supported Rust version ("MSRV") can be found in the
     [`rust-toolchain.toml` file](https://github.com/unicode-org/icu4x/blob/main/rust-toolchain.toml)
