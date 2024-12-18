@@ -84,7 +84,7 @@
            "type": "string"
          },
          "actual_options": {
-           "description": "What was sent to the collation function",
+           "description": "Options used by collation as a string",
            "type": "string"
          },
          "input_data": {

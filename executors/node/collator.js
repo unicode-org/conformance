@@ -57,18 +57,29 @@ module.exports = {
           outputLine['error_detail'] = 'No rules';
           outputLine['error'] = 'rules';
         }
-        else if (compare_type) {
-          outputLine['unsupported'] = 'Compare type not supported';
-          outputLine['error_detail'] = 'No comparison';
-          outputLine['error'] = 'compare_type';
+        else {
+          outputLine['actual_options'] = JSON.stringify(coll.resolvedOptions());  //.toString();
+          outputLine['compare_result'] = compared;
+          outputLine['result'] = result_bool;
         }
       }
 
     } catch (error) {
-      outputLine =  {'label': json['label'],
-                     'error_message': 'LABEL: ' + json['label'] + ' ' + error.message,
-                     'error': 'Collator compare failed'
-                 };
+      const error_message = error.message;
+
+      if (testLocale == "root" || error_message == "Incorrect locale information provided")  {
+        outputLine =  {'label': json['label'],
+                       'unsupported': 'root locale',
+                       'error_detail': error_message + ': ' + testLocale,
+                       'error': 'Unsupported locale'
+                      };
+      } else {
+        outputLine =  {'label': json['label'],
+                       'error_message': error_message,
+                       'error_detail': testLocale,
+                       'error': 'Something wrong'
+                      };
+      }
     }
     return outputLine;
   }

@@ -99,7 +99,7 @@ class CollationShortGenerator(DataGenerator):
             )
 
     # ??? Pass in the attributes defined, adding them to each test ??
-    def check_parse_compare(self, line_index, lines):
+    def check_parse_compare(self, line_index, lines, filename):
         # Handles lines in a compare region
         # Test sections ("* compare") are terminated by
         # definitions of new collators, changing attributes, or new test sections.
@@ -124,7 +124,8 @@ class CollationShortGenerator(DataGenerator):
         string1 = ''
         line_index += 1
         while line_index < len(lines):
-            line_in = lines[line_index]
+            # Use Unicode escapes rather than byte escapes
+            line_in = lines[line_index].replace('\\x', '\\u00')
 
             # Time to end this set of comparison tests.
             if any([p.match(line_in) for p in breakout_patterns]):
@@ -153,6 +154,7 @@ class CollationShortGenerator(DataGenerator):
                     'compare_type': compare_type,
                     's1': string1,
                     's2': string2,
+                    'source_file': filename,
                     'line': line_index,
                 }
 
@@ -193,7 +195,8 @@ class CollationShortGenerator(DataGenerator):
                              ]
         while line_index < len(lines):
             line_index += 1
-            line_in = lines[line_index]
+            # Use Unicode escapes rather than byte escapes
+            line_in = lines[line_index].replace('\\x', '\\u00')
 
             # Is it time to end this set of rule lines?
             if any([p.match(line_in) for p in breakout_patterns]):
@@ -282,7 +285,8 @@ class CollationShortGenerator(DataGenerator):
             # Handle rules section, to be applied in subsequent tests
             # reset_rules will only be TRUE if  new rule set is returned
             # Otherwise, the line didn't include "@ rules"
-            reset_rules, new_rules, new_rule_comments, line_number = self.check_parse_rule(line_number, raw_testdata_list)
+            reset_rules, new_rules, new_rule_comments, line_number = self.check_parse_rule(line_number,
+                                                                                           raw_testdata_list)
             if reset_rules:
                 # Reset test parameters
                 rule_comments = new_rule_comments  # Not used!
@@ -316,7 +320,9 @@ class CollationShortGenerator(DataGenerator):
 
             # Check if this is the start of a *compare* section. If so, get the next set of tests
             # ??? Can we pass in other info, e.g., the rules, attributes, locale, etc?
-            new_tests, line_number, conversion_errors = self.check_parse_compare(line_number, raw_testdata_list)
+            new_tests, line_number, conversion_errors = self.check_parse_compare(line_number,
+                                                                                 raw_testdata_list,
+                                                                                 filename)
 
             if new_tests:
                 # Fill in the test cases found
@@ -376,9 +382,7 @@ class CollationShortGenerator(DataGenerator):
         logging.info("Coll Test: %s (%s) %d lines processed", filename, icu_version, len(test_list))
         return test_list, verify_list, encode_errors
 
-    def generateCollTestDataObjects(
-        self, filename, icu_version, ignorePunctuation, start_count=0
-    ):
+    def generateCollTestDataObjects(self, filename, icu_version, ignorePunctuation, start_count=0):
         test_list = []
         verify_list = []
         data_errors = []  # Items with malformed Unicode
@@ -423,7 +427,7 @@ class CollationShortGenerator(DataGenerator):
                 continue
 
             label = str(count).rjust(max_digits, "0")
-            new_test = {"label": label, "s1": prev, "s2": next, "line": line_number}
+            new_test = {"label": label, "s1": prev, "s2": next, "line": line_number, "source_file": filename}
             if ignorePunctuation:
                 new_test["ignorePunctuation"] = True
             test_list.append(new_test)
