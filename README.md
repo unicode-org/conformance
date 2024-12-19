@@ -7,8 +7,9 @@ specifications. The tests are implemented on several platforms including NodeJS
 added to use the test driver framework.
 
 One goal of this work is an easy-to-use framework for verifying that an
-implementation of ICU functions agrees with the required behavior. When a DDTupdate_README
-tet passes, it a strong indication that output is consistent across platforms.
+implementation of ICU functions agrees with the required behavior. When a test
+passes in all implementations, it's a strong indication that results are
+consistent across platforms.
 
 A second goal is to find issues in particular implementations of ICU
 functions. This is facilitated by generating data from CLDR (in most cases) or
@@ -42,8 +43,7 @@ executor or both
 Each part of Data Driven Testing is designed to handle a specific ICU version.
 
 * Data generation uses specifications starting with ICU versions 70, 71,
-  etc. For each ICU release, these data should be updated. Also, test
-  configurations should be updated with each ICU release.
+  etc. For each ICU release, these data should be updated.
 
 * Test execution allows setting the data version explicitly with a command line
   argument --icuversion that points to the indicated test data. The ICU version
@@ -67,10 +67,10 @@ and test output files.
 * **Component**: a type of test such as collation, list format, or plural
   rules. Each platform may implement test for one or more compoenets.
 
-* **Version: ICU and CLDR are released periodically with updated data and new
+* **Version**: ICU and CLDR are released periodically with updated data and new
   capabilities. ICU version are two digit numbers with optional fractilan part,
-  e.g., ICU76 or CLDR76. A platform usually is implemented withusing multiple
-  ICU versions.
+  e.g., ICU76 or CLDR76. A platform usually is implemented in multiple ICU
+  versions. Platforms should be updated to inclue3d each new ICU release.
 
 
 ## Architectural Overview
@@ -95,7 +95,7 @@ pull requests to suggest updates to the projectd.
    are executed.
 
 1. Next, get the code and data from the [Unicode Conformance GitHub
-   site](https://github.com/unicode-org/conformance):
+   site](https://github.com/unicode-org/conformance).
 
 1. From the green Code button on Git but, select one of the options for cloning the
 project, or download the project as a ZIP file.
@@ -172,16 +172,28 @@ TEMP_DATA or TEMP_DATA_100 or in a custom folder.
 
 Two main pieces are used to create conformance output:
 * run_config.json which describes the platforms and components to be executed
-* .sh files that run all the steps of conformance testing. This file extracts
-  configurations from run_config
+
+* execution scripts that run all the steps of conformance testing. This file
+  extracts configurations from run_config
+  
+  * generateDataAndRun.sh runs tests across all platforms, components, and ICU
+    versions.
 
 *run_config.json* file is read by the execution scripts such as *generateDataAndRun.sh*
 
-The bash scripts perform several steps in sequence:
+#### Execution script functions
 
-1. Set up ICU4C versions that will be used as platforms
+The execution scripts perform several steps in sequence:
 
-1. Set up NodeJS
+1. Special configuration to set up test environments for
+
+    1. ICU4C versions
+
+    1. NodeJS releases
+    
+    1. ICU4X using Rust
+
+    1. Dart native and Dart web
 
 1. Set the output directory as TEMP_DIR. Remove old data and create new output areas.
 
@@ -190,11 +202,6 @@ The bash scripts perform several steps in sequence:
 
 1. Check all the schema files for correct structure
 
-1. Special configuration set up test environments for
-
-    1. ICU4X using Rust
-
-    1. Dart native and Dart web
 
 1. Execute all specified tests using testdriver with the executors.
 
@@ -245,19 +252,18 @@ to a single instantiation of a test executor.
 
 To use quicker development mode, do the following:
 
-1. Clone run_config.json. Then include only the executors and/or components that
-   are being developed. Also consider setting the ICU version or versions
+1. Clone run_config.json. Include only the executors and/or components that are
+   being developed. Also consider selecting only the ICU version or versions
    needed.
 
-1. Create a custom version of the end-to-end script. Change the reference from
-   `run_config.json` to the modified custom run_config.json. Note that `export
-   TEST_LIMIT=` may be changed to test a smaller set of cases. Note that this
-   may also point to a custom directory for the output under the conformance
-   directory.
+1. Close one of the executions scripts to create a custom version. Change the
+   reference from `run_config.json` to the modified version. Note
+   that `export TEST_LIMIT=` may be changed to test a smaller set of cases. Note
+   that this may also point to a custom directory for the output under the
+   conformance directory.
 
 To use this, simply execute the custom script using `bash` or equivalent in the
-environment, e.g.:
-
+environment:
 
 ````
 bash my_custom_script.sh
@@ -266,13 +272,17 @@ bash my_custom_script.sh
 Then point the browser to `index.html` in the custom output folder in order to
 view the summary and detail pages.
 
+Also note: when customized testing is satisfactory, next run `genData100.sh` and
+generateDataAndRun.sh` scripts to check if the full testing environment succeeds.
+
 ### Notes on finding errors
 
 As each part of Conformance Test is executed, log files are created with the
-output of each phase. These are called debug.log, debug.log.1, etc.
+output of each phase. Thes include output from python programs, executores, and scripts.
 
-These debug files are updated on each execution of the scripts in each of these
-subdirectories:
+The files containing this logging infromation are called `debug.log, debug.log.1`,
+etc.  These debug files are updated on each execution of the scripts in each of
+these subdirectories:
 * testgen
 * testdriver
 * schema
@@ -281,8 +291,8 @@ subdirectories:
 It is useful to review the latest debug.log file for each phase in order to
 identify errors in execution, warning messages, and possible failures.
 
-Note that the log rotation automatically maintains recent history in each
-subdirectory listed above.
+Note that the log rotation automatically maintains recent history in several
+versions of debug files in each subdirectory listed above.
 
 ## Data generation
 
@@ -346,7 +356,7 @@ The types of data include:
 * **Generated test data** including all parameters and settings as well as
   ancilliary descriptive information for each test. This data depends only on
   the type of test (component) and the ICU version. It does not depend on the
-  particular execution platorm, i.e., programming languages.
+  particular execution platform, i.e., programming languages.
 
 * **Expected results** of running each test running with the specified ICU
   version. This does not depend on the platform.
@@ -360,7 +370,7 @@ The types of data include:
 * **Schema files** describing the expected JSON format of each type of files for
   the components.
 
-Schema validation is performed at these times in standard processing:
+Schema validation is performed at these points in standard processing:
 
 1. After test data generation, all generated test data and expected result data
    files are checked for correct structure.
@@ -371,15 +381,15 @@ Schema validation is performed at these times in standard processing:
 3. After test executors are run, all resulting test output files are checked
    for correct structure.
 
-
-Top level directory `schema` contains the following:
-
-* One subdirectory for each component such as "collation". This contains schema
-  .json files for generated tests, expected results, and test output structure.
+### Schema file directory structure
+The top level directory `schema` contains the following:
 
 * Python routines for checking these types of data.
 
 * A Python routine for validating the structure of the .json schema files.
+
+* One subdirectory for each component such as "collation". This contains schema
+  .json files for generated tests, expected results, and test output structure.
 
 ```
 $ ls schema/*.py
@@ -720,31 +730,29 @@ Adding a new platform involves several changes to the DDT system:
 
 * Set up a main program that will receive instructions on the STDIN command line
 
-** Parse the incoming JSON data to determine test type
+    * Parse the incoming JSON data to determine test type
 
-** Build separate files for running each type of test
+    * Build separate files for running each type of test
 
-** Return results from each testing routine in JSON format
+    * Return results from each testing routine in JSON format
 
-** Support the commands for information:
-*** #VERSION
-*** #TEST
-*** etc.
+* Support the commands for information:
+  * ** #VERSION**
+  * **#TEST**
+  *** etc.
 
-* Update testdriver/datasets.py to include the new executor platform.
+* Update `testdriver/datasets.py` to include the new executor platform.
 
 
 Note: it is very helpful to include sets of tests for the new platform for each
 supported component. The ICU4J model with Intellij is a good example.
 
 Make sure that your new executor can be run from a debugging environment or from
-the command line. This should be done before adding it to the test drive.
+the command line. Tests can be tested easily here before adding them to the full execution scripts.
 
-* Add information to run_config.json to add the new platform and its supported
-  components into the DDT workflow.
+* Add the new platform to `run_config.json` including required setup and the implemented
+  components for the DDT workflow.
 
-
-** TDB **
 
 See [Add Dart to executors
 PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
@@ -752,46 +760,13 @@ PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
 See also the [Rust executor for ICU4x 1.3 in
 PR#108](https://github.com/unicode-org/conformance/pull/108)
 
-Adding a new platform involves several changes to the DDT system:
-* Change the workflow to reference the new platform
-
-* Create a new directory structure under executors/. Add .gitignore as needed.
-
-* Add configuration specific to the platform in the new directory under executors/
-
-* Set up a main program that will receive instructions on the STDIN command line
-
-** Parse the incoming JSON data to determine test type
-
-** Build separate files for running each type of test
-
-** Return results from each testing routine in JSON format
-
-** Support the commands for information:
-*** #VERSION
-*** #TEST
-*** etc.
-
-* Update testdriver/datasets.py to include the new executor platform.
-
-
-Note: it is very helpful to include sets of tests for the new platform for each
-supported component. The ICU4J model with Intellij is a good example.
-
-Make sure that your new executor can be run from a debugging environment or from
-the command line. This should be done before adding it to the test drive.
-
-* Add information to run_config.json to add the new platform and its supported
-  components into the DDT workflow.
-
-
 
 ## Conformance Data models
 
-In its current implementation, Data Driven Test uses JSON formatted data files
-describing tests and parameters. The data directory created contains the following:
+### Directory **testData**:
 
-## Directory **testData**:
+Conformance Testing uses JSON formatted data files to describe tests and
+parameters as well as to record test results and deliver information for the results dashboard. 
 
 Test generation creates the test and verify data files for each version of ICU
 in .json format:
@@ -836,7 +811,7 @@ toplevel/testData/
 
 ```
 
-## Directory **testOutput**
+### Directory **testOutput**
 
 This contains a subdirectory for each executor. The output file from each test
 is stored in the appropriate subdirectory. Each test result contains the label
@@ -927,7 +902,8 @@ toplevel/testOutput/icu4j/icu76
 └── rdt_fmt_test.json
 ````
 
-## Directory `testReports`
+### Directory `testReports`
+
 This directory stores summary results from verifying the tests performed by each
 executor. Included in the `testReports` directory are:
 
@@ -937,10 +913,11 @@ executor. Included in the `testReports` directory are:
 * `exec_summary.json`: contains summarized results for each pair (executor, icu
   version) in a graphical form. Contains links to details for each test pair.
 
-* subdirectory for each executor, each containing verification of the tested icu
-  versions, e.g., `node/`, `rust/`, etc.
+* a subdirectory for each executor, each containing verification of the tested
+  ICU versions, e.g., `node/`, `rust/`, etc.
 
-Under each executor, one or more ICU version files are created, each containing:
+Under each executor, one or more ICU version directories are created, such as
+`icu76`. Each ICU version contains data for the detailed report:
 
 * `verfier_test_report.html` - for showing results to a user via a web server
 
@@ -949,7 +926,8 @@ Under each executor, one or more ICU version files are created, each containing:
 * `failing_tests.json` - a list of all failing tests with input values
 * `pass.json` - list of test cases that match their expected results
 * `test_errors.json` - list of test cases where the executor reported an error
-* `unsupported.json` - list of test cases that are not expected to be supported in this version
+* `unsupported.json` - list of test cases that are not expected to be supported
+  in this version
 
 The `verifier_test_report.json` file contains information on tests run and
 comparison with the expected results. At a minimum, each report contains:
@@ -987,9 +965,6 @@ toplevel/testReports/cpp/icu76/number_fmt/
 └── verifier_test_report.json
 
 ````
-
-## Running Data Driven Test
-
 
 # History
 
