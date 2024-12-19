@@ -42,12 +42,10 @@ using icu::RuleBasedCollator;
 
 const char error_message[] = "error";
 
-bool debug = false;
-
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
-const string TestCollator(json_object *json_in) {
+string TestCollator(json_object *json_in) {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -68,7 +66,7 @@ const string TestCollator(json_object *json_in) {
 
   json_object *locale_obj = json_object_object_get(json_in, "locale");
   const char *locale_string;
-  if (locale_obj) {
+  if (locale_obj != nullptr) {
     locale_string = json_object_get_string(locale_obj);
   } else {
     locale_string = "und";
@@ -78,7 +76,7 @@ const string TestCollator(json_object *json_in) {
   json_object *compare_type_obj =
       json_object_object_get(json_in, "compare_type");
   string compare_type_string = "";
-  if (compare_type_obj) {
+  if (compare_type_obj != nullptr) {
     compare_type_string = json_object_get_string(compare_type_obj);
   }
 
@@ -87,7 +85,7 @@ const string TestCollator(json_object *json_in) {
   string strength_string = "";
 
   json_object *strength_obj = json_object_object_get(json_in, "strength");
-  if (strength_obj) {
+  if (strength_obj != nullptr) {
     strength_string = json_object_get_string(strength_obj);
     if (strength_string == "primary") {
       strength_type = Collator::PRIMARY;
@@ -105,14 +103,14 @@ const string TestCollator(json_object *json_in) {
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
   string rules_string = "";
-  if (rules_obj) {
+  if (rules_obj != nullptr) {
     rules_string = json_object_get_string(rules_obj);
   }
   UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string);
 
   // Allow for different levels or types of comparison.
   json_object *compare_type = json_object_object_get(json_in, "compare_type");
-  if (compare_type) {
+  if (compare_type != nullptr) {
     // TODO: Apply this in tests.
     const char *comparison_type = json_object_get_string(compare_type);
   }
@@ -172,12 +170,12 @@ const string TestCollator(json_object *json_in) {
       return json_object_to_json_string(return_json);
     }
 
-    if (strength_obj) {
+    if (strength_obj != nullptr) {
       uni_coll->setStrength(strength_type);
     }
 
-    if (ignore_obj) {
-      const bool ignore_punctuation_bool = json_object_get_boolean(ignore_obj);
+    if (ignore_obj != nullptr) {
+      const bool ignore_punctuation_bool = json_object_get_boolean(ignore_obj) != 0;
       if (ignore_punctuation_bool) {
         uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
         if (check_icu_error(
@@ -202,7 +200,7 @@ const string TestCollator(json_object *json_in) {
       return json_object_to_json_string(return_json);
     }
 
-    if (uni_coll) {
+    if (uni_coll != nullptr) {
       uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore result
     }
     delete uni_coll;
@@ -214,11 +212,6 @@ const string TestCollator(json_object *json_in) {
   coll_result = (uni_result != UCOL_GREATER);
   if (!coll_result) {
     // Test did not succeed!
-    if (debug) {
-      cout << "# UNI_RESULT: " << label_string << " " << uni_result <<
-          "  s1: " << string1 << " s2: " << string2 << endl;
-    }
-
     // Include data compared in the failing test
     json_object_object_add(
         return_json, "s1", json_object_new_string(string1.c_str()));
@@ -231,7 +224,7 @@ const string TestCollator(json_object *json_in) {
   }
 
   json_object_object_add(
-      return_json, "result", json_object_new_boolean(coll_result));
+      return_json, "result", json_object_new_boolean(static_cast<json_bool>(coll_result)));
 
   return  json_object_to_json_string(return_json);
 }

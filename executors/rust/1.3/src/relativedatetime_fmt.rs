@@ -11,8 +11,10 @@ use std::str::FromStr;
 
 use icu_provider::DataLocale;
 
-use icu::relativetime::options::Numeric;
-use icu::relativetime::{RelativeTimeError, RelativeTimeFormatter, RelativeTimeFormatterOptions};
+use crate::icu::relativetime::options::Numeric;
+use crate::icu::relativetime::{
+    RelativeTimeError, RelativeTimeFormatter, RelativeTimeFormatterOptions,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};

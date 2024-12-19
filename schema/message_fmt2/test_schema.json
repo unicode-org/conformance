@@ -29,7 +29,7 @@
         },
         "description": {
           "type": "string",
-          "description": "what this is all about"
+          "description": "Tell about this test"
         },
         "hexhash": {
           "description": "A hexadecimal hash code for the test without the label",

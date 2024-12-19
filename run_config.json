@@ -10,6 +10,7 @@
       "exec": "cpp",
       "test_type": [
         "collation_short",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "message_fmt2",
@@ -123,6 +124,28 @@
         "number_fmt",
         "plural_rules",
         "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 23.3.0, icu76.1",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "node",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -330,6 +353,50 @@
   },
   {
     "prereq": {
+      "name": "rust1.5",
+      "version": "1.5",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/1.5/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "rust",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "rust2.0-beta1",
+      "version": "2.0-beta1",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/2.0-beta1/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "rust",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "mvn-icu4j-73-shaded",
       "version": "73",
       "command": "mvn -q -P icu73 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
@@ -387,6 +454,7 @@
         "lang_names",
         "likely_subtags",
         "list_fmt",
+        "message_fmt2",
         "number_fmt",
         "plural_rules",
         "rdt_fmt"
@@ -396,15 +464,23 @@
   },
   {
     "prereq": {
-      "name": "mvn-icu4j-75-shaded",
-      "version": "75",
-      "command": "mvn -q -P icu75 -f ../executors/icu4j/74/executor-icu4j/pom.xml package -DskipTests=true"
+      "name": "mvn-icu4j-76-shaded",
+      "version": "76",
+      "command": "mvn -q -P icu76 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
     },
     "run": {
-      "icu_version": "icu75",
+      "icu_version": "icu76",
       "exec": "icu4j",
       "test_type": [
-        "message_fmt2"
+        "collation_short",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }

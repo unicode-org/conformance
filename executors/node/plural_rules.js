@@ -21,9 +21,12 @@ module.exports = {
     if (json['sample']) {
       let raw_sample = json['sample'];
       if (raw_sample.indexOf('c') >= 0) {
-        return_json['warning'] = 'compact sample <' + raw_sample +
-            '> replaced by <' + raw_sample.replace('c','e') + '>';
-        raw_sample = raw_sample.replace('c','e');
+        return {"label": label,
+                "error" : "unusupported",
+                "unsupported": "unsupported compact number",
+                "error_detail": {'unsupported sample': json['sample']
+                                }
+               };
       }
       if (raw_sample.indexOf('.') >= 0) {
         sample = parseFloat(raw_sample);

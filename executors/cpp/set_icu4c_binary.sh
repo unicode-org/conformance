@@ -34,8 +34,8 @@ popd
 pushd ../executors/cpp
 make clean
 
-LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib
-PATH=/tmp/icu/icu/usr/local/bin:$PATH
+export LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib:$LD_LIBRARY_PATH
+export PATH=/tmp/icu/icu/usr/local/bin:$PATH
 
 make
 
