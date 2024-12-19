@@ -2,14 +2,14 @@
 // https://docs.rs/icu/1.3.2/icu/datetime/input/trait.TimeZoneInput.html
 // https://docs.rs/ixdtf/latest/ixdtf/
 
-use icu::datetime::fieldsets::enums::*;
 use icu::datetime::fieldsets;
-use icu::datetime::DateTimeFormatterPreferences;
+use icu::datetime::fieldsets::enums::*;
 use icu::datetime::DateTimeFormatter;
+use icu::datetime::DateTimeFormatterPreferences;
 
-use icu::locale::Locale;
-use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
 use icu::locale::extensions::unicode;
+use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
+use icu::locale::Locale;
 
 use icu::timezone::IxdtfParser;
 
@@ -50,7 +50,11 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         CalendarAlgorithm::try_from(&unicode::Value::try_from_str(calendar_str).unwrap()).unwrap()
     });
 
-    let locale = json_obj["locale"].as_str().unwrap().parse::<Locale>().unwrap();
+    let locale = json_obj["locale"]
+        .as_str()
+        .unwrap()
+        .parse::<Locale>()
+        .unwrap();
     let mut preferences = DateTimeFormatterPreferences::from(&locale);
     preferences.calendar_algorithm = calendar_algorithm;
 
@@ -59,10 +63,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         option_struct.time_style.as_deref(),
     ) {
         (Some(date_style), Some(time_style)) => {
-            use DateAndTimeFieldSet as Enum;
-            use CompositeFieldSet::DateTime as DateTime;
-            use CompositeFieldSet::DateTimeZone as DateTimeZone;
             use fieldsets::*;
+            use CompositeFieldSet::DateTime;
+            use CompositeFieldSet::DateTimeZone;
+            use DateAndTimeFieldSet as Enum;
             match (date_style, time_style) {
                 ("full", "full") => DateTimeZone(Enum::YMDET(YMDET::long()), ZoneStyle::Z),
                 ("full", "long") => DateTimeZone(Enum::YMDET(YMDET::long()), ZoneStyle::Z),
@@ -80,12 +84,14 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 ("short", "long") => DateTimeZone(Enum::YMDT(YMDT::short()), ZoneStyle::Z),
                 ("short", "medium") => DateTime(Enum::YMDT(YMDT::short())),
                 ("short", "short") => DateTime(Enum::YMDT(YMDT::short().hm())),
-                (date_style, time_style) => panic!("unknown date/time style: {date_style}, {time_style}"),
+                (date_style, time_style) => {
+                    panic!("unknown date/time style: {date_style}, {time_style}")
+                }
             }
         }
         (Some(date_style), None) => {
-            use DateFieldSet as Enum;
             use CompositeFieldSet as Comp;
+            use DateFieldSet as Enum;
             match date_style {
                 "full" => Comp::Date(Enum::YMDE(fieldsets::YMDE::long())),
                 "long" => Comp::Date(Enum::YMD(fieldsets::YMD::long())),
@@ -93,10 +99,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 "short" => Comp::Date(Enum::YMD(fieldsets::YMD::short())),
                 time_style => panic!("unknown time style: {time_style}"),
             }
-        },
+        }
         (None, Some(time_style)) => {
-            use TimeFieldSet as Enum;
             use CompositeFieldSet as Comp;
+            use TimeFieldSet as Enum;
             match time_style {
                 "full" => Comp::TimeZone(Enum::T(fieldsets::T::long()), ZoneStyle::Z),
                 "long" => Comp::TimeZone(Enum::T(fieldsets::T::long()), ZoneStyle::Z),
@@ -104,14 +110,14 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 "short" => Comp::Time(Enum::T(fieldsets::T::short())),
                 date_style => panic!("unknown date style: {date_style}"),
             }
-        },
+        }
         (None, None) => {
             // Components bag.
             // The test cases only use semantic skeletons, so we can match on them here.
             match json_obj["skeleton"].as_str().unwrap() {
-                other => panic!("unknown skeleton: {other}")
+                other => panic!("unknown skeleton: {other}"),
             }
-        },
+        }
     };
 
     // Get ISO instant in UTC time zone
@@ -119,15 +125,14 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // Extract all the information we need from the string
     let input_zoned_date_time = crate::try_or_return_error!(label, locale, {
-        IxdtfParser::new().try_from_str(&input_iso).map_err(|e| format!("{e:?}"))
+        IxdtfParser::new()
+            .try_from_str(&input_iso)
+            .map_err(|e| format!("{e:?}"))
     });
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.
-    let dtf_result = DateTimeFormatter::try_new(
-        preferences,
-        field_set,
-    );
+    let dtf_result = DateTimeFormatter::try_new(preferences, field_set);
 
     let datetime_formatter = match dtf_result {
         Ok(dtf) => dtf,
@@ -140,8 +145,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    let formatted_dt = datetime_formatter
-        .format_any_calendar(&input_zoned_date_time);
+    let formatted_dt = datetime_formatter.format_any_calendar(&input_zoned_date_time);
     let result_string = formatted_dt.to_string();
 
     Ok(json!({
