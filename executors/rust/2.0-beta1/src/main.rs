@@ -6,7 +6,7 @@
 use std::io;
 
 mod collator;
-// mod datetimefmt;
+mod datetimefmt;
 mod decimalfmt;
 mod displaynames;
 mod likelysubtags;
@@ -20,6 +20,7 @@ mod relativedatetime_fmt;
 #[macro_use]
 mod try_or_return_error;
 
+#[allow(unused)]
 pub fn return_error(json_obj: &serde_json::Value) -> Result<serde_json::Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
     return Ok(serde_json::json!({
@@ -35,8 +36,7 @@ mod run_all_tests;
 fn main() -> io::Result<()> {
     let executor_fns = run_all_tests::ExecutorFns {
         run_collation_test: collator::run_collation_test,
-        run_datetimeformat_test: return_error,
-        // run_datetimeformat_test: datetimefmt::run_datetimeformat_test,
+        run_datetimeformat_test: datetimefmt::run_datetimeformat_test,
         run_likelysubtags_test: likelysubtags::run_likelysubtags_test,
         run_list_fmt_test: listfmt::run_list_fmt_test,
         run_locale_name_test: localenames::run_locale_name_test,
