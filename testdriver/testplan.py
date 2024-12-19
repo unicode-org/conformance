@@ -54,7 +54,9 @@ class TestPlan:
         # logging.setLevel(logging.INFO)
 
         self.iteration = 0
-        self.progress_interval = 1000
+
+        # Set to an integer > 0 if details on test progress is needed
+        self.progress_interval = None
 
         self.verifier = None
 
