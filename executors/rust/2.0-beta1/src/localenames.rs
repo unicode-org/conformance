@@ -2,11 +2,11 @@
 
 use serde_json::{json, Value};
 
-use crate::icu::displaynames::{DisplayNamesOptions, LocaleDisplayNamesFormatter};
+use icu::experimental::displaynames::{DisplayNamesOptions, LocaleDisplayNamesFormatter};
 
-use icu::locid::Locale;
+use icu::locale::Locale;
 
-use crate::icu::displaynames::LanguageDisplay;
+use icu::experimental::displaynames::LanguageDisplay;
 
 // Function runs locale names tests
 pub fn run_locale_name_test(json_obj: &Value) -> Result<Value, String> {
@@ -81,7 +81,7 @@ pub fn run_locale_name_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    let display_name_formatter = LocaleDisplayNamesFormatter::try_new(&langid.into(), options);
+    let display_name_formatter = LocaleDisplayNamesFormatter::try_new(langid.into(), options);
 
     let json_result = match display_name_formatter {
         Ok(formatter) => {

@@ -5,12 +5,6 @@
 
 use std::io;
 
-mod icu {
-    pub use ::icu::compactdecimal;
-    pub use ::icu::displaynames;
-    pub use ::icu::relativetime;
-}
-
 mod collator;
 mod datetimefmt;
 mod decimalfmt;
@@ -21,6 +15,20 @@ mod localenames;
 mod numberfmt;
 mod pluralrules;
 mod relativedatetime_fmt;
+
+#[path = "../../common/try_or_return_error.rs"]
+#[macro_use]
+mod try_or_return_error;
+
+#[allow(unused)]
+pub fn return_error(json_obj: &serde_json::Value) -> Result<serde_json::Value, String> {
+    let label = &json_obj["label"].as_str().unwrap();
+    return Ok(serde_json::json!({
+        "label": label,
+        "error_type": "datetime ignored",
+        "error": "datetime ignored"
+    }));
+}
 
 #[path = "../../common/run_all_tests.rs"]
 mod run_all_tests;

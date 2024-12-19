@@ -1,12 +1,32 @@
 # -*- coding: utf-8 -*-
+from enum import Enum
 import re
 import logging
 from generators.base import DataGenerator
 
 reblankline = re.compile("^\s*$")
 
+class ParseResults(Enum):
+    NO_RESULT = 0
+    RULE_RESET = 1
 
 class CollationShortGenerator(DataGenerator):
+
+    def set_patterns(self):
+        self.root_locale = re.compile("@ root")
+        self.locale_string = re.compile("@ locale (\S+)")
+
+        self.test_line = re.compile("^\*\* test:(.*)")
+        self.rule_header_pattern = re.compile("^@ rules")
+        self.compare_pattern = re.compile("^\* compare(.*)")
+
+        # A comparison line begins with the type of compare function.
+        self.comparison_line = re.compile("^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
+
+        self.input_pattern_with_comment = re.compile("^([^#]+)#?(.*)")
+        self.attribute_test = re.compile("^% (\S+)\s*=\s*(.+)")
+        self.reorder_test = re.compile("^% (reorder)\s+(.+)")
+
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
         json_test = {"test_type": "collation_short", "tests": [], "data_errors": []}
@@ -68,8 +88,8 @@ class CollationShortGenerator(DataGenerator):
         # TODO: Store data errors with the tests
 
         # And write the files
-        self.saveJsonFile("collation_test.json", json_test)
-        self.saveJsonFile("collation_verify.json", json_verify)
+        self.saveJsonFile("collation_test.json", json_test, 1)
+        self.saveJsonFile("collation_verify.json", json_verify, 1)
 
     def insert_collation_header(self, test_objs):
         for obj in test_objs:
@@ -78,8 +98,131 @@ class CollationShortGenerator(DataGenerator):
                 "UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error."
             )
 
+    # ??? Pass in the attributes defined, adding them to each test ??
+    def check_parse_compare(self, line_index, lines, filename):
+        # Handles lines in a compare region
+        # Test sections ("* compare") are terminated by
+        # definitions of new collators, changing attributes, or new test sections.
+
+        tests = []
+        line_in = lines[line_index]
+        if not self.compare_pattern.match(line_in):
+            return None, line_index, None
+
+        # Patterns that end the processing of this "* compare" section
+        breakout_patterns = [self.compare_pattern,
+                             self.locale_string,
+                             self.root_locale,
+                             self.reorder_test,
+                             self.rule_header_pattern,
+                             self.test_line
+                             ]
+
+        # The tests constructed
+        tests = []
+        string2_errors = []  # line numbers and values that have conversion problems
+        string1 = ''
+        line_index += 1
+        while line_index < len(lines):
+            # Use Unicode escapes rather than byte escapes
+            line_in = lines[line_index].replace('\\x', '\\u00')
+
+            # Time to end this set of comparison tests.
+            if any([p.match(line_in) for p in breakout_patterns]):
+                break
+
+            # Ignore a blank line or a comment-only line
+            if line_in == '' or line_in[0] == '#':
+                line_index += 1
+                continue
+
+            is_comparison_match = self.comparison_line.match(line_in)
+            if is_comparison_match:
+                compare_type = is_comparison_match.group(1)
+                # TODO !!! Check string2 for \u vs \U inm the line
+                raw_string2 = is_comparison_match.group(3)
+                string2 = ''
+                try:
+                    string2 = raw_string2  # Don't do any unescaping
+                except Exception as err:
+                    # Catch an error. What should be done here ???
+                    string2_errors.append([line_index, raw_string2, err])
+                    pass
+
+                # ??? re-encode to get escaped version of s2?
+                new_test = {
+                    'compare_type': compare_type,
+                    's1': string1,
+                    's2': string2,
+                    'source_file': filename,
+                    'line': line_index,
+                }
+
+                if compare_comment:= is_comparison_match.group(5):
+                    new_test['compare_comment'] = compare_comment
+
+                # Remember the previous string for the next test
+                string1 = string2
+                tests.append(new_test)
+            line_index += 1
+
+        # Check for string conversion errors. ???
+        if string2_errors:
+            pass
+
+        # Done with this batch of comparisons. Tell the caller the next line number
+        return tests, line_index, string2_errors
+
+    def check_parse_rule(self, line_index, lines):
+        # Given the lines, process a rule and return the rule string,
+        # rule comments, and the new line index
+
+        # Check if it's really the start of rules
+        line_in = lines[line_index]
+        if not self.rule_header_pattern.match(line_in):
+            # Not a reset to the rules.
+            return False, None, None, line_index
+
+        rule_list = []
+        rule_comments = []
+
+        # These will terminate rule definition
+        breakout_patterns = [self.compare_pattern,
+                             self.locale_string,
+                             self.root_locale,
+                             self.test_line,
+                             self.attribute_test
+                             ]
+        while line_index < len(lines):
+            line_index += 1
+            # Use Unicode escapes rather than byte escapes
+            line_in = lines[line_index].replace('\\x', '\\u00')
+
+            # Is it time to end this set of rule lines?
+            if any([p.match(line_in) for p in breakout_patterns]):
+                break
+
+            if line_in == '' or line_in[0] == '#':
+                # Skip blank and comment lines
+                continue
+
+            # Detect comment at end of this rule line and keep it
+            if rule_match := self.input_pattern_with_comment.match(line_in):
+                rule_list.append(rule_match.group(1).strip())
+                rule_comments.append(rule_match.group(2).strip())
+
+        rules = ''.join(rule_list)  # Try combining without a space
+        # If there's @rule, but no rules, we need to  indicate that rules should be reset.
+        if rules == '':
+            rules = ParseResults.RULE_RESET
+        # Yes, the rules are reset.
+        return True, rules, ', '.join(rule_comments), line_index
+
     def generateCollTestData2(self, filename, icu_version, start_count=0):
         # Read raw data from complex test file, e.g., collation_test.txt
+
+        self.set_patterns()
+
         label_num = start_count
 
         test_list = []
@@ -96,192 +239,139 @@ class CollationShortGenerator(DataGenerator):
         )  # Approximate
         recommentline = re.compile("^[\ufeff\s]*#(.*)")
 
-        root_locale = re.compile("@ root")
-        locale_string = re.compile("@ locale (\S+)")
-        test_line = re.compile("^\*\* test:(.*)")
-        rule_header_pattern = re.compile("^@ rules")
-        rule_pattern = re.compile("^&.*")
-        strength_pattern = re.compile("% strength=(\S)")
-        compare_pattern = re.compile("^\* compare(.*)")
-
-        comparison_pattern = re.compile(
-            "(\S+)\s+(\S+)\s*(\#?.*)"
-        )  # compare operator followed by string
-
-        attribute_test = re.compile("^\% (\S+)\s*=\s*(\S+)")
-        rules = ""
-        strength = None
+        rules = None
 
         # Ignore comment lines
-        string1 = ""
-        string2 = ""
-        attributes = []
+        attributes = {}
         test_description = ""
 
-        # Get @ root or @ locale ...
-        # Check for "@ rules"
-        # Handle % options, e.g., strengt=h, reorder=, backwards=, caseFirst=,
-        #  ...
-        # Find "* compare" section and create list of tests for this,
-        # starting comparison with empty string ''.
-        # Handle compre options =, <, <1, <2, <3, <4
-
         locale = ""
-        line_number = 0
+        line_number = 0  # Starts at one for actual lines
         num_lines = len(raw_testdata_list)
         while line_number < num_lines:
+            # line_number += 1
             line_in = raw_testdata_list[line_number]
-            line_number += 1
 
-            is_comment = recommentline.match(line_in)
-            if line_in[0:1] == "#" or is_comment or reblankline.match(line_in):
+            if recommentline.match(line_in) or line_in[0:1] == "#" or reblankline.match(line_in):
+                # Just skip this line
+                line_number += 1
                 continue
 
-            if root_locale.match(line_in):
+            # According to collationtest.txt, resetting the locale creates
+            # a new collator instance with @root or @locale.
+            # Same goes for a new @rule section.
+            if self.root_locale.match(line_in):
                 # Reset the parameters for collation
-                locale = "und"
-                rules = []
-                locale = ""
-                attributes = []
-                strength = None
+                locale = 'root'
+                rules = None
+                attributes = {}
+                line_number += 1
                 continue
 
-            locale_match = locale_string.match(line_in)
-            if locale_match:
-                # Reset the parameters for collation
+            if locale_match:= self.locale_string.match(line_in):
                 locale = locale_match.group(1)
-                rules = []
+                rules = None
+                attributes = {}
+                line_number += 1
+                continue
+
+            # Find "** test" section. Simply reset the description but leave rules alone.
+            if is_test_line:= self.test_line.match(line_in):
+                # Get the description for subsequent tests
+                test_description = is_test_line.group(1).strip()
+                line_number += 1
+                continue
+
+            # Handle rules section, to be applied in subsequent tests
+            # reset_rules will only be TRUE if  new rule set is returned
+            # Otherwise, the line didn't include "@ rules"
+            reset_rules, new_rules, new_rule_comments, line_number = self.check_parse_rule(line_number,
+                                                                                           raw_testdata_list)
+            if reset_rules:
+                # Reset test parameters
+                rule_comments = new_rule_comments  # Not used!
+                if new_rules == ParseResults.RULE_RESET:
+                    # Clear it
+                    rules = None
+                else:
+                    # A non-empty set of rules
+                    rules = new_rules
+                line_in = raw_testdata_list[line_number]
                 locale = ""
-                attributes = []
-                strength = None
+                attributes = {}
+
+            # Handle attribute settings
+            is_attribute = self.attribute_test.match(line_in)
+            if is_attribute:
+                key = is_attribute.group(1)
+                value = is_attribute.group(2)
+                attributes[key] = value
+                line_number += 1
                 continue
 
-            # Find "** test" section
-            is_test = test_line.match(line_in)
-            if is_test:
-                test_description = is_test.group(1)
+            # Reorder is like an attribute, but without an "=" sign
+            is_reorder = self.reorder_test.match(line_in)
+            if is_reorder:
+                key = is_reorder.group(1)
+                value = is_reorder.group(2)
+                attributes[key] = value
+                line_number += 1
                 continue
 
-            # Handle rules, to be applied in subsequent tests
-            is_rules = rule_header_pattern.match(line_in)
-            if is_rules:
-                # Read rule lines until  a "*" line is found
-                rules = []
-                locale = "und"
-                rules = []
-                locale = ""
-                attributes = []
-                strength = None
+            # Check if this is the start of a *compare* section. If so, get the next set of tests
+            # ??? Can we pass in other info, e.g., the rules, attributes, locale, etc?
+            new_tests, line_number, conversion_errors = self.check_parse_compare(line_number,
+                                                                                 raw_testdata_list,
+                                                                                 filename)
 
-                # Skip comment and empty lines
-                while line_number < num_lines:
-                    if line_number >= num_lines:
-                        break
-                    line_in = raw_testdata_list[line_number]
-                    if len(line_in) == 0 or line_in[0] == "#":
-                        line_number += 1
-                        continue
-                    if line_in[0] == "*":
-                        break
-                    # Remove any comments in the line preceded by '#'
-                    comment_start = line_in.find("#")
-                    if comment_start >= 0:
-                        line_in = line_in[0:comment_start]
-                    rules.append(line_in.strip())
-                    line_number += 1
-                continue
-
-            is_strength = strength_pattern.match(line_in)
-            if is_strength:
-                strength = is_strength.group(1)
-
-            is_compare = compare_pattern.match(line_in)
-            compare_type = None
-            if is_compare:
-                # Initialize string1 to the empty string.
-                string1 = ""
-                compare_mode = True
-                info = is_compare.group(1)
-                while line_number < num_lines:
-                    line_number += 1
-                    if line_number >= num_lines:
-                        break
-                    line_in = raw_testdata_list[line_number]
-
-                    if len(line_in) == 0 or line_in[0] == "#":
-                        continue
-                    if line_in[0] == "*":
-                        break
-
-                    is_comparison = comparison_pattern.match(line_in)
-                    # Handle compare options =, <, <1, <2, <3, <4
-                    if is_comparison:
-                        compare_type = is_comparison.group(1)
-                        compare_string = is_comparison.group(2)
-                        # Note that this doesn't seem to handle \x encoding, however.
-                        compare_comment = is_comparison.group(3)
-                        # Generate the test case
-                        try:
-                            string2 = compare_string.encode().decode("unicode_escape")
-                        except (BaseException, UnicodeEncodeError) as err:
-                            logging.error(
-                                "%s: line: %d. PROBLEM ENCODING", err, line_number
-                            )
-                            continue
-
-                        compare_comment = is_comparison.group(3)
-
+            if new_tests:
+                # Fill in the test cases found
+                for test in new_tests:
                     label = str(label_num).rjust(max_digits, "0")
                     label_num += 1
 
-                    # # If either string has unpaired surrogates, ignore the case and record it.
-                    if not self.check_unpaired_surrogate_in_string(
-                        string1
-                    ) and not self.check_unpaired_surrogate_in_string(string2):
-                        test_case = {
-                            "label": label,
-                            "s1": string1,
-                            "s2": string2,
-                        }
+                    # # If either string has unpaired surrogates, ignore the case and record an encoding error.
+                    if (self.check_unpaired_surrogate_in_string(test['s1']) or
+                        self.check_unpaired_surrogate_in_string(test['s2'])):
+                        # Record the problem and skip the test
+                        encode_errors.append([line_number, line_in])
+                    else:
+                        # No unpaired surrogates. Record this test with all the attributes
+                        test_case = test
 
-                        # Add info to the test case.
+                        test_case['label'] = label
+
+                        # To match test output to specific tests
+                        test_case['source_file'] = filename
+
+                        if 'compare_comment' in test and test['compare_comment']:
+                            test_case['compare_comment'] = test['compare_comment']
+
+                        # Add more info to the test case.
+                        # ?? Can these be passed into the check_parse_compare function?
                         if locale:
                             test_case["locale"] = locale
-                        if compare_type:
-                            if type(compare_type) in [list, tuple]:
-                                test_case["compare_type"] = compare_type[0]
-                            else:
-                                test_case["compare_type"] = compare_type
+
+                        if 'compare_type' in test:
+                            test_case["compare_type"] = test['compare_type']
+
                         if test_description:
                             test_case["test_description"] = test_description
 
-                        if compare_comment:
-                            test_case["compare_comment"] = compare_comment
                         if rules:
-                            test_case["rules"] = "".join(rules)
+                            test_case["rules"] = rules   # a string
+
                         if attributes:
-                            test_case["attributes"] = attributes
+                            for key, value in attributes.items():
+                                test_case[key] = value
 
-                        if strength:
-                            test_case["strength"] = strength
-
+                        # This test case is complete. Add to the full set of tests
                         test_list.append(test_case)
                         # We always expect True as the result
-
                         verify_list.append({"label": label, "verify": True})
-                    else:
-                        # Record the problem and skip
-                        encode_errors.append([line_number, line_in])
-                        pass
+            # End of compare cases
+            pass
 
-                    # Keep this for the next comparison test
-                    string1 = string2
-                continue
-
-            is_attribute = attribute_test.match(line_in)
-            if is_attribute:
-                attributes.append([is_attribute.group(1), is_attribute.group(2)])
-                continue
         if encode_errors:
             logging.debug(
                 "!! %s File has %s ENCODING ERRORS: %s",
@@ -289,11 +379,10 @@ class CollationShortGenerator(DataGenerator):
                 len(encode_errors),
                 encode_errors,
             )
+        logging.info("Coll Test: %s (%s) %d lines processed", filename, icu_version, len(test_list))
         return test_list, verify_list, encode_errors
 
-    def generateCollTestDataObjects(
-        self, filename, icu_version, ignorePunctuation, start_count=0
-    ):
+    def generateCollTestDataObjects(self, filename, icu_version, ignorePunctuation, start_count=0):
         test_list = []
         verify_list = []
         data_errors = []  # Items with malformed Unicode
@@ -322,7 +411,8 @@ class CollationShortGenerator(DataGenerator):
             line_number += 1
             if recommentline.match(item) or reblankline.match(item):
                 continue
-            # It's a data line.
+
+            # It's a data line. Include in testing.
             if not prev:
                 # Just getting started.
                 prev = self.parseCollTestData(item)
@@ -337,7 +427,7 @@ class CollationShortGenerator(DataGenerator):
                 continue
 
             label = str(count).rjust(max_digits, "0")
-            new_test = {"label": label, "s1": prev, "s2": next, "line": line_number}
+            new_test = {"label": label, "s1": prev, "s2": next, "line": line_number, "source_file": filename}
             if ignorePunctuation:
                 new_test["ignorePunctuation"] = True
             test_list.append(new_test)
@@ -348,7 +438,7 @@ class CollationShortGenerator(DataGenerator):
             count += 1
             index += 1
 
-        logging.info("Coll Test: %d lines processed", len(test_list))
+        logging.info("Coll Test: %s (%s) %d lines processed", filename, icu_version, len(test_list))
         if data_errors:
             logging.debug(
                 "!! %s File has %s DATA ERRORS: %s",

@@ -1,15 +1,16 @@
 //! Executor provides tests for NumberFormat and DecimalFormat.
 
 use fixed_decimal::FixedDecimal;
+use fixed_decimal::RoundingMode;
 use fixed_decimal::SignDisplay;
 // TODO: use fixed_decimal::ScientificDecimal;
 
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
 
-use crate::icu::compactdecimal::CompactDecimalFormatter;
+use icu::experimental::compactdecimal::CompactDecimalFormatter;
 
-use icu::locid::{extensions::unicode::key, Locale};
+use icu::locale::{extensions::unicode::key, Locale};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -149,12 +150,14 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let result_string = if is_compact {
         // We saw compact!
-        let cdf = if compact_type == "short" {
-            CompactDecimalFormatter::try_new_short(&langid.into(), Default::default()).unwrap()
-        } else {
-            println!("#{:?}", "   LONG");
-            CompactDecimalFormatter::try_new_long(&langid.into(), Default::default()).unwrap()
-        };
+        let cdf = crate::try_or_return_error!(label, langid, {
+            if compact_type == "short" {
+                CompactDecimalFormatter::try_new_short((&langid).into(), Default::default())
+            } else {
+                println!("#{:?}", "   LONG");
+                CompactDecimalFormatter::try_new_long((&langid).into(), Default::default())
+            }
+        });
         // input.parse().map_err(|e| e.to_string())?;
 
         let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
@@ -167,23 +170,25 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     } else {
         // FixedDecimal
         // Can this fail with invalid options?
-        let fdf = FixedDecimalFormatter::try_new(&langid.into(), options.clone())
-            .expect("Data should load successfully");
+        let fdf = crate::try_or_return_error!(label, langid, {
+            FixedDecimalFormatter::try_new((&langid).into(), options.clone())
+        });
 
         // Apply relevant options for digits.
         if let Some(x) = option_struct.maximum_fraction_digits {
-            match option_struct.rounding_mode.as_deref() {
-                Some("ceil") => input_num.ceil(-(x as i16)),
-                Some("floor") => input_num.floor(-(x as i16)),
-                Some("expand") => input_num.expand(-(x as i16)),
-                Some("trunc") => input_num.trunc(-(x as i16)),
-                Some("halfCeil") => input_num.half_ceil(-(x as i16)),
-                Some("halfFloor") => input_num.half_floor(-(x as i16)),
-                Some("halfExpand") => input_num.half_expand(-(x as i16)),
-                Some("halfTrunc") => input_num.half_trunc(-(x as i16)),
-                Some("halfEven") => input_num.half_even(-(x as i16)),
-                _ => input_num.half_even(-(x as i16)),
+            let rounding_mode = match option_struct.rounding_mode.as_deref() {
+                Some("ceil") => RoundingMode::Ceil,
+                Some("floor") => RoundingMode::Floor,
+                Some("expand") => RoundingMode::Expand,
+                Some("trunc") => RoundingMode::Trunc,
+                Some("halfCeil") => RoundingMode::HalfCeil,
+                Some("halfFloor") => RoundingMode::HalfFloor,
+                Some("halfExpand") => RoundingMode::HalfExpand,
+                Some("halfTrunc") => RoundingMode::HalfTrunc,
+                Some("halfEven") => RoundingMode::HalfEven,
+                _ => RoundingMode::HalfEven,
             };
+            input_num.round_with_mode(-(x as i16), rounding_mode);
             input_num.trim_end();
         }
         if let Some(x) = option_struct.minimum_fraction_digits {

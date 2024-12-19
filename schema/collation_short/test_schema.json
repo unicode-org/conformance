@@ -48,6 +48,10 @@
             "description": "If collation should ignore punctuatio",
             "type": "boolean"
           },
+          "source_file" : {
+            "description": "source file of test data",
+            "type": "string"
+          },
           "line" : {
             "description": "line of the source of test data",
             "type": "integer"
@@ -60,8 +64,36 @@
             "description": "Strength of comparison: primary, secondary, ... identical",
             "type": "string"
           },
+          "alternate": {
+            "description": "shifted, non-ignorable",
+            "type": "string"
+          },
+          "numeric": {
+            "description": "sort as a number value",
+            "type": "string"
+          },
           "test_description": {
             "description": "Option field telling about this particular test",
+            "type": "string"
+          },
+          "reorder": {
+            "description": "instructions to reorder",
+            "type": "string"
+          },
+          "caseFirst": {
+            "description": "indicates how case should be considered",
+            "type": "string"
+          },
+          "caseLevel": {
+            "description": "indicates the level  case should be considered",
+            "type": "string"
+          },
+          "backwards": {
+            "description": "look at it backwards",
+            "type": "string"
+          },
+          "maxVariable": {
+            "description": "which variable is the maximum, e.g., currency",
             "type": "string"
           },
           "attributes": {

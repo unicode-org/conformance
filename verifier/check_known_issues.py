@@ -46,6 +46,10 @@ class knownIssueType(Enum):
     # Relative Date Time Format
     known_issue_unsupported_unit = 'Unsupported unit'  # https://github.com/unicode-org/conformance/issues/274
 
+    # Datetime format
+    datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
+
+
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
 # Tests for specific kinds of known issues
@@ -117,6 +121,15 @@ def unsupported_unit_quarter(test):
     return None
 
 
+def dt_check_for_alternate_long_form(test, actual, expected):
+    # For datetime_fmt, is the format type "standard"?
+    if actual == expected:
+        return None
+    if 'dateTimeFormatType' in test['input_data'] and test['input_data'] ['dateTimeFormatType'] == 'standard':
+        return knownIssueType.datetime_fmt_at_inserted
+    return None
+
+
 def check_datetime_known_issues(test):
     # Examine a single test for date/time isses
     # Returns known issues identified for this test in this category
@@ -133,6 +146,11 @@ def check_datetime_known_issues(test):
         is_ki = numerals_replaced_by_another_numbering_system(result, expected)
         if is_ki:
             test['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
+            remove_this_one = True
+
+        is_ki = dt_check_for_alternate_long_form(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
     except BaseException as err:

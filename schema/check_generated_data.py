@@ -5,6 +5,7 @@ from datetime import datetime
 import glob
 import json
 
+from jsonschema import Draft7Validator, ValidationError
 
 import logging
 import logging.config
