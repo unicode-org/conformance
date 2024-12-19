@@ -16,6 +16,10 @@ mod numberfmt;
 mod pluralrules;
 mod relativedatetime_fmt;
 
+#[path = "../../common/try_or_return_error.rs"]
+#[macro_use]
+mod try_or_return_error;
+
 pub fn return_error(json_obj: &serde_json::Value) -> Result<serde_json::Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
     return Ok(serde_json::json!({
