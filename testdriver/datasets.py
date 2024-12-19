@@ -475,6 +475,7 @@ def printCldrIcuMap():
     except KeyError:
       logging.debug('  %s not in map', name)
 
+
 def main(args):
 
   logging.config.fileConfig("../logging.conf")

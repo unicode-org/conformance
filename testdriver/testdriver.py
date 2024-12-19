@@ -18,8 +18,9 @@ import ddtargs
 
 from testplan import TestPlan
 
+logger = logging.Logger("TEST DRIVER LOGGER")
+logger.setLevel(logging.INFO)
 
-# TODO: Separate TestPlan into another module.
 
 class TestDriver:
     def __init__(self):
@@ -46,20 +47,19 @@ class TestDriver:
         for test_type in arg_options.test_type:
 
             if test_type not in ddt_data.testDatasets:
-                logging.warning('**** WARNING: test_type %s not in testDatasets', test_type)
+                logger.warning('**** WARNING: test_type %s not in testDatasets', test_type)
             else:
                 # Create a test plan based on data and options
                 test_data_info = ddt_data.testDatasets[test_type]
-                if self.debug:
-                    logging.debug('$$$$$ test_type = %s test_data_info = %s',
-                                 test_type, test_data_info.testDataFilename)
+                logger.debug('$$$$$ test_type = %s test_data_info = %s',
+                                  test_type, test_data_info.testDataFilename)
 
                 for executor in arg_options.exec:
                     if not ddt_data.allExecutors.has(executor):
                         # Run a non-specified executor. Compatibility of versions
                         # between test data and the executor should be done the text executor
                         # program itself.
-                        logging.error('No executable command configured for executor platform: %s', executor)
+                        logger.error('No executable command configured for executor platform: %s', executor)
                         exec_command = {'path': executor}
                     else:
                         # Set details for execution from ExecutorInfo
@@ -76,7 +76,7 @@ class TestDriver:
                         test_data = ddt_data.testDatasets[test_type]
                         new_plan.set_test_data(test_data)
                     except KeyError as err:
-                        logging.warning('!!! %s: No test data filename for %s', err, test_type)
+                        logger.warning('!!! %s: No test data filename for %s', err, test_type)
 
                     if not new_plan.ignore:
                         self.test_plans.append(new_plan)
@@ -91,7 +91,7 @@ class TestDriver:
 
         # Get all the arguments
         argparse = ddtargs.DdtArgs(args)
-        logging.debug('TestDriver OPTIONS: %s', argparse.getOptions())
+        logger.debug('TestDriver OPTIONS: %s', argparse.getOptions())
 
         # Now use the argparse.options to set the values in the driver
         self.set_args(argparse.getOptions())
@@ -104,7 +104,7 @@ class TestDriver:
             plan.run_plan()
 
     def run_one(self, plan):
-        logging.debug("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
+        logger.debug("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
         plan.run_plan()
 
     def run_plans_parallel(self):
@@ -114,7 +114,7 @@ class TestDriver:
         num_processors = mp.cpu_count()
 
         plan_info = '%s, %s' % (self.test_plans[0].test_type, self.test_plans[0].exec_command)
-        logging.info('TestDriver: %s processors for %s plans. %s' %
+        logger.info('TestDriver: %s processors for %s plans. %s' %
                      (num_processors, len(self.test_plans), plan_info))
 
         processor_pool = mp.Pool(num_processors)
@@ -122,27 +122,20 @@ class TestDriver:
             p.map(self.run_one, self.test_plans)
 
 
-
 # Run the test with command line arguments
 def main(args):
-    driver = TestDriver()
-    # print('ARGS = %s' % (args))
-    driver.parse_args(args[1:])
-
     logger = logging.Logger("TEST DRIVER LOGGER")
     logger.setLevel(logging.INFO)
+
+    driver = TestDriver()
+
+    logger.debug('ARGS = %s', args)
+    driver.parse_args(args[1:])
 
     if driver.run_serial:
         driver.run_plans()
     else:
         driver.run_plans_parallel()
-
-    #               if len(args)> 2:
-    # Set limit on number to run
-    #   numberToRun = int(args[2])
-    #   driver.runLimit = numberToRun
-
-    # driver.initExecutor()
 
 
 if __name__ == "__main__":

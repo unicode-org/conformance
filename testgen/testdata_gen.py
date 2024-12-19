@@ -19,6 +19,9 @@ from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 
 reblankline = re.compile("^\s*$")
 
+logger = logging.Logger("TEST_GENERATE LOGGER")
+logger.setLevel(logging.INFO)
+
 
 def setupArgs():
     parser = argparse.ArgumentParser(prog="testdata_gen")
@@ -34,7 +37,7 @@ def setupArgs():
 
 def generate_versioned_data_parallel(args):
     num_processors = mp.cpu_count()
-    logging.info(
+    logger.info(
         "Test data generation: %s processors for %s plans",
         num_processors,
         len(args.icu_versions),
@@ -55,13 +58,13 @@ def generate_versioned_data(version_info):
     args = version_info["args"]
     icu_version = version_info["icu_version"]
 
-    logging.info(
+    logger.info(
         "Generating .json files for data driven testing. ICU_VERSION requested = %s",
         icu_version,
     )
 
     if len(args.test_types) < len(TestType):
-        logging.info("(Only generating %s)", ", ".join(args.test_types))
+        logger.info("(Only generating %s)", ", ".join(args.test_types))
 
     if TestType.COLLATION_SHORT in args.test_types:
         # This is slow
@@ -86,10 +89,10 @@ def generate_versioned_data(version_info):
         # lang names generator.
         generator = LocaleNamesGenerator(icu_version, args.run_limit)
         if not generator:
-            logging.info('lang generated from old LangNames data in %s', icu_version)
+            logger.info('lang generated from old LangNames data in %s', icu_version)
             generator = LangNamesGenerator(icu_version, args.run_limit)
         else:
-            logging.info('lang generated from new LocaleNames data in %s', icu_version)
+            logger.info('lang generated from new LocaleNames data in %s', icu_version)
         if generator:
             generator.process_test_data()
 
@@ -114,14 +117,11 @@ def generate_versioned_data(version_info):
         # This is slow
         generator = PluralGenerator(icu_version, args.run_limit)
         generator.process_test_data()
-    logging.info("++++ Data generation for %s is complete.", icu_version)
+    logger.info("++++ Data generation for %s is complete.", icu_version)
 
 
 def main():
     new_args = setupArgs()
-
-    logger = logging.Logger("TEST_GENERATE LOGGER")
-    logger.setLevel(logging.INFO)
 
     # Generate version data in parallel if possible
     generate_versioned_data_parallel(new_args)
