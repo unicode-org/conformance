@@ -1,4 +1,4 @@
-# Unicode & CLDR Cofnrmact Testing
+# Unicode & CLDR Conformance Testing
 
 This repository provides tools and procedures for verifying that an
 implementation is working correctly according to the data-based
@@ -6,9 +6,15 @@ specifications. The tests are implemented on several platforms including NodeJS
 (JavaScript), ICU4X (RUST), ICU4C, etc. Additional programming platforms may be
 added to use the test driver framework.
 
-The goal of this work is an easy-to-use framework for verifying that an
-implementation of ICU functions agrees with the required behavior. When a DDT
+One goal of this work is an easy-to-use framework for verifying that an
+implementation of ICU functions agrees with the required behavior. When a DDTupdate_README
 tet passes, it a strong indication that output is consistent across platforms.
+
+A second goal is to find issues in particular implementations of ICU
+functions. This is facilitated by generating data from CLDR (in most cases) or
+other trused sources. By highlighting differt results than expected,
+implementation errors can be highlighted in ways that unit testing in each
+platform cannot easily detect.
 
 **Conformance Testing** is also known as **Data Driven Test (DDT)**. It focuses
 on functions that accept data input such as numbers, date/time data, and other
@@ -16,12 +22,12 @@ basic information. The specifications indicate the expected output from
 implementations when given the data and argument settings for each of the many
 individual data items.
 
-Note that these tests are only part of the testing required for ICU-compliant
-libraries. Many additional tests are implemented in the
+Note that these tests are only one part of the testing required for
+ICU-compliant libraries. Many additional tests are implemented in the
 
 * !!! TODO: reference to data specifications
 
-# Components of Data Driven Test
+#  The big pieces of Conformance Testing
 
 ## ICU versions for data and testing
 
@@ -35,7 +41,9 @@ executor or both
 
 Each part of Data Driven Testing is designed to handle a specific ICU version.
 
-* Data generation uses specifications starting with ICU versions 70, 71, etc. For each ICU release, these data should be updated.
+* Data generation uses specifications starting with ICU versions 70, 71,
+  etc. For each ICU release, these data should be updated. Also, test
+  configurations should be updated with each ICU release.
 
 * Test execution allows setting the data version explicitly with a command line
   argument --icuversion that points to the indicated test data. The ICU version
@@ -46,6 +54,24 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
 * Test verification uses ICU version information in the test output files for
   matching with the corresponding expected results. Verification output appears
   in the testResults subdirectory for each node, e.g. testOutput/rust/icu71.
+  
+* Schema checking uses explict descriptions of the data to be generated and used
+in Conformance Testing. These include formats for test data, verification data,
+and test output files.
+
+### Terminology for Conformance Testing
+
+* **Platform: a library or softward that is executed to produce expected output
+  such as formatted text. Examples include ICU4C, ICU4X, and NodeJS.
+
+* **Component**: a type of test such as collation, list format, or plural
+  rules. Each platform may implement test for one or more compoenets.
+
+* **Version: ICU and CLDR are released periodically with updated data and new
+  capabilities. ICU version are two digit numbers with optional fractilan part,
+  e.g., ICU76 or CLDR76. A platform usually is implemented withusing multiple
+  ICU versions.
+
 
 ## Architectural Overview
 
@@ -91,7 +117,8 @@ Some setup is requirel to run Data Driven Testing code locally:
         sudo apt-get install python-jsonschema
         ```
 
-Note: Setting up Python modules or other software may be better done using a virtual environment such as using `pip env` for installation.
+Note: Setting up Python modules or other software may be better done using a
+virtual environment such as using `pip env` for installation.
 
 - Install the minimum version supported by ICU4X
     * The latest minimum supported supported Rust version ("MSRV") can be found in the
@@ -109,10 +136,11 @@ Note: Setting up Python modules or other software may be better done using a vir
       sudo apt-get install logrotate
       ```
 
-### Running the end-to-end process
+### Running End-To-End on a local computer
 
-Running conformance is easy. Simply execute the script that generates data, then
-runs executors, then runs the verifier, creating the dashboard.
+Running conformance is easy. Simply execute the script that first generates
+data, runs executors, checks data against schema, and then runs the verifier,
+creating the dashboard.
 
 The standard script runs all components on all platforms with all ICU
 version. Note that this takes a few minutes.
@@ -129,26 +157,27 @@ bash genData100.sh
 which does the same thing much faster, resulting in the directory TEMP_DATA_100.
 
 ### Viewing conformance results in a browser
-HTML output is found in the subdirectory testReports. To visualize this on your computer, start a webserver. For example:
+HTML output is found in the subdirectory testReports. To visualize this on your
+computer, start a webserver. For example:
 
 ``
 python3 -m http.server 9000 &
 ``
 
-Then open the file testResults/index.html under the testReports folder in either TEMP_DATA or TEMP_DATA_100 or in a custom folder.
+Then open the file testResults/index.html under the testReports folder in either
+TEMP_DATA or TEMP_DATA_100 or in a custom folder.
 
 
 ### How this works
 
 Two main pieces are used to create conformance output:
-* run_config.json which describes the platoforms and components to be executed
-* .sh files that run all the steps of conformance testing. This file extracts configurations from run_config
+* run_config.json which describes the platforms and components to be executed
+* .sh files that run all the steps of conformance testing. This file extracts
+  configurations from run_config
 
-#### run_config.json
+*run_config.json* file is read by the execution scripts such as *generateDataAndRun.sh*
 
-This file is referenced by the execution scripts.
-
-The bash scripts do several things in sequence:
+The bash scripts perform several steps in sequence:
 
 1. Set up ICU4C versions that will be used as platforms
 
@@ -175,10 +204,13 @@ The bash scripts do several things in sequence:
 
 ### Running individual executors and debugging
 
-Running all of the steps above may not be needed for development and debugging. To facilitate quicker coding and testing, it may be useful to:
+Running  all  of  the  steps  above  may  not  be  needed  for  development  and
+debugging. To facilitate quicker coding and testing, it may be useful to:
 
 
-The file run_config.json is simply a list of configuration information for running selected versions of a platform with selected test types (components). Here's an entry for ICU4C in version 76 that runs 7 components:
+The file run_config.json is simply a list of configuration information for
+running selected versions of a platform with selected test types
+(components). Here's an entry for ICU4C in version 76 that runs 7 components:
 
 ````
 [
@@ -231,21 +263,26 @@ environment, e.g.:
 bash my_custom_script.sh
 ````
 
-Then point the browser to `index.html` in the custom output folder in order to view the summary and detail pages.
+Then point the browser to `index.html` in the custom output folder in order to
+view the summary and detail pages.
 
 ### Notes on finding errors
 
-As each part of Conformance Test is executed, log files are created with the output of each phase. These are called debug.log, debug.log.1, etc.
+As each part of Conformance Test is executed, log files are created with the
+output of each phase. These are called debug.log, debug.log.1, etc.
 
-These debug files are updated on each execution of the scripts in each of these subdirectories:
+These debug files are updated on each execution of the scripts in each of these
+subdirectories:
 * testgen
 * testdriver
 * schema
 * verifier
 
-It is useful to review the latest debug.log file for each phase in order to identify errors in execution, warning messages, and possible failures.
+It is useful to review the latest debug.log file for each phase in order to
+identify errors in execution, warning messages, and possible failures.
 
-Note that the log rotation automatically maintains recent history in each subdirectory listed above.
+Note that the log rotation automatically maintains recent history in each
+subdirectory listed above.
 
 ## Data generation
 
@@ -337,7 +374,8 @@ Schema validation is performed at these times in standard processing:
 
 Top level directory `schema` contains the following:
 
-* One subdirectory for each component such as "collation". This contains schema .json files for generated tests, expected results, and test output structure.
+* One subdirectory for each component such as "collation". This contains schema
+  .json files for generated tests, expected results, and test output structure.
 
 * Python routines for checking these types of data.
 
@@ -477,7 +515,8 @@ requests for recent ICU updates:
 
 ### ICU4C updates
 
-These are usually the first changes to be made because ICU4C includes both code and test data updates for many components.
+These are usually the first changes to be made because ICU4C includes both code
+and test data updates for many components.
 
 1. Test Driver:
 * Add new ICU version data in several places in testdriver/datasets.py
@@ -485,9 +524,10 @@ These are usually the first changes to be made because ICU4C includes both code 
 2. testgen:
 * Add a new directory for the icu version under testgen, e.g., icu76
 
-* In this directory, copy test data from sources including icu4c/source. Thes files includ collation tests, number format data, and others.
+* In this directory, copy test data from sources including icu4c/source. Thes
+  files includ collation tests, number format data, and others.
 
-!!! Add details on the sources.
+!!! TODO: Add details on the sources.
 
 * Add new CLDR test data generated from CLDR sources (!!! details !!!)
 
@@ -515,9 +555,12 @@ In this file, add new Enum values to variables:
 * NodeICUVersionMap
 
 #### Update run_config.json
-Add the new NodeJS version to the run configurations. This includes the command to install and use the latest NodeJS versions. Here's the new entry for ICU76.1 in NodeJS 23.3.0.
+Add the new NodeJS version to the run configurations. This includes the command
+to install and use the latest NodeJS versions. Here's the new entry for ICU76.1
+in NodeJS 23.3.0.
 
-Be sure to add the new version number in both the `nvm install` and `nvm use` parts of `command`.
+Be sure to add the new version number in both the `nvm install` and `nvm use`
+parts of `command`.
 
 Also, include all the tests to be run with this version of NodeJS.
 
@@ -558,9 +601,9 @@ Updates to this file are straightforward.
 ### Update ICU4X / Rust to new ICU version
 
 ** TBD **
-`
 
-ICU4X is actively updating APIs in each new version. ICU4X releases are not closely coordinated with ICU versions.
+ICU4X is actively updating APIs in each new version. ICU4X releases are not
+closely coordinated with ICU versions.
 
 Adding a new ICU4X version after 1.4 may require significant changes to existing
 #### run_config.json additions for ICU4X
@@ -573,20 +616,30 @@ Updates to this file are straightforward.
 
 
 #### Test generator updates
-Note that two types of test data are currently generated by NodeJS functions:
-* list format
-* relative date time format
+Expected values for tests are obtained from several places:
 
-Because of this, ICU version updated tests for these two components cannot be run before adding a version of NodeJS that includes the new ICU version.
+* the preferred sources are generated directly from CLDR data, not mediated by
+  ICU libraries. These test files are generated by programs run wining the CLDR
+  directories and are updated with each CLDR reelease.
 
-When the new NodeJS is incorporated into DDT, add the new NodeJS reference to the list `icu_nvm_versions` in these files:
+* The second is test data used in ICU4C or ICU4J testing. For example, ICU4C
+  includes 3 test files for collation that are then used by all platforms.
+
+* Two types of test data are currently generated by NodeJS functions:
+  * list format
+  * relative date time format
+
+Because of this, ICU version updated tests for these two components cannot be
+run before adding a version of NodeJS that includes the new ICU version.
+
+When the new NodeJS is incorporated into DDT, add the new NodeJS reference to
+the list `icu_nvm_versions` in these files:
 
 * testgen/generators/list_fmt.py
 * testgen/generators/relativedatetime_fmt.py
 
 
 ## Adding New Test Types / Components
-
 ICU supports a wide range of formatting and other functions. Many are candidates
 for Cornformance Testing. Although each has specific needs for testing, this
 section presents an overview on adding new test types.
@@ -600,7 +653,9 @@ Also, see [ICU4J and relative date time format
 PR#262](https://github.com/unicode-org/conformance/pull/262/files) for
 details of adding a component to the ICU4J platform.
 
-Note also that the above PR added an [executor file for the Rust / ICU4X](https://github.com/unicode-org/conformance/pull/262/files#diff-f2bce2a303cd07f48c087c798a457ff78eeefbde853adb6a8c331f35b1b5571d) version or relative date time format.
+Note also that the above PR added an [executor file for the Rust /
+ICU4X](https://github.com/unicode-org/conformance/pull/262/files#diff-f2bce2a303cd07f48c087c798a457ff78eeefbde853adb6a8c331f35b1b5571d)
+version or relative date time format.
 
 These are the main parts needed to add a component:
 
@@ -650,7 +705,8 @@ As additional test platforms and libraries support all or part of the ICU / CLDR
 functions, including them in Conformance Testing will show the degree of
 compatibility of actual execution.
 
-See [Add Dart to executors PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
+See [Add Dart to executors
+PR#65](https://github.com/unicode-org/conformance/pull/65) for an example.
 
 See also the
 [Rust executor for ICU4x 1.3 in PR#108](https://github.com/unicode-org/conformance/pull/108)
@@ -678,19 +734,23 @@ Adding a new platform involves several changes to the DDT system:
 * Update testdriver/datasets.py to include the new executor platform.
 
 
-Note: it is very helpful to include sets of tests for the new platform for each supported component. The ICU4J model with Intellij is a good example.
+Note: it is very helpful to include sets of tests for the new platform for each
+supported component. The ICU4J model with Intellij is a good example.
 
-Make sure that your new executor can be run from a debugging environment or from the command line. This should be done before adding it to the test drive.
+Make sure that your new executor can be run from a debugging environment or from
+the command line. This should be done before adding it to the test drive.
 
-* Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
+* Add information to run_config.json to add the new platform and its supported
+  components into the DDT workflow.
 
 
 ** TDB **
 
-See [Add Dart to executors PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
+See [Add Dart to executors
+PR#65](https://github.com/unicode-org/conformance/pull/65) for am example.
 
-See also the
-[Rust executor for ICU4x 1.3 in PR#108](https://github.com/unicode-org/conformance/pull/108)
+See also the [Rust executor for ICU4x 1.3 in
+PR#108](https://github.com/unicode-org/conformance/pull/108)
 
 Adding a new platform involves several changes to the DDT system:
 * Change the workflow to reference the new platform
@@ -715,11 +775,14 @@ Adding a new platform involves several changes to the DDT system:
 * Update testdriver/datasets.py to include the new executor platform.
 
 
-Note: it is very helpful to include sets of tests for the new platform for each supported component. The ICU4J model with Intellij is a good example.
+Note: it is very helpful to include sets of tests for the new platform for each
+supported component. The ICU4J model with Intellij is a good example.
 
-Make sure that your new executor can be run from a debugging environment or from the command line. This should be done before adding it to the test drive.
+Make sure that your new executor can be run from a debugging environment or from
+the command line. This should be done before adding it to the test drive.
 
-* Add information to run_config.json to add the new platform and its supported components into the DDT workflow.
+* Add information to run_config.json to add the new platform and its supported
+  components into the DDT workflow.
 
 
 
@@ -730,7 +793,8 @@ describing tests and parameters. The data directory created contains the followi
 
 ## Directory **testData**:
 
-Test generation creates the test and verify data files for each version of ICU in .json format:
+Test generation creates the test and verify data files for each version of ICU
+in .json format:
 
   * A test data file for each type of test. Each contains a list of labeled
   tests with parameters, options, and input values for computing output
@@ -864,13 +928,17 @@ toplevel/testOutput/icu4j/icu76
 ````
 
 ## Directory `testReports`
-This directory stores summary results from verifying the tests performed by each executor. Included in the `testReports` directory are:
+This directory stores summary results from verifying the tests performed by each
+executor. Included in the `testReports` directory are:
 
-* `index.html`: shows all tests run and verified for all executors and versions. Requires a webserver to display this properly.
+* `index.html`: shows all tests run and verified for all executors and
+  versions. Requires a webserver to display this properly.
 
-* `exec_summary.json`: contains summarized results for each pair (executor, icu version) in a graphical form. Contains links to details for each test pair.
+* `exec_summary.json`: contains summarized results for each pair (executor, icu
+  version) in a graphical form. Contains links to details for each test pair.
 
-* subdirectory for each executor, each containing verification of the tested icu versions, e.g., `node/`, `rust/`, etc.
+* subdirectory for each executor, each containing verification of the tested icu
+  versions, e.g., `node/`, `rust/`, etc.
 
 Under each executor, one or more ICU version files are created, each containing:
 
@@ -883,7 +951,8 @@ Under each executor, one or more ICU version files are created, each containing:
 * `test_errors.json` - list of test cases where the executor reported an error
 * `unsupported.json` - list of test cases that are not expected to be supported in this version
 
-The `verifier_test_report.json` file contains information on tests run and comparison with the expected results. At a minimum, each report contains:
+The `verifier_test_report.json` file contains information on tests run and
+comparison with the expected results. At a minimum, each report contains:
 
 * The executor and test type
 * Date and time of the test
@@ -892,8 +961,8 @@ The `verifier_test_report.json` file contains information on tests run and compa
 * Total number of tests failing
 * Total number of tests succeeding
 * Number of exceptions identified in the test execution. This may include
-  information on tests that could not be executed, along with the reasons
-  for the problems.
+  information on tests that could not be executed, along with the reasons for
+  the problems.
 * Analysis of test failures, if available. This may include summaries of string
   differences such as missing or extra characters or substitutions found in
   output data.
@@ -929,8 +998,12 @@ package was delivered in October, 2022.
 
 ### Copyright & Licenses
 
-Copyright © 2022-2024 Unicode, Inc. Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the United States and other countries.
+Copyright © 2022-2024 Unicode, Inc. Unicode and the Unicode Logo are registered
+trademarks of Unicode, Inc. in the United States and other countries.
 
-A CLA is required to contribute to this project - please refer to the [CONTRIBUTING.md](https://github.com/unicode-org/.github/blob/main/.github/CONTRIBUTING.md) file (or start a Pull Request) for more information.
+A CLA is required to contribute to this project - please refer to the
+[CONTRIBUTING.md](https://github.com/unicode-org/.github/blob/main/.github/CONTRIBUTING.md)
+file (or start a Pull Request) for more information.
 
-The contents of this repository are governed by the Unicode [Terms of Use](https://www.unicode.org/copyright.html) and are released under [LICENSE](./LICENSE).
+The contents of this repository are governed by the Unicode [Terms of
+Use](https://www.unicode.org/copyright.html) and are released under [LICENSE](./LICENSE).
