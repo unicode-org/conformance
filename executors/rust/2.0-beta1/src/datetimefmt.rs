@@ -2,24 +2,16 @@
 // https://docs.rs/icu/1.3.2/icu/datetime/input/trait.TimeZoneInput.html
 // https://docs.rs/ixdtf/latest/ixdtf/
 
-use icu::calendar::DateTime;
-use icu::datetime::{
-    options::components, options::length, options::DateTimeFormatterOptions, pattern::reference,
-    pattern::runtime, ZonedDateTimeFormatter,
-};
+use icu::datetime::fieldsets::enums::*;
+use icu::datetime::fieldsets;
+use icu::datetime::DateTimeFormatterPreferences;
+use icu::datetime::DateTimeFormatter;
 
 use icu::locale::Locale;
+use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
+use icu::locale::extensions::unicode;
 
-// https://docs.rs/icu/latest/icu/timezone/struct.CustomTimeZone.html#method.maybe_calculate_metazone
-use icu::timezone::CustomTimeZone;
-use icu::timezone::GmtOffset;
-use icu::timezone::MetazoneCalculator;
-
-use icu_provider::DataLocale;
-
-use icu::timezone::IanaToBcp47Mapper;
-
-use ixdtf::parsers::IxdtfParser;
+use icu::timezone::IxdtfParser;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -54,142 +46,87 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
-    // Get calendar. If present, add to locale string
-    // as "-u-ca-" + calendar name.
-    let calendar_str = &option_struct.calendar;
+    let calendar_algorithm = option_struct.calendar.as_ref().map(|calendar_str| {
+        CalendarAlgorithm::try_from(&unicode::Value::try_from_str(calendar_str).unwrap()).unwrap()
+    });
 
-    let locale_json_str: &str = json_obj["locale"].as_str().unwrap();
-    let mut locale_str: String = locale_json_str.to_string();
-    // ??? Is calendar necessary with the u-ca option in ISO string?
-    if calendar_str.is_some() {
-        locale_str = locale_json_str.to_string() + "-u-ca-" + &calendar_str.as_ref().unwrap();
-    }
+    let locale = json_obj["locale"].as_str().unwrap().parse::<Locale>().unwrap();
+    let mut preferences = DateTimeFormatterPreferences::from(&locale);
+    preferences.calendar_algorithm = calendar_algorithm;
 
-    let lang_id = if let Ok(lc) = locale_str.parse::<Locale>() {
-        lc
-    } else {
-        return Ok(json!({
-            "label": label,
-            "error_detail": {"option": locale_str},
-            "error_type": "locale problem",
-        }));
-    };
-    let data_locale = DataLocale::from(lang_id);
-
-    let mut _unsupported_options: Vec<&str> = Vec::new();
-
-    let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
-
-    let date_style_str = &option_struct.date_style;
-    let date_style = match date_style_str.as_deref() {
-        Some("full") => Some(length::Date::Full),
-        Some("long") => Some(length::Date::Long),
-        Some("medium") => Some(length::Date::Medium),
-        Some("short") => Some(length::Date::Short),
-        _ => None,
-    };
-
-    // TimeStyle long or full requires that you use ZonedDateTimeFormatter.
-    // long known issue that is documented and has been filed several times.
-    // Is fixed in 2.0
-    let time_style_str = &option_struct.time_style;
-    let time_style = match time_style_str.as_deref() {
-        Some("full") => Some(length::Time::Full),
-        Some("long") => Some(length::Time::Long),
-        Some("medium") => Some(length::Time::Medium),
-        Some("short") => Some(length::Time::Short),
-        _ => None,
-    };
-
-    // Set up DT option if either is set
-    let mut dt_length_options = length::Bag::empty();
-    dt_length_options.date = date_style;
-    dt_length_options.time = time_style;
-
-    let dt_options = if dt_length_options != length::Bag::empty() {
-        DateTimeFormatterOptions::Length(dt_length_options)
-    } else {
-        // For versions 1.X, but not in 2.X.
-        // This is using an interal feature.
-        let skeleton_str = &json_obj["skeleton"].as_str().unwrap();
-        let parsed_skeleton = skeleton_str.parse::<reference::Pattern>().unwrap();
-        let mut components_bag = components::Bag::from(&runtime::PatternPlurals::SinglePattern(
-            runtime::Pattern::from(&parsed_skeleton),
-        ));
-
-        let option_struct: DateTimeFormatOptions =
-            serde_json::from_str(&options.to_string()).unwrap();
-
-        components_bag.hour = match option_struct.hour.as_deref() {
-            Some("numeric") => Some(components::Numeric::Numeric),
-            Some("2-digit") => Some(components::Numeric::TwoDigit),
-            _ => None,
-        };
-        DateTimeFormatterOptions::Components(components_bag)
+    let field_set = match (
+        option_struct.date_style.as_deref(),
+        option_struct.time_style.as_deref(),
+    ) {
+        (Some(date_style), Some(time_style)) => {
+            use DateAndTimeFieldSet as Enum;
+            use CompositeFieldSet::DateTime as DateTime;
+            use CompositeFieldSet::DateTimeZone as DateTimeZone;
+            use fieldsets::*;
+            match (date_style, time_style) {
+                ("full", "full") => DateTimeZone(Enum::YMDET(YMDET::long()), ZoneStyle::Z),
+                ("full", "long") => DateTimeZone(Enum::YMDET(YMDET::long()), ZoneStyle::Z),
+                ("full", "medium") => DateTime(Enum::YMDET(YMDET::long())),
+                ("full", "short") => DateTime(Enum::YMDET(YMDET::long().hm())),
+                ("long", "full") => DateTimeZone(Enum::YMDT(YMDT::long()), ZoneStyle::Z),
+                ("long", "long") => DateTimeZone(Enum::YMDT(YMDT::long()), ZoneStyle::Z),
+                ("long", "medium") => DateTime(Enum::YMDT(YMDT::long())),
+                ("long", "short") => DateTime(Enum::YMDT(YMDT::long().hm())),
+                ("medium", "full") => DateTimeZone(Enum::YMDT(YMDT::medium()), ZoneStyle::Z),
+                ("medium", "long") => DateTimeZone(Enum::YMDT(YMDT::medium()), ZoneStyle::Z),
+                ("medium", "medium") => DateTime(Enum::YMDT(YMDT::medium())),
+                ("medium", "short") => DateTime(Enum::YMDT(YMDT::medium().hm())),
+                ("short", "full") => DateTimeZone(Enum::YMDT(YMDT::short()), ZoneStyle::Z),
+                ("short", "long") => DateTimeZone(Enum::YMDT(YMDT::short()), ZoneStyle::Z),
+                ("short", "medium") => DateTime(Enum::YMDT(YMDT::short())),
+                ("short", "short") => DateTime(Enum::YMDT(YMDT::short().hm())),
+                (date_style, time_style) => panic!("unknown date/time style: {date_style}, {time_style}"),
+            }
+        }
+        (Some(date_style), None) => {
+            use DateFieldSet as Enum;
+            use CompositeFieldSet as Comp;
+            match date_style {
+                "full" => Comp::Date(Enum::YMDE(fieldsets::YMDE::long())),
+                "long" => Comp::Date(Enum::YMD(fieldsets::YMD::long())),
+                "medium" => Comp::Date(Enum::YMD(fieldsets::YMD::medium())),
+                "short" => Comp::Date(Enum::YMD(fieldsets::YMD::short())),
+                time_style => panic!("unknown time style: {time_style}"),
+            }
+        },
+        (None, Some(time_style)) => {
+            use TimeFieldSet as Enum;
+            use CompositeFieldSet as Comp;
+            match time_style {
+                "full" => Comp::TimeZone(Enum::T(fieldsets::T::long()), ZoneStyle::Z),
+                "long" => Comp::TimeZone(Enum::T(fieldsets::T::long()), ZoneStyle::Z),
+                "medium" => Comp::Time(Enum::T(fieldsets::T::medium())),
+                "short" => Comp::Time(Enum::T(fieldsets::T::short())),
+                date_style => panic!("unknown date style: {date_style}"),
+            }
+        },
+        (None, None) => {
+            // Components bag.
+            // The test cases only use semantic skeletons, so we can match on them here.
+            match json_obj["skeleton"].as_str().unwrap() {
+                other => panic!("unknown skeleton: {other}")
+            }
+        },
     };
 
     // Get ISO instant in UTC time zone
-    let input_iso = &json_obj["input_string"].as_str().unwrap();
+    let input_iso = &json_obj["original_input"].as_str().unwrap();
 
-    let dt_iso = IxdtfParser::new(input_iso).parse().unwrap();
-    let date = dt_iso.date.unwrap();
-    let time = dt_iso.time.unwrap();
-
-    // Compute the seconds for the timezone's offset
-    let offset_seconds: i32 = json_obj["tz_offset_secs"]
-        .as_i64()
-        .unwrap()
-        .try_into()
-        .unwrap();
-
-    let gmt_offset_seconds = GmtOffset::try_from_offset_seconds(offset_seconds).ok();
-
-    let mut datetime_iso = DateTime::try_new_iso_datetime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-        0, // Seconds added below.
-    )
-    .expect("Failed to initialize ISO DateTime instance.");
-    let mut dt_integer_minutes = datetime_iso.minutes_since_local_unix_epoch();
-    dt_integer_minutes += offset_seconds / 60;
-
-    datetime_iso = DateTime::from_minutes_since_local_unix_epoch(dt_integer_minutes);
-    datetime_iso.time.second = time.second.try_into().unwrap();
-
-    let any_datetime = datetime_iso.to_any();
-
-    // Testing with a default timezone
-    let timezone_str = &option_struct.time_zone;
-
-    // https://docs.rs/icu/latest/icu/timezone/struct.IanaToBcp47Mapper.html
-    let mapper = IanaToBcp47Mapper::new();
-    let mapper_borrowed = mapper.as_borrowed();
-
-    let mapped_tz = mapper_borrowed.get(timezone_str.as_ref().unwrap());
-    let mzc = MetazoneCalculator::new();
-    let my_metazone_id = mzc.compute_metazone_from_time_zone(mapped_tz.unwrap(), &datetime_iso);
-
-    let time_zone = if timezone_str.is_some() {
-        CustomTimeZone {
-            gmt_offset: gmt_offset_seconds,
-            time_zone_id: mapped_tz,
-            metazone_id: my_metazone_id,
-            zone_variant: None,
-        }
-    } else {
-        // Defaults to UTC
-        CustomTimeZone::utc()
-    };
+    // Extract all the information we need from the string
+    let input_zoned_date_time = crate::try_or_return_error!(label, locale, {
+        IxdtfParser::new().try_from_str(&input_iso).map_err(|e| format!("{e:?}"))
+    });
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.
-    let dtf_result = ZonedDateTimeFormatter::try_new_experimental(
-        &data_locale,
-        dt_options.clone(),
-        Default::default(),
+    let dtf_result = DateTimeFormatter::try_new(
+        preferences,
+        field_set,
     );
 
     let datetime_formatter = match dtf_result {
@@ -204,14 +141,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     };
 
     let formatted_dt = datetime_formatter
-        .format(&any_datetime, &time_zone)
-        .expect("should work");
+        .format_any_calendar(&input_zoned_date_time);
     let result_string = formatted_dt.to_string();
 
     Ok(json!({
         "label": label,
         "result": result_string,
         "actual_options":
-        format!("{dt_options:?}, {time_zone:?}"),
+        format!("{field_set:?}, {input_zoned_date_time:?}"),
     }))
 }
