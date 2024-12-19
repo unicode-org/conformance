@@ -4,23 +4,50 @@ module.exports = {
 
   testLocaleDisplayNames: function (json) {
     let locale = 'en';  // Default
-    let options = {};
     if (json['locale_label']) {
       // Fix to use dash, not underscore.
       locale = json['locale_label'].replace(/_/g, '-');
     }
 
-    // options = json['options'];
-    options = {type: 'language', languageDisplay: 'standard'};
+    // Standard for this type of testing.
+    let options = {type: 'language',
+                   languageDisplay: 'standard',
+                   style: 'long'};
+
     let label = json['label'];
     let input = json['language_label'].replace(/_/g, '-');
+    let outputLine = {
+      "label": json['label'],
+      "locale_label": locale,
+      "language_label": input,
+    };
 
-    if (json['languageDisplay']) {
-      // Fix to use dash, not underscore.
-      options['languageDisplay'] = json['languageDisplay'];
+    try {
+      const supported_locales =
+            Intl.DisplayNames.supportedLocalesOf([locale]);
+    } catch (error) {
+      // Something wrong with the locale for this
+      outputLine["error_detail"] = locale
+      outputLine["error_type"] = 'unsupported locale';
+      outputLine["unsupported"] = error.toString();
+      return outputLine;
     }
 
-    let outputLine;
+    // Check the language to be formatted
+    try {
+      let language_label_locale = new Intl.Locale(input);
+    } catch (error) {
+      // Something wrong with the locale for this
+      outputLine["error_detail"] = input;
+      outputLine["error_type"] = 'Problem with language label';
+      outputLine["unsupported"] = error.toString();
+      outputLine["actual_options"] = JSON.stringify(options);
+      return outputLine;
+    }
+
+    if (json['languageDisplay']) {
+      options['languageDisplay'] = json['languageDisplay'];
+    }
 
     let dn;
     try {
@@ -28,10 +55,7 @@ module.exports = {
     } catch (error) {
       outputLine = {
         "error": error.toString(),
-        "label": json['label'],
         "locale_label": locale,
-        "language_label": input,
-        "test_type": "display_names",
         "error_detail": "Bad constructor for locale: " + locale + ' ' + options,
         "error_retry": false  // Do not repeat
       };
@@ -39,6 +63,8 @@ module.exports = {
         // The locale can't be handled for some reason!
         outputLine["error_type"] = 'unsupported';
         outputLine["unsupported"] = error.toString();
+        outputLine["error_detail"] = locale;
+        outputLine["actual_options"] = JSON.stringify(options);
       }
       return outputLine;
     }
@@ -55,16 +81,11 @@ module.exports = {
                     "locale_label": locale,
                     "language_label": input,
                     "result": resultString,
-                    "error": error.toString(),
-                    "error_detail": "Bad input language: " + input,
-                    "actual_options": options.toString()
+                    "error_type": 'unsupported',
+                    "unsupported": error.toString(),
+                    "error_detail": input,
+                    "actual_options": JSON.stringify(options)
                    };
-      outputLine["error_type"] = 'unsupported';
-      outputLine["unsupported"] = error_string;
-      if (error instanceof RangeError) {
-        // The locale can't be handled for some reason!
-        outputLine["error_detail"] = 'unsupported locale';
-      }
     }
     return outputLine;
   }
