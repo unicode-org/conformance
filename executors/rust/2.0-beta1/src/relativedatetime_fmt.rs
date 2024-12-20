@@ -3,18 +3,15 @@
 
 use fixed_decimal::FixedDecimal;
 
-use icu::locid::extensions::unicode;
-use icu::locid::extensions::unicode::key;
-use icu::locid::Locale;
+use icu::locale::extensions::unicode;
+use icu::locale::extensions::unicode::key;
+use icu::locale::Locale;
+use icu_provider::DataError;
 
 use std::str::FromStr;
 
-use icu_provider::DataLocale;
-
-use crate::icu::relativetime::options::Numeric;
-use crate::icu::relativetime::{
-    RelativeTimeError, RelativeTimeFormatter, RelativeTimeFormatterOptions,
-};
+use icu::experimental::relativetime::options::Numeric;
+use icu::experimental::relativetime::{RelativeTimeFormatter, RelativeTimeFormatterOptions};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -28,11 +25,12 @@ struct RelativeDateTimeFormatterOptions {
 }
 
 fn get_formatter_from_unit_style(
-    locale: &DataLocale,
+    locale: &Locale,
     unit: String,
     style: String,
     options: RelativeTimeFormatterOptions,
-) -> Result<RelativeTimeFormatter, RelativeTimeError> {
+) -> Result<RelativeTimeFormatter, DataError> {
+    let locale = locale.into();
     if unit == "year" {
         if style == "long" {
             RelativeTimeFormatter::try_new_long_year(locale, options)
@@ -153,13 +151,13 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
         }));
     };
 
-    let mut data_locale = DataLocale::from(locale_id);
+    let mut locale = Locale::from(locale_id);
 
     if numbering_system_str.is_some() {
         let numbering_system: &String = numbering_system_str.as_ref().unwrap();
 
         // Set up the numbering system in the locale.
-        data_locale.set_unicode_ext(
+        locale.extensions.unicode.keywords.set(
             key!("nu"),
             unicode::Value::from_str(numbering_system).unwrap(),
         );
@@ -171,7 +169,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
             return Ok(json!({
                 "error": "Number system not supported",
                 "error_msg": numbering_system,
-                "error_detail": {"locale": format!("{data_locale:?}")},
+                "error_detail": {"locale": format!("{locale:?}")},
                 "label": label,
                 "unsupported": "non-Latn numbering system",
             }));
@@ -204,7 +202,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
 
     // Use unit & style to select the correct constructor.
     let relative_time_formatter =
-        get_formatter_from_unit_style(&data_locale, unit.to_string(), style.to_string(), options);
+        get_formatter_from_unit_style(&locale, unit.to_string(), style.to_string(), options);
 
     let formatter = match relative_time_formatter {
         Ok(formatter) => formatter,
@@ -222,6 +220,6 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     Ok(json!({
         "label": label,
         "result": result_string,
-        "actual_options": format!("{data_locale:?}"),
+        "actual_options": format!("{locale:?}"),
     }))
 }

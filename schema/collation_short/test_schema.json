@@ -84,7 +84,7 @@
             "description": "indicates how case should be considered",
             "type": "string"
           },
-          "case_level": {
+          "caseLevel": {
             "description": "indicates the level  case should be considered",
             "type": "string"
           },

@@ -13,9 +13,11 @@
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
+        "list_fmt",
         "message_fmt2",
         "number_fmt",
-        "plural_rules"
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -32,10 +34,12 @@
       "test_type": [
         "collation_short",
         "datetime_fmt",
+        "lang_names",
         "likely_subtags",
         "list_fmt",
         "number_fmt",
-        "plural_rules"
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -52,6 +56,7 @@
       "test_type": [
         "collation_short",
         "datetime_fmt",
+        "lang_names",
         "likely_subtags",
         "list_fmt",
         "number_fmt",
@@ -337,6 +342,50 @@
     },
     "run": {
       "icu_version": "icu74",
+      "exec": "rust",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "rust1.5",
+      "version": "1.5",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/1.5/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "rust",
+      "test_type": [
+        "collation_short",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "rust2.0-beta1",
+      "version": "2.0-beta1",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/2.0-beta1/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu76",
       "exec": "rust",
       "test_type": [
         "collation_short",

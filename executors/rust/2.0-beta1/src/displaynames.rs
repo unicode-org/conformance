@@ -2,8 +2,8 @@
 
 use serde_json::{json, Value};
 
-use crate::icu::displaynames::*;
-use icu::locid::Locale;
+use icu::experimental::displaynames::*;
+use icu::locale::Locale;
 
 // Function runs comparison using displaynames
 pub fn _todo(json_obj: &Value) -> Result<Value, String> {
@@ -18,7 +18,7 @@ pub fn _todo(json_obj: &Value) -> Result<Value, String> {
         .unwrap_or_default();
 
     let displaynames =
-        LocaleDisplayNamesFormatter::try_new(&langid.into(), Default::default()).unwrap();
+        LocaleDisplayNamesFormatter::try_new(langid.into(), Default::default()).unwrap();
 
     Ok(json!({
         "label": label,
