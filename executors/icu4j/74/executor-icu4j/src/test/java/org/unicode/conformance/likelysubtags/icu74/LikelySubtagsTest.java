@@ -30,4 +30,13 @@ public class LikelySubtagsTest {
     assertEquals("fr-Latn-FR", output.result);
   }
 
+  @Test
+  public void testFailQaa() {
+    String testInput =
+        "{\"test_type\": \"likely_subtags\", \"label\":\"2412\",\"locale\":\"qaa\",\"option\":\"maximize\",\"hexhash\":\"0135bf6b9b2e3fb98d451d5476a7969c2d3332a4\"}";
+    LikelySubtagsOutputJson output =
+        (LikelySubtagsOutputJson) LikelySubtagsTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertEquals("FAIL", output.result);
+  }
 }

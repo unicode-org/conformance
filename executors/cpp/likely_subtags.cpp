@@ -50,6 +50,19 @@ string TestLikelySubtags(json_object *json_in) {
   string name_string;
   StringByteSink<string> byteSink(&name_string);
 
+  // Check for special case of reserved codes for local use
+  const char* lang_code = displayLocale.getLanguage();
+  const string lang_code_string(lang_code);
+  if (lang_code_string >= "qaa" && lang_code_string <= "qtz") {
+    test_result = "FAIL";
+    // The output of the likely subtag operation.
+    json_object_object_add(
+        return_json,
+        "result",
+        json_object_new_string(test_result.c_str()));
+    return json_object_to_json_string(return_json);
+  }
+
   if (option_string == "maximize") {
     // This makes the maximized form
     Locale maximized(displayLocale);
@@ -91,10 +104,6 @@ string TestLikelySubtags(json_object *json_in) {
     bool favorScript = true;
     json_object_object_add(
         return_json,
-        "error",
-        json_object_new_string("unsupported option"));
-    json_object_object_add(
-        return_json,
         "error_type",
         json_object_new_string("unsupported"));
     json_object_object_add(
@@ -105,9 +114,9 @@ string TestLikelySubtags(json_object *json_in) {
         return_json,
         "error_detail",
         json_object_new_string("This ICU4C API is protected"));
-
     // This is a protected API in ICU4C.
     // displayLocale.minimizeSubtags(favorScript, status);
+    return json_object_to_json_string(return_json);
   } else {
     // An error in the call.
     json_object_object_add(

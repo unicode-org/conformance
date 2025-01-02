@@ -22,17 +22,24 @@ module.exports = {
       return return_json;
     }
 
+    // Handle special language tags
+    let lang = intl_locale.language;
+    if (lang >= "qaa" && lang <= "qtz") {
+      return_json['result'] = "FAIL";
+      return return_json;
+    }
+
     try {
       let result_locale;
       if (test_option === 'maximize') {
         result_locale = intl_locale.maximize().baseName;
-      } else if (test_option === 'minimizeFavorScript' ||
+      } else if (test_option === 'minimizeFavorRegion' ||
                  test_option === 'minimize') {
         result_locale = intl_locale.minimize().baseName;
-      } else if (test_option === 'minimizeFavorRegion') {
-        result_locale = intl_locale.minimizeFavorRegion().baseName;
       } else {
-        return_json['error'] = 'Unknown test option = ' + test_option;
+        return_json['error_detail'] = test_option;
+        return_json['error_type'] = 'unsupported';
+        return_json['unsupported'] = 'Unknown test option';
       }
       return_json['result'] = result_locale;
     } catch (error) {

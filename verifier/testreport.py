@@ -785,6 +785,9 @@ class TestReport:
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
+
+        # ?? replace word?
+
         for check in all_checks:
             results[check] = set()
 

@@ -37,8 +37,9 @@ public class LikelySubtagsTester implements ITestType {
     try {
       output.result = getLikelySubtagString(input);
     } catch (Exception e) {
-      output.error = e.getMessage();
-      output.error_message = e.getMessage();
+      output.error_type = "unsupported";
+      output.unsupported = e.getMessage();
+      output.error_detail = e.getMessage();
       return output;
     }
 
@@ -71,6 +72,11 @@ public class LikelySubtagsTester implements ITestType {
     ULocale locale = ULocale.forLanguageTag(localeID);
 
     LikelySubtagsTestOption option = input.option;
+
+    String lang_code = locale.getLanguage();
+    if ((lang_code.compareTo("qaa") >= 0) && (lang_code.compareTo("qtz") <= 0)) {
+      return "FAIL";  // This is an expected failure.
+    }
 
     switch (option) {
       case maximize:
