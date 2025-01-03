@@ -689,6 +689,7 @@ class TestReport:
                 'locale_label',
                 'locale',
                 'options',
+                'option',
                 'rules',
                 'test_description',
                 'unsupported_options',
