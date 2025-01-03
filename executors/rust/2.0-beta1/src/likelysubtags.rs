@@ -2,12 +2,7 @@
 
 use serde_json::{json, Value};
 
-
-use icu::locale::{
-    LanguageIdentifier,
-    LocaleExpander,
-    subtags::{language}
-};
+use icu::locale::{subtags::language, LanguageIdentifier, LocaleExpander};
 
 // https://docs.rs/icu/latest/icu/locid_transform/
 
