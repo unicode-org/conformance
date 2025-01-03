@@ -2,8 +2,12 @@
 
 use serde_json::{json, Value};
 
-use icu::locale::LanguageIdentifier;
-use icu::locale::LocaleExpander;
+
+use icu::locale::{
+    LanguageIdentifier,
+    LocaleExpander,
+    subtags::{language}
+};
 
 // https://docs.rs/icu/latest/icu/locid_transform/
 
@@ -19,12 +23,27 @@ pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
 
     let mut locale = locale_str.parse::<LanguageIdentifier>().unwrap();
 
-    if test_option == &"minimizeFavorRegion" {
+    // TODO: check for tag "qaa". Set result as "FAIL" for these.
+    let loc_id: LanguageIdentifier = locale_str.parse().unwrap();
+    if loc_id.language == language!("qaa") {
+        return Ok(json!({
+            "label": label,
+            "result": &"FAIL"
+        }));
+    }
+
+    if test_option == &"minimizeFavorScript" {
+        lc.minimize_favor_script(&mut locale);
+    } else if test_option == &"minimize" || test_option == &"minimizeFavorRegion" {
+        lc.minimize(&mut locale);
+    } else if test_option == &"maximize" {
+        lc.maximize(&mut locale);
+    } else {
         // This option is not yet supported.
         return Ok(json!({
             "label": label,
             "error_detail": {"option": test_option},
-            "unsupported": "minimizeFavorRegion",
+            "unsupported": test_option,
             "error_type": "unsupported",
         }));
     }
