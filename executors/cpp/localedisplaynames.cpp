@@ -19,7 +19,7 @@ using icu::Locale;
 using icu::UnicodeString;
 using icu::LocaleDisplayNames;
 
-string TestLocaleDisplayNames (json_object *json_in) {
+auto TestLocaleDisplayNames (json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");

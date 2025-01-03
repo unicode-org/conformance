@@ -30,9 +30,7 @@ using std::string;
 /*
  *  Check for ICU errors and add to output if needed.
  */
-extern auto check_icu_error(UErrorCode error_code,
-                                  json_object *return_json,
-                                  string message_to_add_if_error) -> const bool;
+
 
 auto StringToStyleEnum(string style_string) -> UDateRelativeDateTimeFormatterStyle {
   if (style_string == "long") { return UDAT_STYLE_LONG;
@@ -74,7 +72,7 @@ auto StringToRelativeUnitEnum(string unit_string) -> URelativeDateTimeUnit {
   return UDAT_REL_UNIT_DAY;
 }
 
-string TestRelativeDateTimeFmt(json_object *json_in) {
+auto TestRelativeDateTimeFmt(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -106,8 +104,8 @@ string TestRelativeDateTimeFmt(json_object *json_in) {
   json_object* options_obj = json_object_object_get(json_in, "options");
 
   string style_string = "long";  // Default
-  string numbering_system_string = "";  // Default
-  string numeric_option = "";
+  string numbering_system_string;  // Default
+  string numeric_option;
   if (options_obj != nullptr) {
     json_object *style_obj = json_object_object_get(options_obj, "style");
     if (style_obj != nullptr) {
@@ -132,7 +130,7 @@ string TestRelativeDateTimeFmt(json_object *json_in) {
 
   // Add variants to the locale.
   string locale_selection_string = locale_string;
-  if (numbering_system_string != "") {
+  if (!numbering_system_string.empty()) {
     locale_selection_string =
         locale_string + "-u-nu-" + numbering_system_string;
   }

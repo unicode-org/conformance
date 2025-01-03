@@ -29,7 +29,7 @@ using std::endl;
 using std::string;
 
 /* Main test function */
-string TestListFmt (json_object* json_in) {
+auto TestListFmt (json_object* json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");
@@ -59,7 +59,7 @@ string TestListFmt (json_object* json_in) {
       // get the i-th object in the input list
       json_object* item = json_object_array_get_idx(input_list_obj, i);
       string item_string = json_object_get_string(item);
-      u_strings.push_back(item_string.c_str());
+      u_strings.emplace_back(item_string.c_str());
     }
     u_strings_size = u_strings.size();
   } else {
@@ -113,7 +113,7 @@ string TestListFmt (json_object* json_in) {
     return json_object_to_json_string(return_json);
   }
 
-  UnicodeString *u_array = &u_strings[0];
+  UnicodeString *u_array = u_strings.data();
   UnicodeString u_result_string;
   u_result_string = list_formatter->format(u_array,
                                            u_strings_size,

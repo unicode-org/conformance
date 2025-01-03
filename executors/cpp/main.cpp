@@ -39,20 +39,20 @@ using std::endl;
 using std::string;
 
 // Test functions
-extern const string TestCollator(json_object *json_in);
-extern const string TestDatetimeFmt(json_object *json_in);
-extern const string TestLocaleDisplayNames(json_object *json_in);
-extern const string TestLikelySubtags(json_object *json_in);
-extern const string TestListFmt(json_object *json_in);
+extern auto TestCollator(json_object *json_in) -> const string;
+extern auto TestDatetimeFmt(json_object *json_in) -> const string;
+extern auto TestLocaleDisplayNames(json_object *json_in) -> const string;
+extern auto TestLikelySubtags(json_object *json_in) -> const string;
+extern auto TestListFmt(json_object *json_in) -> const string;
 
 // This API was added in ICU75.1
 #if U_ICU_VERSION_MAJOR_NUM >= 75
 extern const string TestMessageFormat2(json_object *json_in);
 #endif
 
-extern const string TestNumfmt(json_object *json_in);
-extern const string TestPluralRules(json_object *json_in);
-extern const string TestRelativeDateTimeFmt(json_object *json_in);
+extern auto TestNumfmt(json_object *json_in) -> const string;
+extern auto TestPluralRules(json_object *json_in) -> const string;
+extern auto TestRelativeDateTimeFmt(json_object *json_in) -> const string;
 
 /**
  * Main   --  process command line, call tests or return data
@@ -92,10 +92,10 @@ auto main(int argc, const char** argv) -> int {
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
 
-      for (int index = 0; index < supported_tests.size(); index ++) {
+      for (const auto & supported_test : supported_tests) {
         json_object_array_add(
             test_array,
-            json_object_new_string(supported_tests[index].c_str()));
+            json_object_new_string(supported_test.c_str()));
       }
 
       json_object_object_add(tests_supported, "supported_tests", test_array);
