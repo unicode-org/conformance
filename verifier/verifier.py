@@ -49,6 +49,8 @@ class Verifier:
         self.report = None
         self.reports = []
 
+        self.run_in_parallel = True
+
         # Set of [result filepath, verify filepath, report path]
         self.result_timestamp = None
 
@@ -60,14 +62,18 @@ class Verifier:
 
         logging.config.fileConfig("../logging.conf")
 
+        logger = logging.Logger("VERIFIER LOGGER")
+        logger.setLevel(logging.WARNING)
+
     def open_verify_files(self, vplan):
         # Get test data, verify data, and results for a case.
         try:
             vplan.result_file = open(vplan.result_path, encoding='utf-8', mode='r')
             file_time = os.path.getmtime(vplan.result_path)
             vplan.result_time_stamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
+            vplan.report.timestamp = vplan.result_time_stamp
         except BaseException as err:
-            logging.error('    *** Cannot open results file %s:\n        %s', vplan.result_path, err)
+            logging.error('    *** CANNOT OPEN RESULTS FILE %s:\n        %s', vplan.result_path, err)
             return None
 
         try:
@@ -80,12 +86,8 @@ class Verifier:
         report_dir = os.path.dirname(vplan.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            sys.stderr.write('    !!! Cannot create directory %s for report file %s' %
-                             (report_dir, vplan.report_path))
-            sys.stderr.write('   !!! Error = %s' % err)
-
             logging.error('    !!! Cannot create directory %s for report file %s',
                              report_dir, vplan.report_path)
             logging.error('   !!! Error = %s', err)
@@ -214,7 +216,6 @@ class Verifier:
                     new_verify_plan.set_exec(executor)
                     new_verify_plan.set_report(new_report)
 
-
                     # Is this test needed?
                     if os.path.isfile(new_verify_plan.result_path):
                         self.verify_plans.append(new_verify_plan)
@@ -224,15 +225,20 @@ class Verifier:
 
     # Verify plans in parallel
     def parallel_verify_data_results(self):
-        num_processors = mp.cpu_count()
-        verify_plans = self.verify_plans
-        logging.info('JSON validation: %s processors for %s plans',
-                     num_processors, len(verify_plans))
+        if not self.options.run_serial:
+            num_processors = mp.cpu_count()
+            verify_plans = self.verify_plans
+            logging.info('JSON validation: %s processors for %s plans',
+                         num_processors, len(verify_plans))
 
-        processor_pool = mp.Pool(num_processors)
-        with processor_pool as p:
-            result = p.map(self.verify_one_plan, verify_plans)
-        return result
+            processor_pool = mp.Pool(num_processors)
+            with processor_pool as p:
+                result = p.map(self.verify_one_plan, verify_plans)
+            return result
+        else:
+            logging.info('Running serially!')
+            for vplan in self.verify_plans:
+                self.verify_one_plan(vplan)
 
     # For one VerifyPlan, get data and run verification
     def verify_one_plan(self, vplan):
@@ -251,15 +257,18 @@ class Verifier:
         vplan.setup_report_data()
 
         result = {'compare_success': True}
+
+        # Do more analysis on the failures and compute known issues
+        vplan.report.summarize_failures()
+
+        vplan.report.add_known_issues()
         # Save the results
+
         if not vplan.report.save_report():
             logging.error('!!! Could not save report for (%s, %s)',
                           vplan.test_type, vplan.exec)
         else:
             vplan.report.create_html_report()
-
-        # Do more analysis on the failures
-        vplan.report.summarize_failures()
 
         logging.debug('\nTEST RESULTS in %s for %s. %d tests found',
                           vplan.exec, vplan.test_type, len(vplan.test_results))
@@ -274,7 +283,7 @@ class Verifier:
     def setup_paths(self, executor, testfile, verify_file):
         base_dir = self.file_base
         if self.debug > 1:
-            logging.deubg('&&& FILE BASE = %s', base_dir)
+            logging.debug('&&& FILE BASE = %s', base_dir)
             # Check on the path defined here
             test_output_dir = 'testOutput'
             self.resultPath = os.path.join(
@@ -343,7 +352,6 @@ class Verifier:
         test_output_validation = os.path.join(self.file_base, 'testOutput', test_output_validation_name)
         if os.path.exists(test_output_validation):
             # Copy to report path
-            # Copy to report path
             validation_copy = os.path.join(self.file_base, self.report_file_name, test_output_validation_name)
             try:
                 shutil.copyfile(test_output_validation, validation_copy)
@@ -353,7 +361,17 @@ class Verifier:
 
         return [schema_validation_name, generated_data_validation_name, test_output_validation_name]
 
+    def copy_js_files(self):
+        # Create a copy of locale .js files to the report area for including in reports
+        files_to_copy = ['diff_match_patch.js']
+        output_dir = os.path.join(self.file_base, self.report_file_name)
 
+        for js_file in files_to_copy:
+            destination = os.path.join(self.file_base, self.report_file_name, js_file)
+            result = shutil.copy2(js_file, destination)
+
+
+# Test basic verifier functions
 class Tester:
     def __init__(self, title=None):
         self.reportPath = None
@@ -402,7 +420,6 @@ class Tester:
         logging.info('  Report: %s', report_data)
 
 
-# Test basic verifier functions
 def run_verifier_tests():
     execs = ['node', 'rust']
 
@@ -446,6 +463,9 @@ def main(args):
     # TODO: Should this be optional?
     verifier.create_summary_reports()
     logging.info('Verifier completed summary report')
+
+    # Copy any other files such as JavaScript to the report area
+    verifier.copy_js_files()
 
 
 if __name__ == '__main__':

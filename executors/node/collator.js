@@ -23,6 +23,11 @@ module.exports = {
       rules = json['rules'];
     }
 
+    let compare_type = undefined;
+    if ('compare_type' in json) {
+      compare_type = json['compare_type'];
+    }
+
     // Set up collator object with optional locale and testOptions.
     let coll;
     try {
@@ -39,20 +44,42 @@ module.exports = {
         result_bool = false;
       }
       outputLine = {'label':json['label'],
-                    'result': result_bool,
-                    'compare_result': compared,
                    }
-
-      if (result != true) {
+      if (result == true) {
+        // Only output result field if result is true.
+        outputLine['result'] = result_bool;
+        outputLine['compare_result'] = compared;
+      } else {
         // Additional info for the comparison
         outputLine['compare'] = compared;
+        if (rules) {
+          outputLine['unsupported'] = 'Collator rules not available';
+          outputLine['error_detail'] = 'No rules';
+          outputLine['error'] = 'rules';
+        }
+        else {
+          outputLine['actual_options'] = JSON.stringify(coll.resolvedOptions());  //.toString();
+          outputLine['compare_result'] = compared;
+          outputLine['result'] = result_bool;
+        }
       }
 
     } catch (error) {
-      outputLine =  {'label': json['label'],
-                     'error_message': 'LABEL: ' + json['label'] + ' ' + error.message,
-                     'error': 'Collator compare failed'
-                 };
+      const error_message = error.message;
+
+      if (testLocale == "root" || error_message == "Incorrect locale information provided")  {
+        outputLine =  {'label': json['label'],
+                       'unsupported': 'root locale',
+                       'error_detail': error_message + ': ' + testLocale,
+                       'error': 'Unsupported locale'
+                      };
+      } else {
+        outputLine =  {'label': json['label'],
+                       'error_message': error_message,
+                       'error_detail': testLocale,
+                       'error': 'Something wrong'
+                      };
+      }
     }
     return outputLine;
   }

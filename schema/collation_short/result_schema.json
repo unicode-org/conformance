@@ -7,14 +7,13 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["collation_short"]
+     "const": "collation_short"
    },
    "tests": {
      "type": "array",
      "items": {
        "type": "object",
-       "additionalProperties": false,
+       "additionalProperties": true,
        "properties": {
          "label": {
            "description": "A numeric ID, unique for the set of tests",
@@ -28,10 +27,10 @@
            "description": "The actual result found",
            "type": "boolean"
          },
-          "locale": {
-            "description": "optional field indication locale tag for running test",
-            "type": "string"
-          },
+         "locale": {
+           "description": "optional field indication locale tag for running test",
+           "type": "string"
+         },
          "compare_result": {
            "description": "Actual value from the comparison",
            "type": "integer"
@@ -48,34 +47,34 @@
            "description": "Descripts results from comparison",
            "type": "string"
          },
-          "test_description": {
-            "description": "Option field telling about this particular test",
-            "type": "string"
-          },
-          "rules": {
-            "description": "Optional custom rule set",
-            "type": "string"
-          },
-          "s1": {
-            "description": "First string for comparison",
-            "type": "string"
-          },
-          "s2": {
-            "description": "Second string for comparison",
-            "type": "string"
-          },
-          "attributes": {
-            "description": "Optional information about this collation test",
-            "type": "array"
-          },
-          "ignorePunctuation" : {
-            "description": "If collation should ignore punctuatio",
-            "type": "boolean"
-          },
-          "line" : {
-            "description": "line of the source of test data",
-            "type": "integer"
-          },
+         "test_description": {
+           "description": "Option field telling about this particular test",
+           "type": "string"
+         },
+         "rules": {
+           "description": "Optional custom rule set",
+           "type": "string"
+         },
+         "s1": {
+           "description": "First string for comparison",
+           "type": "string"
+         },
+         "s2": {
+           "description": "Second string for comparison",
+           "type": "string"
+         },
+         "attributes": {
+           "description": "Optional information about this collation test",
+           "type": "array"
+         },
+         "ignorePunctuation" : {
+           "description": "If collation should ignore punctuatio",
+           "type": "boolean"
+         },
+         "line" : {
+           "description": "line of the source of test data",
+           "type": "integer"
+         },
          "error": {
            "description": "What was unexpected",
            "type": "string"
@@ -85,8 +84,12 @@
            "type": "string"
          },
          "actual_options": {
-           "description": "What was sent to the collation function",
+           "description": "Options used by collation as a string",
            "type": "string"
+         },
+         "input_data": {
+           "type": "string",
+           "description": "Information provided to the executor"
          }
        }
      },
@@ -95,5 +98,6 @@
        "result"
      ]
    }
- }
+ },
+  "required": ["tests", "test_type"]
 }

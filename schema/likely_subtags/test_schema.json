@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["likely_subtags"]
+     "const": "likely_subtags"
    },
    "Test scenario": {
      "type": "string",
@@ -75,6 +74,10 @@
            "description": "A numeric ID, unique for the set of tests",
            "type": "string"
          },
+          "hexhash": {
+            "description": "A hexadecimal hash code for the test without the label",
+            "type": "string"
+          },
          "locale": {
            "description": "locale tag source ",
            "type": "string"

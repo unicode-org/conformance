@@ -217,3 +217,114 @@
 
 
 {"test_type": "number_fmt", "label":"2062","locale":"es-MX","skeleton":"currency/EUR unit-width-narrow .000","input":"91827.3645","options":{"style":"currency","currencyDisplay":"narrowSymbol","currency":"EUR","unitDisplay":"narrow","maximumFractionDigits":3,"minimumFractionDigits":3}}
+
+{"test_type": "datetime_fmt","label":"36036","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"bn","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores"},"input_millis":1710658800000}
+{"test_type": "datetime_fmt","label":"36036","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"bn","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores", "numberingSystem":"latn"},"input_millis":1710658800000}
+{"test_type": "datetime_fmt","label":"36036","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"bn","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores", "numberingSystem":"arab"},"input_millis":1710658800000}    
+    {"test_type": "datetime_fmt", "label":"5148","input_string":"Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)","input_millis":1710658800000,"locale":"en-US","calendar":"gregory","options":{"dateStyle":"short","timeStyle":"short","calendar":"gregory","timeZone":"Atlantic/Azores"},"input_millis":1710658800000}
+
+        {"test_type": "datetime_fmt", "label":"abcd", "input_millis": "0.0"}
+
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-US", "input_millis": 0}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-US", "input_millis": 0}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-GB", "input_millis": 86400000}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": "1000000.0"}
+
+    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_millis": 1000000.0}
+
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en", "input_string": "2020-03-02"}
+
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "2020-03-02"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "03/02/2020"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt", "input_string": "03/02/2020"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_string": "2020-03-02 13:12:11"}
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "input_string": "20200302 01:02:03"}     
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_string": "2020-03-02 01:02:03"}    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"en-GB", "datetime_skeleton":"MMMMdjmm yyyy zzzz", "input_string": "2024-03-02 01:02:03"}    
+    
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_millis": "0.0"}
+
+{"test_type": "datetime_fmt", "label":"abcd","locale":"pt-PT", "datetime_skeleton":"MMMMdjmmYYYY", "input_millis": "1710454221991.673"}
+    
+#  formats of weekday in two Portuguese locales
+{"test_type": "datetime_fmt", "label":"pt E","locale":"pt", "datetime_skeleton":"E MMdYYYY", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"pt-PT E","locale":"pt-PT", "datetime_skeleton":"GGGG E MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt EE","locale":"pt", "datetime_skeleton":"EE MMdYYYY", "input_millis": "0.0"} 
+{"test_type": "datetime_fmt", "label":"pt-PT EE","locale":"pt-PT", "datetime_skeleton":"EE MMdYYYY", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"pt EEE","locale":"pt", "datetime_skeleton":"EEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt-PT EEE","locale":"pt-PT", "datetime_skeleton":"EEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt EEEE","locale":"pt", "datetime_skeleton":"EEEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt-PT EEEEE","locale":"pt-PT", "datetime_skeleton":"EEEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt EEEEE","locale":"pt", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"}    
+{"test_type": "datetime_fmt", "label":"pt-PT EEEEE","locale":"pt-PT", "datetime_skeleton":"EEEEE MMdYYYY", "input_millis": "0.0"} 
+
+{"test_type": "datetime_fmt", "label":"en-GB E","locale":"en-GB", "datetime_skeleton":"GGGG E MMdYYYY hms ZZ", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"bn","locale":"en-GB", "datetime_skeleton":"GGGG E MMdYYYY hms ZZ", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"ff","locale":"ff", "datetime_skeleton":"GGGG E MMdYYYY hms ZZ", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"ff-adlm","locale":"ff-Adlm", "datetime_skeleton":"GGGG E MMdYYYY hms ZZ", "input_millis": "0.0"}
+{"test_type": "datetime_fmt", "label":"ta","locale":"ta", "datetime_skeleton":"GGGG E MMdYYYY hms ZZ", "input_string": "2024-03-17T07:00:00",}
+    
+# Date time styles
+{"test_type": "datetime_fmt", "label": "132", "input_string": "2024-03-17T07:00:00", "input_millis": 1710658800000, "locale": "en-US", "options": {"calendar": "gregory"}}
+    
+{"test_type": "datetime_fmt", "label": "132", "input_string": "2024-03-17T07:00:00", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "long", "timeStyle": "long", "calendar": "gregory"}}
+
+        {"test_type": "datetime_fmt", "label": "132", "input_string": "2024-03-17T07:00:00.000Z", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "long", "timeStyle": "long", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "long", "timeStyle": "short", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "timeStyle": "long", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "timeStyle": "short", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "narrow", "timeStyle": "full", "calendar": "gregory"}}
+
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "narrow", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "en", "options": {"dateStyle": "long", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "full", "calendar": "gregory"}}
+{"test_type": "datetime_fmt", "label": "132", "input_millis": 1710658800000, "locale": "en-GB", "options": {"dateStyle": "full", "calendar": "gregory"}}
+    
+{"test_type": "list_fmt", "label":"en_-GB 2000", "input_string": "2000-01-01T21:00:00.000Z","input_list":[],"options":{"style":"long","type":"conjunction"},"locale":"en-GB"}
+
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat"],"options":{"style":"narrow","list_type":"conjunction", "type":"conjunction"},"locale":"en-GB"}    
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","list_type":"conjunction"},"locale":"en-GB"}    
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","type":"disjunction"},"locale":"en-GB"}    
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat","fish"],"options":{"style":"long","type":"unit"},"locale":"en-GB"}    
+
+{"test_type": "datetime_fmt", "label": "132", "input_string": "Sun Mar 17 2024 00:00:00 GMT-0700 (Pacific Daylight Time)", "input_millis": 1710658800000, "locale": "und", "options": {"dateStyle": "short", "timeStyle": "short", "calendar": "gregory"}}
+
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"en"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"en"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"short","type":"unit"},"locale":"en"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"conjunction"},"locale":"bn"}    
+{"test_type": "list_fmt", "label":"12d","input_list":["dog","cat", "hamster"],"options":{"style":"long","type":"disjunction"},"locale":"chr"}    
+
+{"test_type": "list_fmt", "label":"12","input_list":["dog","cat", "hamster", "iguana", "parrot"],"options":{"style":"long","type":"conjunction"},"locale":"de"}    
+{"test_type": "list_fmt", "label":"12","input_list":[],"options":{"style":"long","type":"conjunction"},"locale":"zh-TW"}    
+
+
+# Relative date time format
+{"test_type": "rdt_fmt", "label": "-100", "unit": "second", "count": -100, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "100", "unit": "second", "count": 100, "locale": "en-US", "options": {}}
+
+{"test_type": "rdt_fmt", "label": "-100", "unit": "day", "count": -2, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "-100", "unit": "day", "count": -1, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "-100", "unit": "day", "count": -1, "locale": "en-US", "options": {}}
+{"test_type": "rdt_fmt", "label": "100", "unit": "day", "count": 0, "locale": "en-US", "options": {"style":"long"}}  
+{"test_type": "rdt_fmt", "label": "100", "unit":"day" "day", "count": 1, "locale": "en-US", "options": {}}  
+{"test_type": "rdt_fmt", "label": "100", "unit":"day", "count": 1, "locale": "es", "options": {}}
+    
+
+
+// Testing skeleton options
+{"test_type": "datetime_fmt", "label":"10","input_string":"2001-09-09T01:46:40.000Z","locale":"en-US","options":{"calendar":"gregory","numberingSystem":"latn"}}
+    {"test_type": "datetime_fmt", "label":"10","input_string":"2001-09-09T01:46:40.000Z","locale":"en-US","options":{"calendar":"gregory","numberingSystem":"latn"}}
+
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"hh","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"h","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"H","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"101","input_string":"2000-01-01T21:00:00.000Z","skeleton":"hhh","locale":"en-US","options":{"hour":"2-digit","calendar":"gregory","timeZone":"America/Los_Angeles","numberingSystem":"latn"}}
+{"test_type": "datetime_fmt", "label":"1265","input_string":"2024-03-17T07:00:00.000Z","skeleton":"hhhm","locale":"en-US","options":{"hour":"2-digit","minute":"numeric","calendar":"chinese","timeZone":"Australia/Brisbane","numberingSystem":"latn"}}
+
+{"test_type": "datetime_fmt", "label":"3812","input_string":"1969-07-16T07:00:00.000Z","skeleton":"HHm","locale":"en-GB","options":{"hour":"2-digit","minute":"numeric","calendar":"buddhist","timeZone":"Australia/Brisbane","numberingSystem":"latn"}}
+
+{"test_type": "datetime_fmt", "label":"3812","input_string":"1969-07-16T07:00:00.000Z","locale":"en-GB","options":{"dateStyle": "short", "timeStyle": "short", "hour":"2-digit","minute":"numeric","calendar":"buddhist","timeZone":"Australia/Brisbane","numberingSystem":"latn"}}

@@ -51,7 +51,7 @@ class VerifyPlan:
                 file_time = os.path.getmtime(self.result_path)
                 self.result_time_stamp = datetime.datetime.fromtimestamp(
                     file_time).strftime('%Y-%m-%d %H:%M')
-
+                self.report.timestamp = self.result_time_stamp
                 self.resultData = json.loads(result_file.read())
                 self.test_results = self.resultData['tests']
         except BaseException as err:
@@ -65,7 +65,7 @@ class VerifyPlan:
                       encoding='utf-8', mode='r') as verify_data_file:
                 self.verifyData = json.loads(verify_data_file.read())
                 self.verifyExpected = self.verifyData['verifications']
-        except BaseException as err:
+        except KeyError as err:
             logging.error('Cannot load %s verify data: %s',
                           self.verify_path, err)
             return None
@@ -74,11 +74,10 @@ class VerifyPlan:
         report_dir = os.path.dirname(self.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            logging.error('    !!! Cannot create directory %s for report file %s',
-                          report_dir, self.report_path)
-            logging.error('   !!! Error = %s', err)
+            logging.error('    !!! %s. Cannot create directory %s for report file %s',
+                          err, eport_dir, self.report_path)
             return None
 
 

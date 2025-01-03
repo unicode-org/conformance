@@ -3,12 +3,11 @@
  "title": "ICU Likely subtags verify data description",
  "description": "This documents format of likely subtags verify data",
  "type": "object",
- "additionalProperties": false,
+ "additionalProperties": true,
  "properties": {
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["likely_subtags"]
+     "const": "likely_subtags"
    },
    "Test scenario": {
      "type": "string",
@@ -135,5 +134,6 @@
        ]
      }
    }
- }
+ },
+ "required": ["tests", "test_type"]
 }

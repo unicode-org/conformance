@@ -1,0 +1,35 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/likely_subtags_verify_schema.json'",
+ "title": "ICU Likely subtags verify data description",
+ "description": "This documents format of likely subtags verify data",
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+   "test_type": {
+     "description": "The name of the test",
+     "const": "likely_subtags"
+   },
+   "verifications": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "string"
+         }
+       },
+       "required": [
+         "label",
+         "verify" 
+       ]       
+     }
+   }
+ },
+ "required": ["test_type", "verifications"]
+}

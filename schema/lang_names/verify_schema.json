@@ -1,0 +1,35 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/language_name_verify_schema.json'",
+ "title": "ICU Language Name verify data description",
+ "description": "This documents format of language name verify data",
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+   "test_type": {
+     "description": "the name language_display_name",
+     "const": "lang_names"
+   },
+   "verifications": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "string"
+         }
+       },
+       "required": [
+         "label",
+         "verify" 
+       ]       
+     }
+   }
+ },
+ "required": ["test_type", "verifications"]
+}

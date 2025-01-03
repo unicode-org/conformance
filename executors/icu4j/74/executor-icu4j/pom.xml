@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.unicode.conformance</groupId>
+  <artifactId>executor-icu4j</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>executor-icu4j</name>
+  <!-- FIXME change it to the project's website -->
+  <url>http://www.example.com</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <packaging>jar</packaging>
+
+  <!-- Profiles are used to set the version of ICU4J to test against -->
+  <profiles>
+    <profile>
+      <id>icu73</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>73.2</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <!-- <include>**/messageformat2/icu74/*Test.java</include> -->  <!-- no MF2 in v73 & earlier -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>icu74</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>74.2</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu74/*Test.java</include>
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>icu75</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>75.1</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu75/*Test.java</include>  <!-- latest MF2 version: ICU 75 -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>icu76</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>76.1</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu75/*Test.java</include>  <!-- latest MF2 version: ICU 75 -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Note: ICU4J (library under test) must be enabled via activating the desired
+     profile corresponding to the version -->
+
+    <!-- JSON library -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+
+    <!-- Persistent Data Structure library -->
+    <dependency>
+      <groupId>io.lacuna</groupId>
+      <artifactId>bifurcan</artifactId>
+      <version>0.2.0-alpha4</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Add custom resource paths -->
+    <testResources>
+      <testResource>
+        <!--
+          Include the entire testgen directory so that we can have access to
+          all MF2 resources across all versions of ICU/CLDR
+         -->
+        <directory>../../../../testgen</directory>
+      </testResource>
+    </testResources>
+
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+      <plugins>
+        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
+        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.7.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+
+        <!-- exec:exec build target enables running CLI commands -->
+        <plugin>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+
+        <!-- Create an all-in-one (statically linked) Jar file -->
+        <plugin>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.5.1</version>
+          <!-- Maven Shade Plugin transformers don't work as expected, so -->
+          <!-- use jar plugin -->
+          <!-- https://stackoverflow.com/questions/30757739/no-main-manifest-attribute-in-jar -->
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <!-- Maven Shade Plugin transformers don't work as expected, so -->
+        <!-- use jar plugin -->
+        <!-- https://stackoverflow.com/questions/30757739/no-main-manifest-attribute-in-jar -->
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <transformers>
+                <transformer implementation=
+                    "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>org.unicode.conformance.Icu4jExecutor</Main-Class>
+                    <Build-Number>1.0</Build-Number>
+                  </manifestEntries>
+                  <!--                    <mainClass>org.unicode.conformance.Icu4jExecutor</mainClass>-->
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

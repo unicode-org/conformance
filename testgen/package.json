@@ -1,0 +1,14 @@
+{
+  "name": "unicode-conformance-testgen",
+  "version": "0.0.0",
+  "description": "Test data generation helpers for Unicode Conformance",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Unicode-3.0",
+  "dependencies": {
+    "temporal-polyfill": "^0.2.5"
+  }
+}
