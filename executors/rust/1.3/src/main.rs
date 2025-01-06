@@ -3,12 +3,6 @@
 // Run test
 // Return results
 
-mod icu {
-    pub use ::icu::compactdecimal;
-    pub use ::icu::displaynames;
-    pub use ::icu::relativetime;
-}
-
 #[path = "../../src/mod.rs"]
 mod executors;
 

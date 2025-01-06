@@ -6,15 +6,19 @@ use fixed_decimal::SignDisplay;
 
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
-
-use crate::icu::compactdecimal::CompactDecimalFormatter;
-
 use icu::locid::{extensions::unicode::key, Locale};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use writeable::Writeable;
+
+#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4"))]
+use icu::compactdecimal::CompactDecimalFormatter;
+
+#[cfg(any(conformance_ver = "1.5", conformance_ver = "2.0-beta1"))]
+use icu::experimental::compactdecimal::CompactDecimalFormatter;
+
 
 // Support options - update when ICU4X adds support
 static _SUPPORTED_OPTIONS: [&str; 6] = [

@@ -1,11 +1,13 @@
+#[path = "./print_icu4x_version.rs"]
+mod print_icu4x_version;
+
 pub fn print() {
+    println!("cargo::rustc-check-cfg=cfg(conformance_ver, values(\"1.3\", \"1.4\", \"1.5\", \"2.0-beta1\"))");
+
     let metadata = cargo_metadata::MetadataCommand::new().exec().unwrap();
     for package in metadata.packages.iter() {
         if package.name == "icu" {
-            println!(
-                "cargo:rustc-env=CONFORMANCE_ICU4X_VERSION={}",
-                package.version
-            );
+            print_icu4x_version::print(&package);
         } else if package.name == "icu_calendar_data" {
             println!(
                 "cargo:rustc-env=CONFORMANCE_ICU_VERSION={}",

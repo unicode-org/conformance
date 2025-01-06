@@ -2,7 +2,12 @@
 
 use serde_json::{json, Value};
 
-use crate::icu::displaynames::*;
+#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4"))]
+use icu::displaynames::*;
+
+#[cfg(any(conformance_ver = "1.5", conformance_ver = "2.0-beta1"))]
+use icu::experimental::displaynames::*;
+
 use icu::locid::Locale;
 
 // Function runs comparison using displaynames

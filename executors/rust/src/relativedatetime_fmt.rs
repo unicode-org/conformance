@@ -11,10 +11,11 @@ use std::str::FromStr;
 
 use icu_provider::DataLocale;
 
-use crate::icu::relativetime::options::Numeric;
-use crate::icu::relativetime::{
-    RelativeTimeError, RelativeTimeFormatter, RelativeTimeFormatterOptions,
-};
+#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4"))]
+use icu::relativetime::{options::Numeric, *};
+
+#[cfg(any(conformance_ver = "1.5", conformance_ver = "2.0-beta1"))]
+use icu::experimental::relativetime::{options::Numeric, *};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
