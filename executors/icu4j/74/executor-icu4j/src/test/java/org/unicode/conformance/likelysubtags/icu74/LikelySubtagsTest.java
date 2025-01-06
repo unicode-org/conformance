@@ -7,7 +7,6 @@ import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsOutputJson;
 import org.unicode.conformance.testtype.likelysubtags.LikelySubtagsTester;
 
 public class LikelySubtagsTest {
-
   @Test
   public void testMinimizeSubtags() {
     String testInput =
@@ -30,13 +29,14 @@ public class LikelySubtagsTest {
     assertEquals("fr-Latn-FR", output.result);
   }
 
-  @Test
-  public void testFailQaa() {
+/*  @Test
+  public void testUndLatnRS() {
     String testInput =
-        "{\"test_type\": \"likely_subtags\", \"label\":\"2412\",\"locale\":\"qaa\",\"option\":\"maximize\",\"hexhash\":\"0135bf6b9b2e3fb98d451d5476a7969c2d3332a4\"}";
+        "{\"test_type\": \"likely_subtags\", \"label\":\"4350\",\"locale\":\"und-Latn-RS\",\"option\":\"maximize\"}";
+
     LikelySubtagsOutputJson output =
         (LikelySubtagsOutputJson) LikelySubtagsTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
-    assertEquals("FAIL", output.result);
-  }
+    assertEquals("sr-Latn", output.result);
+  }*/
 }

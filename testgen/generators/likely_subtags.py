@@ -36,6 +36,12 @@ class LikelySubtagsGenerator(DataGenerator):
             # split at ";" and ignore whitespace
             tags = list(map(str.strip, line.split(";")))
 
+            # Remove tests of language codes "reserved for local use"
+            # https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Languages/List_of_ISO_639-3_language_codes_used_locally_by_Linguist_List
+            lang_code = tags[0].split('-')[0]
+            if lang_code >= "qaa" and lang_code <= "qtz":
+                continue
+
             # Normalize to 4 tags: Source; AddLikely; RemoveFavorScript; RemoveFavorRegion
             while len(tags) < 4:
                 tags.append("")

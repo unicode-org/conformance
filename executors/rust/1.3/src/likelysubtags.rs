@@ -2,7 +2,7 @@
 
 use serde_json::{json, Value};
 
-use icu::locid::{subtags::language, LanguageIdentifier, Locale};
+use icu::locid::Locale;
 use icu::locid_transform::LocaleExpander;
 
 // https://docs.rs/icu/latest/icu/locid_transform/
@@ -18,15 +18,6 @@ pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
     let locale_str: &str = json_obj["locale"].as_str().unwrap();
 
     let mut locale = locale_str.parse::<Locale>().unwrap();
-
-    // TODO: check for tag "qaa". Set result as "FAIL" for these.
-    let loc_id: LanguageIdentifier = locale_str.parse().unwrap();
-    if loc_id.language == language!("qaa") {
-        return Ok(json!({
-            "label": label,
-            "result": &"FAIL"
-        }));
-    }
 
     if test_option == &"minimizeFavorScript" {
         // This option is not yet supported.

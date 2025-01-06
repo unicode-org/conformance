@@ -22,13 +22,6 @@ module.exports = {
       return return_json;
     }
 
-    // Handle special language tags
-    let lang = intl_locale.language;
-    if (lang >= "qaa" && lang <= "qtz") {
-      return_json['result'] = "FAIL";
-      return return_json;
-    }
-
     try {
       let result_locale;
       if (test_option === 'maximize') {
