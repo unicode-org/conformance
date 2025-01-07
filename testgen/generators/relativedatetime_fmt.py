@@ -21,6 +21,11 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
             'icu73': '20.1.0',
             'icu72': '18.14.2',
             'icu71': '18.7.0',
+            'icu70': '14.21.3',
+            'icu69': '14.18.3',
+            'icu68': '14.17.0',
+            'icu67': '14.16.0',
+            'icu66': '14.0.0'
         }
 
         exec_list = ['node generators/rdt_fmt_gen.js']
@@ -29,8 +34,12 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
             exec_list.append(str(self.run_limit))
             print("RDTF generator: ", exec_list)
 
+        nodejs_version = icu_nvm_versions[self.icu_version]
+        source_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent' % (
+            nodejs_version, nodejs_version)
+
         run_list = [
-            ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0 --silent'],
+            [source_command],
             exec_list,
             ['mv rdt_fmt*.json icu74']
         ]
