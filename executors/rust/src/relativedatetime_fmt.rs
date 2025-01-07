@@ -7,16 +7,16 @@ use super::compat::{Locale, unicode, unicode::key, pref};
 
 use std::str::FromStr;
 
-#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4"))]
+#[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::relativetime::{options::Numeric, *};
 
-#[cfg(any(conformance_ver = "1.5", conformance_ver = "2.0-beta1"))]
+#[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
 use icu::experimental::relativetime::{options::Numeric, *};
 
-#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
 type Error = RelativeTimeError;
 
-#[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
 type Error = icu_provider::DataError;
 
 use serde::{Deserialize, Serialize};

@@ -2,16 +2,16 @@
 
 use serde_json::{json, Value};
 
-#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
 pub use icu::locid_transform::LocaleExpander;
 
-#[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
 pub use icu::locale::LocaleExpander;
 
-#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
 type LocaleType = super::compat::Locale;
 
-#[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
 type LocaleType = super::compat::LanguageIdentifier;
 
 

@@ -4,7 +4,7 @@
 mod print_icu4x_version;
 
 pub fn main() {
-    println!("cargo::rustc-check-cfg=cfg(conformance_ver, values(\"1.3\", \"1.4\", \"1.5\", \"2.0-beta1\"))");
+    println!("cargo::rustc-check-cfg=cfg(ver, values(\"1.3\", \"1.4\", \"1.5\", \"2.0-beta1\"))");
 
     let metadata = cargo_metadata::MetadataCommand::new().exec().unwrap();
     for package in metadata.packages.iter() {

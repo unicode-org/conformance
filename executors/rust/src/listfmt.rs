@@ -50,7 +50,7 @@ pub fn run_list_fmt_test(json_obj: &Value) -> Result<Value, String> {
 
     let prefs = pref!(locale);
 
-    #[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+    #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
     let formatter_option = if list_type == "conjunction" {
         Some(ListFormatter::try_new_and_with_length(prefs, list_style))
     } else if list_type == "disjunction" {
@@ -61,7 +61,7 @@ pub fn run_list_fmt_test(json_obj: &Value) -> Result<Value, String> {
         None
     };
 
-    #[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+    #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
     let formatter_option = if list_type == "conjunction" {
         Some(ListFormatter::try_new_and(
             prefs,

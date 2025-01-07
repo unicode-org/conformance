@@ -11,11 +11,11 @@ pub mod numberfmt;
 pub mod pluralrules;
 pub mod relativedatetime_fmt;
 
-#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
 #[path = "datetime_1.rs"]
 pub mod datetimefmt;
 
-#[cfg(any(conformance_ver = "2.0-beta1"))]
+#[cfg(any(ver = "2.0-beta1"))]
 #[path = "datetime_2.rs"]
 pub mod datetimefmt;
 

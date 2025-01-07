@@ -13,10 +13,10 @@ use serde_json::{json, Value};
 
 use writeable::Writeable;
 
-#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4"))]
+#[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::compactdecimal::CompactDecimalFormatter;
 
-#[cfg(any(conformance_ver = "1.5", conformance_ver = "2.0-beta1"))]
+#[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
 use icu::experimental::compactdecimal::CompactDecimalFormatter;
 
 // Support options - update when ICU4X adds support
@@ -171,13 +171,13 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     //     // TEMPORARY
     } else {
         // FixedDecimal
-        // Can this fail with invalid options?
-        let fdf = FixedDecimalFormatter::try_new(pref!(langid), options.clone())
-            .expect("Data should load successfully");
+        let fdf = super::try_or_return_error!(label, langid, {
+            FixedDecimalFormatter::try_new(pref!(&langid), options.clone())
+        });
 
         // Apply relevant options for digits.
         if let Some(x) = option_struct.maximum_fraction_digits {
-            #[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+            #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
             match option_struct.rounding_mode.as_deref() {
                 Some("ceil") => input_num.ceil(-(x as i16)),
                 Some("floor") => input_num.floor(-(x as i16)),
@@ -190,7 +190,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                 Some("halfEven") => input_num.half_even(-(x as i16)),
                 _ => input_num.half_even(-(x as i16)),
             };
-            #[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+            #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
             input_num.round_with_mode(-(x as i16), match option_struct.rounding_mode.as_deref() {
                 Some("ceil") => fixed_decimal::RoundingMode::Ceil,
                 Some("floor") => fixed_decimal::RoundingMode::Floor,

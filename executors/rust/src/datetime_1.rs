@@ -3,7 +3,7 @@
 // https://docs.rs/ixdtf/latest/ixdtf/
 
 // IanaToBcp47Mapper deprecated in 1.5
-#![cfg_attr(conformance_ver = "1.5", allow(deprecated))]
+#![cfg_attr(ver = "1.5", allow(deprecated))]
 
 use icu::calendar::DateTime;
 use icu::datetime::{
