@@ -329,14 +329,14 @@ parameters to be set for computing a result.
   of the inputs. This could be called the “golden data”.
 
   Sample verify data:
-  ```json
-  {"Test scenario": "collation_short",
-  "verifications": [
-    {
-      "label": "0000000",
-      "verify": "True"
-    },
-  ```
+    ```json
+    {"Test scenario": "collation_short",
+    "verifications": [
+      {
+        "label": "0000000",
+        "verify": "True"
+      },
+    ```
 
 ## Checking data using schemas
 
