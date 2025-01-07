@@ -13,7 +13,7 @@ consistent across platforms.
 
 A second goal is to find issues in particular implementations of ICU
 functions. This is facilitated by generating data from CLDR (in most cases) or
-other trused sources. By highlighting differt results than expected,
+other trusted sources. By highlighting different results than expected,
 implementation errors can be highlighted in ways that unit testing in each
 platform cannot easily detect.
 
