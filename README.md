@@ -314,17 +314,17 @@ Individual data tests are stored as an array of items, each with a label and
 parameters to be set for computing a result.
 
   Example line for collation_short:
-  ```json
+    ```json
   {
-  "description": "UCA conformance test. Compare the first data\n   string with the second and with strength = identical level\n   (using S3.10). If the second string is greater than the first\n   string, then stop with an error.",
-  "Test scenario": "collation_short",
-  "tests": [
-    {
-      "label": "0000000",
-      "string1": "\u0009!",
-      "string2": "\u0009?"
-    },
-  ```
+    "description": "UCA conformance test. Compare the first data\n   string with the second and with strength = identical level\n   (using S3.10). If the second string is greater than the first\n   string, then stop with an error.",
+    "Test scenario": "collation_short",
+    "tests": [
+      {
+        "label": "0000000",
+        "string1": "\u0009!",
+        "string2": "\u0009?"
+      },
+    ```
 * A required test result file (JSON) containing the expected results from each
   of the inputs. This could be called the “golden data”.
 
