@@ -146,24 +146,26 @@ creating the dashboard.
 The standard script runs all components on all platforms with all ICU
 version. Note that this takes a few minutes.
 
-`` bash generateDataAndRun.sh ``
+```bash
+bash generateDataAndRun.sh
+```
 
 Output will be created in the directory TEMP_DATA.
 
 To run a quicker version that uses only 100 test cases for each instance, run this:
 
-``
+```bash
 bash genData100.sh
-``
+```
 which does the same thing much faster, resulting in the directory TEMP_DATA_100.
 
 ### Viewing conformance results in a browser
 HTML output is found in the subdirectory testReports. To visualize this on your
 computer, start a webserver. For example:
 
-``
+```bash
 python3 -m http.server 9000 &
-``
+```
 
 Then open the file testResults/index.html under the testReports folder in either
 TEMP_DATA or TEMP_DATA_100 or in a custom folder.
@@ -177,10 +179,10 @@ Two main pieces are used to create conformance output:
 * execution scripts that run all the steps of conformance testing. This file
   extracts configurations from run_config
   
-  * generateDataAndRun.sh runs tests across all platforms, components, and ICU
+    *generateDataAndRun.sh* runs tests across all platforms, components, and ICU
     versions.
 
-*run_config.json* file is read by the execution scripts such as *generateDataAndRun.sh*
+    *run_config.json* file is read by the execution scripts such as *generateDataAndRun.sh*
 
 #### Execution script functions
 
@@ -199,7 +201,7 @@ The execution scripts perform several steps in sequence:
 1. Set the output directory as TEMP_DIR. Remove old data and create new output areas.
 
 1. Generate all test data based on run_config's requirements
-   1. This includes checking each generated test set and expected results against schema.
+    1. This includes checking each generated test set and expected results against schema.
 
 1. Check all the schema files for correct structure
 
@@ -220,7 +222,7 @@ The file run_config.json is simply a list of configuration information for
 running selected versions of a platform with selected test types
 (components). Here's an entry for ICU4C in version 76 that runs 7 components:
 
-````
+```json
 [
   {
     "prereq": {
@@ -245,7 +247,7 @@ running selected versions of a platform with selected test types
   },
   ...
 ]
-````
+```
 
 The section *prereq* is run before this particular executor `cpp` is run under
 `testdriver`. The value of `per_execution` deteremines how many tests are passed
@@ -266,9 +268,9 @@ To use quicker development mode, do the following:
 To use this, simply execute the custom script using `bash` or equivalent in the
 environment:
 
-````
+```bash
 bash my_custom_script.sh
-````
+```
 
 Then point the browser to `index.html` in the custom output folder in order to
 view the summary and detail pages.
@@ -312,7 +314,7 @@ Individual data tests are stored as an array of items, each with a label and
 parameters to be set for computing a result.
 
   Example line for collation_short:
-  ```
+  ```json
   {
   "description": "UCA conformance test. Compare the first data\n   string with the second and with strength = identical level\n   (using S3.10). If the second string is greater than the first\n   string, then stop with an error.",
   "Test scenario": "collation_short",
@@ -327,7 +329,7 @@ parameters to be set for computing a result.
   of the inputs. This could be called the “golden data”.
 
   Sample verify data:
-  ```
+  ```json
   {"Test scenario": "collation_short",
   "verifications": [
     {
@@ -392,7 +394,7 @@ The top level directory `schema` contains the following:
 * One subdirectory for each component such as "collation". This contains schema
   .json files for generated tests, expected results, and test output structure.
 
-```
+```bash
 $ ls schema/*.py
 schema/check_generated_data.py  schema/check_test_output.py  schema/__init__.py      schema/schema_validator.py
 schema/check_schemas.py         schema/check_verify_data.py  schema/schema_files.py
@@ -575,7 +577,7 @@ parts of `command`.
 
 Also, include all the tests to be run with this version of NodeJS.
 
-````
+```json
   {
     "prereq": {
       "name": "nvm 23.3.0, icu76.1",
@@ -598,7 +600,7 @@ Also, include all the tests to be run with this version of NodeJS.
       "per_execution": 10000
     }
   },
-````
+```
 
 ### Update ICU4J /Java to new ICU version
 
@@ -781,7 +783,7 @@ in .json format:
 
 For example, here is the structure for directory `toplevel`:
 
-```
+```bash
 toplevel/testData/
 ├── icu67
 │   └── ...
@@ -823,7 +825,7 @@ The results file contains information identifying the test environment as well
 as the result from each test. As an example, collation test results from the
 `testOutput/node` file are shown here:
 
-```
+```json
 {
   "platform": {
     "platform": "NodeJS",
@@ -854,10 +856,10 @@ as the result from each test. As an example, collation test results from the
     ...
   ]
 }
-````
+```
 
-````
 And the overall structure:
+```bash
 toplevel/testOutput/
 ├── cpp
 │   ├── icu71
@@ -886,11 +888,11 @@ toplevel/testOutput/
 │   ├── icu73
 │   └── icu74
 └── test_output_validation_summary.json
-````
+```
 
 And showing details for the icu76 output from ICU4J:
 
-````
+```bash
 toplevel/testOutput/icu4j/icu76
 ├── collation_test.json
 ├── datetime_fmt_test.json
@@ -901,7 +903,7 @@ toplevel/testOutput/icu4j/icu76
 ├── num_fmt_test_file.json
 ├── plural_rules_test.json
 └── rdt_fmt_test.json
-````
+```
 
 ### Directory `testReports`
 
@@ -949,7 +951,7 @@ comparison with the expected results. At a minimum, each report contains:
 Example for details of ICU4C, version 76 of root directory **toplevel**:
 
 
-````
+```bash
 toplevel/testReports/cpp/icu76/number_fmt/
 ├── error_characterized.json
 ├── fail_characterized.json
@@ -964,8 +966,7 @@ toplevel/testReports/cpp/icu76/number_fmt/
 ├── unsupported.json
 ├── verifier_test_report.html
 └── verifier_test_report.json
-
-````
+```
 
 # History
 
