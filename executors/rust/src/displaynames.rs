@@ -8,7 +8,7 @@ use icu::displaynames::*;
 #[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
 use icu::experimental::displaynames::*;
 
-use super::compat::{Locale, pref};
+use super::compat::{pref, Locale};
 
 // Function runs comparison using displaynames
 pub fn _todo(json_obj: &Value) -> Result<Value, String> {

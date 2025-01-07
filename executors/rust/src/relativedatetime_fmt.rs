@@ -3,7 +3,7 @@
 
 use fixed_decimal::FixedDecimal;
 
-use super::compat::{Locale, unicode, unicode::key, pref};
+use super::compat::{pref, unicode, unicode::key, Locale};
 
 use std::str::FromStr;
 

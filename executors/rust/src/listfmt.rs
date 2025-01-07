@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 
 use icu::list::*;
 
-use super::compat::{Locale, pref};
+use super::compat::{pref, Locale};
 
 use writeable::Writeable;
 

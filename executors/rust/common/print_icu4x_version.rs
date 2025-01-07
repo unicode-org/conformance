@@ -7,15 +7,12 @@ pub fn print(package: &cargo_metadata::Package) {
     if !package.version.pre.is_empty() {
         println!(
             "cargo:rustc-cfg=ver=\"{}.{}-{}\"",
-            package.version.major,
-            package.version.minor,
-            package.version.pre,
+            package.version.major, package.version.minor, package.version.pre,
         );
     } else {
         println!(
             "cargo:rustc-cfg=ver=\"{}.{}\"",
-            package.version.major,
-            package.version.minor,
+            package.version.major, package.version.minor,
         );
     }
 }

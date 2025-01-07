@@ -14,7 +14,6 @@ type LocaleType = super::compat::Locale;
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
 type LocaleType = super::compat::LanguageIdentifier;
 
-
 // https://docs.rs/icu/latest/icu/locid_transform/
 
 // Function runs language names tests

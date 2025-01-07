@@ -45,7 +45,8 @@ pub fn main() -> io::Result<()> {
         run_locale_name_test: executors::localenames::run_locale_name_test,
         run_numberformat_test: executors::numberfmt::run_numberformat_test,
         run_plural_rules_test: executors::pluralrules::run_plural_rules_test,
-        run_relativedatetimeformat_test: executors::relativedatetime_fmt::run_relativedatetimeformat_test,
+        run_relativedatetimeformat_test:
+            executors::relativedatetime_fmt::run_relativedatetimeformat_test,
     };
     run_all_tests(executor_fns)
 }

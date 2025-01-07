@@ -2,14 +2,13 @@
 
 use serde_json::{json, Value};
 
-use super::compat::{Locale, pref};
+use super::compat::{pref, Locale};
 
 #[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::displaynames::*;
 
 #[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
 use icu::experimental::displaynames::*;
-
 
 // Function runs locale names tests
 pub fn run_locale_name_test(json_obj: &Value) -> Result<Value, String> {

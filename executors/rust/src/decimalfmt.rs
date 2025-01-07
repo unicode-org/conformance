@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
 
-use super::compat::{Locale, pref};
+use super::compat::{pref, Locale};
 
 // Runs decimal and number formatting given patterns or skeletons.
 pub fn _todo(json_obj: &Value) -> Result<Value, String> {
