@@ -21,6 +21,11 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
             'icu73': '20.1.0',
             'icu72': '18.14.2',
             'icu71': '18.7.0',
+            'icu70': '14.21.3',
+            'icu69': '14.18.3',
+            'icu68': '14.17.0',
+            'icu67': '14.16.0',
+            'icu66': '14.0.0'
         }
 
         exec_list = ['node generators/rdt_fmt_gen.js']
