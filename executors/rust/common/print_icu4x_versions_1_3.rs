@@ -1,7 +1,9 @@
+// Get the version of ICU4X and data
+
 #[path = "./print_icu4x_version.rs"]
 mod print_icu4x_version;
 
-pub fn print() {
+pub fn main() {
     let metadata = cargo_metadata::MetadataCommand::new().exec().unwrap();
     for package in metadata.packages.iter() {
         if package.name == "icu" {
