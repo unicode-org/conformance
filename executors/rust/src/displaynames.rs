@@ -8,7 +8,7 @@ use icu::displaynames::*;
 #[cfg(any(conformance_ver = "1.5", conformance_ver = "2.0-beta1"))]
 use icu::experimental::displaynames::*;
 
-use icu::locid::Locale;
+use super::compat::{Locale, pref};
 
 // Function runs comparison using displaynames
 pub fn _todo(json_obj: &Value) -> Result<Value, String> {
@@ -23,7 +23,7 @@ pub fn _todo(json_obj: &Value) -> Result<Value, String> {
         .unwrap_or_default();
 
     let displaynames =
-        LocaleDisplayNamesFormatter::try_new(&langid.into(), Default::default()).unwrap();
+        LocaleDisplayNamesFormatter::try_new(pref!(langid), Default::default()).unwrap();
 
     Ok(json!({
         "label": label,

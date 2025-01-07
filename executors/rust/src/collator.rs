@@ -4,7 +4,8 @@ use serde_json::{json, Value};
 
 use core::cmp::Ordering;
 use icu::collator::*;
-use icu::locid::locale;
+
+use super::compat::{locale, pref};
 
 // Function runs comparison using collator
 pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
@@ -14,7 +15,11 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     let str1: &str = json_obj["s1"].as_str().unwrap();
     let str2: &str = json_obj["s2"].as_str().unwrap();
 
+    #[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
     let mut options = CollatorOptions::new();
+    #[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+    let mut options = CollatorOptions::default();
+
     options.strength = Some(Strength::Tertiary);
 
     // Ignore punctuation only if using shifted test.
@@ -24,7 +29,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         }
     }
 
-    let collator: Collator = Collator::try_new(&locale!("en").into(), options).unwrap();
+    let collator = Collator::try_new(pref!(locale!("en")), options).unwrap();
 
     let comparison = collator.compare(str1, str2);
 

@@ -124,7 +124,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let input_iso = &json_obj["original_input"].as_str().unwrap();
 
     // Extract all the information we need from the string
-    let input_zoned_date_time = crate::try_or_return_error!(label, locale, {
+    let input_zoned_date_time = super::try_or_return_error!(label, locale, {
         IxdtfParser::new()
             .try_from_str(&input_iso)
             .map_err(|e| format!("{e:?}"))

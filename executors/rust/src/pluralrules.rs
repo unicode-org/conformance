@@ -1,7 +1,8 @@
 use fixed_decimal::FixedDecimal;
-use icu::locid::Locale;
 use serde_json::{json, Value};
 use std::str::FromStr;
+
+use super::compat::{Locale, pref};
 
 // https://docs.rs/icu/latest/icu/plurals/index.html
 use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
@@ -48,7 +49,7 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
         PluralRuleType::Ordinal
     };
 
-    let pr = PluralRules::try_new(&locale.into(), plural_type).expect("locale should be present");
+    let pr = PluralRules::try_new(pref!(locale), plural_type.into()).expect("locale should be present");
 
     // Get the category and convert to a string.
     let category = pr.category_for(&test_number);

@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use icu::list::*;
-use icu::locid::Locale;
+
+use super::compat::{Locale, pref};
 
 use writeable::Writeable;
 
@@ -47,14 +48,40 @@ pub fn run_list_fmt_test(json_obj: &Value) -> Result<Value, String> {
         }));
     };
 
-    let list_formatter_result: Result<ListFormatter, ListError> = if list_type == "conjunction" {
-        // Reference: https://docs.rs/icu/latest/icu/list/index.html
-        ListFormatter::try_new_and_with_length(&locale.into(), list_style)
+    let prefs = pref!(locale);
+
+    #[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+    let formatter_option = if list_type == "conjunction" {
+        Some(ListFormatter::try_new_and_with_length(prefs, list_style))
     } else if list_type == "disjunction" {
-        ListFormatter::try_new_or_with_length(&locale.into(), list_style)
+        Some(ListFormatter::try_new_or_with_length(prefs, list_style))
     } else if list_type == "unit" {
-        ListFormatter::try_new_unit_with_length(&locale.into(), list_style)
+        Some(ListFormatter::try_new_unit_with_length(prefs, list_style))
     } else {
+        None
+    };
+
+    #[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+    let formatter_option = if list_type == "conjunction" {
+        Some(ListFormatter::try_new_and(
+            prefs,
+            ListFormatterOptions::default().with_length(list_style),
+        ))
+    } else if list_type == "disjunction" {
+        Some(ListFormatter::try_new_or(
+            prefs,
+            ListFormatterOptions::default().with_length(list_style),
+        ))
+    } else if list_type == "unit" {
+        Some(ListFormatter::try_new_unit(
+            prefs,
+            ListFormatterOptions::default().with_length(list_style),
+        ))
+    } else {
+        None
+    };
+
+    let Some(list_formatter_result) = formatter_option else {
         // This option is not  supported.
         return Ok(json!({
             "label": label,

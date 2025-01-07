@@ -2,8 +2,18 @@
 
 use serde_json::{json, Value};
 
-use icu::locid::Locale;
-use icu::locid_transform::LocaleExpander;
+#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+pub use icu::locid_transform::LocaleExpander;
+
+#[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+pub use icu::locale::LocaleExpander;
+
+#[cfg(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5"))]
+type LocaleType = super::compat::Locale;
+
+#[cfg(not(any(conformance_ver = "1.3", conformance_ver = "1.4", conformance_ver = "1.5")))]
+type LocaleType = super::compat::LanguageIdentifier;
+
 
 // https://docs.rs/icu/latest/icu/locid_transform/
 
@@ -17,7 +27,7 @@ pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
 
     let locale_str: &str = json_obj["locale"].as_str().unwrap();
 
-    let mut locale = locale_str.parse::<Locale>().unwrap();
+    let mut locale = locale_str.parse::<LocaleType>().unwrap();
 
     if test_option == &"minimizeFavorRegion" {
         // This option is not yet supported.
