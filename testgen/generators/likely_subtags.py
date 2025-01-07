@@ -36,11 +36,13 @@ class LikelySubtagsGenerator(DataGenerator):
             # split at ";" and ignore whitespace
             tags = list(map(str.strip, line.split(";")))
 
+            # Flag to indicate exceptional data situation
+            just_copy_input = False
             # Remove tests of language codes "reserved for local use"
             # https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Languages/List_of_ISO_639-3_language_codes_used_locally_by_Linguist_List
             lang_code = tags[0].split('-')[0]
             if lang_code >= "qaa" and lang_code <= "qtz":
-                continue
+                just_copy_input = True
 
             # Normalize to 4 tags: Source; AddLikely; RemoveFavorScript; RemoveFavorRegion
             while len(tags) < 4:
@@ -52,9 +54,15 @@ class LikelySubtagsGenerator(DataGenerator):
 
             # Create minimize tests - default is RemoveFavorScript
             source = tags[0]
-            add_likely = tags[1]
-            remove_favor_script = tags[2]
-            remove_favor_region = tags[3]
+            if not just_copy_input:
+                add_likely = tags[1]
+                remove_favor_script = tags[2]
+                remove_favor_region = tags[3]
+            else:
+                # Exceptional situation where output will be same as input
+                add_likely = source
+                remove_favor_script = source
+                remove_favor_region = source
 
             # And maximize from each tag
             label = str(count).rjust(max_digits, "0")
