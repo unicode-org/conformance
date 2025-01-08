@@ -202,7 +202,7 @@ auto set_sign_display(json_object* options_obj) -> UNumberSignDisplay {
   return signDisplay_setting;
 }
 
-string TestNumfmt(json_object *json_in) {
+auto TestNumfmt(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   // label information
@@ -238,12 +238,12 @@ string TestNumfmt(json_object *json_in) {
   json_object *currency_obj;
   json_object *signDisplay_obj;
 
-  string notation_string = "";
-  string precision_string = "";
-  string unit_string = "";
-  string unitDisplay_string = "";
-  string style_string = "";
-  string compactDisplay_string = "";
+  string notation_string;
+  string precision_string;
+  string unit_string;
+  string unitDisplay_string;
+  string style_string;
+  string compactDisplay_string;
 
   // Defaults for settings.
   CurrencyUnit currency_unit_setting = CurrencyUnit();
