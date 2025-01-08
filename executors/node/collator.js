@@ -1,8 +1,5 @@
 // The Collator used for the actual testing.
 
-const debug = null;
-
-// Collation: determine the sensitivity that corresponds to the strength.
 module.exports = {
 
   testCollationShort: function(json) {
@@ -37,15 +34,20 @@ module.exports = {
       }
     }
 
+    let outputLine = {'label':json['label']};
     // Get other fields if provided
     let rules = undefined;
     if ('rules' in json) {
       rules = json['rules'];
+      outputLine['unsupported'] = 'Collator rules not available';
+      outputLine['error_detail'] = 'Rules not supported';
+      return outputLine;
     }
 
-    let compare_type = undefined;
+    let compare_type;
     if ('compare_type' in json) {
       compare_type = json['compare_type'].trim();
+      compare_type = compare_type.replace('&lt;', '<');
     }
 
     let reoder;
@@ -64,13 +66,9 @@ module.exports = {
       // Should we check with < or <=?
       const compared = coll.compare(d1, d2);
 
-      let result = undefined;
+      let result = false;
       // Check for strict equality comparison
       if (compare_type) {
-        compare_type = compare_type.replace('&lt;', '<');
-        if (debug) {
-          console.log('COMPARE_TYPE: |', compare_type, '| compared =', compared);
-        }
         if (compare_type == '=' && compared == 0) {
           result = true;
         } else
@@ -79,42 +77,36 @@ module.exports = {
           result = true;
         }
       } else {
+        // Default comparison method.
         result = (compared <=  0);
       }
 
-      outputLine = {'label':json['label'],
-                   }
       outputLine['result'] = result;
       if (result == true) {
         outputLine['compare_result'] = compared;
       } else {
         // Additional info for the comparison
-        outputLine['compare'] = compared;
-        if (rules) {
-          outputLine['unsupported'] = 'Collator rules not available';
-          outputLine['error_detail'] = 'Rules not supported';
-        }
-        else {
-          outputLine['actual_options'] = JSON.stringify(coll.resolvedOptions());
-          outputLine['compare_result'] = compared;
-          outputLine['result'] = result_bool;
-        }
+        outputLine['actual_options'] = JSON.stringify(coll.resolvedOptions());
+        outputLine['compare_result'] = compared;
+        outputLine['result'] = result;
       }
 
     } catch (error) {
       const error_message = error.message;
-
-      if (testLocale == "root" || error_message == "Incorrect locale information provided")  {
+      if (testLocale == "root" ||
+          error_message == "Incorrect locale information provided")  {
         outputLine =  {'label': json['label'],
+                       'error_message': error.message,
                        'unsupported': 'root locale',
                        'error_detail': error_message + ': ' + testLocale,
                        'error': 'Unsupported locale'
                       };
       } else {
+        // Another kind of error.
         outputLine =  {'label': json['label'],
-                       'error_message': error_message,
+                       'error_message': error.message,
                        'error_detail': testLocale,
-                       'error': 'Something wrong'
+                       'error': error.name
                       };
       }
     }
