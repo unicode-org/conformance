@@ -29,13 +29,20 @@ pub fn run_likelysubtags_test(json_obj: &Value) -> Result<Value, String> {
     let mut locale = locale_str.parse::<LocaleType>().unwrap();
 
     if test_option == &"minimizeFavorScript" {
-        // This option is not yet supported.
-        return Ok(json!({
-            "label": label,
-            "error_detail": {"option": test_option},
-            "unsupported": test_option,
-            "error_type": "unsupported",
-        }));
+        #[cfg(any(ver = "1.3", ver = "1.4"))]
+        {
+            // This option is not yet supported.
+            return Ok(json!({
+                "label": label,
+                "error_detail": {"option": test_option},
+                "unsupported": test_option,
+                "error_type": "unsupported",
+            }));
+        }
+        #[cfg(not(any(ver = "1.3", ver = "1.4")))]
+        {
+            lc.minimize_favor_script(&mut locale);
+        }
     } else if test_option == &"minimize" || test_option == &"minimizeFavorRegion" {
         lc.minimize(&mut locale);
     } else if test_option == &"maximize" {
