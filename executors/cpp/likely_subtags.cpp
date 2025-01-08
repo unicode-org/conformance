@@ -25,7 +25,7 @@ using icu::Locale;
 using icu::StringByteSink;
 using icu::UnicodeString;
 
-string TestLikelySubtags(json_object *json_in) {
+auto TestLikelySubtags(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -41,7 +41,7 @@ string TestLikelySubtags(json_object *json_in) {
 
   Locale displayLocale(locale_string.c_str());
 
-  string test_result = "";
+  string test_result;
 
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);

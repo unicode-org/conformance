@@ -45,7 +45,7 @@ const char error_message[] = "error";
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
-string TestCollator(json_object *json_in) {
+auto TestCollator(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -75,14 +75,14 @@ string TestCollator(json_object *json_in) {
   // Comparison type
   json_object *compare_type_obj =
       json_object_object_get(json_in, "compare_type");
-  string compare_type_string = "";
+  string compare_type_string;
   if (compare_type_obj != nullptr) {
     compare_type_string = json_object_get_string(compare_type_obj);
   }
 
   // Strength of comparison
   Collator::ECollationStrength strength_type =  Collator::PRIMARY;
-  string strength_string = "";
+  string strength_string;
 
   json_object *strength_obj = json_object_object_get(json_in, "strength");
   if (strength_obj != nullptr) {
@@ -102,7 +102,7 @@ string TestCollator(json_object *json_in) {
 
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
-  string rules_string = "";
+  string rules_string;
   if (rules_obj != nullptr) {
     rules_string = json_object_get_string(rules_obj);
   }
@@ -132,7 +132,7 @@ string TestCollator(json_object *json_in) {
   Collator *uni_coll = nullptr;
   RuleBasedCollator *rb_coll = nullptr;
 
-  if (rules_string != "") {
+  if (!rules_string.empty()) {
     string uni_rules_string;
     // TODO: Check if this is needed.
     uni_rules.toUTF8String(uni_rules_string);
