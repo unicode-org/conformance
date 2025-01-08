@@ -46,6 +46,10 @@
          "input_data": {
            "type": "string",
            "description": "Information provided to the executor"
+         },
+         "actual_locale": {
+           "type": "string",
+           "description": "If present, the substitute locale actually used in the test"
          }
        }
      },
