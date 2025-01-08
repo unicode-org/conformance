@@ -82,8 +82,6 @@ auto TestCollator(json_object *json_in) -> string {
     if (compare_type_string.substr(0,4) == "&lt;") {
       compare_type_string = "<" + compare_type_string.substr(4,1);
     }
-    // !!!
-    cout << "COMPARE_TYPE_STRING: " << compare_type_string << endl;
   }
 
   // Strength of comparison
@@ -157,12 +155,8 @@ auto TestCollator(json_object *json_in) -> string {
     } else {
       Locale this_locale;
       if (locale_string == "root") {
-        // !!!
-        cout << "&& ROOT LOCAL: " << locale_string << endl;
         this_locale = Locale::getRoot();
       } else {
-        // !!!
-        cout << "&& OTHER LOCAL: " << locale_string << endl;
         this_locale = Locale(locale_string);
       }
       uni_coll = Collator::createInstance(this_locale, status);
@@ -224,8 +218,6 @@ auto TestCollator(json_object *json_in) -> string {
     // Default checking for <= 0.
     coll_result = (uni_result != UCOL_GREATER);
   } else {
-    // !!!
-    cout << "CHECK for EQUAL: " << compare_type_string << endl;
     coll_result = (uni_result == UCOL_EQUAL);
   }
 
