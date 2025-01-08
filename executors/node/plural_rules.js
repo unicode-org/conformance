@@ -44,28 +44,38 @@ module.exports = {
       test_options['type'] = plural_type;
     }
 
+    let actual_locale;
     try {
       const supported_locales =
             Intl.PluralRules.supportedLocalesOf(locale, test_options);
-
-      if (!supported_locales.includes(locale)) {
-
-        return {"label": label,
-                "error" : "unusupported",
-                "unsupported": "unsupported_locale",
-                "error_detail": {'unsupported_locale': locale,
-                                 'supported_locals': supported_locales,
-                                 'test_options': test_options
-                                }
-               };
+      if (supported_locales.includes(locale)) {
+        actual_locale = locale;
+      } else {
+        if (supported_locales) {
+          actual_locale = supported_locales[0];
+        }
+        if (actual_locale == undefined) {
+          // No, there's no good substitute.
+          return {"label": label,
+                  "error" : "unusupported",
+                  "unsupported": "unsupported_locale",
+                  "error_detail": {'unsupported_locale': locale,
+                                   'supported_locals': supported_locales,
+                                   'test_options': test_options
+                                  }
+                 };
+        }
       }
     } catch (error) {
-      // Ignore for now.
+      /* Something is wrong with supporteLocalesOf */
+      return_json['error'] = 'supporteLocalesOf: ' + error.message;
+      return_json['options'] = test_options;
+      return return_json;
     }
 
     let list_formatter;
     try {
-      p_rules = new Intl.PluralRules(locale, test_options);
+      p_rules = new Intl.PluralRules(actual_locale, test_options);
     } catch (error) {
       /* Something is wrong with the constructor */
       return_json['error'] = 'CONSTRUCTOR: ' + error.message;
@@ -79,6 +89,9 @@ module.exports = {
     } catch (error) {
       return_json['error'] =
           'PLURAL RULES UNKNOWN ERROR: ' + error.message;
+    }
+    if (actual_locale != locale) {
+      return_json['actual_locale'] = actual_locale;
     }
     return return_json;
   }
