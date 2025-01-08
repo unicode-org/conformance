@@ -3,15 +3,21 @@
 
 use fixed_decimal::FixedDecimal;
 
-use icu::locale::extensions::unicode;
-use icu::locale::extensions::unicode::key;
-use icu::locale::Locale;
-use icu_provider::DataError;
+use super::compat::{pref, unicode, unicode::key, Locale};
 
 use std::str::FromStr;
 
-use icu::experimental::relativetime::options::Numeric;
-use icu::experimental::relativetime::{RelativeTimeFormatter, RelativeTimeFormatterOptions};
+#[cfg(any(ver = "1.3", ver = "1.4"))]
+use icu::relativetime::{options::Numeric, *};
+
+#[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
+use icu::experimental::relativetime::{options::Numeric, *};
+
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
+type Error = RelativeTimeError;
+
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
+type Error = icu_provider::DataError;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -29,99 +35,99 @@ fn get_formatter_from_unit_style(
     unit: String,
     style: String,
     options: RelativeTimeFormatterOptions,
-) -> Result<RelativeTimeFormatter, DataError> {
-    let locale = locale.into();
+) -> Result<RelativeTimeFormatter, Error> {
+    let prefs = pref!(locale);
     if unit == "year" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_year(locale, options)
+            RelativeTimeFormatter::try_new_long_year(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_year(locale, options)
+            RelativeTimeFormatter::try_new_short_year(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_year(locale, options)
+            RelativeTimeFormatter::try_new_narrow_year(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_year(locale, options)
+            RelativeTimeFormatter::try_new_long_year(prefs, options)
         }
     } else if unit == "quarter" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_quarter(locale, options)
+            RelativeTimeFormatter::try_new_long_quarter(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_quarter(locale, options)
+            RelativeTimeFormatter::try_new_short_quarter(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_quarter(locale, options)
+            RelativeTimeFormatter::try_new_narrow_quarter(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_quarter(locale, options)
+            RelativeTimeFormatter::try_new_long_quarter(prefs, options)
         }
     } else if unit == "month" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_month(locale, options)
+            RelativeTimeFormatter::try_new_long_month(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_month(locale, options)
+            RelativeTimeFormatter::try_new_short_month(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_month(locale, options)
+            RelativeTimeFormatter::try_new_narrow_month(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_month(locale, options)
+            RelativeTimeFormatter::try_new_long_month(prefs, options)
         }
     } else if unit == "week" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_week(locale, options)
+            RelativeTimeFormatter::try_new_long_week(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_week(locale, options)
+            RelativeTimeFormatter::try_new_short_week(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_week(locale, options)
+            RelativeTimeFormatter::try_new_narrow_week(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_week(locale, options)
+            RelativeTimeFormatter::try_new_long_week(prefs, options)
         }
     } else if unit == "day" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_day(locale, options)
+            RelativeTimeFormatter::try_new_long_day(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_day(locale, options)
+            RelativeTimeFormatter::try_new_short_day(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_day(locale, options)
+            RelativeTimeFormatter::try_new_narrow_day(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_day(locale, options)
+            RelativeTimeFormatter::try_new_long_day(prefs, options)
         }
     } else if unit == "hour" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_hour(locale, options)
+            RelativeTimeFormatter::try_new_long_hour(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_hour(locale, options)
+            RelativeTimeFormatter::try_new_short_hour(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_hour(locale, options)
+            RelativeTimeFormatter::try_new_narrow_hour(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_hour(locale, options)
+            RelativeTimeFormatter::try_new_long_hour(prefs, options)
         }
     } else if unit == "minute" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_minute(locale, options)
+            RelativeTimeFormatter::try_new_long_minute(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_minute(locale, options)
+            RelativeTimeFormatter::try_new_short_minute(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_minute(locale, options)
+            RelativeTimeFormatter::try_new_narrow_minute(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_minute(locale, options)
+            RelativeTimeFormatter::try_new_long_minute(prefs, options)
         }
     } else if unit == "second" {
         if style == "long" {
-            RelativeTimeFormatter::try_new_long_second(locale, options)
+            RelativeTimeFormatter::try_new_long_second(prefs, options)
         } else if style == "short" {
-            RelativeTimeFormatter::try_new_short_second(locale, options)
+            RelativeTimeFormatter::try_new_short_second(prefs, options)
         } else if style == "narrow" {
-            RelativeTimeFormatter::try_new_narrow_second(locale, options)
+            RelativeTimeFormatter::try_new_narrow_second(prefs, options)
         } else {
             // Assume long
-            RelativeTimeFormatter::try_new_long_second(locale, options)
+            RelativeTimeFormatter::try_new_long_second(prefs, options)
         }
     } else {
         // An unknown unit!
-        RelativeTimeFormatter::try_new_narrow_second(locale, options)
+        RelativeTimeFormatter::try_new_narrow_second(prefs, options)
     }
 }
 
@@ -169,8 +175,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
             return Ok(json!({
                 "error": "Number system not supported",
                 "error_msg": numbering_system,
-                "error_detail": {"locale": format!("{locale:?}")},
-                "label": label,
+                "error_detail": {"locale": format!("{locale:?}")},                "label": label,
                 "unsupported": "non-Latn numbering system",
             }));
         }
@@ -210,6 +215,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
             return Ok(json!({
                 "error": "Cannot create formatter",
                 "error_msg": error.to_string(),
+                "error_detail": {"locale": format!("{locale:?}")},
                 "label": label,
             }));
         }
