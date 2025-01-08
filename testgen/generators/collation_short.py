@@ -24,6 +24,7 @@ class CollationShortGenerator(DataGenerator):
         self.comparison_line = re.compile("^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
 
         self.input_pattern_with_comment = re.compile("^([^#]+)#?(.*)")
+
         self.attribute_test = re.compile("^% (\S+)\s*=\s*(.+)")
         self.reorder_test = re.compile("^% (reorder)\s+(.+)")
 
@@ -166,7 +167,7 @@ class CollationShortGenerator(DataGenerator):
                 tests.append(new_test)
             line_index += 1
 
-        # Check for string conversion errors. ???
+# Check for string conversion errors. ???
         if string2_errors:
             pass
 

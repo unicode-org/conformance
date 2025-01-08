@@ -5,6 +5,7 @@ import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
@@ -42,16 +43,24 @@ public class CollatorTester implements ITestType {
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
 
+    // Resolve "&lt;"
     result.compare_type = (String) inputMapData.get("compare_type", null);
+    if (result.compare_type != null && ! result.compare_type.equals("") && result.compare_type.length() > 4) {
+      String first_part = result.compare_type.substring(0,4);
+      if (first_part.equals("&lt;")) {
+        String next_part = result.compare_type.substring(4,5);
+        result.compare_type = "<" + next_part;
+      }
+    }
     result.test_description = (String) inputMapData.get("test_description", null);
 
     // TODO: implement this correctly recursively (either using APIs or else DIY)
-    String[] attrs;
-    Optional<Object> attrsString = inputMapData.get("attributes");
-    if (attrsString.isPresent()) {
-      attrs = new String[]{ (String) attrsString.get() };
+    ArrayList<String> attrs;
+    Optional<Object> attrsListOpt = inputMapData.get("attributes");
+    if (attrsListOpt.isPresent()) {
+      attrs = (ArrayList<String>) attrsListOpt.get();
     } else {
-      attrs = new String[]{};
+      attrs = new ArrayList<>();
     }
     result.attributes = attrs;
 
@@ -90,6 +99,7 @@ public class CollatorTester implements ITestType {
 
     try {
       int collResult = coll.compare(input.s1, input.s2);
+      // TODO! Use compare_type to check for <= or ==.
       if (collResult > 0) {
         // failure
         output.result = false;
@@ -137,7 +147,7 @@ public class CollatorTester implements ITestType {
   public Collator getCollatorForInput(CollatorInputJson input) {
     RuleBasedCollator result = null;
 
-    if (input.locale == null) {
+    if (input.locale == null || input.locale == "root") {
       if (input.rules == null) {
         result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {
