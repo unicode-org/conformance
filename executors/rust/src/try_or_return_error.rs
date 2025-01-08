@@ -1,4 +1,3 @@
-#[macro_export]
 macro_rules! try_or_return_error {
 	($label:expr, $locale:expr, $expr:expr) => {{
 		match ($expr) {
@@ -14,3 +13,5 @@ macro_rules! try_or_return_error {
 		}
 	}};
 }
+
+pub(crate) use try_or_return_error;

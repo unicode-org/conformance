@@ -188,11 +188,15 @@ class VerifyPlan:
 
                 # Remember details about the test
                 test['input_data'] = test_data
-                test['expected'] = expected_result
-                if actual_result == expected_result:
-                    self.report.record_pass(test)
+                if 'unsupported' in test:
+                    self.report.record_unsupported(test)
                 else:
-                    self.report.record_fail(test)
+                    # This should be a supported test type.
+                    test['expected'] = expected_result
+                    if actual_result == expected_result:
+                        self.report.record_pass(test)
+                    else:
+                        self.report.record_fail(test)
 
             except (AttributeError, KeyError):
                 # Add input information to the test results
