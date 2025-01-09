@@ -377,7 +377,7 @@ class TestPlan:
                 test_lines = []
 
             test_num += 1
-            if self.run_limit and test_num > self.run_limit:
+            if self.run_limit and test_num > self.run_limit and self.debug:
                 logging.debug('** Stopped after %d tests', (test_num - 1))
                 break
 
