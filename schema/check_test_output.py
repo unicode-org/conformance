@@ -26,7 +26,7 @@ def main(args):
 
 
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
 
     logger.debug('TEST OUTPUT PATH = %s', test_output_path)
 

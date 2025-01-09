@@ -19,7 +19,7 @@ from schema_files import SCHEMA_FILE_MAP
 
 # ?? Move to the initialization
 ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
+ch.setLevel(logging.WARNING)
 
 
 # Given a directory, validate JSON files against expected schema
@@ -447,7 +447,7 @@ def main(args):
     base_folders, test_types, result_folders = process_args(args)
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
     logger.info('+++ Running JSON Schema tests')
 
     schema_validator = ConformanceSchemaValidator()

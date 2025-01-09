@@ -51,7 +51,6 @@ class TestPlan:
         self.icu_version = None  # Requested by the test driver.
         self.run_limit = None  # Set to positive integer to activate
         self.debug = False
-        # logging.setLevel(logging.INFO)
 
         self.iteration = 0
 
@@ -132,7 +131,8 @@ class TestPlan:
 
         if self.options.run_limit:
             self.run_limit = int(self.options.run_limit)
-            logging.info('!!! RUN LIMIT SET: %d', self.run_limit)
+            if self.debug:
+                logging.info('!!! RUN LIMIT SET: %d', self.run_limit)
 
         if self.debug:
             logging.debug('Running plan %s on data %s',
@@ -156,7 +156,8 @@ class TestPlan:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
         else:
-            logging.info('EXECUTOR INFO = %s', result)
+            if self.debug > 1:
+                logging.info('EXECUTOR INFO = %s', result)
 
             try:
                 self.jsonOutput["platform"] = json.loads(result)
@@ -240,8 +241,9 @@ class TestPlan:
             self.resultsFile.close()
 
     def run_one_test_mode(self):
-        logging.info('  Running OneTestMode %s on data %s',
-                          self.exec_command, self.inputFilePath)
+        if self.debug:
+            logging.info('  Running OneTestMode %s on data %s',
+                         self.exec_command, self.inputFilePath)
 
         # Set up calls for version data --> results
 
@@ -284,7 +286,8 @@ class TestPlan:
 
         # Create results file
         try:
-            logging.info('++++++ Results file path = %s', self.outputFilePath)
+            if self.debug:
+                logging.info('++++++ Results file path = %s', self.outputFilePath)
             self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
         except BaseException as error:
             logging.error('*** Cannot open results file at %s. Err = %s',
@@ -350,7 +353,7 @@ class TestPlan:
         for test in self.tests:
             test.update({"test_type": self.test_type})
 
-            if self.progress_interval and test_num % self.progress_interval == 0:
+            if self.debug and self.progress_interval and test_num % self.progress_interval == 0:
                 formatted_num = '{:,}'.format(test_num)
                 logging.info('Testing %s / %s. %s of %s',
                                   self.exec_list[0], self.testScenario, formatted_num, formatted_count)
@@ -486,7 +489,7 @@ class TestPlan:
                 logging.error('CANNOT parse JSON from file %s: %s', self.inputFilePath, error)
                 return None
         except FileNotFoundError as err:
-            logging.debug('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
+            logging.error('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
             return None
 
         try:

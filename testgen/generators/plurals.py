@@ -109,7 +109,7 @@ class PluralGenerator(DataGenerator):
         try:
             tree = ET.parse(filename)
         except:
-            logging.warning('No plurals file found: %s', filename)
+            logging.debug('No plurals file found: %s', filename)
             return None, None
 
         root = tree.getroot()
@@ -137,7 +137,7 @@ class PluralGenerator(DataGenerator):
                     for sample in samples:
                         # Ignore "root" locale.
                         if locale == 'root':
-                            logging.info('Plural rules: root locale ignored for %s, %s, %s',
+                            logging.debug('Plural rules: root locale ignored for %s, %s, %s',
                                          locale, num_type, sample)
                             continue
                         test = {

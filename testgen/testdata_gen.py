@@ -20,7 +20,7 @@ from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 reblankline = re.compile("^\s*$")
 
 logger = logging.Logger("TEST_GENERATE LOGGER")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 
 def setupArgs():

@@ -19,11 +19,11 @@ import ddtargs
 from testplan import TestPlan
 
 logger = logging.Logger("TEST DRIVER LOGGER")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 
 class TestDriver:
-    def __init__(self):
+    def __init__(self, logger=None):
         # All test plans requested from command line arguments
         self.cldrVersion = None
         self.icuVersion = None
@@ -125,9 +125,9 @@ class TestDriver:
 # Run the test with command line arguments
 def main(args):
     logger = logging.Logger("TEST DRIVER LOGGER")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
 
-    driver = TestDriver()
+    driver = TestDriver(logger)
 
     logger.debug('ARGS = %s', args)
     driver.parse_args(args[1:])

@@ -194,7 +194,7 @@ rl.on('line', function (line) {
           };
         }
 
-        if ('error' in outputLine) {
+        if ('error' in outputLine && doLogOutput > 0) {
           // To get the attention of the driver
           console.log("#!! ERROR in DART_WEB: " + test_type + ": " + JSON.stringify(outputLine));
         }

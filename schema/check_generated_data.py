@@ -16,7 +16,7 @@ import schema_validator
 from schema_files import ALL_TEST_TYPES
 
 logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 
 def main(args):

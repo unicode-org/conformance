@@ -20,7 +20,7 @@ from ddtargs import VerifyArgs
 # Global constants
 VERIFIER_REPORT_NAME = 'verifier_test_report.json'
 logger = logging.Logger("VERIFIER LOGGER")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 
 class Verifier:
