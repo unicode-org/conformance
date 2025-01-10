@@ -79,7 +79,7 @@ def main(args):
         summary_data = json.dumps(summary_json)
     except BaseException as error:
         logging.error('json.dumps Summary data problem: %s at %s', error, error)
-        exit(1)
+        sys.exit(1)
 
     output_filename = os.path.join(test_data_path, 'test_data_validation_summary.json')
     try:
@@ -89,17 +89,17 @@ def main(args):
     except BaseException as error:
         schema_errors.append(output_filename)
         logging.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
-        exit(1)
+        sys.exit(1)
 
     if schema_errors:
         logging.critical('Test data file files: %d fail out of %d:',
                          len(schema_errors), schema_count)
         for failure in schema_errors:
             logging.critical('  %s', failure)
-        exit(1)
+        sys.exit(1)
     else:
         logging.info("All %d generated test data files match with schema", schema_count)
-        exit(0)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
