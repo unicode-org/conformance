@@ -64,7 +64,7 @@ auto main(int argc, const char** argv) -> int {
   // All the currently supported test types.
   std::vector <string> supported_tests;
   supported_tests = {
-    "collation_short",
+    "collation",
     "datetime_fmt",
     "likely_subtags",
     "list_fmt",
@@ -112,7 +112,7 @@ auto main(int argc, const char** argv) -> int {
           json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);
 
-      if (test_type == "collation_short") {
+      if (test_type == "collation") {
         outputLine = TestCollator(json_input);
       } else if (test_type == "datetime_fmt") {
          outputLine = TestDatetimeFmt(json_input);
