@@ -969,7 +969,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.collation_short.value:
+        if self.test_type == testType.collation.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

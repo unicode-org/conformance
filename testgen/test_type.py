@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class TestType(str, Enum):
-    COLLATION_SHORT = "collation_short"
+    COLLATION = "collation"
     DATETIME_FMT = "datetime_fmt"
     LANG_NAMES = "lang_names"
     LIKELY_SUBTAGS = "likely_subtags"

@@ -122,7 +122,7 @@ public class Icu4jExecutor {
         } else {
             String testTypeStr = (String) testTypeOpt.get();
             ITestType testType;
-            if (testTypeStr.equals("collation_short")) {
+            if (testTypeStr.equals("collation")) {
                 testType = CollatorTester.INSTANCE;
             } else if (testTypeStr.equals("datetime_fmt")) {
                 testType = DateTimeFormatterTester.INSTANCE;
