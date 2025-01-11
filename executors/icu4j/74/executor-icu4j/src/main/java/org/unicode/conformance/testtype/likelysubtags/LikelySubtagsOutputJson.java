@@ -15,5 +15,9 @@ public class LikelySubtagsOutputJson implements ITestTypeOutputJson {
   public String error;
 
   public String error_message;
+  public String error_type;
+
+  public String unsupported;
+  public String error_detail;
 
 }

@@ -585,13 +585,17 @@ class TestReport:
     def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
+        if not test_list:
+            # no test --> no characterizations
+            return results
+
         results['locale'] = {}  # Dictionary of labels for each locale
 
         # Look at particular test types
-        if self.test_type == 'plural_rules' and test_list:
+        if self.test_type == 'plural_rules':
             self.characterize_plural_rules_tests(test_list, results)
 
-        if self.test_type == 'datetime_fmt' and test_list:
+        if self.test_type == 'datetime_fmt':
             self.characterize_datetime_tests(test_list, results)
 
         for test in test_list:
@@ -689,6 +693,7 @@ class TestReport:
                 'locale_label',
                 'locale',
                 'options',
+                'option',
                 'rules',
                 'test_description',
                 'unsupported_options',
@@ -779,12 +784,13 @@ class TestReport:
                             pass
                 except:
                     pass
-                
+
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
+
         for check in all_checks:
             results[check] = set()
 
@@ -963,7 +969,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.collation_short.value:
+        if self.test_type == testType.collation.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

@@ -1,6 +1,6 @@
 # Points to file names for each supported JSON files.
 
-ALL_TEST_TYPES = ['collation_short',
+ALL_TEST_TYPES = ['collation',
                   'datetime_fmt',
                   'lang_names',
                   'likely_subtags',
@@ -12,7 +12,7 @@ ALL_TEST_TYPES = ['collation_short',
                   ]
 
 TEST_FILE_TO_TEST_TYPE_MAP = {
-    'collation_test': 'collation_short',
+    'collation_test': 'collation',
     'datetime_fmt_test_file': 'datetime_fmt',
     'datetime_fmt_test': 'datetime_fmt',
     'lang_name_test_file': 'lang_names',
@@ -30,20 +30,20 @@ TEST_FILE_TO_TEST_TYPE_MAP = {
 }
 
 SCHEMA_FILE_MAP = {
-    "collation_short": {
+    "collation": {
         "test_data": {
-            "schema_file": "collation_short/test_schema.json",
+            "schema_file": "collation/test_schema.json",
             "prod_file": "collation_test.json"
         },
         "verify_data": {
             # For, eventually, checking the expected output created by the test generator.
 
-            "schema_file": "collation_short/verify_schema.json",
+            "schema_file": "collation/verify_schema.json",
             "prod_file": "collation_verify.json"
         },
         "result_data": {
             # For checking test outputs.
-            "schema_file": "collation_short/result_schema.json",
+            "schema_file": "collation/result_schema.json",
             "prod_file": "collation_test.json"
         }
     },

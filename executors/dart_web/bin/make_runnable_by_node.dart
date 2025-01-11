@@ -12,7 +12,7 @@ class ExportFunction {
 Future<void> main(List<String> args) async {
   final names = {
     'collator': ExportFunction(
-      name: 'testCollationShort',
+      name: 'testCollation',
       argNames: ['encoded'],
     ),
     'numberformat': ExportFunction(
@@ -64,7 +64,7 @@ module.exports = { dartVersion };
   }
 }
 
-/// Prepare the file to export `testCollationShort`
+/// Prepare the file to export `testCollation`
 void prepareOutFile(String name, List<ExportFunction> functions) {
   final outFile = File('out/$name.js');
   var s = outFile.readAsStringSync();

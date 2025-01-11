@@ -45,7 +45,7 @@ auto StringToEStyle(string style_string) -> icu::DateFormat::EStyle {
   return icu::DateFormat::kNone;
 }
 
-string TestDatetimeFmt(json_object *json_in) {
+auto TestDatetimeFmt(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -145,7 +145,7 @@ string TestDatetimeFmt(json_object *json_in) {
 
   json_object *date_skeleton_obj =
       json_object_object_get(json_in, "skeleton");
-  string skeleton_string = "";
+  string skeleton_string;
   if (date_style == icu::DateFormat::EStyle::kNone &&
       time_style == icu::DateFormat::EStyle::kNone) {
     skeleton_string = default_skeleton_string;
@@ -154,7 +154,7 @@ string TestDatetimeFmt(json_object *json_in) {
     // Data specifies a date time skeleton. Make a formatter based on this.
     skeleton_string = json_object_get_string(date_skeleton_obj);
   }
-  if (skeleton_string != "") {
+  if (!skeleton_string.empty()) {
     UnicodeString u_skeleton(skeleton_string.c_str());
     if (cal != nullptr) {
       df = DateFormat::createInstanceForSkeleton(cal,
