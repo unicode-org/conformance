@@ -77,7 +77,7 @@ pub fn run_all_tests(fns: ExecutorFns) -> io::Result<()> {
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
                 { "supported_tests": [
-                    "collation_short",
+                    "collation",
                     "number_fmt",
                     "decimal_fmt",
                     "likelysubtags",
@@ -107,7 +107,7 @@ pub fn run_all_tests(fns: ExecutorFns) -> io::Result<()> {
             let label: &str = json_info["label"].as_str().unwrap();
 
             // TODO!!! : supported_test_map to call the functions.
-            let json_result = if test_type == "collation_short" {
+            let json_result = if test_type == "collation" {
                 (fns.run_collation_test)(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 (fns.run_numberformat_test)(&json_info)

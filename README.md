@@ -234,7 +234,7 @@ running selected versions of a platform with selected test types
       "icu_version": "icu76",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -313,11 +313,11 @@ The test type is indicated with the "Test scenario" field.
 Individual data tests are stored as an array of items, each with a label and
 parameters to be set for computing a result.
 
-  Example line for collation_short:
+  Example line for collation:
     ```json
   {
     "description": "UCA conformance test. Compare the first data\n   string with the second and with strength = identical level\n   (using S3.10). If the second string is greater than the first\n   string, then stop with an error.",
-    "Test scenario": "collation_short",
+    "Test scenario": "collation",
     "tests": [
       {
         "label": "0000000",
@@ -330,7 +330,7 @@ parameters to be set for computing a result.
 
   Sample verify data:
     ```json
-    {"Test scenario": "collation_short",
+    {"Test scenario": "collation",
     "verifications": [
       {
         "label": "0000000",
@@ -401,7 +401,7 @@ schema/check_schemas.py         schema/check_verify_data.py  schema/schema_files
 
 $ tree schema/*
 
-schema/collation_short
+schema/collation
 ├── result_schema.json
 ├── test_schema.json
 └── verify_schema.json
@@ -588,7 +588,7 @@ Also, include all the tests to be run with this version of NodeJS.
       "icu_version": "icu76",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
@@ -835,7 +835,7 @@ as the result from each test. As an example, collation test results from the
   "test_environment": {
     "test_language": "nodejs",
     "executor": "/usr/bin/nodejs ../executors/nodejs/executor.js",
-    "test_type": "collation_short",
+    "test_type": "collation",
     "datetime": "10/07/2022, 16:19:00",
     "timestamp": "1665184740.2130146",
     "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/collation_testt.json",
