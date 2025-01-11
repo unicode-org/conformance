@@ -180,6 +180,24 @@
   {
     "prereq": {
       "name": "nvm",
+      "version": "21.6.0",
+      "command": "nvm install 22.6.0;nvm use 21.6 --silent"
+    },
+    "run": {
+      "icu_version": "icu74",
+      "exec": "dart_web",
+      "test_type": [
+        "collation_short",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
       "version": "20.1.0",
       "command": "nvm install 20.1.0;nvm use 20.1.0 --silent"
     },
