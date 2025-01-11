@@ -180,6 +180,24 @@
   {
     "prereq": {
       "name": "nvm",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
       "version": "21.6.0",
       "command": "nvm install 22.6.0;nvm use 21.6 --silent"
     },
@@ -187,7 +205,7 @@
       "icu_version": "icu74",
       "exec": "dart_web",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt",
         "lang_names",
         "likely_subtags"
