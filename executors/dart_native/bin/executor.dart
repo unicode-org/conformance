@@ -9,7 +9,7 @@ import 'version.dart';
 
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
-    'collation',
+    'coll_shift',
   ],
 };
 
