@@ -1,5 +1,5 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/unicode/conformance/collation_short_verify_schema.json'",
+ "$id": "https://github.com/unicode/conformance/collation_verify_schema.json'",
  "title": "ICU Collation verify data description",
  "description": "This documents format of collation short verify data",
  "type": "object",
@@ -7,7 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "const": "collation_short"
+     "const": "collation"
    },
    "tests": {
      "type": "array",

@@ -2,6 +2,9 @@
 // https://docs.rs/icu/1.3.2/icu/datetime/input/trait.TimeZoneInput.html
 // https://docs.rs/ixdtf/latest/ixdtf/
 
+// IanaToBcp47Mapper deprecated in 1.5
+#![cfg_attr(ver = "1.5", allow(deprecated))]
+
 use icu::calendar::DateTime;
 use icu::datetime::{
     options::components, options::length, options::DateTimeFormatterOptions, pattern::reference,

@@ -100,7 +100,7 @@ cldr_icu_map = {
 
 # TODO: Can this be added to a configuration file?
 class testType(Enum):
-  collation_short = 'collation_short'
+  collation = 'collation'
   decimal_fmt = 'decimal_fmt'
   datetime_fmt = 'datetime_fmt'
   display_names = 'display_names'
@@ -120,14 +120,14 @@ def def_value():
 # Initialize dictionary of data organized by test type
 testDatasets = defaultdict(def_value)
 
-testName = 'collation_short'
-testDatasets[testName] = DataSet(testType.collation_short.value,
+testName = 'collation'
+testDatasets[testName] = DataSet(testType.collation.value,
                                  'collation_test.json',
                                  'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
-testName = 'collation_short'
-testDatasets[testName] = DataSet(testType.collation_short.value,
+testName = 'collation'
+testDatasets[testName] = DataSet(testType.collation.value,
                                  'collation_test.json',
                                  'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)

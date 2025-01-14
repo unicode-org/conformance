@@ -4,17 +4,20 @@ use fixed_decimal::FixedDecimal;
 use fixed_decimal::SignDisplay;
 // TODO: use fixed_decimal::ScientificDecimal;
 
+use super::compat::{pref, unicode, Locale};
 use icu::decimal::options;
 use icu::decimal::FixedDecimalFormatter;
-
-use crate::icu::compactdecimal::CompactDecimalFormatter;
-
-use icu::locid::{extensions::unicode::key, Locale};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use writeable::Writeable;
+
+#[cfg(any(ver = "1.3", ver = "1.4"))]
+use icu::compactdecimal::CompactDecimalFormatter;
+
+#[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
+use icu::experimental::compactdecimal::CompactDecimalFormatter;
 
 // Support options - update when ICU4X adds support
 static _SUPPORTED_OPTIONS: [&str; 6] = [
@@ -141,7 +144,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
             .extensions
             .unicode
             .keywords
-            .set(key!("nu"), numsys.parse().unwrap());
+            .set(unicode::key!("nu"), numsys.parse().unwrap());
     }
 
     // Returns error if parsing the number string fails.
@@ -149,12 +152,14 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let result_string = if is_compact {
         // We saw compact!
-        let cdf = if compact_type == "short" {
-            CompactDecimalFormatter::try_new_short(&langid.into(), Default::default()).unwrap()
-        } else {
-            println!("#{:?}", "   LONG");
-            CompactDecimalFormatter::try_new_long(&langid.into(), Default::default()).unwrap()
-        };
+        let cdf = super::try_or_return_error!(label, langid, {
+            if compact_type == "short" {
+                CompactDecimalFormatter::try_new_short(pref!(&langid), Default::default())
+            } else {
+                println!("#{:?}", "   LONG");
+                CompactDecimalFormatter::try_new_long(pref!(&langid), Default::default())
+            }
+        });
         // input.parse().map_err(|e| e.to_string())?;
 
         let input_num = input.parse::<FixedDecimal>().map_err(|e| e.to_string())?;
@@ -166,12 +171,13 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     //     // TEMPORARY
     } else {
         // FixedDecimal
-        // Can this fail with invalid options?
-        let fdf = FixedDecimalFormatter::try_new(&langid.into(), options.clone())
-            .expect("Data should load successfully");
+        let fdf = super::try_or_return_error!(label, langid, {
+            FixedDecimalFormatter::try_new(pref!(&langid), options.clone())
+        });
 
         // Apply relevant options for digits.
         if let Some(x) = option_struct.maximum_fraction_digits {
+            #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
             match option_struct.rounding_mode.as_deref() {
                 Some("ceil") => input_num.ceil(-(x as i16)),
                 Some("floor") => input_num.floor(-(x as i16)),
@@ -184,6 +190,22 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                 Some("halfEven") => input_num.half_even(-(x as i16)),
                 _ => input_num.half_even(-(x as i16)),
             };
+            #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
+            input_num.round_with_mode(
+                -(x as i16),
+                match option_struct.rounding_mode.as_deref() {
+                    Some("ceil") => fixed_decimal::RoundingMode::Ceil,
+                    Some("floor") => fixed_decimal::RoundingMode::Floor,
+                    Some("expand") => fixed_decimal::RoundingMode::Expand,
+                    Some("trunc") => fixed_decimal::RoundingMode::Trunc,
+                    Some("halfCeil") => fixed_decimal::RoundingMode::HalfCeil,
+                    Some("halfFloor") => fixed_decimal::RoundingMode::HalfFloor,
+                    Some("halfExpand") => fixed_decimal::RoundingMode::HalfExpand,
+                    Some("halfTrunc") => fixed_decimal::RoundingMode::HalfTrunc,
+                    Some("halfEven") => fixed_decimal::RoundingMode::HalfEven,
+                    _ => fixed_decimal::RoundingMode::HalfEven,
+                },
+            );
             input_num.trim_end();
         }
         if let Some(x) = option_struct.minimum_fraction_digits {

@@ -10,7 +10,7 @@ class ParseResults(Enum):
     NO_RESULT = 0
     RULE_RESET = 1
 
-class CollationShortGenerator(DataGenerator):
+class CollationGenerator(DataGenerator):
 
     def set_patterns(self):
         self.root_locale = re.compile("@ root")
@@ -24,13 +24,14 @@ class CollationShortGenerator(DataGenerator):
         self.comparison_line = re.compile("^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
 
         self.input_pattern_with_comment = re.compile("^([^#]+)#?(.*)")
+
         self.attribute_test = re.compile("^% (\S+)\s*=\s*(.+)")
         self.reorder_test = re.compile("^% (reorder)\s+(.+)")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
-        json_test = {"test_type": "collation_short", "tests": [], "data_errors": []}
-        json_verify = {"test_type": "collation_short", "verifications": []}
+        json_test = {"test_type": "collation", "tests": [], "data_errors": []}
+        json_verify = {"test_type": "collation", "verifications": []}
         self.insert_collation_header([json_test, json_verify])
 
         data_error_list = []
@@ -93,7 +94,7 @@ class CollationShortGenerator(DataGenerator):
 
     def insert_collation_header(self, test_objs):
         for obj in test_objs:
-            obj["Test scenario"] = "collation_short"
+            obj["Test scenario"] = "collation"
             obj["description"] = (
                 "UCA conformance test. Compare the first data string with the second and with strength = identical level (using S3.10). If the second string is greater than the first string, then stop with an error."
             )
@@ -166,7 +167,7 @@ class CollationShortGenerator(DataGenerator):
                 tests.append(new_test)
             line_index += 1
 
-        # Check for string conversion errors. ???
+# Check for string conversion errors. ???
         if string2_errors:
             pass
 
