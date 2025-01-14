@@ -9,12 +9,12 @@ import 'version.dart';
 
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
-    'coll_shift',
+    'coll_shift_short',
   ],
 };
 
 enum TestTypes {
-  collation,
+  collation_short,
   decimal_fmt,
   datetime_fmt,
   display_names,
@@ -46,7 +46,7 @@ void main() {
           .firstWhere((type) => type.name == decoded['test_type']);
       Object result;
       switch (testType) {
-        case TestTypes.collation:
+        case TestTypes.collation_short:
           result = testCollator(decoded);
           break;
         case TestTypes.decimal_fmt:
