@@ -7,6 +7,9 @@ String testLangNames(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
 
   final outputLine = <String, dynamic>{};
+  outputLine.addAll(
+    'label': json['label']
+  );
 
   final Locale locale;
   try {
@@ -19,11 +22,8 @@ String testLangNames(String jsonEncoded) {
     }
   } catch(error) {
     outputLine.addAll({
-        'error': 'locale_label: ' + error.toString(),
-        'label': json['label'],
-        'test_type': 'display_names',
+        'error_detail': 'locale_label: $error',
         'error_type': 'unsupported',
-        'error_detail': 'locale_label',
         'error_retry': false // Do not repeat
     });
     return jsonEncode(outputLine);
@@ -31,26 +31,31 @@ String testLangNames(String jsonEncoded) {
 
   final languageLabel =
   (json['language_label'] as String).replaceAll('_', '-');
+  try {
+    final languageLabelLocale = Locale.parse(languageLabel);
+  } catch (error) {
+    // Something was not supported in this locale identifier
+    outputLine.addAll({
+        'error_type': 'unsupported',
+        'error_detail': error.toString(),
+        'error_retry': false // Do not repeat
+    });
+    return jsonEncode(outputLine);
+  }
 
   try {
     final options = DisplayNamesOptions(
       languageDisplay: LanguageDisplay.standard,
     );
     final displayNames = Intl(locale: locale).displayNames(options);
-    final resultLocale = displayNames.ofLanguage(Locale.parse(languageLabel));
+    final resultLangName = displayNames.ofLanguage(Locale.parse(languageLabel));
 
-    outputLine['label'] = json['label'];
-    outputLine['result'] = resultLocale;
+    outputLine['result'] = resultLangName;
   } catch (error) {
     outputLine.addAll({
-        //      'error': error.toString() + " language_label:" + languageLabel,
-        'error': 'something went wrong: ' + error.toString(),
-        'label': json['label'],
-        'locale_label': locale.toLanguageTag(),
-        'language_label': languageLabel,
-        'test_type': 'display_names',
         'error_type': 'unsupported',
-        'error_detail': languageLabel,
+        'error_detail': error_toString(),
+        'actual_options': options,
         'error_retry': false // Do not repeat
     });
   }
