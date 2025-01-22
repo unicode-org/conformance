@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
-String testCollationShort(String jsonEncoded) {
+String testCollation(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded)
       as Map<String, dynamic>; // For the moment, use strings for easier interop
   // Global default locale

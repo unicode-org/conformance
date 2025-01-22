@@ -1,30 +1,14 @@
-/********************************************************************
- *   © 2016 and later: Unicode, Inc. and others.
- *   License & terms of use: http://www.unicode.org/copyright.html
- *************************************************************************
- *************************************************************************
- * COPYRIGHT:
- * Copyright (c) 1999-2002, International Business Machines Corporation and
- * others. All Rights Reserved.
- *************************************************************************/
+/*
+ *  Check for ICU errors and add to output if needed.
+ */
 
-#include "unicode/unistr.h"
-#include "unicode/fmtable.h"
+#include <json-c/json.h>
 
-using namespace icu;
+#include <string>
 
-#ifndef UPRV_LENGTHOF 
-#define UPRV_LENGTHOF(array) (int32_t)(sizeof(array)/sizeof((array)[0])) 
-#endif 
+using std::string;
 
-// Verify that a UErrorCode is successful; exit(1) if not
-void check(UErrorCode& status, const char* msg);
+extern auto check_icu_error(UErrorCode error_code,
+                                  json_object *return_json,
+                                  string message_to_add_if_error) -> const bool;
 
-// Replace nonprintable characters with unicode escapes
-UnicodeString escape(const UnicodeString &source);
-
-// Print the given string to stdout
-void uprintf(const UnicodeString &str);
-
-// Create a display string for a formattable
-UnicodeString formattableToString(const Formattable& f);

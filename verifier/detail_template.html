@@ -33,7 +33,11 @@
         cursor: pointer;
         font-size:20px;
     }
-
+    
+    .diff_area {
+        font-size: 24px;
+        font-color: blue;
+    }
 h1, h2, h3, p {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -80,6 +84,8 @@ table th {
 .class_error tr:hover {background-color: #ffdd00;}
 .class_unsupported th {background-color: #777777;}
 .class_unsupported tr:hover {background-color: #dddddd;}
+.class_known_issue th {background-color: #dd8200;}
+.class_known_issue tr:hover {background-color: #dd8200;}
 
 
 .class_selected_fails th {background-color: #0000ee;}
@@ -100,43 +106,59 @@ table th {
     // Stores info from the json data fetched asynchronously.
     let test_results = {
         'pass': {
-            json: null,
+            json: null,  // JSON characterized data
+            all_labels: new Set(),  // All the labels for this category
             count: 0,
             characterized: null,
-            check_boxes: [],
+            check_boxes: [],  // The widgets associated with characterized items
+            widget_label_sets: [],  // A parallel array of sets of labels for each.
             box_labels: [],
             selected_set: null
         },
         'fail': {
             json: null,
+            all_labels: new Set(),
             count: 0,
             characterized: null,
             check_boxes: [],
+            widget_label_sets: [], 
             box_labels: [],
             selected_set: null
         },
         'error': {
             json: null,
+            all_labels: new Set(),
             count: 0,
             characterized: null,
             check_boxes: [],
+            widget_label_sets: [],
             box_labels: [],
             selected_set: null
         },
         'unsupported': {
             json: null,
+            all_labels: new Set(),
             count: 0,
             characterized: null,
             check_boxes: [],
+            widget_label_sets: [],
+            box_labels: [],
+            selected_set: null,
+    },
+        'known_issue': {
+            json: null,
+            all_labels: new Set(),
+            count: 0,
+            characterized: null,
+            check_boxes: [],
+            widget_label_sets: [],
             box_labels: [],
             selected_set: null,
         }
+    
     };
 
     // Get the JSON data from the tests.
-
-    // Characterizations of non-passing.
-    let fail_char;
 
     // Data dynamically created from test failures
     // on selection of some criteria.
@@ -144,150 +166,168 @@ table th {
     let p2 = fetch('./failing_tests.json');
     let p3 = fetch('./test_errors.json');
     let p4 = fetch('./unsupported.json');
+    let p5 = fetch('./known_issues.json');
 
     let p_pass_char = fetch('./pass_characterized.json');
     let p_fail_char = fetch('./fail_characterized.json');
     let p_error_char = fetch('./error_characterized.json')
     let p_unsupported_char = fetch('./unsupported_characterized.json')
+    let p_known_issue_char = fetch('./known_issues_characterized.json')
 
-      // Synchronize all the data loading and charts / pagination
-      Promise.all([
-          p1.then((response) => response.json())
-              .then((data) => {
-                  test_results['pass'].json = data}),
-          p2.then((response) => response.json())
-              .then((data) => {
-                  test_results['fail'].json = data}),
-          p3.then((response) => response.json())
-              .then((data) => {
-                  test_results['error'].json = data}),
-          p4.then((response) => response.json())
-              .then((data) => {
-                  test_results['unsupported'].json = data}),
+    // Synchronize all the data loading and charts / pagination
+    Promise.all([
+        p1.then((response) => response.json())
+            .then((data) => {
+                test_results['pass'].json = data}),
+        p2.then((response) => response.json())
+            .then((data) => {
+                test_results['fail'].json = data}),
+        p3.then((response) => response.json())
+            .then((data) => {
+                test_results['error'].json = data}),
+        p4.then((response) => response.json())
+            .then((data) => {
+                test_results['unsupported'].json = data}),
+        p5.then((response) => response.json())
+            .then((data) => {
+                test_results['known_issue'].json = data}),
+ 
+ 
+       // TODO: Make a separate promise.all for this?
+        p_pass_char.then((response) => response.json())
+            .then((data) => {
+                test_results['pass'].characterized = data}),
+        p_fail_char.then((response) => response.json())
+            .then((data) => {
+                test_results['fail'].characterized = data}),
+        p_error_char.then((response) => response.json())
+            .then((data) => {
+                test_results['error'].characterized = data}),
+        p_unsupported_char.then((response) => response.json())
+            .then((data) => {
+                test_results['unsupported'].characterized = data}),
+        p_known_issue_char.then((response) => response.json())
+            .then((data) => {
+                test_results['known_issue'].characterized = data}),
 
-          p_pass_char.then((response) => response.json())
-              .then((data) => {
-                  test_results['pass'].characterized = data}),
-          p_fail_char.then((response) => response.json())
-              .then((data) => {
-                  test_results['fail'].characterized = data}),
-          p_error_char.then((response) => response.json())
-              .then((data) => {
-                  test_results['error'].characterized = data}),
-          p_unsupported_char.then((response) => response.json())
-              .then((data) => {
-                      test_results['unsupported'].characterized = data}),
-
-          new Promise((resolve, reject) => {
-              $(document).ready(resolve);
-          })
-      ]).then(([p1, p2, p3, p4, _ready]) => {
+        new Promise((resolve, reject) => {
+            $(document).ready(resolve);
+        })
+    ]).then(([p1, p2, p3, p4, p5, _ready]) => {
         // Load the Visualization API and the corechart package.
         google.charts.load('current', {'packages':['corechart']});
         // Set a callback to run when the Google Visualization API is loaded.
         google.charts.setOnLoadCallback(drawChart);
         onloadFn();  // To call the pagination setup.
-      });
+    });
 
-      // Callback that creates and populates a data table
-      // Instantiates it with data, and draws it.
-      // TODO: Update with all the data loaded
-      function drawChart() {
-          // For each test type:
-          //   Get a div for the chart
-          let chart_output_area = document.getElementById('chart_div');
-          let input_data = [
-              ['Results', 'Count', {role:'style'}],
-              ['Passing', test_results['pass'].json.length, '#44ff77'],
-              ['Failing', test_results['fail'].json.length, '#ff0000'],
-              ['Errors', test_results['error'].json.length, '#ffdd00'],
-              ['Unsupported', test_results['unsupported'].json.length, '#777777']
-          ];
-          const chart = new google.visualization.BarChart(chart_output_area);
-          let chart_data = google.visualization.arrayToDataTable(input_data);
-          if (chart && chart_data) {
-              let chart_options = {
-                  legend: {position: 'bottom', maxLines: 3},
-                  isStacked: true,
-                  width: 600, height:200, bar: {groupWidth: '90%' }
-              };
-              chart.draw(chart_data, chart_options);
-          }
-     }
+    // Callback that creates and populates a data table
+    // Instantiates it with data, and draws it.
+    function drawChart() {
+        // For each test type:
+        //   Get a div for the chart
+        let chart_output_area = document.getElementById('chart_div');
+        let input_data = [
+            ['Results', 'Count', {role:'style'}],
+            ['Passing', test_results['pass'].json.length, '#44ff77'],
+            ['Failing', test_results['fail'].json.length, '#ff0000'],
+            ['Known issues', test_results['known_issue'].json.length, '#ff8200'],
+            ['Errors', test_results['error'].json.length, '#ffdd00'],
+            ['Unsupported', test_results['unsupported'].json.length, '#777777']
+       ];
+        const chart = new google.visualization.BarChart(chart_output_area);
+        let chart_data = google.visualization.arrayToDataTable(input_data);
+        if (chart && chart_data) {
+            let chart_options = {
+                legend: {position: 'bottom', maxLines: 3},
+                isStacked: true,
+                width: 600, height:200, bar: {groupWidth: '90%' }
+            };
+            chart.draw(chart_data, chart_options);
+        }
+    }
 
-    let selectedSet = null;
-    let intersection_labels = [];
-    let accum_boxes = [];
-    function checkboxChanged(box) {
-        // Update the group selected with the intersection of values
-        const box_class = box.className;
-        const test_data = test_results[box_class];
-        test_data.selected_set = null;
+    // Constants for display of tristate widget
+    const question_mark = '\u2753';
+    const check_mark = '\u2705';
+    const cross_mark = '\u274C';
 
-        // TODO: Finish this
-        let characterized_labels = test_data.box_labels;
-        for (let check_box of test_data.check_boxes) {
-            // For each checkbox
-            if (check_box.checked) {
-                const labels_string = check_box.value;
-                const str_len = labels_string.length;
-                const labels = labels_string.split(",");
-                const newSet = new Set(labels);
-                if (! test_data.selected_set) {
-                     // Start the set of selected items.
-                    test_data.selected_set = newSet;
-                } else {
-                    // Update by intersection with this set.
-                    test_data.selected_set =
-                        new Set([...test_data.selected_set].filter((x) => newSet.has(x)));
+    function widgetChanged(widget) {
+        // Update the group selected with the intersection or inclusion of label sets
+        const class_name = widget.className;
+        const test_data = test_results[class_name];
+        
+        // Start with all the tests, intersecting or removing data as needed.
+        test_data.selected_set = new Set(test_data.all_labels);
+
+        const selected_count_items = document.getElementsByName('selectedCount');
+        
+        // Update the number of results size
+        let newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
+        const output = [...selected_count_items].filter(elem => elem.className == class_name);
+        if (output) {
+            // Set the current count of items
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
+
+        let excluded_set = new Set();  // Remove these label after the loop.
+        
+        // For each widget, if active, update the state of the selected and exclued sets
+        for (let index in test_data.check_boxes) {
+            const widget = test_data.check_boxes[index];
+            const label_set = test_data.widget_label_sets[index];
+
+            // This is a tristate item.
+            const which_state = widget.value;
+            
+            // Choose the value depending on the status of the control
+            if (which_state == check_mark) {
+                // Update by intersection with this set.
+                test_data.selected_set =
+                    new Set([...test_data.selected_set].filter((x) => label_set.has(x)));
+            } 
+            else if (which_state == cross_mark) {
+                // Update by removing all these labels, i.e., intersect with the inverse
+                for (let label of label_set) {
+                    excluded_set.add(label);
                 }
             }
         }
-        // Do something with the selected set.
-        // Get id of the correct count item.
-        const class_name = box_class;  // get from a parent.
-        const element_name = 'selectedCount';
-        const selected_count_items = document.getElementsByName(element_name);
+        
+        // Remove the excluded values from selected set.
+        excluded_set.forEach((label) => {
+            test_data.selected_set.delete(label);
+        });
 
-        // Spread this out into an array for filtering.
-        const output = [...selected_count_items].filter(elem => elem.className == class_name);
-        const newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
-
+        // Get update the count item in the UI
+        newSize = test_data.selected_set.size;
+        if (output) {
+            // Set the current count of items
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
+        
         // Get the characterized data from the correct set of items
         if (newSize == 0) {
-            // Turn on all the check boxes in this group
-            for (let index in test_data.check_boxes) {
-                const check_item = test_data.check_boxes[index];
-                const check_div = check_item.parentElement;
-                check_div.style.display = 'block';
-                check_item.checked = false;
-                check_div.attributeStyleMap.clear();
-            }
-            // Reset the count to all?
+            // Reset all widgets in this group
+            clearSelectedItems(null, class_name);
         } else {
-            // Consider all the sets that intersect with selected.
-            let intersection_checkboxes = [];
+            // Find all the sets that intersect with the selected.
             for (let index in test_data.check_boxes) {
-                const check_item = test_data.check_boxes[index];
-                const label_string = check_item.value;
-                const str_len = label_string.length;
-                const labels = label_string.split(",");
-                const newSet = new Set(labels);
-                let intersectSet = new Set([...newSet].filter(i => test_data.selected_set.has(i)));
+                const widget = test_data.check_boxes[index];
+                const label_set = test_data.widget_label_sets[index];
+                
+                // Compute overlap between the selected set and this widgetss data.
+                let intersectSet = new Set(
+                    [...label_set].filter(i => test_data.selected_set.has(i)));
 
-                const div_for_checkbox = check_item.parentElement;
+                const div_for_checkbox = widget.parentElement;
                 if (intersectSet.size > 0) {
-                    intersection_checkboxes.push(check_item);
                     div_for_checkbox.style.setProperty("text-decoration", "");
                     div_for_checkbox.attributeStyleMap.clear();
                 } else {
                     div_for_checkbox.style.setProperty("text-decoration", "line-through");
                 }
             }
-        }
-        if (output) {
-            // Set the current count of items
-            output[0].innerHTML = output[0].innerText = newSize;
         }
         return newSize;
     }
@@ -298,50 +338,56 @@ table th {
         for (const item of test_results[item_type].json) {
             if (test_results[item_type].selected_set) {
 
-            let label = item['label'];
-            if (test_results[item_type].selected_set.has(label)) {
-                selected_json_data.push(item);
+                let label = item['label'];
+                if (test_results[item_type].selected_set.has(label)) {
+                    selected_json_data.push(item);
+                }
             }
-         }
         }
         fill_pagination("#characterized-pagination-container_" + item_type,
                         "#characterized-data-container_" + item_type,
                         selected_json_data,
-                        "selected_" + item_type);
+                        item_type);
     }
 
     // UL Template for pagination.js
-      function simpleTemplating(data, c_type) {
-          let possible_fields = ['label', 'expected', 'result', 'error', 'error_detail',
-                             'options', 'input_data', 'actual_options'];
-      let table_opening =
-      '<table id="table_' + c_type +
-                  '" class="class_' + c_type + '">';
+    function simpleTemplating(data, c_type) {
+        let possible_fields = ['label', 'expected', 'result', 'error', 'error_detail',
+                               'options', 'input_data', 'actual_options'];
+        // Support output to different regions, depending on the type
+        // of the data, e.g., "fail", "known_issue", etc.
+        const diff_area_name = "diff_area_" + c_type;
+        const onclick_call =
+              '"captureInputDataOnClick(this);" onmouseover="hoverDiffText(this,' + diff_area_name + ');"';
+              
+        let table_opening =
+            '<table id="table_' + c_type +
+            '" class="class_' + c_type + '">';
         let html = [table_opening];  // Sets up table
         if (data.length > 0) {
-        html.push('<tr>');
-          for (let key of possible_fields) {
-          if (key in data[0]) {
-          html.push('<th>' + key +'</th>');
-          }
-          }
+            html.push('<tr>');
+            for (let key of possible_fields) {
+                if (key in data[0]) {
+                    html.push('<th>' + key +'</th>');
+                }
+            }
 
-          html.push('</tr>');
-        $.each(data, function(index, item){
-          html.push("<tr>");
-          for (let key of possible_fields) {
-          if (key in data[0]) {
-          let output;
-          if (typeof item[key] == 'object') {
-          output = JSON.stringify(item[key]);
-          } else {
-          output = item[key];
-          }
-              html.push('<td onclick="captureInputDataOnClick(this);">' + output +'</td>');
-          }
-          }
-          html.push("</tr>");
-        });
+            html.push('</tr>');
+            $.each(data, function(index, item){
+                html.push("<tr>");
+                for (let key of possible_fields) {
+                    if (key in data[0]) {
+                        let output;
+                        if (typeof item[key] == 'object') {
+                            output = JSON.stringify(item[key]);
+                        } else {
+                            output = item[key];
+                        }
+                        html.push('<td onclick=' + onclick_call +'>' + output +'</td>');
+                    }
+                }
+                html.push("</tr>");
+            });
         }
 
         html.push('</table>');
@@ -349,9 +395,9 @@ table th {
     }
 
     function onloadFn() {
-        // Set up the pagination of each set of results
+        // Set up for pagination of each set of results
         // Do this for each class of results.
-        const container_types = ['pass', 'fail', 'error', 'unsupported'];
+        const container_types = ['pass', 'fail', 'error', 'unsupported', 'known_issue'];
         let total_summary_count = 0;
         for (c_type of container_types) {
             let container_type = c_type;
@@ -394,109 +440,59 @@ table th {
 
         }
 
-        /* set up areas for error and unsupported detail */
-        create_checkbox_area('pass');
-        create_checkbox_area('fail');
-        create_checkbox_area('error');
-        create_checkbox_area('unsupported');
+        // Tristate controls for each characterization.
+        create_widget_area('pass', create_tristate_area);
+        create_widget_area('fail', create_tristate_area);
+        create_widget_area('error', create_tristate_area);
+        create_widget_area('unsupported', create_tristate_area);
+        create_widget_area('known_issue', create_tristate_area);
     }
 
-      function fill_pagination(pagination_container_name,
-                               data_container_name,
-                               data_json, container_type) {
-          let pagination_container = $(pagination_container_name);
-          let data_container = $(data_container_name);
-          pagination_container.pagination({
-              dataSource: data_json,
-              pageSize: 10,
-              showSizeChanger: true,
-              showGoInput: true,
-              showGoButton: true,
-              showNavigator: true,
-              formatGoInput: 'Go to page <%= input %>',
-              formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
-              position: 'top',
-              callback: function(data, pagination) {
-                  // template method of yourself
-                  // Create the HTML for the
-                  var html = simpleTemplating(data, container_type);
-                  data_container.html(html);
-              }
-          });
-      }
-
-    function create_checkbox_area(data_class) {
-          /* Given a set of labels and named characteristics, create a set of checkboxes with
-             labels for selecting a subset of items. Put this in the proper div.
-             Create "Other" category for any non-categorized tests.
-          */
-        const test_info = test_results[data_class];
-
-        let leftover_labels = new Set();
-        const json = test_info['json'];
-        for (const item of json) {
-            leftover_labels.add(item['label']);
-        }
-
-        let div_name = data_class + '_characterized';
-        let container = document.getElementById(div_name);
-        for (const characterization in test_info.characterized) {
-            let id = div_name + "_" + characterization;
-            const dict_values = test_info.characterized[characterization];
-            for (const label of dict_values) {
-                leftover_labels.delete(label);
+    function fill_pagination(pagination_container_name,
+                             data_container_name,
+                             data_json, container_type) {
+        let pagination_container = $(pagination_container_name);
+        let data_container = $(data_container_name);
+        pagination_container.pagination({
+            dataSource: data_json,
+            pageSize: 10,
+            showSizeChanger: true,
+            showGoInput: true,
+            showGoButton: true,
+            showNavigator: true,
+            formatGoInput: 'Go to page <%= input %>',
+            formatNavigator: '<%= rangeStart %>-<%= rangeEnd %> of <%= totalNumber %> items',
+            position: 'top',
+            callback: function(data, pagination) {
+                // template method of yourself
+                // Create the HTML for the
+                var html = simpleTemplating(data, container_type);
+                data_container.html(html);
             }
-            let count = 0;
-            for (let key of Object.keys(dict_values)) {
-                const values = dict_values[key];
-                if (Array.isArray(values)) {
-                  count += values.length;
-                } else {
-                  count += 1;
-                }
-            }
-            if (count > 0) {
-                const new_box = make_characterized_box(
-                    id, dict_values, data_class, characterization,
-                    count, container);
-            test_info.box_labels.push(characterization);
-                test_info.check_boxes.push(new_box);
-            }
-        }
-        if (leftover_labels.size > 0) {
-            // Create an item for non-categorized results.
-            const characterization = "others";
-            let id = div_name + "_" + characterization;
-            const new_box = make_characterized_box(
-                id, leftover_labels, data_class, characterization,
-                leftover_labels.size, container);
-
-            test_info.box_labels.push(characterization);
-            test_info.check_boxes.push(new_box);
-        }
+        });
     }
 
-    /*
-      Create a check box with the labels for a characterization.
-        id: data_class plus the characterization
-        dict_values: the set of labels attached to this check box
-        data_class: one of "pass", "fail", etc.
-        characterization: string describing the identified attribute(s)
-        count: how many are in the list of labels
-        container: the HTML object containing the div of this checkbox
-    */
-    function make_characterized_box(
-        id, dict_values, data_class, characterization, count, container) {
+    // -----------------------
+    function create_tristate_area(
+        id, data_class, characterization, count, container) {
+        // Make a tristate control for the items in this data class 
+        // Reference:  https://jsfiddle.net/wf_bitplan_com/941std72/8/
+        // Creates this widget, storing the result in the data_class
+        // <input title="this is a tri-state button: &#x2753;,&#x2705;,&#x274C;" type="button" onclick="tristate1(this)" value="&#x2753;" />
+
         let box = document.createElement("INPUT");
-        box.setAttribute("type", "checkbox");
+        box.setAttribute("type", "button");
         box.setAttribute("id", id);
         box.setAttribute("name", id);
-        box.setAttribute("value", [...dict_values]);
-        box.setAttribute("onclick", "checkboxChanged(this);");
+        box.setAttribute("value", "\u2753");
+
+        // Update the state of this control and handle implications.
+        box.setAttribute("onclick", "tristate1(this);");
+
         box.className = data_class;
         let box_label = document.createElement("label");
         box_label.htmlFor = id;
-        const text = count + ":" + characterization;
+        const text = " " + count + ":" + characterization;
         box_label.appendChild(document.createTextNode(text));
 
         let box_div = document.createElement("div");
@@ -508,19 +504,132 @@ table th {
         if (container) {
             container.appendChild(box_div);
         }
-        return box;
+        return box;      
+    }
+
+    function tristate1(control) {
+        // Question, Check, Cross
+        // Get the next state of the control.
+        tristate(control, question_mark, check_mark, cross_mark);
+
+        // Handle the new state of the tristate or check box.
+        widgetChanged(control);
+    }
+
+    /**
+     *  loops thru the given 3 values for the given control
+     */
+    function tristate(control, value1, value2, value3) {
+        switch (control.value.charAt(0)) {
+            case value1:
+                control.value = value2;
+                break;
+            case value2:
+                control.value = value3;
+                break;
+            case value3:
+                control.value = value1;
+                break;
+            default:
+                // display the current value if it's unexpected
+                alert(control.value);
+        }
+    }      
+
+    function create_widget_area(data_class, make_widget_function) {
+        /* Given a set of labels and named characteristics, create a set of checkboxes with
+           labels for selecting a subset of items. Put this in the proper div.
+           Create "Other" category for any non-categorized tests.
+        */
+        const test_info = test_results[data_class];
+
+        const selected_count_items = document.getElementsByName('selectedCount');
+        
+        let leftover_labels = new Set();
+        const json = test_info.json;
+        for (const item of json) {
+            const label = item['label'];    
+            test_info.all_labels.add(label);
+            leftover_labels.add(label);
+        }
+
+        // Update the number of results size
+        const newSize = test_info.all_labels.size;
+        const output = [...selected_count_items].filter(elem => elem.className == data_class);
+        if (output) {
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
+        
+        let div_name = data_class + '_characterized';
+        let container = document.getElementById(div_name);
+        for (const characterization in test_info.characterized) {
+            let id = div_name + "_" + characterization;
+            const dict_values = test_info.characterized[characterization];
+            let count = 0;
+            // Dict values could be array items or single values
+            let all_labels = new Set();
+            for (let key of Object.keys(dict_values)) {
+                const values = dict_values[key];
+                if (Array.isArray(values)) {
+                    count += values.length;
+                    all_labels.add(values);
+                } else {
+                    count += 1;
+                    all_labels.add(values);
+                }
+            }
+
+            if (count > 0) {
+                // Reduce the set of leftovers and make a new widget.
+                all_labels.forEach((label) => {
+                    leftover_labels.delete(label);
+                });
+
+                const new_widget = make_widget_function(
+                    id, data_class, characterization,
+                    count, container);
+                test_info.widget_label_sets.push(all_labels);
+                test_info.box_labels.push(characterization);
+                test_info.check_boxes.push(new_widget);
+            }
+        }
+        
+        // Handle any non-characterized tests.
+        if (leftover_labels.size > 0) {
+            // Create an item for non-categorized results.
+            const characterization = "others";
+            let id = div_name + "_" + characterization;
+            const new_widget = make_widget_function(
+                id, data_class, characterization,
+                leftover_labels.size, container);
+            test_info.widget_label_sets.push(leftover_labels);
+            test_info.box_labels.push(characterization);
+            test_info.check_boxes.push(new_widget);
+        }
     }
 
     function clearSelectedItems(the_button, test_class) {
-      // Clear all the check boxes for this test_class.
-      const test_data = test_results[test_class];
-      test_data.check_boxes.forEach((box) => {
-          box.checked = false;
-          const div_for_checkbox = box.parentElement;
-          div_for_checkbox.attributeStyleMap.clear();
-      });
+        // Clear all the check boxes for this test_class.
+        const test_data = test_results[test_class];
+        test_data.check_boxes.forEach((widget) => {
+            widget.value = question_mark;
+            const div_for_checkbox = widget.parentElement;
+            div_for_checkbox.attributeStyleMap.clear();
+        });
+
+        
+        // reset the number of results size
+        const selected_count_items = document.getElementsByName('selectedCount');
+        const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
+
+        const output = [...selected_count_items].filter(elem => elem.className == test_class);
+        if (output) {
+            // Set the current count of items
+            output[0].innerHTML = output[0].innerText = newSize;
+        }
     }
 
+    // For getting contents of output into json string for testing
     function captureInputDataOnClick(element) {
         const text = element.innerHTML;
         let output = '';
@@ -534,9 +643,33 @@ table th {
         navigator.clipboard.writeText(output);
     }
 
-</script>
-  </head>
-  <body>
+    // On hover, show the difference between expected and actual result
+    // in the named area.
+    function hoverDiffText(element, diff_area) {
+      // First, get the row of this item.
+      const row = element.parentNode;
+      const text1 = row.children[1].innerHTML;
+      const text2 = row.children[2].innerHTML;
+      if (text1 == text2) {
+        return;
+      }
+      const dmp = new diff_match_patch();
+      const diff_text = dmp.diff_main(text1, text2);
+      dmp.diff_cleanupSemantic(diff_text);
+      // And show the difference nicely.
+      const ds = dmp.diff_prettyHtml(diff_text);
+      diff_area.innerHTML = ds;
+      }
+  </script>
+
+  <!-- diff-match-patch code from
+       https://github.com/google/diff-match-patch/wiki/Language:-JavaScript
+       Intended to use for differences between expected and actual result.
+    -->
+    <script src="../../../diff_match_patch.js"></script>
+  
+ </head>
+ <body>
     <h1>Verification report: $test_type on $library_name</h1>
     <h2>$platform_info</h2>
     <div bp="grid">
@@ -545,13 +678,18 @@ table th {
         <p><span id="total_summary_count">$total_tests</span> attempted. Pass: <span id="pass_summary_count">$passing_tests</span>,
           Fail: <span id="fail_summary_count">$failing_tests</span>,
           Errors: <span id="error_summary_count">$error_count</span>,
-          Unsupported: <span id="unsupported_summary_count">$unsupported</span></p>
+          Unsupported: <span id="unsupported_summary_count">$unsupported</span></p>,
+          Known issues: <span id="known_issue_summary_count">$unsupported</span></p>
         <div id='chart_div'>
         </div>
       </div>
       <div bp="8">
         <h2>Test details</h2>
         <p>$test_environment</p>
+      </div>
+      <div bp="4">
+        <h2>Acknowledgements</h2>
+        <p><a href='https://github.com/google/diff-match-patch/wiki/Language:-JavaScript'>diff-match-patch</a></p>
       </div>
     </div>
     <br>
@@ -566,7 +704,7 @@ table th {
             <summary class="pass">Passing tests characterized</summary>
             <div bp="grid">
               <div bp="3">
-                <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>0</span>
+                <p>Filtered count = <span id='selectedCount_pass' name='selectedCount' class='pass'>unknown</span>
                   <button id="showSelected_pass" onclick="showSelectedItems(this, 'pass');">Update display</button>
                   <button id="clearSelected_pass" onclick="clearSelectedItems(this, 'pass');">Clear</button>
                 </p>
@@ -585,6 +723,7 @@ table th {
 
       <details>
         <summary>Failing tests <span id='fail_count'>($failing_tests)</span></summary>
+        <div id="diff_area_fail" class="diff_area_class"><p></p></div>
         <div id="fail-pagination-container"></div>
         <div id="fail-data-container"></div>
         <div id='testFailuresCharacterized'>
@@ -609,6 +748,32 @@ table th {
       </details>  <!-- failing tests -->
 
       <details>
+        <summary>Known issues <span id='known_issue_count'>($known_issue_count)</span></summary>
+        <div id="diff_area_known_issue" class="diff_area_class"><p></p></div>
+        <div id="known_issue-pagination-container"></div>
+        <div id="known_issue-data-container"></div>
+        <div id='testKnownIssueCharacterized'>
+          <details>
+            <summary class="known_issue">Known issues characterized</summary>
+            <div bp="grid">
+              <div bp="3">
+                <p>Filtered count = <span id='selectedCount_known_issue' name='selectedCount' class='known_issue'>0</span>
+                  <button id="showSelected_known_issue" onclick="showSelectedItems(this, 'known_issue');">Update display</button>
+                  <button id="clearSelected_known_issue" onclick="clearSelectedItems(this, 'known_issue');">Clear</button>
+                </p>
+                <div id='known_issue_characterized'>
+                </div>
+              </div>  <!-- end of checkbox div -->
+              <div bp="9">
+                <div id="characterized-pagination-container_known_issue"></div>
+                <div id="characterized-data-container_known_issue"></div>
+              </div>
+            </div> <!-- grid end -->
+          </details>
+        </div>
+      </details>      
+
+      <details>
         <summary>Test errors <span id='error_count'>($error_count)</span></summary>
         <h2 id='testErrors'>Test Errors ($error_count)</h2>
         <div id="error-pagination-container"></div>
@@ -623,7 +788,7 @@ table th {
                   <button id="clearSelected_error" onclick="clearSelectedItems(this, 'error');">Clear</button>
 
                 </p>
-                <div id='errors_characterized'>
+                <div id='error_characterized'>
                 </div>
               </div>  <!-- end of checkbox div -->
               <div bp="9">
@@ -659,6 +824,7 @@ table th {
           </details>
         </div>
       </details>
+
     </div>
     
   </body>

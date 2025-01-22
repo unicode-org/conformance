@@ -12,7 +12,7 @@ class ExportFunction {
 Future<void> main(List<String> args) async {
   final names = {
     'collator': ExportFunction(
-      name: 'testCollationShort',
+      name: 'testCollation',
       argNames: ['encoded'],
     ),
     'numberformat': ExportFunction(
@@ -23,9 +23,13 @@ Future<void> main(List<String> args) async {
       name: 'testLikelySubtags',
       argNames: ['encoded'],
     ),
+    'lang_names': ExportFunction(
+      name: 'testLangNames',
+      argNames: ['encoded'],
+    ),
   };
-  for (var name in names.entries) {
-    await prepare(name.key, name.value);
+  for (final MapEntry(key: name, value: function) in names.entries) {
+    await prepare(name, function);
   }
 
   setVersionFile();
@@ -60,7 +64,7 @@ module.exports = { dartVersion };
   }
 }
 
-/// Prepare the file to export `testCollationShort`
+/// Prepare the file to export `testCollation`
 void prepareOutFile(String name, List<ExportFunction> functions) {
   final outFile = File('out/$name.js');
   var s = outFile.readAsStringSync();

@@ -20,18 +20,18 @@
 const char gHelpString[] =
     "usage: executor"
     "-help            Display this message.\n"
-    "-debug n         Level of debug - default = -1\n"
-    ;
+    "-debug n         Level of debug - default = -1\n";
 
-#include <iostream>
-#include <string>
+#include <json-c/json.h>
 
 #include <unicode/utypes.h>
 #include <unicode/ucol.h>
 #include <unicode/ustring.h>
 #include <unicode/uvernum.h>
 
-#include <json-c/json.h>
+#include <iostream>
+#include <string>
+#include <vector>
 
 using std::cin;
 using std::cout;
@@ -39,20 +39,20 @@ using std::endl;
 using std::string;
 
 // Test functions
-extern const string test_collator(json_object *json_in);
-extern const string test_langnames(json_object *json_in);
-extern const string test_likely_subtags(json_object *json_in);
-extern const string test_numfmt(json_object *json_in);
+extern auto TestCollator(json_object *json_in) -> const string;
+extern auto TestDatetimeFmt(json_object *json_in) -> const string;
+extern auto TestLocaleDisplayNames(json_object *json_in) -> const string;
+extern auto TestLikelySubtags(json_object *json_in) -> const string;
+extern auto TestListFmt(json_object *json_in) -> const string;
 
-std::string supported_tests[4] = {
-  "collation_short",
-  "likely_subtags",
-  "lang_names",
-  "number_fmt"
-};
+// This API was added in ICU75.1
+#if U_ICU_VERSION_MAJOR_NUM >= 75
+extern const string TestMessageFormat2(json_object *json_in);
+#endif
 
-
-std::string cppVersion = "1.0";
+extern auto TestNumfmt(json_object *json_in) -> const string;
+extern auto TestPluralRules(json_object *json_in) -> const string;
+extern auto TestRelativeDateTimeFmt(json_object *json_in) -> const string;
 
 /**
  * Main   --  process command line, call tests or return data
@@ -60,8 +60,20 @@ std::string cppVersion = "1.0";
  *            commands start with "#"
  *            test data is JSON format
  */
-int main(int argc, const char** argv)
-{
+auto main(int argc, const char** argv) -> int {
+  // All the currently supported test types.
+  std::vector <string> supported_tests;
+  supported_tests = {
+    "collation",
+    "datetime_fmt",
+    "likely_subtags",
+    "list_fmt",
+    "lang_names",
+    "number_fmt",
+    "plural_rules",
+    "rdt_fmt"
+  };
+
   for (std::string line; std::getline(cin, line);) {
     if (line == "#EXIT") {
       return 0;
@@ -79,15 +91,16 @@ int main(int argc, const char** argv)
       // TODO: get from the array of supported tests
       json_object *tests_supported = json_object_new_object();
       json_object *test_array = json_object_new_array();
-      for (int index = 0; index < 4; index ++) {
-        json_object_array_add(test_array,
-                              json_object_new_string(supported_tests[index].c_str()));
+
+      for (const auto & supported_test : supported_tests) {
+        json_object_array_add(
+            test_array,
+            json_object_new_string(supported_test.c_str()));
       }
 
       json_object_object_add(tests_supported, "supported_tests", test_array);
       std::cout << json_object_to_json_string(tests_supported) << endl;
     } else {
-
       // Parse the JSON data.
       // Get the test type and call the test function.
 
@@ -95,32 +108,37 @@ int main(int argc, const char** argv)
 
       struct json_object *json_input;
       json_input = json_tokener_parse(line.c_str());
-      json_object *test_type_obj = json_object_object_get(json_input, "test_type");
+      json_object *test_type_obj =
+          json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);
 
-      if (test_type == "collation_short" ) {
-        outputLine = test_collator(json_input);
-      }
-      else if (test_type == "number_fmt") {
-         outputLine = test_numfmt(json_input);
-      }
-      else if (test_type == "likely_subtags") {
-        outputLine = test_likely_subtags(json_input);
-      }
-      else if (test_type == "lang_names") {
-        outputLine = test_langnames(json_input);
-      }
-      else {
+      if (test_type == "collation") {
+        outputLine = TestCollator(json_input);
+      } else if (test_type == "datetime_fmt") {
+         outputLine = TestDatetimeFmt(json_input);
+#if U_ICU_VERSION_MAJOR_NUM >= 75
+      } else if (test_type == "message_fmt2") {
+        outputLine = TestMessageFormat2(json_input);
+#endif
+      } else if (test_type == "number_fmt") {
+         outputLine = TestNumfmt(json_input);
+      } else if (test_type == "likely_subtags") {
+        outputLine = TestLikelySubtags(json_input);
+      } else if (test_type == "list_fmt") {
+        outputLine = TestListFmt(json_input);
+      } else if (test_type == "lang_names") {
+        outputLine = TestLocaleDisplayNames(json_input);
+      } else if (test_type == "plural_rules") {
+        outputLine = TestPluralRules(json_input);
+      } else if (test_type == "rdt_fmt") {
+        outputLine = TestRelativeDateTimeFmt(json_input);
+      } else {
         outputLine =  "# BAD TEST " + test_type;
-        //       "{\"error\": \"unknown test type\"," +
-        //       "\"test_type\":" +  test_type + "," +
-        //       "\"unsupported_test:\"" + test_type + "}";
       }
 
+      // Report back to the test driver.
       cout << outputLine << endl;
     }
-
   }
-
   return 0;
 }

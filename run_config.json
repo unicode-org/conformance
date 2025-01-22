@@ -1,6 +1,29 @@
 [
   {
     "prereq": {
+      "name": "Get ICU4C 76",
+      "version": "76.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-76_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "cpp",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "Get ICU4C 71",
       "version": "71.1",
       "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-71_1-Ubuntu20.04-x64.tgz"
@@ -9,10 +32,14 @@
       "icu_version": "icu71",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -27,10 +54,14 @@
       "icu_version": "icu72",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -45,28 +76,157 @@
       "icu_version": "icu73",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
   },
   {
     "prereq": {
-      "name": "Get ICU4C 74",
-      "version": "74.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_1-Ubuntu22.04-x64.tgz"
+      "name": "Get ICU4C 74.2",
+      "version": "74.2",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_2-Ubuntu22.04-x64.tgz"
     },
     "run": {
       "icu_version": "icu74",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "list_fmt",
+        "likely_subtags",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "Get ICU4C 75.1",
+      "version": "75.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-75_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "cpp",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
-        "number_fmt"
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 23.3.0, icu76.1",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "node",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 22.9.0, icu75.1",
+      "version": "22.9.0",
+      "command": "nvm install 22.9.0;nvm use 22.9.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "node",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
+      "version": "22.6.0",
+      "command": "nvm install 22.6.0;nvm use 22.6.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
+      "version": "21.6.0",
+      "command": "nvm install 21.6.0;nvm use 21.6 --silent"
+    },
+    "run": {
+      "icu_version": "icu74",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -75,14 +235,15 @@
     "prereq": {
       "name": "nvm",
       "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "command": "nvm install 20.1.0;nvm use 20.1.0 --silent"
     },
     "run": {
       "icu_version": "icu73",
       "exec": "dart_web",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt",
+        "lang_names",
         "likely_subtags"
       ],
       "per_execution": 10000
@@ -90,18 +251,22 @@
   },
   {
     "prereq": {
-      "name": "nvm",
-      "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "name": "nvm 21.6.0, icu74.1",
+      "version": "21.6.0",
+      "command": "nvm install 21.6.0;nvm use 21.6.0 --silent"
     },
     "run": {
       "icu_version": "icu74",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -110,16 +275,20 @@
     "prereq": {
       "name": "nvm",
       "version": "20.1.0",
-      "command": "nvm install 20.1.0;nvm use 20.1.0"
+      "command": "nvm install 20.1.0;nvm use 20.1.0 --silent"
     },
     "run": {
       "icu_version": "icu73",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -128,16 +297,19 @@
     "prereq": {
       "name": "nvm",
       "version": "18.14.2",
-      "command": "nvm install 18.14.2;nvm use 18.14.2"
+      "command": "nvm install 18.14.2;nvm use 18.14.2 --silent"
     },
     "run": {
       "icu_version": "icu72",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
+        "list_fmt",
         "number_fmt",
-        "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -146,14 +318,18 @@
     "prereq": {
       "name": "nvm",
       "version": "18.7.0",
-      "command": "nvm install 18.7.0;nvm use 18.7.0"
+      "command": "nvm install 18.7.0;nvm use 18.7.0 --silent"
     },
     "run": {
       "icu_version": "icu71",
       "exec": "node",
       "test_type": [
-        "collation_short",
-        "number_fmt"
+        "collation",
+        "list_fmt",
+        "datetime_fmt",
+        "number_fmt",
+        "rdt_fmt",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -162,13 +338,13 @@
     "prereq": {
       "name": "nvm",
       "version": "14.21.3",
-      "command": "nvm install 14.21.3;nvm use 14.21.3"
+      "command": "nvm install 14.21.3;nvm use 14.21.3 --silent"
     },
     "run": {
       "icu_version": "icu70",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -178,13 +354,13 @@
     "prereq": {
       "name": "nvm",
       "version": "14.18.3",
-      "command": "nvm install 14.18.3;nvm use 14.18.3"
+      "command": "nvm install 14.18.3;nvm use 14.18.3 --silent"
     },
     "run": {
       "icu_version": "icu69",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -200,10 +376,14 @@
       "icu_version": "icu73",
       "exec": "rust",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
@@ -218,41 +398,148 @@
       "icu_version": "icu74",
       "exec": "rust",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
   },
   {
     "prereq": {
-      "name": "mvn-icu4j-73-shaded",
-      "version": "73",
-      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
+      "name": "rust1.5",
+      "version": "1.5",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/1.5/Cargo.toml"
     },
     "run": {
-      "icu_version": "icu73",
-      "exec": "icu4j",
+      "icu_version": "icu75",
+      "exec": "rust",
       "test_type": [
-        "collation_short"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
-      "name": "mvn-icu4j-73-shaded",
-      "version": "73",
-      "command": "mvn -f ../executors/icu4j/73/executor-icu4j/pom.xml package"
-    },
-    "run": {
-      "icu_version": "icu73",
-      "exec": "icu4j",
-      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "rust2.0-beta1",
+      "version": "2.0-beta1",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/2.0-beta1/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "rust",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-73-shaded",
+      "version": "73",
+      "command": "mvn -q -P icu73 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu73",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-74-shaded",
+      "version": "74",
+      "command": "mvn -q -P icu74 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu74",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-75-shaded",
+      "version": "75",
+      "command": "mvn -q -P icu75 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-76-shaded",
+      "version": "76",
+      "command": "mvn -q -P icu76 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
       ],
       "per_execution": 10000
     }
