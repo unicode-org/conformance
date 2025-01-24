@@ -53,7 +53,7 @@ class NumberFmtGenerator(DataGenerator):
             json.dump(json_verify, num_fmt_verify_file, indent=1)
             num_fmt_verify_file.close()
 
-            logging.info(
+            logging.debug(
                 "NumberFormat Test (%s): %s tests created", self.icu_version, count
             )
         return
@@ -148,7 +148,7 @@ class NumberFmtGenerator(DataGenerator):
 
                     all_tests_list.append(entry)  # All the tests in JSON form
                     count += 1
-        logging.info(
+        logging.debug(
             "  generateNumberFmtTestDataObjects gives %d tests",
             (count - original_count),
         )
@@ -248,7 +248,7 @@ class NumberFmtGenerator(DataGenerator):
                 verify_list.append({"label": label, "verify": expected})
                 count += 1
 
-        logging.info(
+        logging.debug(
             "  generateDcmlFmtTestDataObjects gives %d tests", (count - original_count)
         )
         return all_tests_list, verify_list, count

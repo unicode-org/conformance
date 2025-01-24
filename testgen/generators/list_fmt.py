@@ -28,12 +28,6 @@ class ListFmtGenerator(DataGenerator):
             exec_list.append('-run_limit')
             exec_list.append(str(self.run_limit))
 
-        run_list = [
-            ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0 --silent'],
-            exec_list,
-            ['mv list_fmt*.json icu74']
-        ]
-
         if self.icu_version not in icu_nvm_versions:
             logging.warning('Generating list_fmt data not configured for icu version %s', self.icu_version)
             return False

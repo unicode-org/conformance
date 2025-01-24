@@ -46,6 +46,10 @@ class DdtArgs():
 
     setCommonArgs(self.parser)
 
+    self.parser.add_argument('--log',
+                             default='WARNING',
+                             help='logging level')
+
     self.parser.add_argument(
         '--start_test', default=0,
         help='number of tests to skip at start of the test data')
@@ -84,6 +88,10 @@ class VerifyArgs():
         '--verify_all', action='store_true',
         help='Verify all available report files',
         default=None)
+
+    self.parser.add_argument('--log',
+                             default='WARNING',
+                             help='logging level')
 
     self.parser.add_argument(
         '--summary_only', action='store_true',
