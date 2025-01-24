@@ -45,7 +45,6 @@ let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
-  TestCollShift: Symbol("coll_shift"),
   TestCollation: Symbol("collation"),
   TestDecimalFormat: Symbol("decimal_fmt"),
   TestNumberFormat: Symbol("number_fmt"),
@@ -57,7 +56,6 @@ const testTypes = {
 }
 
 const supported_test_types = [
-  Symbol("coll_shift"),
   Symbol("collation"),
   Symbol("decimal_fmt"),
   Symbol("number_fmt"),
@@ -67,7 +65,6 @@ const supported_test_types = [
 const supported_tests_json = {
   "supported_tests":
     [
-      "coll_shift",
       "collation",
       "decimal_fmt",
       "number_fmt",
@@ -94,10 +91,7 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  if (testId == "coll_shift") {
-    return testTypes.TestCollShift;
-  }
-  if (testId == "coll_shift") {
+  if (testId == "collation") {
     return testTypes.TestCollation;
   }
   if (testId == "decimal_fmt" || testId == "number_fmt") {
@@ -159,7 +153,7 @@ rl.on('line', function (line) {
           parsedJson = JSON.parse(line);
         } catch (error) {
           outputLine = {
-            'Cannot parse input line': error,
+            'error': 'Cannot parse input line',
             'input_line': line,
             "testId": testId
           };
@@ -167,7 +161,7 @@ rl.on('line', function (line) {
           // Send result to stdout for verification
           jsonOut = JSON.stringify(outputLine);
           if (doLogOutput > 0) {
-            console.log("## ERROR " + lineId + ' ' + outputLine + ' !!!!!');
+            console.log("## ERROR JSON.parse: " + lineId + ' ' + outputLine + ' !!!!!');
           }
           process.stdout.write(jsonOut);
         }
@@ -194,8 +188,8 @@ rl.on('line', function (line) {
           };
         }
 
-        if ('error' in outputLine) {
-          // To get the attention of the driver
+        if (doLogOutput > 0 && 'error' in outputLine) {
+        // To get the attention of the driver
           console.log("#!! ERROR in DART_WEB: " + test_type + ": " + JSON.stringify(outputLine));
         }
 
