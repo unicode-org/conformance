@@ -382,8 +382,8 @@ class Tester:
 
     def collation_exec(self, executor):
         # Set up paths and run verify
-        self.title = executor.upper() + ' COLLATION_SHORT'
-        self.test_type = 'collation_short'
+        self.title = executor.upper() + ' COLLATION'
+        self.test_type = 'collation'
         self.setup_paths_and_run(
             executor, 'coll_test_shift.json', 'collation_verify.json')
 
