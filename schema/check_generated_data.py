@@ -99,7 +99,7 @@ def main(args):
         sys.exit(1)
     else:
         logging.info("All %d generated test data files match with schema", schema_count)
-        sys.exit(0)
+
 
 
 if __name__ == "__main__":
