@@ -48,10 +48,15 @@ class MessageFmt2Generator(DataGenerator):
 
             defaults = src_data.get("defaultTestProperties")
 
+            # Remove '$schema" before validating and creating tests
+            if '$schema' in src_data:
+                del src_data['$schema']
+
             try:
                 validate(src_data, json_schema)
             except ValidationError as err:
-                logging.error("Problem validating JSON: %s", test_file_path)
+                logging.error("Problem validating JSON: %s against schema",
+                              test_file_path, json_schema_path)
                 logging.error(err)
 
             for src_test in src_data["tests"]:
