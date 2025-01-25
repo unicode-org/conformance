@@ -55,7 +55,7 @@ class MessageFmt2Generator(DataGenerator):
             try:
                 validate(src_data, json_schema)
             except ValidationError as err:
-                logging.error("Problem validating JSON: %s agains schema",
+                logging.error("Problem validating JSON: %s against schema",
                               test_file_path, json_schema_path)
                 logging.error(err)
 
