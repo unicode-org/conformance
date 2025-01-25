@@ -30,6 +30,9 @@
       let generated_test_validation_summary;
       let test_output_validation_summary;
 
+      // By default, only show failing schema checks.
+      let show_passing_validations = false;
+
       // Get schema validataion summary for display.
       let p1 = fetch('./schema_validation_summary.json');
       let p2 = fetch('./test_data_validation_summary.json');
@@ -68,20 +71,22 @@
           let num_failed = validations['failed'].length;
           let num_passed = validations['passed'].length;
 
-          valid_lines.push('<p>Passing validations:</p>')
-          if (num_passed > 0) {
-              valid_lines.push('<ul>')
-              for (let v of validations['passed']) {
-                  let line_text = v['test_type'];
-                  if ('icu_version' in v) {
-                      line_text += ', ' + v['icu_version'];
+          if (show_passing_validations) {
+              valid_lines.push('<p>Passing validations:</p>')
+              if (num_passed > 0) {
+                  valid_lines.push('<ul>')
+                  for (let v of validations['passed']) {
+                      let line_text = v['test_type'];
+                      if ('icu_version' in v) {
+                          line_text += ', ' + v['icu_version'];
+                      }
+                      if ('executor' in v) {
+                          line_text += ', ' + v['executor'];
+                      }
+                      valid_lines.push('<li>' + line_text + '</li>');
                   }
-                  if ('executor' in v) {
-                      line_text += ', ' + v['executor'];
-                  }
-                  valid_lines.push('<li>' + line_text + '</li>');
+                  valid_lines.push('</ul>')
               }
-              valid_lines.push('</ul>')
           }
 
           if (num_failed > 0) {
@@ -106,10 +111,11 @@
           let status = document.getElementById(status_item);
           let status_output = '';
           if (validations['failed'].length == 0) {
-              status_output = '<h4>All tests pass</h4>'
+              status_output = 'All ' + num_passed + ' tests pass. No failures!'
+          } else {
+              status_output +=
+                  'Number passed: ' + num_passed + '.  Number failed: ' + num_failed + '.';
           }
-          status_output +=
-              'Number passed: ' + num_passed + '<br />Number failed: ' + num_failed;
           status.innerHTML = status_output;
       }
     </script>
@@ -172,8 +178,7 @@
               td.innerHTML = "Details";
           }
 
-          let tr;
-          td;
+          let background_color;
           for (const test_type of test_types) {
               tr = table.insertRow();
               td = tr.insertCell();
@@ -186,6 +191,7 @@
                   let data = [data_groups];
                   let details = [];
                   for (const report of tests) {
+                      background_color = null;
                       if (report['version']['platform'] == exec) {
                           reports.push(report);
                           // Add data for this report.
@@ -202,12 +208,35 @@
                               ''
                           ];
                           data.push(report_data);
-                          let link = '<a href="' +
+                          // Set the link background color based on status.
+                          // Check if everything is passing to make a visual note
+                          if (report['fail_count'] == 0 && report['error_count'] == 0) {
+                            // No failures or errors
+                            if (report['known_issue_count'] == 0) {
+                              if (report['unsupported_count'] == 0) {
+                                  background_color = '#00ee88';
+                              } else {
+                                  // No failures, but there are unsupported items
+                                  background_color = '#aaaaaa';
+                              }
+                            } else if (report['unsupported_count'] == 0) {
+                                // Only known issues are present
+                                background_color = '#ffa400';
+                            }
+                         }
+                       // Insert the background color to the link if needed.
+                       let color_part = '';
+                       if (background_color) {
+                           color_part = 'style="background-color:' + background_color + '" ';
+                       }
+                       let href_part = 'href="' +
                               report['html_file_name'] + '"' +
                               ' target="_blank">' +
                               report['icu_version'] +
                               '</a><br />';
-                          details.push(link);
+
+                         let link = '<a ' + color_part + href_part;
+                         details.push(link);
                       }
                   }
                   td = tr.insertCell();
@@ -302,15 +331,15 @@ th {
     </table>
 
     <h2>Schema validation results</h2>
-    <h3>Checks for schema correctness</h3>
+    <h3>Schema structure</h3>
     <p id="schema_validation_status"> </p>
     <p id="schema_validation_detail">
     </div>
-    <h3>Checks for generated test data correctness</h3>
+    <h3>Test data format</h3>
     <p id="generated_validation_status"> </p>
     <p id="generated_validation_detail">
     </div>
-    <h3>Checks for test output correctness</h3>
+    <h3>Test output validity</h3>
     <p id="output_validation_status"> </p>
     <p id="output_validation_detail">
     </div>

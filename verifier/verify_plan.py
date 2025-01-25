@@ -74,11 +74,10 @@ class VerifyPlan:
         report_dir = os.path.dirname(self.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            logging.error('    !!! Cannot create directory %s for report file %s',
-                          report_dir, self.report_path)
-            logging.error('   !!! Error = %s', err)
+            logging.error('    !!! %s. Cannot create directory %s for report file %s',
+                          err, eport_dir, self.report_path)
             return None
 
 
@@ -187,11 +186,15 @@ class VerifyPlan:
 
                 # Remember details about the test
                 test['input_data'] = test_data
-                test['expected'] = expected_result
-                if actual_result == expected_result:
-                    self.report.record_pass(test)
+                if 'unsupported' in test:
+                    self.report.record_unsupported(test)
                 else:
-                    self.report.record_fail(test)
+                    # This should be a supported test type.
+                    test['expected'] = expected_result
+                    if actual_result == expected_result:
+                        self.report.record_pass(test)
+                    else:
+                        self.report.record_fail(test)
 
             except (AttributeError, KeyError):
                 # Add input information to the test results

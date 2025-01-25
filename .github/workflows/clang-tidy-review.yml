@@ -1,0 +1,31 @@
+name: Run C++ Tests
+
+on:
+  push:
+    branches:
+      - main
+      - 'maint/maint*'
+  pull_request:
+    branches: '**'
+
+jobs:
+  build:
+    name: Lint ICU4C C++ executor
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read  # change to write for thread comments
+      # metadata: read # for thread comments
+      # pull-requests: write # for pull request reviews
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
+      run: |
+        bash setup.sh
+        sudo apt-get install libicu-dev
+    - name: Run clang-tidy
+      run: |
+        pushd executors/cpp
+        clang-tidy  *.cpp --config-file="clang-tidy-config.yml" -p .

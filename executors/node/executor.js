@@ -54,7 +54,7 @@ let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
-  TestCollationShort : Symbol("collation_short"),
+  TestCollationShort : Symbol("collation"),
   TestCollShiftShort : Symbol("coll_shift_short"),
   TestCollNonignorableShort : Symbol("coll_nonignorable_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
@@ -68,7 +68,7 @@ const testTypes = {
 };
 
 const supported_test_types = [
-  Symbol("collation_short"),
+  Symbol("collation"),
   Symbol("coll_shift_short"),
   Symbol("coll_nonignorable_short"),
   Symbol("decimal_fmt"),
@@ -85,7 +85,7 @@ const supported_test_types = [
 
 const supported_tests_json = {
   "supported_tests": [
-    "collation_short",
+    "collation",
     "coll_shift_short",
     "decimal_fmt",
     "number_fmt",
@@ -115,10 +115,10 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  if (testId == "coll_shift_short" || testId == "collation_short") {
+  if (testId == "coll_shift_short" || testId == "collation") {
     return testTypes.TestCollationShort;
   }
-  if (testId == "collation_short") {
+  if (testId == "collation") {
     return testTypes.TestCollationShort;
   }
   if (testId == "coll_shift_short") {
@@ -221,7 +221,7 @@ rl.on('line', function(line) {
 
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
-    if (test_type == "coll_shift_short" || test_type == "collation_short") {
+    if (test_type == "coll_shift_short" || test_type == "collation") {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {

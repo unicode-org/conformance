@@ -27,6 +27,10 @@ distclean clean: $(CLEAN_SUBDIR)
 check: $(ALL_SUBDIR) $(RESTARGET) $(TARGET)
 	$(INVOKE) $(CHECK_VARS) ./$(TARGET) $(CHECK_ARGS) | tee $(TARGET).out
 
+### For executing checks
+clang:
+	clang-tidy --checks='modernize*, readability*, clang-analyzer-apiModeling'  *.cpp --fix-errors
+
 ## resources
 %.res: %.txt
 	@echo "generating $@"

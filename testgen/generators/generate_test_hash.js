@@ -22,7 +22,7 @@ function generate_hash_for_test(test_case) {
   // Computes a 32 byte hex hash code for the test case
   // Note that the test case should not include 'label'.
 
-  obj = remove_none(test_case)
+  obj = remove_none(test_case);
   json_str = JSON.stringify(obj);
 
   const hasher = crypto.createHash("sha1");

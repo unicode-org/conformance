@@ -50,6 +50,7 @@ class ICUVersion(Enum):
   ICU73 = "73"
   ICU74 = "74"
   ICU75 = "75"
+  ICU76 = "76"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
@@ -74,6 +75,7 @@ class CLDRVersion(Enum):
   CLDR43 = "43"
   CLDR44 = "44"
   CLDR45 = "45"
+  CLDR46 = "46"
 
 def latestCldrVersion():
   return CLDRVersion.CLDR43  # TODO: Fix this
@@ -93,11 +95,12 @@ cldr_icu_map = {
     CLDRVersion.CLDR43: [ICUVersion.ICU73],
     CLDRVersion.CLDR44: [ICUVersion.ICU74],
     CLDRVersion.CLDR45: [ICUVersion.ICU75],
+    CLDRVersion.CLDR46: [ICUVersion.ICU76],
 }
 
 # TODO: Can this be added to a configuration file?
 class testType(Enum):
-  collation_short = 'collation_short'
+  collation = 'collation'
   decimal_fmt = 'decimal_fmt'
   datetime_fmt = 'datetime_fmt'
   display_names = 'display_names'
@@ -117,14 +120,14 @@ def def_value():
 # Initialize dictionary of data organized by test type
 testDatasets = defaultdict(def_value)
 
-testName = 'collation_short'
-testDatasets[testName] = DataSet(testType.collation_short.value,
+testName = 'collation'
+testDatasets[testName] = DataSet(testType.collation.value,
                                  'collation_test.json',
                                  'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
-testName = 'collation_short'
-testDatasets[testName] = DataSet(testType.collation_short.value,
+testName = 'collation'
+testDatasets[testName] = DataSet(testType.collation.value,
                                  'collation_test.json',
                                  'collation_verify.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
@@ -215,7 +218,8 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
-  Node22 = "22.1.0"
+  Node23 = "23.3.0"
+  Node22 = "22.9.0"
   Node21 = "21.6.0"
   Node19 = "19.7.0"
   Node18_7 = "18.7.0"
@@ -245,7 +249,8 @@ class ICU4XVersion(Enum):
 # TODO: combine the version info
 IcuVersionToExecutorMap = {
     'node': {
-        '75': ["22.1.0"],
+        '76': ["23.3.0"],
+        '75': ["22.9.0"],
         '74': ["21.6.0"],
         '73': ["20.1.0"],
         '72': ['18.14.2'],
@@ -269,7 +274,8 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    '22.1.0': '75.1',
+    '23.3.0': '76.1',
+    '22.9.0': '75.1',
     '21.6.0': '74.1',
     '20.1.0': '73.1',
     '18.14.2': '72.1',
@@ -402,6 +408,12 @@ allExecutors.addSystem(
     CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75,
     env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu75/bin'})
 
+allExecutors.addSystem(
+    system, CppVersion.Cpp,
+    '../executors/cpp/executor',
+    CLDRVersion.CLDR46, versionICU=ICUVersion.ICU76,
+    env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu76/bin'})
+
 system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',
                        '/bin/newExecutor',
@@ -418,6 +430,10 @@ allExecutors.addSystem(system, '75',
                        'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
                        CLDRVersion.CLDR45, versionICU=ICUVersion.ICU75)
 
+allExecutors.addSystem(system, '76',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+                       CLDRVersion.CLDR46, versionICU=ICUVersion.ICU76)
+
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,
                        'node ../executors/dart_web/out/executor.js',
@@ -426,7 +442,7 @@ allExecutors.addSystem(system,  NodeVersion.Node19,
 allExecutors.addSystem(system, NodeVersion.Node18_7,
                        'node ../executors/dart_web/out/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
-                       
+
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
                        '../executors/dart_native/bin/executor/executor.exe',

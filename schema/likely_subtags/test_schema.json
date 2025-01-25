@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["likely_subtags"]
+     "const": "likely_subtags"
    },
    "Test scenario": {
      "type": "string",
@@ -84,11 +83,8 @@
            "type": "string"
          },
          "option": {
-           "type": "string",
            "description": "Type of processing requested",
-           "enum": ["maximize", "minimize",
-                    "minimizeFavorScript",
-                    "minimizeFavorRegion"]
+           "enum": ["maximize", "minimize", "minimizeFavorScript", "minimizeFavorRegion"]
          }
        }
      },
