@@ -476,6 +476,7 @@ table th {
                 data_container.html(html);
             }
         });
+      return pagination_container;
     }
 
     // -----------------------
@@ -675,6 +676,10 @@ table th {
         let found = false;
         const label_data = document.getElementById('label_data');
         label_data.innerHTML = "???";
+      
+        let item_index;
+        let pagination_container;
+        let pagination_obj;
 
         for (const type of result_types) {
             const results = test_results[type].all_labels;
@@ -687,9 +692,10 @@ table th {
 
                 label_data.innerHTML = "TO BE FOUND";
                 const json_items = test_results[type].json;
-                let item_index = 0;
+                item_index = 0; // reset.
                 for (const item of json_items) {
                     if (item['label'] == label) {
+                        found = true;
                         const to_show = 'Input: ' + JSON.stringify(item['input_data']) + ' ' +
                               'Expected: ' + item['expected'] + ", Actual =" +
                               item['result'];
@@ -702,14 +708,20 @@ table th {
                         detail_obj.open = true;
 
                         // Get the pagination controller for this category.
-                        let pagination_container = test_results[type]['pagination_container'];
-                        // How to get the right page based on the item_index and page size?
+                        pagination_container = test_results[type]['pagination_container'];
+                        pagination_obj = pagination_container.pagination;
+
 
                         break;
                     }
                     item_index += 1;
                 }
+                // How to get the right page based on the item_index and page size?
+                // Use item_index and page size to figure which page has this one.
+                // If we get page size, then the page to show is (item_index // page_size).
 
+                // But how to get page size?
+                // How to set the new page
                 break;
             }
         }
@@ -891,6 +903,8 @@ table th {
     <div bp="4">
       <h2>Acknowledgements</h2>
       <p><a href='https://github.com/google/diff-match-patch/wiki/Language:-JavaScript'>diff-match-patch</a></p>
+      <p><a href="https:/developers.google.com/chart>Google Charts</a></p>
+      <p><a href='https://pagnination.js.org'>pagination.js.org</a></p>
     </div>
 
   </body>
