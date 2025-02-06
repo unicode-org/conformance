@@ -45,6 +45,9 @@
         "src": {
           "type": "string"
         },
+        "expCleanSrc": {
+          "type": "string"
+        },
         "params": {
           "type": "array",
           "items": {

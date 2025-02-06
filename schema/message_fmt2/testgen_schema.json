@@ -128,6 +128,9 @@
         "exp": {
           "$ref": "#/$defs/exp"
         },
+        "expCleanSrc": {
+          "$ref": "#/$defs/expCleanSrc"
+        },
         "expParts": {
           "$ref": "#/$defs/expParts"
         },
@@ -161,6 +164,9 @@
         },
         "exp": {
           "$ref": "#/$defs/exp"
+        },
+        "expCleanSrc": {
+          "$ref": "#/$defs/expCleanSrc"
         },
         "expParts": {
           "$ref": "#/$defs/expParts"
@@ -259,6 +265,10 @@
     "exp": {
       "description": "The expected result of formatting the message to a string.",
       "type": "string"
+    },
+    "expCleanSrc": {
+      "type": "string",
+      "description": "Present in ICU75"
     },
     "expParts": {
       "description": "The expected result of formatting the message to parts.",
