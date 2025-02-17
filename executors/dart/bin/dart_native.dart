@@ -17,7 +17,7 @@ Map<String, List<String>> supportedTests = {
 };
 
 enum TestTypes {
-  collation_short,
+  collation,
   decimal_fmt,
   datetime_fmt,
   display_names,
@@ -49,7 +49,7 @@ void main() {
       final testType =
           TestTypes.values.firstWhere((type) => type.name == testTypeStr);
       final result = switch (testType) {
-        TestTypes.collation_short => collation(decoded),
+        TestTypes.collation => collation(decoded),
         TestTypes.decimal_fmt ||
         TestTypes.number_fmt =>
           testDecimalFormat(line),

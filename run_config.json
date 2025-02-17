@@ -251,10 +251,10 @@
   },
   {
     "run": {
-      "icu_version": "icu73",
+      "icu_version": "icu76",
       "exec": "dart_native",
       "test_type": [
-        "collation_short"
+        "collation"
       ],
       "per_execution": 10000
     }
