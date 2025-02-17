@@ -9,7 +9,7 @@
 
 executors/rust/target/
 executors/cpp/executor
-executors/dart_native/bin/executor/
+executors/dart/bin/dart_native/
 
 gh-cache/
 

@@ -2,9 +2,12 @@
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
+import 'lang_names.dart';
+import 'numberformat.dart';
 import 'version.dart';
 
 Map<String, List<String>> supportedTests = {
@@ -14,7 +17,7 @@ Map<String, List<String>> supportedTests = {
 };
 
 enum TestTypes {
-  collation,
+  collation_short,
   decimal_fmt,
   datetime_fmt,
   display_names,
@@ -42,26 +45,18 @@ void main() {
         throw 'ERRORSTART $line ERROREND';
       }
 
-      final testType = TestTypes.values
-          .firstWhere((type) => type.name == decoded['test_type']);
-      Object result;
-      switch (testType) {
-        case TestTypes.collation:
-          result = testCollator(decoded);
-          break;
-        case TestTypes.decimal_fmt:
-        // TODO: Handle this case.
-        case TestTypes.datetime_fmt:
-        // TODO: Handle this case.
-        case TestTypes.display_names:
-        // TODO: Handle this case.
-        case TestTypes.lang_names:
-        // TODO: Handle this case.
-        case TestTypes.number_fmt:
-        // TODO: Handle this case.
-        default:
-          throw UnsupportedError('');
-      }
+      final testTypeStr = decoded['test_type'];
+      final testType =
+          TestTypes.values.firstWhere((type) => type.name == testTypeStr);
+      final result = switch (testType) {
+        TestTypes.collation_short => collation(decoded),
+        TestTypes.decimal_fmt ||
+        TestTypes.number_fmt =>
+          testDecimalFormat(line),
+        TestTypes.lang_names => testLangNames(line),
+        TestTypes.datetime_fmt => throw UnimplementedError(),
+        TestTypes.display_names => throw UnimplementedError(),
+      };
 
       final outputLine = {'label': decoded['label'], 'result': result};
       print(json.encode(outputLine));
@@ -69,7 +64,7 @@ void main() {
   }
 }
 
-bool testCollator(Map<String, dynamic> decoded) {
+bool collation(Map<String, dynamic> decoded) {
   final ignorePunctuation = decoded['ignorePunctuation'] as bool?;
   final options =
       CollationOptions(ignorePunctuation: ignorePunctuation ?? false);

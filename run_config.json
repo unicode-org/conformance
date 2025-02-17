@@ -250,6 +250,16 @@
     }
   },
   {
+    "run": {
+      "icu_version": "icu73",
+      "exec": "dart_native",
+      "test_type": [
+        "collation_short"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
     "prereq": {
       "name": "nvm 21.6.0, icu74.1",
       "version": "21.6.0",

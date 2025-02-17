@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 
 Future<void> main(List<String> args) async {
-  final lockFileContents = File('pubspec.lock').readAsStringSync();
+  final lockFileContents = await File('pubspec.lock').readAsString();
   final lockfile = PubspecLock.parse(lockFileContents);
   final version = lockfile.packages['intl4x']!.version;
   File('bin/version.dart').writeAsStringSync('''

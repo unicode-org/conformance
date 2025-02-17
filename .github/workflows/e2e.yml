@@ -31,7 +31,7 @@ jobs:
         run: bash setup.sh
 
       - name: Setup version of Dart
-        uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
+        uses: dart-lang/setup-dart@e9a814f39d5452701455a47847735e0f482026c8
         with:
           sdk: dev
       - name: Set version of Rust

@@ -17,20 +17,19 @@ String testLangNames(String jsonEncoded) {
     } else {
       locale = Locale(language: 'en');
     }
-  } catch(error) {
+  } catch (error) {
     outputLine.addAll({
-        'error': 'locale_label: ' + error.toString(),
-        'label': json['label'],
-        'test_type': 'display_names',
-        'error_type': 'unsupported',
-        'error_detail': 'locale_label',
-        'error_retry': false // Do not repeat
+      'error': 'locale_label: $error',
+      'label': json['label'],
+      'test_type': 'display_names',
+      'error_type': 'unsupported',
+      'error_detail': 'locale_label',
+      'error_retry': false // Do not repeat
     });
     return jsonEncode(outputLine);
   }
 
-  final languageLabel =
-  (json['language_label'] as String).replaceAll('_', '-');
+  final languageLabel = (json['language_label'] as String).replaceAll('_', '-');
 
   try {
     final options = DisplayNamesOptions(
@@ -43,15 +42,15 @@ String testLangNames(String jsonEncoded) {
     outputLine['result'] = resultLocale;
   } catch (error) {
     outputLine.addAll({
-        //      'error': error.toString() + " language_label:" + languageLabel,
-        'error': 'something went wrong: ' + error.toString(),
-        'label': json['label'],
-        'locale_label': locale.toLanguageTag(),
-        'language_label': languageLabel,
-        'test_type': 'display_names',
-        'error_type': 'unsupported',
-        'error_detail': languageLabel,
-        'error_retry': false // Do not repeat
+      //      'error': error.toString() + " language_label:" + languageLabel,
+      'error': 'something went wrong: $error',
+      'label': json['label'],
+      'locale_label': locale.toLanguageTag(),
+      'language_label': languageLabel,
+      'test_type': 'display_names',
+      'error_type': 'unsupported',
+      'error_detail': languageLabel,
+      'error_retry': false // Do not repeat
     });
   }
   return jsonEncode(outputLine);
