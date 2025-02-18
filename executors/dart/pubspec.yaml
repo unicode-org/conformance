@@ -2,13 +2,21 @@ name: dart_executor
 publish_to: none
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.6.0
 
 # Add regular dependencies here.
 dependencies:
-  intl4x: ^0.10.1
+  intl4x:
+    git:
+      url: git@github.com:dart-lang/i18n.git
+      path: pkgs/intl4x
+      ref: updateIntl4x2
   pubspec_lock_parse: ^2.2.0
 
 dev_dependencies:
-  lints: ^4.0.0
+  lints: ^5.1.1
   test: ^1.25.2
+
+hook:
+  intl4x:
+    buildMode: fetch

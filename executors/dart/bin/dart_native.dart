@@ -3,12 +3,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:intl4x/collation.dart';
-import 'package:intl4x/intl4x.dart';
+import 'package:intl4x/collation.dart' show CollationOptions;
+import 'package:intl4x/intl4x.dart' show Intl, Locale;
 
-import 'lang_names.dart';
-import 'numberformat.dart';
-import 'version.dart';
+import 'lang_names.dart' show testLangNames;
+import 'numberformat.dart' show testDecimalFormat;
+import 'version.dart' show intl4xVersion;
 
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
@@ -26,6 +26,8 @@ enum TestTypes {
 }
 
 void main() {
+  final collati2on = Intl(locale: Locale(language: 'en')).collation();
+  print(collati2on.compare('a', 'b'));
   while (true) {
     final line = stdin.readLineSync();
     if (line == null) {
@@ -42,7 +44,7 @@ void main() {
       try {
         decoded = json.decode(line);
       } catch (e) {
-        throw 'ERRORSTART $line ERROREND';
+        rethrow;
       }
 
       final testTypeStr = decoded['test_type'];

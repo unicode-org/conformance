@@ -166,12 +166,9 @@ String testDecimalFormat(
 
   Map<String, dynamic> outputLine;
   try {
-    Locale locale;
-    if (testLocale != null) {
-      locale = Locale.parse(testLocale);
-    } else {
-      locale = const Locale(language: 'und');
-    }
+    final locale = testLocale != null
+        ? Locale.parse(testLocale)
+        : const Locale(language: 'und');
     final intl = Intl(locale: locale);
     final nf = intl.numberFormat(options);
 

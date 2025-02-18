@@ -74,7 +74,7 @@ then
     echo "DART NATIVE COMPILE"
     pushd executors/dart/
     dart pub get
-    dart --enable-experiment=native-assets compile exe bin/dart_native.dart
+    dart --enable-experiment=native-assets build bin/dart_native.dart
     popd
 fi
 
