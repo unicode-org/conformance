@@ -137,6 +137,11 @@ auto TestCollator(json_object *json_in) -> string {
     // Make sure normalization is consistent
     rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
     if (check_icu_error(status, return_json, "create RuleBasedCollator")) {
+      // Put json_in as the actual input received.
+      json_object_object_add(
+          return_json, "actual_input",
+          json_object_new_string(json_object_get_string(json_in)));
+
       return json_object_to_json_string(return_json);
     }
 
@@ -217,9 +222,13 @@ auto TestCollator(json_object *json_in) -> string {
   if (compare_type_string == "" || compare_type_string.substr(0, 1) == "<") {
     // Default checking for <= 0.
     coll_result = (uni_result != UCOL_GREATER);
-  } else {
-    coll_result = (uni_result == UCOL_EQUAL);
-  }
+  } else
+    if (compare_type_string == "=") {
+      coll_result = (uni_result == UCOL_EQUAL);
+    } else {
+      //
+      coll_result = (uni_result == UCOL_EQUAL);
+    }
 
   if (!coll_result) {
     // Test did not succeed!
@@ -228,6 +237,10 @@ auto TestCollator(json_object *json_in) -> string {
         return_json, "s1", json_object_new_string(string1.c_str()));
     json_object_object_add(
         return_json, "s2", json_object_new_string(string2.c_str()));
+
+    json_object_object_add(
+        return_json, "actual_input",
+        json_object_new_string(json_object_get_string(json_in)));
 
     // Record the actual returned value
     json_object_object_add(
