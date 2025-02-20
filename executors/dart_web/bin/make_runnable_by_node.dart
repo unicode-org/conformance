@@ -45,6 +45,7 @@ Future<void> prepare(String name, ExportFunction function) async {
     '-o',
     'out/$outFile.js',
   ]);
+  print(compile.stdout);
   print(compile.stderr);
 
   prepareOutFile(outFile, [function]);
