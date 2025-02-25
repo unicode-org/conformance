@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:intl4x/ecma_policy.dart';
 import 'package:intl4x/intl4x.dart';
 import 'package:intl4x/number_format.dart';
 
@@ -165,21 +164,13 @@ String testDecimalFormat(
 
   final testLocale = json['locale'] as String?;
 
-  Intl intl;
   Map<String, dynamic> outputLine;
   try {
-    if (testLocale != null) {
-      intl = Intl(
-        locale: Locale.parse(testLocale),
-        ecmaPolicy: AlwaysEcma(),
-      );
-    } else {
-      intl = Intl(
-        locale: const Locale(language: 'und'),
-        ecmaPolicy: AlwaysEcma(),
-      );
-    }
-    final NumberFormat nf = intl.numberFormat(options);
+    final locale = testLocale != null
+        ? Locale.parse(testLocale)
+        : const Locale(language: 'und');
+    final intl = Intl(locale: locale);
+    final nf = intl.numberFormat(options);
 
     // TODO: Catch unsupported units, e.g., furlongs.
 

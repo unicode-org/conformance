@@ -86,20 +86,27 @@ popd
 
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 
+echo "Setup Dart native"
 if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
-    pushd executors/dart_native/
+    pushd executors/dart/
+    echo "dart pub get"
     dart pub get
+    echo "dart --enable-experiment=native-assets run bin/set_version.dart"
     dart --enable-experiment=native-assets run bin/set_version.dart
-    dart --enable-experiment=native-assets build bin/executor.dart
+    echo "dart --enable-experiment=native-assets build bin/dart_native.dart"
+    dart --enable-experiment=native-assets build bin/dart_native.dart
     popd
 fi
 
+echo "Setup Dart web"
 if jq -e 'index("dart_web")' <<< $all_execs_json > /dev/null
 then
-    pushd executors/dart_web/
+    pushd executors/dart/
+    echo "dart pub get"
     dart pub get
-    dart run bin/make_runnable_by_node.dart
+    echo "dart run bin/make_runnable_by_node.dart"
+    dart  --enable-experiment=native-assets run bin/make_runnable_by_node.dart
     popd
 fi
 

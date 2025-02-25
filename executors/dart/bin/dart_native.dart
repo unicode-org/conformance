@@ -2,10 +2,13 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:intl4x/collation.dart';
-import 'package:intl4x/intl4x.dart';
 
-import 'version.dart';
+import 'package:intl4x/collation.dart' show CollationOptions;
+import 'package:intl4x/intl4x.dart' show Intl, Locale;
+
+import 'lang_names.dart' show testLangNames;
+import 'numberformat.dart' show testDecimalFormat;
+import 'version.dart' show intl4xVersion;
 
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
@@ -23,6 +26,8 @@ enum TestTypes {
 }
 
 void main() {
+  final collati2on = Intl(locale: Locale(language: 'en')).collation();
+  print(collati2on.compare('a', 'b'));
   while (true) {
     final line = stdin.readLineSync();
     if (line == null) {
@@ -39,29 +44,21 @@ void main() {
       try {
         decoded = json.decode(line);
       } catch (e) {
-        throw 'ERRORSTART $line ERROREND';
+        rethrow;
       }
 
-      final testType = TestTypes.values
-          .firstWhere((type) => type.name == decoded['test_type']);
-      Object result;
-      switch (testType) {
-        case TestTypes.collation:
-          result = testCollator(decoded);
-          break;
-        case TestTypes.decimal_fmt:
-        // TODO: Handle this case.
-        case TestTypes.datetime_fmt:
-        // TODO: Handle this case.
-        case TestTypes.display_names:
-        // TODO: Handle this case.
-        case TestTypes.lang_names:
-        // TODO: Handle this case.
-        case TestTypes.number_fmt:
-        // TODO: Handle this case.
-        default:
-          throw UnsupportedError('');
-      }
+      final testTypeStr = decoded['test_type'];
+      final testType =
+          TestTypes.values.firstWhere((type) => type.name == testTypeStr);
+      final result = switch (testType) {
+        TestTypes.collation => collation(decoded),
+        TestTypes.decimal_fmt ||
+        TestTypes.number_fmt =>
+          testDecimalFormat(line),
+        TestTypes.lang_names => testLangNames(line),
+        TestTypes.datetime_fmt => throw UnimplementedError(),
+        TestTypes.display_names => throw UnimplementedError(),
+      };
 
       final outputLine = {'label': decoded['label'], 'result': result};
       print(json.encode(outputLine));
@@ -69,7 +66,7 @@ void main() {
   }
 }
 
-bool testCollator(Map<String, dynamic> decoded) {
+bool collation(Map<String, dynamic> decoded) {
   final ignorePunctuation = decoded['ignorePunctuation'] as bool?;
   final options =
       CollationOptions(ignorePunctuation: ignorePunctuation ?? false);
