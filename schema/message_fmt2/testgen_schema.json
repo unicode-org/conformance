@@ -417,7 +417,9 @@
               "bad-selector",
               "bad-operand",
               "bad-option",
-              "bad-variant-key"
+              "bad-variant-key",
+              "unsupported-expression",
+              "unsupported-statement"
             ]
           }
         }
