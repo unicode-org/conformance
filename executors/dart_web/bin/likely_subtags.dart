@@ -26,8 +26,8 @@ String testLikelySubtags(String jsonEncoded) {
     outputLine['result'] = resultLocale;
   } catch (error) {
     outputLine.addAll({
-      'error_detail': '$localStr: $ testOption';
-      'unsupported':  error.toString(),
+      'error_detail': '$localeStr: $testOption',
+      'unsupported': error.toString(),
       'error_type': 'unsupported',
     });
   }

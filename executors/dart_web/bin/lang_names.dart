@@ -6,10 +6,7 @@ import 'package:intl4x/intl4x.dart';
 String testLangNames(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
 
-  final outputLine = <String, dynamic>{};
-  outputLine.addAll(
-    'label': json['label']
-  );
+  final outputLine = <String, dynamic>{'label': json['label']};
 
   final Locale locale;
   try {
@@ -20,43 +17,43 @@ String testLangNames(String jsonEncoded) {
     } else {
       locale = Locale(language: 'en');
     }
-  } catch(error) {
+  } catch (error) {
     outputLine.addAll({
-        'error_detail': 'locale_label: $error',
-        'error_type': 'unsupported',
-        'error_retry': false // Do not repeat
+      'error_detail': 'locale_label: $error',
+      'error_type': 'unsupported',
+      'error_retry': false // Do not repeat
     });
     return jsonEncode(outputLine);
   }
 
-  final languageLabel =
-  (json['language_label'] as String).replaceAll('_', '-');
+  final languageLabel = (json['language_label'] as String).replaceAll('_', '-');
+  Locale languageLabelLocale;
   try {
-    final languageLabelLocale = Locale.parse(languageLabel);
+    languageLabelLocale = Locale.parse(languageLabel);
   } catch (error) {
     // Something was not supported in this locale identifier
     outputLine.addAll({
-        'error_type': 'unsupported',
-        'error_detail': error.toString(),
-        'error_retry': false // Do not repeat
+      'error_type': 'unsupported',
+      'error_detail': error.toString(),
+      'error_retry': false // Do not repeat
     });
     return jsonEncode(outputLine);
   }
 
+  final options = DisplayNamesOptions(
+    languageDisplay: LanguageDisplay.standard,
+  );
   try {
-    final options = DisplayNamesOptions(
-      languageDisplay: LanguageDisplay.standard,
-    );
     final displayNames = Intl(locale: locale).displayNames(options);
-    final resultLangName = displayNames.ofLanguage(Locale.parse(languageLabel));
+    final resultLangName = displayNames.ofLanguage(languageLabelLocale);
 
     outputLine['result'] = resultLangName;
   } catch (error) {
     outputLine.addAll({
-        'error_type': 'unsupported',
-        'error_detail': error_toString(),
-        'actual_options': options,
-        'error_retry': false // Do not repeat
+      'error_type': 'unsupported',
+      'error_detail': error.toString(),
+      'actual_options': options,
+      'error_retry': false // Do not repeat
     });
   }
   return jsonEncode(outputLine);
