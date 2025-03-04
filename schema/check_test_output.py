@@ -14,6 +14,10 @@ import schema_validator
 import schema_files
 from schema_files import ALL_TEST_TYPES
 
+# To get commanlin arguments
+sys.path.append('../testdriver')
+from ddtargs import schemaArgs
+
 
 def main(args):
     logging.config.fileConfig("../logging.conf")

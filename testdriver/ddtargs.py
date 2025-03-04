@@ -103,6 +103,21 @@ class VerifyArgs():
     return self.options
 
 
+class schemaArgs():
+  def __init__(self, args):
+    self.parser = argparse.ArgumentParser(
+        description='Schema check arguments')
+
+    self.parser.add_argument('--run_serial', default=None,
+                             help='Set if execution should be done serially. Parallel is the default.')
+    self.options = self.parser.parse_args(args)
+
+
+
+  def getOptions(self):
+    return self.options
+
+
 # Set up arguments common to both testDriver and verifier
 def setCommonArgs(parser):
 
