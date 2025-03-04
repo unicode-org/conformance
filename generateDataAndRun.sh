@@ -99,7 +99,7 @@ if jq -e 'index("dart_web")' <<< $all_execs_json > /dev/null
 then
     pushd executors/dart_web/
     dart pub get
-    dart run bin/make_runnable_by_node.dart
+    dart bin/make_runnable_by_node.dart
     popd
 fi
 
