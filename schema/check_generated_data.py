@@ -12,6 +12,10 @@ import logging.config
 import os.path
 import sys
 
+# To get commanlin arguments
+sys.path.append('../testdriver')
+from ddtargs import schemaArgs
+
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
@@ -99,7 +103,6 @@ def main(args):
         sys.exit(1)
     else:
         logging.info("All %d generated test data files match with schema", schema_count)
-
 
 
 if __name__ == "__main__":

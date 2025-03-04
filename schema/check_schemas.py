@@ -15,6 +15,10 @@ import sys
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
+# To get commanlin arguments
+sys.path.append('../testdriver')
+from ddtargs import schemaArgs
+
 
 class ValidateSchema:
     def __init__(self, schema_base='.'):
@@ -61,17 +65,26 @@ class ValidateSchema:
 
 
 def parallel_validate_schema(validator, file_names):
-    num_processors = multiprocessing.cpu_count()
-    logging.info('Schema validation: %s processors for %s schema validations', num_processors, len(file_names))
+    if not validator.options.run_serial:
+        num_processors = multiprocessing.cpu_count()
+        logging.info('Schema validation: %s processors for %s schema validations',
+                     num_processors, len(file_names))
 
-    processor_pool = multiprocessing.Pool(num_processors)
-    # How to get all the results
-    result = None
-    try:
-        result = processor_pool.map(validator.validate_schema_file, file_names)
-    except multiprocessing.pool.MaybeEncodingError as error:
-        pass
-    return result
+        processor_pool = multiprocessing.Pool(num_processors)
+        # How to get all the results
+        result = None
+        try:
+            result = processor_pool.map(validator.validate_schema_file, file_names)
+        except multiprocessing.pool.MaybeEncodingError as error:
+            pass
+        return result
+    else:
+        results = []
+        logging.info('check_schemas running serially on %s files!',
+                     len(filenames))
+        for file_name in file_names:
+            results.append(validator.validate_schema_file(file_name))
+        return results
 
 
 def main(args):
@@ -82,6 +95,8 @@ def main(args):
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
     validator.schema_base = '.'
+
+    validator.options = SchemaArgs(args).getOptions()
 
     if len(args) > 1:
         schema_base = args[1]
