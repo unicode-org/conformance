@@ -6,9 +6,9 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  intl4x: ^0.7.1
+  intl4x: ^0.10.1
   pubspec_lock_parse: ^2.2.0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^5.1.1
   test: ^1.25.2

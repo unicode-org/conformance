@@ -52,9 +52,17 @@ String testLangNames(String jsonEncoded) {
     outputLine.addAll({
       'error_type': 'unsupported',
       'error_detail': error.toString(),
-      'actual_options': options,
+      'actual_options': options.toJson(),
       'error_retry': false // Do not repeat
     });
   }
   return jsonEncode(outputLine);
+}
+
+extension on DisplayNamesOptions {
+  Map<String, String> toJson() => {
+        'style': style.name,
+        'languageDisplay': languageDisplay.name,
+        'fallback': fallback.name,
+      };
 }
