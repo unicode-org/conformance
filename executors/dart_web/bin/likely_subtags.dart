@@ -15,10 +15,10 @@ String testLikelySubtags(String jsonEncoded) {
     String resultLocale;
     if (testOption == 'maximize') {
       resultLocale = locale.maximize().toLanguageTag();
-    } else if (testOption == 'minimizeFavorScript' ||
+    } else if (testOption == 'minimizeFavorRegion' ||
         testOption == 'minimize') {
       resultLocale = locale.minimize().toLanguageTag();
-    } else if (testOption == 'minimizeFavorRegion') {
+    } else if (testOption == 'minimizeFavorScript') {
       throw UnimplementedError();
     } else {
       throw ArgumentError('Unknown test option = $testOption');
@@ -26,10 +26,9 @@ String testLikelySubtags(String jsonEncoded) {
     outputLine['result'] = resultLocale;
   } catch (error) {
     outputLine.addAll({
-      'error_message': error.toString(),
-      'unsupported': 'unsupported subtags',
+      'error_detail': '$localeStr: $testOption',
+      'unsupported': error.toString(),
       'error_type': 'unsupported',
-      'error': 'Failure in locale subtags.'
     });
   }
   return jsonEncode(outputLine);

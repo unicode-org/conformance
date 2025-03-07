@@ -1,2 +1,2 @@
-const dartVersion = "0.7.1";
+const dartVersion = "0.11.0";
 module.exports = { dartVersion };

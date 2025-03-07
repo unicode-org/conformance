@@ -8,16 +8,18 @@
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const common_fns = require("./common.js");
 const gen_hash = require("./generate_test_hash.js");
 
 const fs = require('node:fs');
 
 let debug = false;
 
-const locales = ['und',
-                 'en-US', 'zh-TW', 'es',
-                 'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
-                 'bn', 'ar','mr', 'zu'];
+// Don't include "und" as a locale because the behavior depends on the platform.
+const locales = [
+  'en-US', 'zh-TW', 'es',
+  'pt', 'vi', 'el', 'mt-MT', 'ru', 'en-GB',
+  'bn', 'ar','mr', 'zu'];
 
 const types = ['conjunction', 'disjunction', 'unit'];
 
@@ -69,7 +71,8 @@ function generateAll() {
   const expected_count = locales.length * types.length * styles.length *
         lists.length;
 
-  console.log("Generating ", expected_count, " list_fmt tests for ", process.versions.icu);
+  console.log("Generating up to ", expected_count, " list_fmt tests for ",
+              process.versions.icu);
 
   for (const locale of locales) {
 
@@ -122,11 +125,11 @@ function generateAll() {
           // TODO: Save this as a test case.
           let test_list;
           let test_case = {
-                           'input_list': list,
-                           'options': {...all_options}
-                          };
+            'input_list': list,
+            'options': {...all_options}
+          };
           gen_hash.generate_hash_for_test(test_case);
-            test_case['label'] = label_string;
+          test_case['label'] = label_string;
 
           if (locale != '') {
             test_case["locale"] = locale;
@@ -155,25 +158,39 @@ function generateAll() {
   }
 
 
-  console.log('Number of list format tests generated for ',
-              process.versions.icu, ': ', label_num);
+  if (debug) {
+    console.log('Number of list format tests generated for ',
+                process.versions.icu, ': ', label_num);
+    console.log(' RUN LIMIT = ', run_limit);
+  }
 
-  test_obj['tests'] = test_cases;
+  test_obj['tests'] = common_fns.sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('list_fmt_test.json', JSON.stringify(test_obj, null));
+    fs.writeFileSync('list_fmt_test.json', JSON.stringify(test_obj, null, 2));
     // file written successfully
   } catch (err) {
     console.error(err);
   }
 
-  verify_obj['verifications'] = verify_cases;
+  verify_obj['verifications'] = common_fns.sample_tests(verify_cases, run_limit);
   try {
-    fs.writeFileSync('list_fmt_verify.json', JSON.stringify(verify_obj, null));
+    fs.writeFileSync('list_fmt_verify.json', JSON.stringify(verify_obj, null, 2));
     // file written successfully
   } catch (err) {
     console.error(err);
   }
 }
 
+if (debug) {
+  console.log('LIST FORMAT argv: ', process.argv);
+}
+
+let run_limit = -1;
+if (process.argv.length >= 4) {
+  if (process.argv[2] == '-run_limit') {
+    run_limit = Number(process.argv[3]);
+  }
+}
+
 /* Call the generator */
-generateAll();
+generateAll(run_limit);

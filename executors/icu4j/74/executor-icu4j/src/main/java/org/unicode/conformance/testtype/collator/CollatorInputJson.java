@@ -1,5 +1,6 @@
 package org.unicode.conformance.testtype.collator;
 
+import java.util.ArrayList;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 
 public class CollatorInputJson implements ITestTypeInputJson {
@@ -21,7 +22,7 @@ public class CollatorInputJson implements ITestTypeInputJson {
 
  public String test_description;
 
- public String[] attributes;
+ public ArrayList<String> attributes;
 
  public String rules;
 

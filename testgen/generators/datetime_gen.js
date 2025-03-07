@@ -27,17 +27,18 @@ const skip_things = false;  // To limit some options for generating tests
 let use_milliseconds = false;
 
 // Add numbering system to the test options
-// Don't test these across all other options, however.
+// Do not test these across all other options, however.
 const numbering_systems = ['latn', 'arab', 'beng']
 
 // ICU4X locales, maybe 20
+// Don't include "und" as a locale because the behavior depends on the platform.
 const locales = [
   'en-US', 'en-GB',
   'zh-TW', 'vi', 'ar', 'mt-MT',
-  'bn', 'zu',
-  'und'];
+  'bn', 'zu'
+];
 
-// maybe 10 calendars
+      // maybe 10 calendars
 const calendars = ['gregory',
                    'buddhist', 'hebrew', 'chinese', 'roc', 'japanese',
                    'islamic', 'islamic-umalqura', 'persian'
@@ -125,7 +126,7 @@ const dates = [
 
 let temporal_dates = [
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 2024,
     month: 3,
     day: 7,
@@ -138,7 +139,7 @@ let temporal_dates = [
     calendar: "gregory"
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 2001,
     month: 7,
     day: 2,
@@ -150,7 +151,7 @@ let temporal_dates = [
     nanosecond: 0
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 1984,
     month: 5,
     day: 29,
@@ -162,7 +163,7 @@ let temporal_dates = [
     nanosecond: 0
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 2030,
     month: 5,
     day: 29,
@@ -174,7 +175,7 @@ let temporal_dates = [
     nanosecond: 0
   },
   {
-    timeZone: 'America/Los_Angeles',
+    timeZone: 'UTC',
     year: 1969,
     month: 7,
     day: 16,
@@ -185,8 +186,8 @@ let temporal_dates = [
     microsecond: 0,
     nanosecond: 0
   },
-  {  // 1e9
-    timeZone: 'America/Los_Angeles',
+  {  // Approximately 1e9 milliseconds, 1e6 seconds
+    timeZone: 'UTC',
     year: 1970,
     month: 1,
     day: 12,
@@ -197,8 +198,8 @@ let temporal_dates = [
     microsecond: 0,
     nanosecond: 0
   },
-  {  // 1e12
-    timeZone: 'America/Los_Angeles',
+  {  // Approximately 1e12 milliseconds, 1e9 seconds
+    timeZone: 'UTC',
     year: 2001,
     month: 9,
     day: 9,
@@ -246,11 +247,11 @@ const dt_fields = {
   },
   'minute': {
     'numeric': 'm',
-  //  '2-digit': 'mm'
+    //  '2-digit': 'mm'
   },
   'second': {
     'numeric': 's',
-//    '2-digit': 'ss'
+    //    '2-digit': 'ss'
   },
   'fractionalSecondDigits': {
     1:'S', 2:'SS', 3:'SSS'},
@@ -425,45 +426,28 @@ function generateAll(run_limit) {
         for (const date_index in dates) {
           label_num ++;
 
-          let this_date = dates[date_index];
+          let zone_temporal_date = temporal_dates[date_index];
+          zone_temporal_date['timeZone'] = timezone;
+          let zdt_zoned = Temporal.ZonedDateTime.from(zone_temporal_date);
+          const zoned_input_string = zdt_zoned.toString();
+          const offset_part = zoned_input_string.substring(19,25);
+          const hours = offset_part.substring(0,3);
+          const minutes = offset_part.substring(4,6)
+          const tz_offset_secs =
+              3600 * Number(hours)+ 60 * Number(minutes);
 
-          // Get the temporal representation, including TZ and calendar
+          // Get the ISO string with 'Z'.
+          // Set up the instant in UTC.
+          // Get the temporal representation,
           let temporal_date = temporal_dates[date_index];
-          temporal_date['timeZone'] = timezone;
+          temporal_date['timeZone'] = 'UTC';
+          let zdt = Temporal.ZonedDateTime.from(temporal_date);
+          let temporal_instant = zdt.toInstant();
+          let input_string = temporal_instant.toString();
 
-          try {
-            let vanilla_locale = 'en-US';
-            let vanilla_calendar = 'gregory';
-            // temporal_date['calendar'] = vanilla_calendar;
+          let this_date = new Date(temporal_instant.epochMilliseconds);
 
-            // For computing the string with Date
-            let zdt_vanilla = Temporal.ZonedDateTime.from(temporal_date);
-            try {
-              this_date = new Date(zdt_vanilla.epochMilliseconds);
-            } catch (error) {
-              console.log('new Date fail %s with %s on %s', error,
-                          temporal_date);
-              continue;
-            }
-            if (! this_date) {
-              console.log('$$$$ %s no date from zdt_to_date. %s, %s %s %s',
-                          label_num, zdt_vanilla, temporal_date,
-                          vanilla_locale, vanilla_calendar);
-              continue;
-            }
-          } catch (error) {
-            console.log(' SKIPPING %s temporal.from %s: input: %s',
-                        label_num, error, temporal_date);
-            continue;
-          }
-
-          // Get the ISO string with
-          // temporal_date['calendar'] = calendar;
-          let zdt_full = Temporal.ZonedDateTime.from(temporal_date);
-          input_string = zdt_full.toString();
-
-          // !! TEMPORARY !!
-          // console.log(' TEMPORAL %s %s %s', label_num, input_string, this_date);
+          const full_input_string = zdt.toString();
 
           let result;
           let parts;
@@ -530,8 +514,9 @@ function generateAll(run_limit) {
           const label_string = String(label_num);
 
           let test_case = {
-            'input_string': input_string
-          };
+            'input_string': input_string,
+            'tz_offset_secs': tz_offset_secs
+          }
 
           if (skeleton) {
             test_case['skeleton'] = skeleton;
@@ -583,7 +568,7 @@ function generateAll(run_limit) {
 
   test_obj['tests'] = sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null));
+    fs.writeFileSync('datetime_fmt_test.json', JSON.stringify(test_obj, null, 2));
     // file written successfully
   } catch (err) {
     console.error(err);

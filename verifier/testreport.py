@@ -585,10 +585,29 @@ class TestReport:
     def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
+        if not test_list:
+            # no test --> no characterizations
+            return results
+
         results['locale'] = {}  # Dictionary of labels for each locale
+
+        # Look at particular test types
+        if self.test_type == 'plural_rules':
+            self.characterize_plural_rules_tests(test_list, results)
+
+        if self.test_type == 'datetime_fmt':
+            self.characterize_datetime_tests(test_list, results)
+
         for test in test_list:
             # Get input_data, if available
             input_data = test.get('input_data', None)
+            if not input_data:
+                # Why no data?
+                continue
+
+            if not input_data:
+                # Why no data?
+                continue
 
             label = test.get('label', '')
 
@@ -624,18 +643,34 @@ class TestReport:
                         'type', 'input_list',
                         # date/time format
                         'skeleton',
-                        'language_label', 'locale_label',  # in lang_names
+                        # locale names as described in various languages
+                        'language_label',  # the locale being described, e.g. es-MX for Mexican Spanish
+                        'locale_label',  # the language in which this locale should be given, e.g., German words for "Mexican Spanish"
                         'option', 'locale',  # in likely_subtags
-                        'language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description'
+                        'language_label',
+                        # Some items for collation testing
+                        'compare_result', 'compare_type',
+                        'ignorePunctuation',
+                        'test_description',
+                        'strength', 'caseFirst', 'backwards',
+                        'reorder', 'maxVariable',
+                        'source_file'
+                        # TODO!!! Characterize by actual_options keys & values
                         ]
             for key in key_list:
                 if test.get(key, None):  # For collation results
                     value = test[key]
+                    if not isinstance(value, str):
+                        # Make this a string for comparison
+                        value = str(value)
                     if key not in results:
                         results[key] = {}
-                    if value not in results[key]:
-                        results[key][value] = set()
-                    results[key][value].add(label)
+                    try:
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                    except:
+                        pass
 
             ki_key_list = ['known_issue', 'known_issue_id']
             for key in ki_key_list:
@@ -650,26 +685,31 @@ class TestReport:
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error parts, too.
             key_list = [
-                        'compare_type',
-                        'error_detail',
-                        'ignorePunctuation',
-                        'language_label',
-                        'locale_label',
-                        'locale',
-                        'options',
-                        'rules',
-                        'test_description',
-                        'unsupported_options',
-                        'style',
-                        'type',
-                        'dateStyle',
-                        'timeStyle,'
-                        'calendar',
-                        'unit',
-                        'count'
-                        ]
+                'compare_type',
+                'error_detail',
+                'ignorePunctuation',
+                'language_label',
+                'languageDisplay',
+                'locale_label',
+                'locale',
+                'options',
+                'option',
+                'rules',
+                'test_description',
+                'unsupported_options',
+                'style',
+                'type',
+                'dateStyle',
+                'timeStyle,'
+                'calendar',
+                'unit',
+                'count',
+                'source_file'
+            ]
 
             self.add_to_results_by_key(label, results, input_data, test, key_list)
+            if 'actual_options' in test:
+                self.add_to_results_by_key(label, results, test['actual_options'], test, key_list)
 
             # Special case for input_data / options.
             special_key = 'options'
@@ -679,8 +719,11 @@ class TestReport:
 
             error_detail = test.get('error_detail', None)
             if error_detail:
-                error_keys = error_detail.keys()  # ['options']
-                self.add_to_results_by_key(label, results, error_detail, test, error_keys)
+                try:
+                    error_keys = error_detail.keys()  # ['options']
+                    self.add_to_results_by_key(label, results, error_detail, test, error_keys)
+                except AttributeError:
+                    pass
 
             # TODO: Add substitution of [] for ()
             # TODO: Add replacing (...) with "-" for numbers
@@ -688,33 +731,66 @@ class TestReport:
 
         return results
 
+
+    def characterize_plural_rules_tests(self, test_list, results):
+        # look for consistencies with plural rules test
+        for test in test_list:
+            label = test['label']
+            sample = test['input_data']['sample']
+            sample_type = 'integer sample'
+            if sample.find('c') >= 0:
+                sample_type = 'compact sample'
+            elif sample.find('.') >= 0:
+                sample_type = 'float sample'
+            elif sample.find('e') >= 0:
+                sample_type = 'exponential sample'
+            results.setdefault(sample_type, []).append(label)
+        return
+
+
+    def characterize_datetime_tests(self, test_list, results):
+        # look for consistencies with datetime_fmt test
+        for test in test_list:
+            label = test['label']
+            if 'skeleton' in  test['input_data']:
+                skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
+                results.setdefault(skeleton_str, []).append(label)
+            if 'dateTimeFormatType' in test:
+                results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], []).append(label)
+        return
+
     # TODO: Use the following function to update lists.
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
             for key in key_list:
-                if input_data.get(key, None):  # For collation results
-                    value = input_data.get(key, None)
-                    if key == 'input_list':
-                        if 'input_size' not in results:
-                            results['input_size'] = {}
-                        else:
-                            results['input_size'].add(len(value))
-                    if key == 'rules':
-                        value = 'RULE'  # A special case to avoid over-characterization
-                    if key not in results:
-                        results[key] = {}
-                    try:
-                        if not results[key].get(value, None):
-                            results[key][value] = set()
-                        results[key][value].add(label)
-                    except TypeError as err:
-                        # value may not be hashable. This should be skipped
-                        pass
+                try:
+                    if input_data.get(key, None):  # For collation results
+                        value = input_data.get(key, None)
+                        if key == 'input_list':
+                            if 'input_size' not in results:
+                                results['input_size'] = {}
+                            else:
+                                results['input_size'].add(len(value))
+                        if key == 'rules':
+                            value = 'RULE'  # A special case to avoid over-characterization
+                        if key not in results:
+                            results[key] = {}
+                        try:
+                            if not results[key].get(value, None):
+                                results[key][value] = set()
+                            results[key][value].add(label)
+                        except TypeError as err:
+                            # value may not be hashable. This should be skipped
+                            pass
+                except:
+                    pass
+
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
-                      'delete_space', 'replace_digit', 'replace_dff', 'whitespace_diff',
-                      'replace', 'parens']
+                      'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
+                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
+
         for check in all_checks:
             results[check] = set()
 
@@ -754,7 +830,7 @@ class TestReport:
                             # Difference is in type of white space
                             results['whitespace_diff'].add(label)
                         else:
-                            results['replace_dff'].add(label)
+                            results['replace_diff'].add(label)
 
                     elif kind == "delete":
                         if old_val.isdigit():
@@ -793,6 +869,7 @@ class TestReport:
 
                                 elif x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
+                                    # Check if replacement is entirely within parentheses
                                 else:
                                     results['insert'].add(label)
                             if x[0] == '-':
@@ -803,11 +880,11 @@ class TestReport:
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].add(label)
+                        results['() --> []'].add(label)
                 elif '(' in expected and '[' in actual:
                     actual_parens = actual.replace('[', '(').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].add(label)
+                        results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
                 continue
@@ -892,7 +969,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.collation_short.value:
+        if self.test_type == testType.collation.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

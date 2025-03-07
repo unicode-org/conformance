@@ -43,6 +43,12 @@ class knownIssueType(Enum):
     known_issue_nbsp_sp = 'ASCII Space instead of NBSP'
     known_issue_replaced_numerals = 'Not creating non-ASCII numerals'
 
+    # Relative Date Time Format
+    known_issue_unsupported_unit = 'Unsupported unit'  # https://github.com/unicode-org/conformance/issues/274
+
+    # Datetime format
+    datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
+
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
 # Tests for specific kinds of known issues
@@ -77,7 +83,7 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
 
     # sm_opcodes describe the changes to turn expected string into the actual string
     # See https://docs.python.org/3/library/difflib.html#difflib.SequenceMatcher.get_opcodes
-    # The tuple is [tag, i1, i2, j1, k2]
+    # The tuple is [tag, i1, i2, j1, j2]
     # Tag indicates the type of change.
     # i1:i2 is the range of the substring in expected
     # j1:j2 is the range of the substring in actual
@@ -106,6 +112,22 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
     else:
         return None
 
+def unsupported_unit_quarter(test):
+    input_data = test['input_data']
+    if 'error' in test and test['error'] == 'unsupported unit':
+        return True
+
+    return None
+
+
+def dt_check_for_alternate_long_form(test, actual, expected):
+    # For datetime_fmt, is the format type "standard"?
+    if actual == expected:
+        return None
+    if 'dateTimeFormatType' in test['input_data'] and test['input_data'] ['dateTimeFormatType'] == 'standard':
+        return knownIssueType.datetime_fmt_at_inserted
+    return None
+
 
 def check_datetime_known_issues(test):
     # Examine a single test for date/time isses
@@ -125,8 +147,37 @@ def check_datetime_known_issues(test):
             test['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
             remove_this_one = True
 
+        is_ki = dt_check_for_alternate_long_form(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
     except BaseException as err:
         # Can't get the info
+        pass
+
+    return remove_this_one
+
+def check_rdt_known_issues(test):
+    # ??? Do wwe need platform ID and/or icu version?
+    remove_this_one = False
+    try:
+        try:
+            result = test['result']
+        except BaseException:
+            result = None
+
+        try:
+            expected = test['expected']
+        except BaseException:
+            expected = None
+
+        is_ki = unsupported_unit_quarter(test)
+        if is_ki:
+            test['known_issue_id'] = knownIssueType.known_issue_unsupported_unit.value
+            remove_this_one = True
+
+    except BaseException as err:
         pass
 
     return remove_this_one
@@ -140,6 +191,8 @@ def compute_known_issues_for_single_test(test_type, test):
     known_issue_found = False
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
+    elif test_type == ddt_data.testType.rdt_fmt.value:
+        known_issue_found = check_rdt_known_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 

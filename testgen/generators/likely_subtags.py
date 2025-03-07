@@ -36,7 +36,15 @@ class LikelySubtagsGenerator(DataGenerator):
             # split at ";" and ignore whitespace
             tags = list(map(str.strip, line.split(";")))
 
-            # Normalize to 4 tags: Source; AddLikely; RemoveFavorScript; RemoveFavorRegin
+            # Flag to indicate exceptional data situation
+            just_copy_input = False
+            # Remove tests of language codes "reserved for local use"
+            # https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Languages/List_of_ISO_639-3_language_codes_used_locally_by_Linguist_List
+            lang_code = tags[0].split('-')[0]
+            if lang_code >= "qaa" and lang_code <= "qtz":
+                just_copy_input = True
+
+            # Normalize to 4 tags: Source; AddLikely; RemoveFavorScript; RemoveFavorRegion
             while len(tags) < 4:
                 tags.append("")
             if not tags[2]:
@@ -46,9 +54,15 @@ class LikelySubtagsGenerator(DataGenerator):
 
             # Create minimize tests - default is RemoveFavorScript
             source = tags[0]
-            add_likely = tags[1]
-            remove_favor_script = tags[2]
-            remove_favor_region = tags[3]
+            if not just_copy_input:
+                add_likely = tags[1]
+                remove_favor_script = tags[2]
+                remove_favor_region = tags[3]
+            else:
+                # Exceptional situation where output will be same as input
+                add_likely = source
+                remove_favor_script = source
+                remove_favor_region = source
 
             # And maximize from each tag
             label = str(count).rjust(max_digits, "0")
@@ -60,7 +74,7 @@ class LikelySubtagsGenerator(DataGenerator):
 
             # Expected minimized form favoring the script
             label = str(count).rjust(max_digits, "0")
-            test_min = {"label": label, "locale": source, "option": "minimize"}
+            test_min = {"label": label, "locale": source, "option": "minimizeFavorScript"}
             verify = {"label": label, "verify": remove_favor_script}
             test_list.append(test_min)
             verify_list.append(verify)
@@ -83,8 +97,8 @@ class LikelySubtagsGenerator(DataGenerator):
         json_verify["verifications"] = self.sample_tests(verify_list)
 
         # Output the files including the json dump
-        self.saveJsonFile("likely_subtags_test.json", json_test)
-        self.saveJsonFile("likely_subtags_verify.json", json_verify)
+        self.saveJsonFile("likely_subtags_test.json", json_test, 2)
+        self.saveJsonFile("likely_subtags_verify.json", json_verify, 2)
         logging.info(
             "Likely Subtags Test (%s): %d lines processed", self.icu_version, count
         )

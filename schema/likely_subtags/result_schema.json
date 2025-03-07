@@ -7,8 +7,7 @@
  "properties": {
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["likely_subtags"]
+     "const": "likely_subtags"
    },
    "Test scenario": {
      "type": "string",
@@ -91,7 +90,6 @@
            "type": "string"
          },
          "option": {
-           "type": "string",
            "description": "Type of processing requested",
            "enum": ["maximize", "minimize",
                     "minimizeFavorScript",
@@ -115,12 +113,11 @@
          },
          "error_detail": {
            "description": "more information on the failure",
-           "type": "object",
+           "type": ["object", "string"],
            "properties": {
              "option": {
                "description": "Parameters causing the failure",
-               "type": "string",
-               "enum": ["minimizeFavorRegion"]
+               "type": "string"
              }
            }
          },
@@ -135,5 +132,6 @@
        ]
      }
    }
- }
+ },
+ "required": ["tests", "test_type"]
 }

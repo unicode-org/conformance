@@ -9,7 +9,6 @@ import math
 import os
 import requests
 
-
 def remove_none(obj):
     # Recursively removes any parts with None as value
     if isinstance(obj, str):
@@ -83,7 +82,7 @@ class DataGenerator(ABC):
                               filename)
 
         output_path = os.path.join(self.icu_version, filename)
-        output_file = open(output_path, "w", encoding="UTF-8")
+        output_file = open(output_path, "w", encoding="utf-8")
         json.dump(data, output_file, indent=indent)
         output_file.close()
 
@@ -136,7 +135,7 @@ class DataGenerator(ABC):
             with open(path, "r", encoding="utf-8") as testdata:
                 return json.load(testdata) if filetype == "json" else testdata.read()
         except BaseException as err:
-            logging.warning("** READ: Error = %s", err)
+            logging.warning("** readFile: %s", err)
             return None
 
     def computeMaxDigitsForCount(self, count):

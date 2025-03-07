@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["list_fmt"]
+     "const": "list_fmt"
    },
    "Test scenario": {
      "type": "string",
@@ -66,7 +65,7 @@
    },
    "tests": {
      "description": "list of N tests for list format",
-     "type": "array",
+     "list_type": "array",
      "items": {
        "additionalProperties": true,
        "properties": {
@@ -98,9 +97,14 @@
                "description": "size of the output for list connectors",
                "type": "string",
                "enum": ["long", "short", "narrow"]
-             },
+             }, 
              "list_type": {
                "description": "The kind of connection between list items, e.g., and/or/none",
+               "type": "string",
+               "enum": ["conjunction", "disjunction", "unit"]
+             },
+            "type": {
+               "description": "Deprecated form of list_type",
                "type": "string",
                "enum": ["conjunction", "disjunction", "unit"]
              }
@@ -109,7 +113,7 @@
        },
        "required": [
          "label",
-         "input"
+         "input_list"
        ]
      }
    }

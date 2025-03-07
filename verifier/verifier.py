@@ -60,6 +60,9 @@ class Verifier:
 
         logging.config.fileConfig("../logging.conf")
 
+        logger = logging.Logger("VERIFIER LOGGER")
+        logger.setLevel(logging.WARNING)
+
     def open_verify_files(self, vplan):
         # Get test data, verify data, and results for a case.
         try:
@@ -68,7 +71,7 @@ class Verifier:
             vplan.result_time_stamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
             vplan.report.timestamp = vplan.result_time_stamp
         except BaseException as err:
-            logging.error('    *** Cannot open results file %s:\n        %s', vplan.result_path, err)
+            logging.error('    *** CANNOT OPEN RESULTS FILE %s:\n        %s', vplan.result_path, err)
             return None
 
         try:
@@ -81,12 +84,8 @@ class Verifier:
         report_dir = os.path.dirname(vplan.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            sys.stderr.write('    !!! Cannot create directory %s for report file %s' %
-                             (report_dir, vplan.report_path))
-            sys.stderr.write('   !!! Error = %s' % err)
-
             logging.error('    !!! Cannot create directory %s for report file %s',
                              report_dir, vplan.report_path)
             logging.error('   !!! Error = %s', err)
@@ -282,7 +281,7 @@ class Verifier:
     def setup_paths(self, executor, testfile, verify_file):
         base_dir = self.file_base
         if self.debug > 1:
-            logging.deubg('&&& FILE BASE = %s', base_dir)
+            logging.debug('&&& FILE BASE = %s', base_dir)
             # Check on the path defined here
             test_output_dir = 'testOutput'
             self.resultPath = os.path.join(
@@ -341,7 +340,6 @@ class Verifier:
         test_output_validation = os.path.join(self.file_base, 'testOutput', test_output_validation_name)
         if os.path.exists(test_output_validation):
             # Copy to report path
-            # Copy to report path
             validation_copy = os.path.join(self.file_base, self.report_file_name, test_output_validation_name)
             try:
                 shutil.copyfile(test_output_validation, validation_copy)
@@ -386,8 +384,8 @@ class Tester:
 
     def collation_exec(self, executor):
         # Set up paths and run verify
-        self.title = executor.upper() + ' COLLATION_SHORT'
-        self.test_type = 'collation_short'
+        self.title = executor.upper() + ' COLLATION'
+        self.test_type = 'collation'
         self.setup_paths_and_run(
             executor, 'coll_test_shift.json', 'collation_verify.json')
 
@@ -422,6 +420,7 @@ def run_verifier_tests():
 
         tester_display_names = Tester()
         tester_display_names.display_names_exec(executor)
+
 
 # For running verifications of test output vs. expected values.
 def main(args):

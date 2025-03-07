@@ -69,6 +69,29 @@ public class RelativeDateTimeFormatTest {
     assertEquals("100s ago", output.result);
   }
 
+  @Test
+  public void testNumericAutoTomorrow() {
+    String testInput =
+        "\t{\"unit\":\"day\",\"count\":\"1\",\"locale\":\"en-US\",\"options\":{\"style\":\"narrow\", \"numeric\":\"auto\"},\"hexhash\":\"a57aac792\",\"label\":\"0\"}";
+
+    RelativeDateTimeFormatOutputJson output =
+        (RelativeDateTimeFormatOutputJson) RelativeDateTimeFormatTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+
+    assertEquals("tomorrow", output.result);
+  }
+
+  @Test
+  public void testNumericAlwaysInOneDay() {
+    String testInput =
+        "\t{\"unit\":\"day\",\"count\":\"1\",\"locale\":\"en-US\",\"options\":{\"style\":\"long\", \"numeric\":\"always\"},\"hexhash\":\"a57aac792\",\"label\":\"0\"}";
+
+    RelativeDateTimeFormatOutputJson output =
+        (RelativeDateTimeFormatOutputJson) RelativeDateTimeFormatTester.INSTANCE.getStructuredOutputFromInputStr(
+            testInput);
+
+    assertEquals("in 1 day", output.result);
+  }
   @Ignore
   // This doesn't yet handle non-ASCII numbering systems
   // https://github.com/unicode-org/conformance/issues/261
@@ -85,4 +108,19 @@ public class RelativeDateTimeFormatTest {
 
     assertEquals("in 𞥑𞥐y", output.result);
   }
+
+  @Test
+  public void testArabicNumSystem() {
+
+  // Expect Eastern Arabic numerals in the output
+  String testInput =
+      "\t{\"test_type\": \"rdt_fmt\", \"unit\":\"second\",\"count\":\"-100\",\"locale\":\"en-US\",\"options\":{\"numberingSystem\":\"arab\"},\"hexhash\":\"d12df88777f8c7f60130df51d2954e18ec42b9c8\",\"label\":\"704\"}";
+
+  RelativeDateTimeFormatOutputJson output =
+      (RelativeDateTimeFormatOutputJson) RelativeDateTimeFormatTester.INSTANCE.getStructuredOutputFromInputStr(
+          testInput);
+
+  assertEquals("١٠٠ seconds ago",output.result);
+}
+
 }

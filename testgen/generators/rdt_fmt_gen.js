@@ -6,11 +6,13 @@
    4. numeric
    5. unit, e.g., 'day'
    6. value: in the range of min to max
+   7. numeric: 'always' and 'auto' unless the resutls are equal
 */
 
 // Set up Node version to generate data specific to ICU/CLDR version
 // e.g., `nvm install 21.6.0;nvm use 21.6.0` (ICU 74)
 
+const common_fns = require("./common.js");
 const gen_hash = require("./generate_test_hash.js");
 
 const fs = require('node:fs');
@@ -20,11 +22,12 @@ const debug = false;
 // Add numbering system to the test options
 const numbering_systems = [null, 'latn', 'arab', 'beng', 'adlm']
 
+// Don't include "und" as a locale because the behavior depends on the platform.
 const locales = [
   'en-US', 'en-GB',
   'zh-TW', 'vi', 'el', 'mt-MT',
   'bn', 'zu',
-  'und'];
+];
 
 const spec_options = [null,
                       {'style': 'long'},
@@ -45,6 +48,48 @@ const units = ['second',
 const numeric = ['auto', 'always'];
 
 const counts = [-100, -4, -2, -1, 0, 1, 1.3, 2, 3, 4, 10];
+
+// Create the test and verify JSON data for this case.
+function save_test(unit, count, locale, all_options, result, label_num,
+                   test_cases, verify_cases) {
+  const label_string = String(label_num);
+  // Without label
+  let test_case = {
+    'unit': unit,
+    'count': String(count),
+  };
+
+  if (locale != '') {
+    test_case["locale"] = locale;
+  }
+
+  if (all_options != null) {
+    test_case["options"] = {...all_options};
+  }
+
+  if (debug) {
+    console.log("TEST CASE :", test_case);
+  }
+
+  gen_hash.generate_hash_for_test(test_case);
+  test_case['label'] = label_string;
+
+  test_cases.push(test_case);
+
+  // Generate what we get.
+  try {
+    verify_cases.push({'label': label_string,
+                       'verify': result});
+    if (debug) {
+      console.log('   expected = ', result);
+    }
+  } catch (error) {
+    console.log('!!! Problem pushing verify case. Error: ',
+                error, ' in label ', label_num);
+  }
+
+}
+
 
 function generateAll() {
 
@@ -68,6 +113,8 @@ function generateAll() {
   }
   let verify_cases = [];
 
+  // How many are different between numeric auto vs. always
+  let diff_count = 0;
   let label_num = 0;
 
   const expected_count = locales.length *
@@ -95,65 +142,66 @@ function generateAll() {
           all_options['numberingSystem'] = number_system;
         }
 
-        let formatter;
+        // Create to sets of options
+        let all_options_numeric_always = {...all_options, 'numeric': 'always'};
+        let all_options_numeric_auto = {...all_options, 'numeric': 'auto'};
+
+        let formatter_numeric_always;
         try {
-          formatter = new Intl.RelativeTimeFormat(locale, all_options);
+          formatter_numeric_always =
+              new Intl.RelativeTimeFormat(locale, all_options_numeric_always);
+        } catch (error) {
+          console.log('Error creating RelativeTimeFormat: ',
+                      error, ' with locale ',
+                      locale, ' and options: ', all_options_numeric_always);
+          continue;
+        }
+
+        let formatter_numeric_auto;
+        try {
+          formatter_numeric_auto =
+              new Intl.RelativeTimeFormat(locale, all_options_numeric_auto);
         } catch (error) {
           console.log(error, ' with locale ',
-                      locale, ' and options: ', all_options);
+                      locale, ' and options: ', all_options_numeric_auto);
           continue;
         }
 
         if (debug) {
-          console.log("resolved options: ", formatter.resolvedOptions());
+          console.log("resolved options: ",
+                      formatter_numeric_auto.resolvedOptions());
         }
 
         for (const unit of units) {
 
           for (const count of counts) {
+            let result_always;
+            let result_auto;
+
             try {
-              result = formatter.format(count, unit);
+              result_always = formatter_numeric_always.format(count, unit);
             } catch (error) {
               console.log('FORMATTER CREATION FAILS! ', error);
             }
 
-            const label_string = String(label_num);
-
-            // Without label
-            let test_case = {
-              'unit': unit,
-              'count': String(count),
-            };
-
-            if (locale != '') {
-              test_case["locale"] = locale;
-            }
-
-            if (all_options != null) {
-              test_case["options"] = {...all_options};
-            }
-
-            if (debug) {
-              console.log("TEST CASE :", test_case);
-            }
-
-            gen_hash.generate_hash_for_test(test_case);
-            test_case['label'] = label_string;
-
-            test_cases.push(test_case);
-
-            // Generate what we get.
             try {
-              verify_cases.push({'label': label_string,
-                                 'verify': result});
-              if (debug) {
-                console.log('   expected = ', result);
-              }
+              result_auto = formatter_numeric_auto.format(count, unit);
             } catch (error) {
-              console.log('!!! error ', error, ' in label ', label_num,
-                          ' for date = ', d);
+              console.log('FORMATTER CREATION FAILS! ', error);
             }
+
+            // Always save the "auto" form.
+            save_test(unit, count, locale, all_options_numeric_auto, result_auto, label_num, test_cases, verify_cases);
             label_num ++;
+
+            if (result_always != result_auto) {
+              // Since results are different, save the "always" form, too.
+              diff_count += 1;
+              // console.log(' DIFFERENT RESULTS: %s vs %s', result_always, result_auto);
+
+              save_test(unit, count, locale, all_options_numeric_always, result_always, label_num, test_cases, verify_cases);
+              label_num ++;
+            }
           }
         }
       }
@@ -161,18 +209,26 @@ function generateAll() {
   }
 
 
-  console.log('Number of relative date/time tests generated for ',
-              process.versions.icu, ': ', label_num);
+  if (debug) {
+    console.log('Number of relative date/time tests generated for ',
+                process.versions.icu, ': ', label_num);
+    console.log('  %d tests are different between numeric auto and always', diff_count);
+  }
 
-  test_obj['tests'] = test_cases;
+  test_obj['tests'] = common_fns.sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('rdt_fmt_test.json', JSON.stringify(test_obj, null));
+    fs.writeFileSync('rdt_fmt_test.json', JSON.stringify(test_obj, null, 2));
     // file written successfully
   } catch (err) {
     console.error(err);
   }
 
-  verify_obj['verifications'] = verify_cases;
+  verify_obj['verifications'] = common_fns.sample_tests(verify_cases, run_limit);
+  if (debug) {
+    console.log('VERIFICATION COUNT: ', verify_obj['verifications'].length,
+                ' run_limit: ', run_limit);
+  }
+
   try {
     fs.writeFileSync('rdt_fmt_verify.json', JSON.stringify(verify_obj, null, 2));
     // file written successfully
@@ -181,5 +237,16 @@ function generateAll() {
   }
 }
 
+  if (debug) {
+    console.log('RDT_FMT argv: ', process.argv);
+  }
+
+let run_limit = -1;
+if (process.argv.length >= 4) {
+  if (process.argv[2] == '-run_limit') {
+    run_limit = Number(process.argv[3]);
+  }
+}
+
 /* Call the generator */
-generateAll();
+generateAll(run_limit);

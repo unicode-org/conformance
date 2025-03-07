@@ -6,8 +6,7 @@
  "properties": {
    "test_type": {
      "description": "the name language_display_name",
-     "type": "string",
-     "enum": ["lang_names"]
+     "const": "lang_names"
    },
    "Test scenario": {
      "type": "string",
@@ -47,6 +46,10 @@
           },
          "language_label": {
            "description": "locale tag of the source language ",
+           "type": "string"
+         },
+         "languageDisplay": {
+           "description": "either 'standard' or 'dialect'",
            "type": "string"
          },
          "locale_label": {
