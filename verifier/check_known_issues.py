@@ -51,6 +51,12 @@ class knownIssueType(Enum):
     # Likely Subtags
     likely_subtags_sr_latn = "sr_latin becoming en"
 
+    # Language names
+    langnames_fonipa = 'unsupported fonipa in locale'
+    langnames_tag_option = 'unsupported option in locale'
+    langnames_bracket_parens = 'brackets_vs_parentheses'
+
+
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
 # Tests for specific kinds of known issues
@@ -203,10 +209,55 @@ def sr_latin_likely_subtag(test):
     result = test['result']
     if (expected.find('sr-Latn') >= 0 and
             result.find('en-') == 0):
-        return likely_subtags_sr_latn
+        return knownIssueType.likely_subtags_sr_latn
     else:
         return None
 
+# Language names
+def check_langnames_issues(test):
+    remove_this_one = False
+    try:
+        result = test['result']
+        expected = test['expected']
+    except BaseException:
+        return None
+
+    is_ki = (langname_fonipa(test) or langname_tag_option(test) or
+             langname_brackets(test))
+    return is_ki
+
+
+def langname_fonipa(test):
+    # Fonipa - one of the less supported locale options.
+    input_data = test['input_data']
+    lang_label = input_data['language_label']
+    if lang_label.find('fonipa') >= 0:
+        return knownIssueType.langnames_fonipa
+    else:
+        return None
+
+def langname_tag_option(test):
+    # TODO: Add other unsupported tags
+    input_data = test['input_data']
+    lang_label = input_data['language_label']
+    if (lang_label.find('-d0') >= 0 or
+        lang_label.find('-ms') >= 0 or
+        lang_label.find('u-cu') >= 0
+        # Or others??
+    ):
+        return knownIssueType.langnames_tag_option
+    else:
+        return None
+
+
+def langname_brackets(test):
+    # Check if brackets were expected but we got parentheses
+    result = test['result']
+    expected = test['expected']
+    if result.replace('(', '[').replace(')', ']') == expected:
+        return knownIssueType.langnames_bracket_parens
+    else:
+        return None
 
 
 def compute_known_issues_for_single_test(test_type, test):
@@ -221,6 +272,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_rdt_known_issues(test)
     elif test_type == ddt_data.testType.likely_subtags.value:
         known_issue_found = check_likely_subtags_issues(test)
+    elif test_type == ddt_data.testType.lang_names.value:
+        known_issue_found = check_langnames_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 
