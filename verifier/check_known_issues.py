@@ -48,6 +48,8 @@ class knownIssueType(Enum):
 
     # Datetime format
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
+    # Likely Subtags
+    likely_subtags_sr_latn = "sr_latin becoming en"
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
@@ -183,6 +185,30 @@ def check_rdt_known_issues(test):
     return remove_this_one
 
 
+def check_likely_subtags_issues(test):
+    remove_this_one = False
+    try:
+        result = test['result']
+        expected = test['expected']
+    except BaseException:
+        return None
+
+    is_ki = sr_latin_likely_subtag(test)
+    return is_ki
+
+
+def sr_latin_likely_subtag(test):
+    # FINISH
+    expected = test['expected']
+    result = test['result']
+    if (expected.find('sr-Latn') >= 0 and
+            result.find('en-') == 0):
+        return likely_subtags_sr_latn
+    else:
+        return None
+
+
+
 def compute_known_issues_for_single_test(test_type, test):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
@@ -193,6 +219,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_datetime_known_issues(test)
     elif test_type == ddt_data.testType.rdt_fmt.value:
         known_issue_found = check_rdt_known_issues(test)
+    elif test_type == ddt_data.testType.likely_subtags.value:
+        known_issue_found = check_likely_subtags_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 
