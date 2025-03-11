@@ -17,7 +17,22 @@ String testCollation(String jsonEncoded) {
   // Set up collator object with optional locale and testOptions.
   final s1 = json['s1'];
   final s2 = json['s2'];
-  final ignorePunctuation = bool.tryParse(json['ignorePunctuation'].toString());
+
+  // Get options
+  final ignorePunctuation =
+      bool.parse(json['ignorePunctuation'] as String? ?? 'false');
+  final Sensitivity? sensitivity = switch (json['strength']) {
+    'primary' => Sensitivity.base,
+    'secondary' => Sensitivity.accent,
+    'tertiary' => Sensitivity.caseSensitivity,
+    null => null,
+    Object() => throw UnimplementedError('strength must be of type String?'),
+  };
+  final numeric = json.containsKey('numeric');
+  final caseFirst = CaseFirst.values
+          .where((value) => value.jsName == json['case_first'])
+          .firstOrNull ??
+      CaseFirst.localeDependent;
 
   if (s1 == null || s2 == null) {
     outputLine.addAll({
@@ -30,7 +45,10 @@ String testCollation(String jsonEncoded) {
       final coll = Intl(locale: Locale.parse(testLocale));
 
       final collationOptions = CollationOptions(
-        ignorePunctuation: ignorePunctuation ?? false,
+        ignorePunctuation: ignorePunctuation,
+        sensitivity: sensitivity,
+        numeric: numeric,
+        caseFirst: caseFirst,
       );
 
       final compared = coll.collation(collationOptions).compare(s1, s2);
