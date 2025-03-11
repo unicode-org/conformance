@@ -25,6 +25,7 @@ String testCollation(String jsonEncoded) {
     'secondary' => Sensitivity.accent,
     'tertiary' => Sensitivity.caseSensitivity,
     null => null,
+    String() => null,
     Object() => throw UnimplementedError('strength must be of type String?'),
   };
   final numeric = json.containsKey('numeric');
