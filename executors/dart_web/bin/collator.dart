@@ -11,7 +11,7 @@ String testCollation(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded)
       as Map<String, dynamic>; // For the moment, use strings for easier interop
   // Global default locale
-  final testLocale = 'en';
+  final testLocale = json['locale'] as String? ?? 'en';
   final Map<String, dynamic> outputLine = {'label': json['label']};
 
   // Set up collator object with optional locale and testOptions.
@@ -27,12 +27,7 @@ String testCollation(String jsonEncoded) {
     });
   } else {
     try {
-      Intl coll;
-      if (testLocale.isNotEmpty) {
-        coll = Intl(locale: Locale.parse(testLocale));
-      } else {
-        coll = Intl();
-      }
+      final coll = Intl(locale: Locale.parse(testLocale));
 
       final collationOptions = CollationOptions(
         ignorePunctuation: ignorePunctuation ?? false,
@@ -46,9 +41,10 @@ String testCollation(String jsonEncoded) {
         // Additional info for the comparison
         outputLine['compare'] = compared;
       }
-    } catch (error) {
+    } catch (error, s) {
       outputLine.addAll({
         'error_message': error.toString(),
+        'stack': s.toString(),
         'error': 'Collator compare failed',
         's1': s1,
         's2': s2,
