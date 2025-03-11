@@ -70,6 +70,7 @@ void prepareOutFile(String name, List<ExportFunction> functions) {
   final outFile = File('out/$name.js');
   var s = outFile.readAsStringSync();
   s = s.replaceAll('self.', '');
+  s = s.replaceAll('return self;', 'return globalThis;');
   s = s.replaceFirst('(function dartProgram() {',
       'module.exports = (function dartProgram() {');
 
