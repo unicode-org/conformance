@@ -48,6 +48,9 @@ class knownIssueType(Enum):
 
     # Datetime format
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
+    datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
+    datetime_unexpected_comma = 'Unexpected comma'
+
     # Likely Subtags
     likely_subtags_sr_latn = "sr_latin becoming en"
 
@@ -132,9 +135,23 @@ def dt_check_for_alternate_long_form(test, actual, expected):
     # For datetime_fmt, is the format type "standard"?
     if actual == expected:
         return None
-    if 'dateTimeFormatType' in test['input_data'] and test['input_data'] ['dateTimeFormatType'] == 'standard':
+    if actual.replace(' at', ',') == expected:
         return knownIssueType.datetime_fmt_at_inserted
     return None
+
+
+def dt_check_arabic_comma(test, actual, expected):
+    if expected.replace('\u002c', '\u060c') == actual:
+        return knownIssueType.datetime_fmt_arabic_comma
+    else:
+         return None
+
+
+def dt_unexpected_comma(test, actual,  expected):
+    if actual.replace('\u002c', '') == expected:
+        return knownIssueType.datetime_unexpected_comma
+    else:
+        return None
 
 
 def check_datetime_known_issues(test):
@@ -156,6 +173,16 @@ def check_datetime_known_issues(test):
             remove_this_one = True
 
         is_ki = dt_check_for_alternate_long_form(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
+        is_ki = dt_check_arabic_comma(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
+        is_ki = dt_unexpectedcomma(test, result, expected)
         if is_ki:
             test['known_issue_id'] = is_ki.value
             remove_this_one = True

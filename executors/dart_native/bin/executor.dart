@@ -44,7 +44,7 @@ void main() {
 
       final testType = TestTypes.values
           .firstWhere((type) => type.name == decoded['test_type']);
-      Object result;
+      Object? result;
       switch (testType) {
         case TestTypes.collation:
           result = testCollator(decoded);
@@ -59,8 +59,6 @@ void main() {
         // TODO: Handle this case.
         case TestTypes.number_fmt:
         // TODO: Handle this case.
-        default:
-          throw UnsupportedError('');
       }
 
       final outputLine = {'label': decoded['label'], 'result': result};
