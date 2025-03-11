@@ -19,8 +19,7 @@ String testCollation(String jsonEncoded) {
   final s2 = json['s2'];
 
   // Get options
-  final ignorePunctuation =
-      bool.parse(json['ignorePunctuation'] as String? ?? 'false');
+  final ignorePunctuation = json['ignorePunctuation'] as bool? ?? false;
   final Sensitivity? sensitivity = switch (json['strength']) {
     'primary' => Sensitivity.base,
     'secondary' => Sensitivity.accent,
