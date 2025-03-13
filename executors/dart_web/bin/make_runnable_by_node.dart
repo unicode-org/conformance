@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:node_preamble/preamble.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 
 class ExportFunction {
@@ -29,26 +30,27 @@ Future<void> main(List<String> args) async {
     ),
   };
   for (final MapEntry(key: name, value: function) in names.entries) {
-    await prepare(name, function);
+    await compile(name, function);
   }
 
   setVersionFile();
 }
 
-Future<void> prepare(String name, ExportFunction function) async {
-  final outFile = '${name}Dart';
+Future<void> compile(String name, ExportFunction function) async {
+  final outfileName = 'out/${name}Dart.js';
+  print('compile $name to $outfileName');
   final compile = await Process.run('dart', [
     'compile',
     'js',
     'bin/${name}Executor.dart',
     '-O0',
     '-o',
-    'out/$outFile.js',
+    outfileName,
   ]);
   print(compile.stdout);
   print(compile.stderr);
-
-  prepareOutFile(outFile, [function]);
+  final outFile = File(outfileName);
+  prepareOutFile('${name}Dart', outFile, function);
 }
 
 void setVersionFile() {
@@ -66,34 +68,24 @@ module.exports = { dartVersion };
 }
 
 /// Prepare the file to export `testCollation`
-void prepareOutFile(String name, List<ExportFunction> functions) {
-  final outFile = File('out/$name.js');
+void prepareOutFile(String name, File outFile, ExportFunction f) {
   var s = outFile.readAsStringSync();
-  s = s.replaceAll('self.', '');
-  s = s.replaceAll('return self;', 'return globalThis;');
   s = s.replaceFirst('(function dartProgram() {',
       'module.exports = (function dartProgram() {');
 
-  s = s.replaceFirst('(function dartProgram() {',
-      'module.exports = (function dartProgram() {');
-
-  final exportFunctions = functions
-      .map(
-        (e) => '''${e.name}: function(${e.argNames.join(',')}) {
-      return A.${e.name}(${e.argNames.join(',')});
-    }''',
-      )
-      .join(',\n');
   s = s.replaceFirst(
     '})();\n\n//# sourceMappingURL=$name.js.map',
     '''
   return {
-    $exportFunctions
+    ${f.name}: function(${f.argNames.join(',')}) {
+      return A.${f.name}(${f.argNames.join(',')});
+    }
   };
   })();
   //# sourceMappingURL=$name.js.map
   ''',
   );
   s = 'function dartMainRunner(main, args){}$s';
+  s = getPreamble() + s;
   outFile.writeAsStringSync(s);
 }
