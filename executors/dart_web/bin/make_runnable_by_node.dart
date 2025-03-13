@@ -50,7 +50,7 @@ Future<void> compile(String name, ExportFunction function) async {
   print(compile.stdout);
   print(compile.stderr);
   final outFile = File(outfileName);
-  prepareOutFile('${name}Dart', outFile, function);
+  exportFromJS('${name}Dart', outFile, function);
 }
 
 void setVersionFile() {
@@ -67,8 +67,8 @@ module.exports = { dartVersion };
   }
 }
 
-/// Prepare the file to export `testCollation`
-void prepareOutFile(String name, File outFile, ExportFunction f) {
+/// Prepare the file to export [name]
+void exportFromJS(String name, File outFile, ExportFunction f) {
   var s = outFile.readAsStringSync();
   s = s.replaceFirst('(function dartProgram() {',
       'module.exports = (function dartProgram() {');
