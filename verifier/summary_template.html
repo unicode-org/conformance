@@ -210,18 +210,27 @@
                           data.push(report_data);
                           // Set the link background color based on status.
                           // Check if everything is passing to make a visual note
+                          let hover_msg = 'Some fail / error';  // Show meaning of color
                           if (report['fail_count'] == 0 && report['error_count'] == 0) {
                             // No failures or errors
                             if (report['known_issue_count'] == 0) {
                               if (report['unsupported_count'] == 0) {
+                                  // Only passing!
+                                  hover_msg = 'All pass';
                                   background_color = '#00ee88';
                               } else {
-                                  // No failures, but there are unsupported items
+                                  // No failures, but have unsupported items
+                                  hover_msg = 'Pass or unsupported';
                                   background_color = '#aaaaaa';
                               }
                             } else if (report['unsupported_count'] == 0) {
                                 // Only known issues are present
+                                hover_msg = 'Pass or known issues';
                                 background_color = '#ffa400';
+                            } else {
+                                // Only pass, known issue, or unsupported
+                                hover_msg = 'No fails or errors';
+                                background_color = '#00aa00';
                             }
                          }
                        // Insert the background color to the link if needed.
@@ -234,9 +243,9 @@
                               ' target="_blank">' +
                               report['icu_version'] +
                               '</a><br />';
-
-                         let link = '<a ' + color_part + href_part;
-                         details.push(link);
+                        let title_part = 'title="' + hover_msg + '" ';
+                        let link = '<a ' + color_part + title_part + href_part;
+                        details.push(link);
                       }
                   }
                   td = tr.insertCell();
