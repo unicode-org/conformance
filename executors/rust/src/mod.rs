@@ -15,8 +15,8 @@ pub mod relativedatetime_fmt;
 #[path = "datetime_1.rs"]
 pub mod datetimefmt;
 
-#[cfg(any(ver = "2.0-beta1"))]
-#[path = "datetime_2.rs"]
+#[cfg(ver = "2.0-beta1")]
+#[path = "datetime_2_beta1.rs"]
 pub mod datetimefmt;
 
 use try_or_return_error::try_or_return_error;

@@ -1,21 +1,22 @@
 // https://docs.rs/icu/1.3.2/icu/relativetime/struct.RelativeTimeFormatter.html
 // https://docs.rs/icu_provider/1.3.0/icu_provider/struct.DataLocale.html#method.get_unicode_ext
 
-use fixed_decimal::FixedDecimal;
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
+use fixed_decimal::{FixedDecimal as Decimal};
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+use fixed_decimal::Decimal;
 
 use super::compat::{pref, unicode, unicode::key, Locale};
 
 use std::str::FromStr;
 
 #[cfg(any(ver = "1.3", ver = "1.4"))]
-use icu::relativetime::{options::Numeric, *};
-
-#[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
-use icu::experimental::relativetime::{options::Numeric, *};
+use icu::relativetime::{options::*, *};
+#[cfg(not(any(ver = "1.3", ver = "1.4")))]
+use icu::experimental::relativetime::{options::*, *};
 
 #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
 type Error = RelativeTimeError;
-
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
 type Error = icu_provider::DataError;
 
@@ -183,7 +184,7 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
 
     let count_str: &str = json_obj["count"].as_str().unwrap();
     let count = count_str
-        .parse::<FixedDecimal>()
+        .parse::<Decimal>()
         .map_err(|e| e.to_string())?;
 
     let unit: &str = json_obj["unit"].as_str().unwrap();

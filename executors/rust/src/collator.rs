@@ -5,6 +5,9 @@ use serde_json::{json, Value};
 use core::cmp::Ordering;
 use icu::collator::*;
 
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+use icu::collator::{options::*, preferences::*};
+
 use super::compat::{locale, pref};
 
 // Function runs comparison using collator

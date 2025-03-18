@@ -1,4 +1,8 @@
-use fixed_decimal::FixedDecimal;
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
+use fixed_decimal::{FixedDecimal as Decimal};
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+use fixed_decimal::Decimal;
+
 use serde_json::{json, Value};
 use std::str::FromStr;
 
@@ -27,7 +31,7 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
     let input_number = &json_obj["sample"].as_str().unwrap();
 
     // Returns error if parsing the number string fails.
-    let test_number = if let Ok(fd) = FixedDecimal::from_str(input_number) {
+    let test_number = if let Ok(fd) = Decimal::from_str(input_number) {
         fd
     } else {
         // Report an unexpected result.
