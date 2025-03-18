@@ -1,6 +1,29 @@
 [
   {
     "prereq": {
+      "name": "Get ICU4C 77",
+      "version": "77.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-77_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "cpp",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "Get ICU4C 76",
       "version": "76.1",
       "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-76_1-Ubuntu22.04-x64.tgz"
@@ -551,6 +574,29 @@
     },
     "run": {
       "icu_version": "icu76",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-77-shaded",
+      "version": "77",
+      "command": "mvn -q -P icu77 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu77",
       "exec": "icu4j",
       "test_type": [
         "collation",
