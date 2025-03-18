@@ -1,7 +1,7 @@
 //! Executor provides tests for NumberFormat and DecimalFormat.
 
 #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
-use fixed_decimal::{FixedDecimal as Decimal};
+use fixed_decimal::FixedDecimal as Decimal;
 #[cfg(ver = "2.0-beta1")]
 use fixed_decimal::RoundingMode;
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
@@ -13,13 +13,13 @@ use fixed_decimal::SignDisplay;
 use super::compat::{pref, unicode, Locale};
 use icu::decimal::options;
 
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+use icu::decimal::{options::DecimalFormatterOptions, DecimalFormatter};
 #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
 use icu::decimal::{
-    FixedDecimalFormatter as DecimalFormatter,
     options::FixedDecimalFormatterOptions as DecimalFormatterOptions,
+    FixedDecimalFormatter as DecimalFormatter,
 };
-#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
-use icu::decimal::{DecimalFormatter, options::DecimalFormatterOptions};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -229,9 +229,15 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                     Some("trunc") => SignedRoundingMode::Unsigned(UnsignedRoundingMode::Trunc),
                     Some("halfCeil") => SignedRoundingMode::HalfCeil,
                     Some("halfFloor") => SignedRoundingMode::HalfFloor,
-                    Some("halfExpand") => SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfExpand),
-                    Some("halfTrunc") => SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfTrunc),
-                    Some("halfEven") => SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven),
+                    Some("halfExpand") => {
+                        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfExpand)
+                    }
+                    Some("halfTrunc") => {
+                        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfTrunc)
+                    }
+                    Some("halfEven") => {
+                        SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven)
+                    }
                     _ => SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven),
                 },
             );

@@ -4,13 +4,13 @@ use serde_json::{json, Value};
 
 use icu::decimal::options;
 
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+use icu::decimal::{options::DecimalFormatterOptions, DecimalFormatter};
 #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
 use icu::decimal::{
-    FixedDecimalFormatter as DecimalFormatter,
     options::FixedDecimalFormatterOptions as DecimalFormatterOptions,
+    FixedDecimalFormatter as DecimalFormatter,
 };
-#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
-use icu::decimal::{DecimalFormatter, options::DecimalFormatterOptions};
 
 use super::compat::{pref, Locale};
 
@@ -31,8 +31,8 @@ pub fn _todo(json_obj: &Value) -> Result<Value, String> {
     // !! A test. More options to consider!
     options.grouping_strategy = options::GroupingStrategy::Min2.into();
 
-    let fdf = DecimalFormatter::try_new(pref!(langid), options)
-        .expect("Data should load successfully");
+    let fdf =
+        DecimalFormatter::try_new(pref!(langid), options).expect("Data should load successfully");
 
     // Check if the conversion from the string input is OK.
     let input_num = input.parse().expect("valid input format");

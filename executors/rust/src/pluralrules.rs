@@ -1,7 +1,7 @@
-#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
-use fixed_decimal::{FixedDecimal as Decimal};
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
 use fixed_decimal::Decimal;
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
+use fixed_decimal::FixedDecimal as Decimal;
 
 use serde_json::{json, Value};
 use std::str::FromStr;

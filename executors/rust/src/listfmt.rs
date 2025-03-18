@@ -3,9 +3,9 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use icu::list::*;
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
 use icu::list::options::*;
+use icu::list::*;
 
 use super::compat::{pref, Locale};
 
