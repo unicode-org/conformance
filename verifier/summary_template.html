@@ -195,9 +195,10 @@
                       if (report['version']['platform'] == exec) {
                           reports.push(report);
                           // Add data for this report.
-                          const version_label = report['version']['platformVersion'] +
-                              '\n' +
-                              report['version']['icuVersion'];
+                          let version_label = report['version']['platformVersion'];
+                          if (!version_label.includes(report['version']['icuVersion'])) {
+                              version_label += '\n' + report['version']['icuVersion'];
+                          }
                           const report_data = [
                               version_label,
                               report['pass_count'],
@@ -230,7 +231,7 @@
                             } else {
                                 // Only pass, known issue, or unsupported
                                 hover_msg = 'No fails or errors';
-                                background_color = '#00aa00';
+                                background_color = '#aa8400';
                             }
                          }
                        // Insert the background color to the link if needed.
