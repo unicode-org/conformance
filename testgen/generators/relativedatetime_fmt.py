@@ -38,14 +38,11 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
         source_command = 'source ~/.nvm/nvm.sh; nvm run %s; %s' % (
             nodejs_version, exec_command)
 
-        run_list = [
-            source_command,
-            ['mv rdt_fmt*.json icu74']
-        ]
-
         if self.icu_version not in icu_nvm_versions:
             logging.warning('Generating relative date/time data not configured for icu version %s', self.icu_version)
             return False
+
+        # TODO: If available, use pre-generated test data instead of creating it from the NodeJS version.
 
         # Set up Node version and call the generator
         nvm_version = icu_nvm_versions[self.icu_version]
