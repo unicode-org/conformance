@@ -59,6 +59,9 @@ class knownIssueType(Enum):
     langnames_tag_option = 'unsupported option in locale'
     langnames_bracket_parens = 'brackets_vs_parentheses'
 
+    # Plural rules
+    plural_rules_floating_point_sample = 'limited floating point support'
+
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
@@ -287,6 +290,18 @@ def langname_brackets(test):
         return None
 
 
+def check_plural_rules_issues(test):
+    try:
+        input_data = test['input_data']
+        sample_string = input_data['sample']
+        # Plural rules for floating point values may not be supported
+        if sample_string.find('.') >= 0:
+            return knownIssueType.plural_rules_floating_point_sample
+    except KeyError as e:
+        print('TEST Plural rules: %s' % test)
+        return None
+
+
 def compute_known_issues_for_single_test(test_type, test):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
@@ -301,6 +316,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_likely_subtags_issues(test)
     elif test_type == ddt_data.testType.lang_names.value:
         known_issue_found = check_langnames_issues(test)
+    elif test_type == ddt_data.testType.plural_rules.value:
+        known_issue_found = check_plural_rules_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 
