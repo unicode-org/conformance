@@ -83,7 +83,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some(other) => panic!("unknown length: {other}"),
         None => None,
     };
-    let field_set = builder.build_composite().unwrap();
+    let Ok(field_set) = builder.build_composite() else {
+        return Ok(json!({
+            "label": label,
+            "error_detail": format!("{option_struct:?}"),
+            "error_type": format!("Invalid datetime fields or options"),
+        }));
+    };
 
     // Get ISO instant in UTC time zone
     let input_iso = &json_obj["original_input"].as_str().unwrap();
