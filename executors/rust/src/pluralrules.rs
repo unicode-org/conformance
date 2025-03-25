@@ -6,7 +6,7 @@ use fixed_decimal::FixedDecimal as Decimal;
 use serde_json::{json, Value};
 use std::str::FromStr;
 
-use super::compat::{pref, Locale};
+use super::compat::{pref, is_locale_supported, Locale};
 
 // https://docs.rs/icu/latest/icu/plurals/index.html
 use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
@@ -26,6 +26,15 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
             "error_type": "locale problem",
         }));
     };
+
+    if !is_locale_supported(&locale) {
+        return Ok(json!({
+            "label": label,
+            "error_detail": {"option": locale_str},
+            "error_type": "locale problem",
+            "unsupported": "locale"
+        }));
+    }
 
     // Get number string
     let input_number = &json_obj["sample"].as_str().unwrap();
