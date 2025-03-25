@@ -5,6 +5,6 @@ mod print_icu4x_versions_1_5;
 mod print_modern_locales;
 
 pub fn main() {
-	print_icu4x_versions_1_5::main();
-	print_modern_locales::main();
+    print_icu4x_versions_1_5::main();
+    print_modern_locales::main();
 }
