@@ -140,8 +140,9 @@ class PluralGenerator(DataGenerator):
                             logging.info('Plural rules: root locale ignored for %s, %s, %s',
                                          locale, num_type, sample)
                             continue
+                        # Locales should not use '_' but rather '-'
                         test = {
-                            'locale': locale,
+                            'locale': locale.replace('_', '-'),
                             'label': str(self.label_num),
                             'type': num_type,
                             'plural_type': num_type,
