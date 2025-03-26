@@ -380,7 +380,7 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            # Don't look at tests labeld as "unsupported"
+            # Don't look at tests labeled as "unsupported"
             [self.failing_tests, self.test_errors])
 
         if new_known_issues:

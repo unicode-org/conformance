@@ -38,7 +38,7 @@ import unicodedata
 NBSP = '\u202f'
 SP = '\u0020'
 
-floating_point_all_zero = re.compile(r"\.[^1-9]+")
+floating_point_has_trailing_zero = re.compile(r"\.[^1-9]+")
 
 
 # Global KnownIssue Info types and strings
@@ -298,7 +298,7 @@ def check_plural_rules_issues(test):
         input_data = test['input_data']
         sample_string = input_data['sample']
         # Plural rules for floating point values may not be supported
-        if floating_point_all_zero.search(sample_string):
+        if floating_point_has_trailing_zero.search(sample_string):
             return knownIssueType.plural_rules_floating_point_sample
     except KeyError as e:
         print('TEST Plural rules: %s' % test)
