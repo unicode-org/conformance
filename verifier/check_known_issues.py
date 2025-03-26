@@ -17,6 +17,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -36,6 +37,8 @@ import unicodedata
 # Constants
 NBSP = '\u202f'
 SP = '\u0020'
+
+floating_point_all_zero = re.compile(r"\.[^1-9]+")
 
 
 # Global KnownIssue Info types and strings
@@ -295,7 +298,7 @@ def check_plural_rules_issues(test):
         input_data = test['input_data']
         sample_string = input_data['sample']
         # Plural rules for floating point values may not be supported
-        if sample_string.find('.') >= 0:
+        if floating_point_all_zero.search(sample_string):
             return knownIssueType.plural_rules_floating_point_sample
     except KeyError as e:
         print('TEST Plural rules: %s' % test)
@@ -306,7 +309,7 @@ def compute_known_issues_for_single_test(test_type, test):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
 
-    # Returns True if this single test is an example of one or moore known issues,
+    # Returns True if this single test is an example of one or more known issues,
     known_issue_found = False
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
