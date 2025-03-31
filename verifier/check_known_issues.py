@@ -38,7 +38,8 @@ import unicodedata
 NBSP = '\u202f'
 SP = '\u0020'
 
-floating_point_has_trailing_zero = re.compile(r"\.[^1-9]+")
+# Handles problems with floating point values with no way to indicate precision
+floating_point_has_trailing_zero = re.compile(r"\.[^2-9]+")
 
 
 # Global KnownIssue Info types and strings
