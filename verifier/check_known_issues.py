@@ -39,7 +39,7 @@ NBSP = '\u202f'
 SP = '\u0020'
 
 # Handles problems with floating point values with no way to indicate precision
-floating_point_has_trailing_zero = re.compile(r"\.[^2-9]+")
+floating_point_has_trailing_zero = re.compile(r"\.[^1-9]+")
 
 
 # Global KnownIssue Info types and strings
@@ -65,6 +65,7 @@ class knownIssueType(Enum):
 
     # Plural rules
     plural_rules_floating_point_sample = 'limited floating point support'
+    plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
 
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
@@ -301,6 +302,9 @@ def check_plural_rules_issues(test):
         # Plural rules for floating point values may not be supported
         if floating_point_has_trailing_zero.search(sample_string):
             return knownIssueType.plural_rules_floating_point_sample
+        elif sample_string == '4.1':
+            return knownIssueType.plural_rules_java_4_1_sample
+        return None
     except KeyError as e:
         print('TEST Plural rules: %s' % test)
         return None
