@@ -43,7 +43,7 @@
           "type": "string"
         },
         "src": {
-          "type": "string"
+          "type": ["string", "array"]
         },
         "expCleanSrc": {
           "type": "string"

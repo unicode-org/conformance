@@ -113,7 +113,8 @@ String testDecimalFormat(
     } catch (error) {
       // Some error - to return this message
       return jsonEncode({
-        'error': 'Can\'t convert pattern',
+        'error': error.toString(),
+        'error_type': '_decimalPatternToOptions',
         'label': label,
       });
     }

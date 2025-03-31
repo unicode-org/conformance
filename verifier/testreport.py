@@ -380,7 +380,8 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            # Don't look at tests labeled as "unsupported"
+            [self.failing_tests, self.test_errors])
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -752,7 +753,7 @@ class TestReport:
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
-            if 'skeleton' in  test['input_data']:
+            if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
             if 'dateTimeFormatType' in test:
@@ -789,7 +790,8 @@ class TestReport:
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
-                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
+                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
+                      'comma_type', 'unexpected_comma']
 
         for check in all_checks:
             results[check] = set()
@@ -875,6 +877,14 @@ class TestReport:
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
+
+                # Comma stuff
+                # ASCII vs. Arabic
+                if expected.replace('\u002c', '\u060c') == actual:
+                    results['comma_type'].add(label);
+                # Check for extra comma
+                if actual.replace('\u002c', '') == expected:
+                    results['unexpected_comma'].add(label);
 
                 # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:

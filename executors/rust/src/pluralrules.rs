@@ -1,8 +1,12 @@
-use fixed_decimal::FixedDecimal;
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+use fixed_decimal::Decimal;
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
+use fixed_decimal::FixedDecimal as Decimal;
+
 use serde_json::{json, Value};
 use std::str::FromStr;
 
-use super::compat::{pref, Locale};
+use super::compat::{is_locale_supported, pref, Locale};
 
 // https://docs.rs/icu/latest/icu/plurals/index.html
 use icu::plurals::{PluralCategory, PluralRuleType, PluralRules};
@@ -23,11 +27,20 @@ pub fn run_plural_rules_test(json_obj: &Value) -> Result<Value, String> {
         }));
     };
 
+    if !is_locale_supported(&locale) {
+        return Ok(json!({
+            "label": label,
+            "error_detail": {"option": locale_str},
+            "error_type": "locale problem",
+            "unsupported": "locale"
+        }));
+    }
+
     // Get number string
     let input_number = &json_obj["sample"].as_str().unwrap();
 
     // Returns error if parsing the number string fails.
-    let test_number = if let Ok(fd) = FixedDecimal::from_str(input_number) {
+    let test_number = if let Ok(fd) = Decimal::from_str(input_number) {
         fd
     } else {
         // Report an unexpected result.
