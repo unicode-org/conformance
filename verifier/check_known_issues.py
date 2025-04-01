@@ -17,6 +17,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -37,6 +38,9 @@ import unicodedata
 NBSP = '\u202f'
 SP = '\u0020'
 
+# Handles problems with floating point values with no way to indicate precision
+floating_point_has_trailing_zero = re.compile(r"\.[^1-9]+")
+
 
 # Global KnownIssue Info types and strings
 class knownIssueType(Enum):
@@ -48,6 +52,20 @@ class knownIssueType(Enum):
 
     # Datetime format
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
+    datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
+    datetime_unexpected_comma = 'Unexpected comma'
+
+    # Likely Subtags
+    likely_subtags_sr_latn = "sr_latin becoming en"
+
+    # Language names
+    langnames_fonipa = 'unsupported fonipa in locale'
+    langnames_tag_option = 'unsupported option in locale'
+    langnames_bracket_parens = 'brackets_vs_parentheses'
+
+    # Plural rules
+    plural_rules_floating_point_sample = 'limited floating point support'
+    plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
 
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
@@ -125,9 +143,23 @@ def dt_check_for_alternate_long_form(test, actual, expected):
     # For datetime_fmt, is the format type "standard"?
     if actual == expected:
         return None
-    if 'dateTimeFormatType' in test['input_data'] and test['input_data'] ['dateTimeFormatType'] == 'standard':
+    if actual.replace(' at', ',') == expected:
         return knownIssueType.datetime_fmt_at_inserted
     return None
+
+
+def dt_check_arabic_comma(test, actual, expected):
+    if expected.replace('\u002c', '\u060c') == actual:
+        return knownIssueType.datetime_fmt_arabic_comma
+    else:
+         return None
+
+
+def dt_unexpected_comma(test, actual,  expected):
+    if actual.replace('\u002c', '') == expected:
+        return knownIssueType.datetime_unexpected_comma
+    else:
+        return None
 
 
 def check_datetime_known_issues(test):
@@ -149,6 +181,16 @@ def check_datetime_known_issues(test):
             remove_this_one = True
 
         is_ki = dt_check_for_alternate_long_form(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
+        is_ki = dt_check_arabic_comma(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
+        is_ki = dt_unexpectedcomma(test, result, expected)
         if is_ki:
             test['known_issue_id'] = is_ki.value
             remove_this_one = True
@@ -184,16 +226,106 @@ def check_rdt_known_issues(test):
     return remove_this_one
 
 
+def check_likely_subtags_issues(test):
+    remove_this_one = False
+    try:
+        result = test['result']
+        expected = test['expected']
+    except BaseException:
+        return None
+
+    is_ki = sr_latin_likely_subtag(test)
+    return is_ki
+
+
+def sr_latin_likely_subtag(test):
+    # FINISH
+    expected = test['expected']
+    result = test['result']
+    if (expected.find('sr-Latn') >= 0 and
+            result.find('en-') == 0):
+        return knownIssueType.likely_subtags_sr_latn
+    else:
+        return None
+
+# Language names
+def check_langnames_issues(test):
+    remove_this_one = False
+    try:
+        result = test['result']
+        expected = test['expected']
+    except BaseException:
+        return None
+
+    is_ki = (langname_fonipa(test) or langname_tag_option(test) or
+             langname_brackets(test))
+    return is_ki
+
+
+def langname_fonipa(test):
+    # Fonipa - one of the less supported locale options.
+    input_data = test['input_data']
+    lang_label = input_data['language_label']
+    if lang_label.find('fonipa') >= 0:
+        return knownIssueType.langnames_fonipa
+    else:
+        return None
+
+def langname_tag_option(test):
+    # TODO: Add other unsupported tags
+    input_data = test['input_data']
+    lang_label = input_data['language_label']
+    if (lang_label.find('-d0') >= 0 or
+        lang_label.find('-ms') >= 0 or
+        lang_label.find('u-cu') >= 0
+        # Or others??
+    ):
+        return knownIssueType.langnames_tag_option
+    else:
+        return None
+
+
+def langname_brackets(test):
+    # Check if brackets were expected but we got parentheses
+    result = test['result']
+    expected = test['expected']
+    if result.replace('(', '[').replace(')', ']') == expected:
+        return knownIssueType.langnames_bracket_parens
+    else:
+        return None
+
+
+def check_plural_rules_issues(test):
+    try:
+        input_data = test['input_data']
+        sample_string = input_data['sample']
+        # Plural rules for floating point values may not be supported
+        if floating_point_has_trailing_zero.search(sample_string):
+            return knownIssueType.plural_rules_floating_point_sample
+        elif sample_string == '4.1':
+            return knownIssueType.plural_rules_java_4_1_sample
+        return None
+    except KeyError as e:
+        print('TEST Plural rules: %s' % test)
+        return None
+
+
 def compute_known_issues_for_single_test(test_type, test):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
 
-    # Returns True if this single test is an example of one or moore known issues,
+    # Returns True if this single test is an example of one or more known issues,
     known_issue_found = False
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
     elif test_type == ddt_data.testType.rdt_fmt.value:
         known_issue_found = check_rdt_known_issues(test)
+    elif test_type == ddt_data.testType.likely_subtags.value:
+        known_issue_found = check_likely_subtags_issues(test)
+    elif test_type == ddt_data.testType.lang_names.value:
+        known_issue_found = check_langnames_issues(test)
+    elif test_type == ddt_data.testType.plural_rules.value:
+        known_issue_found = check_plural_rules_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 

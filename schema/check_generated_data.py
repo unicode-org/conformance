@@ -12,7 +12,7 @@ import logging.config
 import os.path
 import sys
 
-# To get commanlin arguments
+# To get commandline arguments
 sys.path.append('../testdriver')
 from ddtargs import schemaArgs
 

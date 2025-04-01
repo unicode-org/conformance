@@ -74,7 +74,7 @@ then
     echo "DART NATIVE COMPILE"
     pushd executors/dart_native/
     dart pub get
-    dart compile exe bin/executor.dart
+    dart --enable-experiment=native-assets compile exe bin/executor.dart
     popd
 fi
 
@@ -83,7 +83,7 @@ then
     echo "DART WEB COMPILE"
     pushd executors/dart_web/
     dart pub get
-    dart run bin/make_runnable_by_node.dart
+    dart bin/make_runnable_by_node.dart
     popd
 fi
 

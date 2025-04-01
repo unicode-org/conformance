@@ -28,8 +28,13 @@ module.exports = {
                                 }
                };
       }
-      if (raw_sample.indexOf('.') >= 0) {
+      let index_of_decimal = raw_sample.indexOf('.');
+      if (index_of_decimal >= 0) {
         sample = parseFloat(raw_sample);
+        // Workaround for issue : https://github.com/tc39/ecma402/issues/397
+        let num_fraction_digits = raw_sample.length - index_of_decimal -1;
+        test_options['minimumFractionDigits'] = num_fraction_digits;
+        test_options['maximumFractionDigits'] = num_fraction_digits;
       } else {
         sample = parseInt(raw_sample);
       }
@@ -75,7 +80,7 @@ module.exports = {
 
     let list_formatter;
     try {
-      p_rules = new Intl.PluralRules(actual_locale, test_options);
+     p_rules = new Intl.PluralRules(actual_locale, test_options);
     } catch (error) {
       /* Something is wrong with the constructor */
       return_json['error'] = 'CONSTRUCTOR: ' + error.message;

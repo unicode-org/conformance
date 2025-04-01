@@ -90,7 +90,7 @@ if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
     pushd executors/dart_native/
     dart pub get
-    dart --enable-experiment=native-assets run bin/set_version.dart
+    dart bin/set_version.dart
     dart --enable-experiment=native-assets build bin/executor.dart
     popd
 fi
@@ -99,7 +99,7 @@ if jq -e 'index("dart_web")' <<< $all_execs_json > /dev/null
 then
     pushd executors/dart_web/
     dart pub get
-    dart run bin/make_runnable_by_node.dart
+    dart bin/make_runnable_by_node.dart
     popd
 fi
 
