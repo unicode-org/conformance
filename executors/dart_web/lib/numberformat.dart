@@ -17,71 +17,15 @@ final _patternsToOptions = <String, NumberFormatOptions>{
       digits: Digits.withFractionDigits(minimum: 4)),
 };
 
-// The nodejs version that first supported advance rounding options
-const _firstV3Version = 'v20.1.0';
-
-enum NodeVersion {
-  v3,
-  preV3,
-}
-
 const _unsupportedSkeletonTerms = [
   'scientific/+ee/sign-always',
   'decimal-always',
 ];
 
-// Use this
-const _supportedOptionsByVersion = {
-  NodeVersion.v3: [
-    'compactDisplay',
-    'currency',
-    'currencyDisplay',
-    'currencySign',
-    'localeMatcher',
-    'notation',
-    'numberingSystem',
-    'signDisplay',
-    'style',
-    'unit',
-    'unitDisplay',
-    'useGrouping',
-    'roundingMode',
-    'roundingPriority',
-    'roundingIncrement',
-    'trailingZeroDisplay',
-    'minimumIntegerDigits',
-    'minimumFractionDigits',
-    'maximumFractionDigits',
-    'minimumSignificantDigits',
-    'maximumSignificantDigits'
-  ],
-  NodeVersion.preV3: [
-    'compactDisplay',
-    'currency',
-    'currencyDisplay',
-    'currencySign',
-    'localeMatcher',
-    'notation',
-    'numberingSystem',
-    'signDisplay',
-    'style',
-    'unit',
-    'unitDisplay',
-    'useGrouping',
-    'roundingMode',
-    'minimumIntegerDigits',
-    'minimumFractionDigits',
-    'maximumFractionDigits',
-    'minimumSignificantDigits',
-    'maximumSignificantDigits'
-  ]
-  // TODO: Add older version support.
-};
-
 String testDecimalFormat(
   String encoded, [
-  bool doLogInput = false,
-  String nodeVersion = '',
+  bool loggingEnabled = false,
+  List<String> unsupportedOptionsForNode = const [],
 ]) {
   final json = jsonDecode(encoded) as Map<String, dynamic>;
   final label = json['label'] as String?;
@@ -130,7 +74,7 @@ String testDecimalFormat(
   // Handle scale in the skeleton
   final skeletonTerms = skeleton?.split(' ') ?? [];
   if (skeleton != null) {
-    if (doLogInput) {
+    if (loggingEnabled) {
       print('# SKEL: $skeletonTerms');
     }
     final scaleRegex = RegExp(r'scale/(\d+\.\d*)');
@@ -143,16 +87,18 @@ String testDecimalFormat(
   }
 
   // Supported options depends on the nodejs version
-  if (doLogInput) {
-    print('#NNNN $nodeVersion');
+  if (loggingEnabled) {
+    print('#NNNN $unsupportedOptionsForNode');
   }
 
-  final unsupportedOptions = _getUnsupportedOptions(
-    jsonOptions,
+  final unsupportedSkeletonTerms = _getUnsupportedSkeletonterms(
     skeletonTerms,
-    nodeVersion,
-    doLogInput,
+    loggingEnabled,
   );
+  final unsupportedOptions = [
+    ...unsupportedOptionsForNode,
+    ...unsupportedSkeletonTerms
+  ];
 
   if (unsupportedOptions.isNotEmpty) {
     return jsonEncode({
@@ -200,35 +146,11 @@ String testDecimalFormat(
   return jsonEncode(outputLine);
 }
 
-List<String> _getUnsupportedOptions(
-  Map<String, dynamic> jsonOptions,
+List<String> _getUnsupportedSkeletonterms(
   List<String> skeletonTerms,
-  String nodeVersion,
   bool doLogInput,
 ) {
-  List<String> versionSupportedOptions;
-  if (nodeVersion.compareTo(_firstV3Version) >= 0) {
-    if (doLogInput) {
-      print('#V3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.v3]!;
-  } else {
-    if (doLogInput) {
-      print('#pre_v3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.preV3]!;
-  }
-  if (doLogInput) {
-    print('#NNNN $versionSupportedOptions');
-  }
-
   final unsupportedOptions = <String>[];
-  // Check for option items that are not supported
-  for (var key in jsonOptions.keys) {
-    if (!versionSupportedOptions.contains(key)) {
-      unsupportedOptions.add('$key:${jsonOptions[key]}');
-    }
-  }
 
   // Check for skelection terms that are not supported
   for (var skelTerm in skeletonTerms) {
