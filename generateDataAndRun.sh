@@ -91,7 +91,7 @@ then
     pushd executors/dart/
     dart pub get
     dart bin/set_version.dart
-    dart --enable-experiment=native-assets build bin/executor.dart
+    dart --enable-experiment=native-assets,record-use build bin/executor.dart
     popd
 fi
 

@@ -7,8 +7,8 @@ import 'package:dart_executor/numberformat.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
-/// Run using `dart --enable-experiment=native-assets test -p chrome` for dart_web
-/// and `dart --enable-experiment=native-assets test` for dart_native
+/// Run using `dart --enable-experiment=native-assets,record-use test -p chrome` for dart_web
+/// and `dart --enable-experiment=native-assets,record-use test` for dart_native
 
 void main() {
   testWithFormatting('Check number format output', () {
