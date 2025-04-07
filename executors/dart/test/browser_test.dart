@@ -7,7 +7,8 @@ import 'package:dart_web/numberformat.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
-/// Run using `dart --enable-experiment=native-assets test -p chrome`
+/// Run using `dart --enable-experiment=native-assets test -p chrome` for dart_web
+/// and `dart --enable-experiment=native-assets test` for dart_native
 
 void main() {
   testWithFormatting(
@@ -30,7 +31,6 @@ void main() {
       final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
       expect(decoded['result'], '91,827.365');
     },
-    testOn: 'browser',
   );
 
   testWithFormatting(
@@ -49,7 +49,6 @@ void main() {
       final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
       expect(decoded['result'], true);
     },
-    testOn: 'browser',
   );
 
   testWithFormatting(
@@ -66,7 +65,6 @@ void main() {
       final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
       expect(decoded['result'], 'Spanish');
     },
-    testOn: 'browser',
   );
 }
 

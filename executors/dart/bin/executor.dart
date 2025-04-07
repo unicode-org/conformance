@@ -6,8 +6,7 @@ import 'dart:io';
 import 'package:dart_web/collator.dart';
 import 'package:dart_web/lang_names.dart';
 import 'package:dart_web/numberformat.dart';
-
-import 'version.dart';
+import 'package:dart_web/version.dart' show intl4xVersion;
 
 Map<String, List<String>> supportedTests = {
   'supported_tests': [
