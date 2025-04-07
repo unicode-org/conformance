@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dart_web/collator.dart';
+import 'package:dart_web/lang_names.dart';
+import 'package:dart_web/numberformat.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
-
-import '../bin/collator.dart';
-import '../bin/lang_names.dart';
-import '../bin/numberformat.dart';
 
 /// Run using `dart --enable-experiment=native-assets test -p chrome`
 
