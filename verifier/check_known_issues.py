@@ -17,6 +17,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -36,6 +37,9 @@ import unicodedata
 # Constants
 NBSP = '\u202f'
 SP = '\u0020'
+
+# Handles problems with floating point values with no way to indicate precision
+floating_point_has_trailing_zero = re.compile(r"\.[^1-9]+")
 
 
 # Global KnownIssue Info types and strings
@@ -58,6 +62,10 @@ class knownIssueType(Enum):
     langnames_fonipa = 'unsupported fonipa in locale'
     langnames_tag_option = 'unsupported option in locale'
     langnames_bracket_parens = 'brackets_vs_parentheses'
+
+    # Plural rules
+    plural_rules_floating_point_sample = 'limited floating point support'
+    plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
 
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
@@ -287,11 +295,26 @@ def langname_brackets(test):
         return None
 
 
+def check_plural_rules_issues(test):
+    try:
+        input_data = test['input_data']
+        sample_string = input_data['sample']
+        # Plural rules for floating point values may not be supported
+        if floating_point_has_trailing_zero.search(sample_string):
+            return knownIssueType.plural_rules_floating_point_sample
+        elif sample_string == '4.1':
+            return knownIssueType.plural_rules_java_4_1_sample
+        return None
+    except KeyError as e:
+        print('TEST Plural rules: %s' % test)
+        return None
+
+
 def compute_known_issues_for_single_test(test_type, test):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
 
-    # Returns True if this single test is an example of one or moore known issues,
+    # Returns True if this single test is an example of one or more known issues,
     known_issue_found = False
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
@@ -301,6 +324,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_likely_subtags_issues(test)
     elif test_type == ddt_data.testType.lang_names.value:
         known_issue_found = check_langnames_issues(test)
+    elif test_type == ddt_data.testType.plural_rules.value:
+        known_issue_found = check_plural_rules_issues(test)
 
     # TODO: Add checks here for known issues in other test types
 

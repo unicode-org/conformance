@@ -380,7 +380,8 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            # Don't look at tests labeled as "unsupported"
+            [self.failing_tests, self.test_errors])
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -752,7 +753,7 @@ class TestReport:
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
-            if 'skeleton' in  test['input_data']:
+            if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
             if 'dateTimeFormatType' in test:

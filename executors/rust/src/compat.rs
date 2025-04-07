@@ -21,3 +21,28 @@ macro_rules! pref {
 }
 
 pub(crate) use pref;
+
+#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
+pub(crate) fn is_locale_supported(_: &Locale) -> bool {
+    // Unconditionally return true so that tests will run
+    true
+}
+
+#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
+pub(crate) fn is_locale_supported(locale: &Locale) -> bool {
+    let json_str = std::env!("CONFORMANCE_ICU4X_LOCALES");
+    let locales: Vec<String> = serde_json::from_str(json_str).unwrap();
+    let language = locale.id.language;
+    let mut language_script = LanguageIdentifier::default();
+    language_script.language = language;
+    language_script.script = locale.id.script;
+    for candidate in locales.iter() {
+        if writeable::cmp_str(&language, candidate).is_eq() {
+            return true;
+        }
+        if writeable::cmp_str(&language_script, candidate).is_eq() {
+            return true;
+        }
+    }
+    false
+}
