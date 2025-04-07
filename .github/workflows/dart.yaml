@@ -55,4 +55,5 @@ jobs:
       - name: Check if version is set correctly
         run: |
           dart bin/set_version.dart
+          dart bin/make_runnable_by_node.dart
           git diff --exit-code
