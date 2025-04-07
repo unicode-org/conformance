@@ -3,15 +3,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_web/collator.dart';
-import 'package:dart_web/lang_names.dart';
-import 'package:dart_web/numberformat.dart';
-import 'package:dart_web/version.dart' show intl4xVersion;
+import 'package:dart_executor/collator.dart';
+import 'package:dart_executor/lang_names.dart';
+import 'package:dart_executor/numberformat.dart';
+import 'package:dart_executor/version.dart' show intl4xVersion;
 
 Map<String, List<String>> supportedTests = {
-  'supported_tests': [
-    'collation',
-  ],
+  'supported_tests': ['collation'],
 };
 
 enum TestTypes {
@@ -20,7 +18,7 @@ enum TestTypes {
   datetime_fmt,
   display_names,
   lang_names,
-  number_fmt;
+  number_fmt,
 }
 
 void main() {
@@ -43,8 +41,9 @@ void main() {
         throw 'ERRORSTART $line ERROREND';
       }
 
-      final testType = TestTypes.values
-          .firstWhere((type) => type.name == decoded['test_type']);
+      final testType = TestTypes.values.firstWhere(
+        (type) => type.name == decoded['test_type'],
+      );
       final result = switch (testType) {
         TestTypes.collation => testCollation(line),
         TestTypes.decimal_fmt => testDecimalFormat(line),

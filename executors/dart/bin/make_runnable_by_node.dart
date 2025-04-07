@@ -12,10 +12,7 @@ class ExportFunction {
 
 Future<void> main(List<String> args) async {
   final names = {
-    'collator': ExportFunction(
-      name: 'testCollation',
-      argNames: ['encoded'],
-    ),
+    'collator': ExportFunction(name: 'testCollation', argNames: ['encoded']),
     'numberformat': ExportFunction(
       name: 'testDecimalFormat',
       argNames: ['encoded', 'log', 'version'],
@@ -24,10 +21,7 @@ Future<void> main(List<String> args) async {
       name: 'testLikelySubtags',
       argNames: ['encoded'],
     ),
-    'lang_names': ExportFunction(
-      name: 'testLangNames',
-      argNames: ['encoded'],
-    ),
+    'lang_names': ExportFunction(name: 'testLangNames', argNames: ['encoded']),
   };
   for (final MapEntry(key: name, value: function) in names.entries) {
     await compile(name, function);
@@ -70,12 +64,12 @@ module.exports = { dartVersion };
 /// Prepare the file to export [name]
 void exportFromJS(String name, File outFile, ExportFunction f) {
   var s = outFile.readAsStringSync();
-  s = s.replaceFirst('(function dartProgram() {',
-      'module.exports = (function dartProgram() {');
-
   s = s.replaceFirst(
-    '})();\n\n//# sourceMappingURL=$name.js.map',
-    '''
+    '(function dartProgram() {',
+    'module.exports = (function dartProgram() {',
+  );
+
+  s = s.replaceFirst('})();\n\n//# sourceMappingURL=$name.js.map', '''
   return {
     ${f.name}: function(${f.argNames.join(',')}) {
       return A.${f.name}(${f.argNames.join(',')});
@@ -83,8 +77,7 @@ void exportFromJS(String name, File outFile, ExportFunction f) {
   };
   })();
   //# sourceMappingURL=$name.js.map
-  ''',
-  );
+  ''');
   s = 'function dartMainRunner(main, args){}$s';
   s = getPreamble() + s;
   outFile.writeAsStringSync(s);

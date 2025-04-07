@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dart_web/numberformat.dart';
+import 'package:dart_executor/numberformat.dart';
 
 void main(List<String> args) {
   final loggingEnabled = bool.parse(args[2]);
@@ -50,10 +50,7 @@ List<String> _getUnsupportedOptionsForNode(
 // The nodejs version that first supported advance rounding options
 const _firstV3Version = 'v20.1.0';
 
-enum NodeVersion {
-  v3,
-  preV3,
-}
+enum NodeVersion { v3, preV3 }
 
 // Use this
 const _supportedOptionsByVersion = {
@@ -78,7 +75,7 @@ const _supportedOptionsByVersion = {
     'minimumFractionDigits',
     'maximumFractionDigits',
     'minimumSignificantDigits',
-    'maximumSignificantDigits'
+    'maximumSignificantDigits',
   ],
   NodeVersion.preV3: [
     'compactDisplay',
@@ -98,7 +95,7 @@ const _supportedOptionsByVersion = {
     'minimumFractionDigits',
     'maximumFractionDigits',
     'minimumSignificantDigits',
-    'maximumSignificantDigits'
-  ]
+    'maximumSignificantDigits',
+  ],
   // TODO: Add older version support.
 };

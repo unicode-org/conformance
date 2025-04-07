@@ -4,17 +4,22 @@ import 'package:intl4x/intl4x.dart';
 import 'package:intl4x/number_format.dart';
 
 final _patternsToOptions = <String, NumberFormatOptions>{
-  '0.0':
-      NumberFormatOptions.custom(digits: Digits.withFractionDigits(minimum: 1)),
+  '0.0': NumberFormatOptions.custom(
+    digits: Digits.withFractionDigits(minimum: 1),
+  ),
   '00': NumberFormatOptions.custom(
-      digits: Digits.withSignificantDigits(minimum: 1)),
+    digits: Digits.withSignificantDigits(minimum: 1),
+  ),
   '@@@': NumberFormatOptions.custom(
-      digits: Digits.withSignificantDigits(minimum: 3)),
+    digits: Digits.withSignificantDigits(minimum: 3),
+  ),
   '@@###': NumberFormatOptions.custom(
-      digits: Digits.withSignificantDigits(minimum: 2, maximum: 5)),
+    digits: Digits.withSignificantDigits(minimum: 2, maximum: 5),
+  ),
   '0.0000E0': NumberFormatOptions.custom(
-      notation: ScientificNotation(),
-      digits: Digits.withFractionDigits(minimum: 4)),
+    notation: ScientificNotation(),
+    digits: Digits.withFractionDigits(minimum: 4),
+  ),
 };
 
 const _unsupportedSkeletonTerms = [
@@ -32,8 +37,9 @@ String testDecimalFormat(
   final skeleton = json['skeleton'] as String?;
   final pattern = json['pattern'] as String?;
   final rounding = json['rounding'] as String?;
-  var input =
-      double.parse(json['input'] as String); // May be changed with some options
+  var input = double.parse(
+    json['input'] as String,
+  ); // May be changed with some options
 
   // If options are in the JSON, use them...
   NumberFormatOptions options;
@@ -97,7 +103,7 @@ String testDecimalFormat(
   );
   final unsupportedOptions = [
     ...unsupportedOptionsForNode,
-    ...unsupportedSkeletonTerms
+    ...unsupportedSkeletonTerms,
   ];
 
   if (unsupportedOptions.isNotEmpty) {
@@ -105,7 +111,7 @@ String testDecimalFormat(
       'label': label,
       'unsupported': 'unsupported_options',
       'error_type': 'unsupported',
-      'error_detail': {'unsupported_options': unsupportedOptions}
+      'error_detail': {'unsupported_options': unsupportedOptions},
     });
   }
 
@@ -115,13 +121,9 @@ String testDecimalFormat(
   Map<String, dynamic> outputLine;
   try {
     if (testLocale != null) {
-      intl = Intl(
-        locale: Locale.parse(testLocale),
-      );
+      intl = Intl(locale: Locale.parse(testLocale));
     } else {
-      intl = Intl(
-        locale: const Locale(language: 'und'),
-      );
+      intl = Intl(locale: const Locale(language: 'und'));
     }
     final NumberFormat nf = intl.numberFormat(options);
 
@@ -168,12 +170,15 @@ List<String> _getUnsupportedSkeletonterms(
 }
 
 NumberFormatOptions _decimalPatternToOptions(
-    String? pattern, String? rounding) {
+  String? pattern,
+  String? rounding,
+) {
   final numberFormatOptions =
       _patternsToOptions[pattern] ?? NumberFormatOptions.custom();
   if (rounding != null) {
-    final roundingMode =
-        RoundingMode.values.firstWhere((mode) => mode.name == rounding);
+    final roundingMode = RoundingMode.values.firstWhere(
+      (mode) => mode.name == rounding,
+    );
     return numberFormatOptions.copyWith(roundingMode: roundingMode);
   } else {
     return numberFormatOptions;
@@ -183,62 +188,71 @@ NumberFormatOptions _decimalPatternToOptions(
 NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   Unit? unit;
   if (options['unit'] != null) {
-    unit = Unit.values
-        .where((element) => element.jsName == options['unit'])
-        .firstOrNull;
+    unit =
+        Unit.values
+            .where((element) => element.jsName == options['unit'])
+            .firstOrNull;
     if (unit == null) {
       throw ArgumentError('Unknown unit ${options['unit']}');
     }
   }
-  final unitDisplay = UnitDisplay.values
-      .where((element) => element.name == options['unitDisplay'])
-      .firstOrNull;
+  final unitDisplay =
+      UnitDisplay.values
+          .where((element) => element.name == options['unitDisplay'])
+          .firstOrNull;
   final currency = options['currency'];
-  final currencyDisplay = CurrencyDisplay.values
-      .where((element) => element.name == options['currencyDisplay'])
-      .firstOrNull;
-  final style = [
-    DecimalStyle(),
-    if (currency != null)
-      CurrencyStyle(
-        currency: currency,
-        display: currencyDisplay ?? CurrencyDisplay.symbol,
-      ),
-    if (unit != null)
-      UnitStyle(
-        unit: unit,
-        unitDisplay: unitDisplay ?? UnitDisplay.short,
-      ),
-  ].where((element) => element.name == options['style']).firstOrNull;
+  final currencyDisplay =
+      CurrencyDisplay.values
+          .where((element) => element.name == options['currencyDisplay'])
+          .firstOrNull;
+  final style =
+      [
+        DecimalStyle(),
+        if (currency != null)
+          CurrencyStyle(
+            currency: currency,
+            display: currencyDisplay ?? CurrencyDisplay.symbol,
+          ),
+        if (unit != null)
+          UnitStyle(unit: unit, unitDisplay: unitDisplay ?? UnitDisplay.short),
+      ].where((element) => element.name == options['style']).firstOrNull;
 
-  final compactDisplay = CompactDisplay.values
-      .where((element) => element.name == options['compactDisplay'])
-      .firstOrNull;
-  final notation = [
-    CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
-    StandardNotation(),
-    ScientificNotation(),
-    EngineeringNotation(),
-  ].where((element) => element.name == options['notation']).firstOrNull;
-  final signDisplay = SignDisplay.values
-      .where((element) => element.name == options['signDisplay'])
-      .firstOrNull;
-  final localeMatcher = LocaleMatcher.values
-      .where((element) => element.jsName == options['localeMatcher'])
-      .firstOrNull;
-  final useGrouping = Grouping.values
-      .where((element) => element.jsName == options['useGrouping'])
-      .firstOrNull;
-  final roundingMode = RoundingMode.values
-      .where((element) => element.name == options['roundingMode'])
-      .firstOrNull;
-  final trailingZeroDisplay = TrailingZeroDisplay.values
-      .where((element) => element.name == options['trailingZeroDisplay'])
-      .firstOrNull;
+  final compactDisplay =
+      CompactDisplay.values
+          .where((element) => element.name == options['compactDisplay'])
+          .firstOrNull;
+  final notation =
+      [
+        CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
+        StandardNotation(),
+        ScientificNotation(),
+        EngineeringNotation(),
+      ].where((element) => element.name == options['notation']).firstOrNull;
+  final signDisplay =
+      SignDisplay.values
+          .where((element) => element.name == options['signDisplay'])
+          .firstOrNull;
+  final localeMatcher =
+      LocaleMatcher.values
+          .where((element) => element.jsName == options['localeMatcher'])
+          .firstOrNull;
+  final useGrouping =
+      Grouping.values
+          .where((element) => element.jsName == options['useGrouping'])
+          .firstOrNull;
+  final roundingMode =
+      RoundingMode.values
+          .where((element) => element.name == options['roundingMode'])
+          .firstOrNull;
+  final trailingZeroDisplay =
+      TrailingZeroDisplay.values
+          .where((element) => element.name == options['trailingZeroDisplay'])
+          .firstOrNull;
   final minimumSignificantDigits = options['minimumSignificantDigits'] as int?;
   final maximumSignificantDigits = options['maximumSignificantDigits'] as int?;
   final roundingIncrement = options['roundingIncrement'] as int?;
-  final roundingPriority = RoundingPriority.values
+  final roundingPriority =
+      RoundingPriority.values
           .where((element) => element.name == options['roundingPriority'])
           .firstOrNull ??
       RoundingPriority.auto;
