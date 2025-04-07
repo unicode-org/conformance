@@ -42,7 +42,7 @@ Future<void> compile(String name, ExportFunction function) async {
   final compile = await Process.run('dart', [
     'compile',
     'js',
-    'bin/${name}Executor.dart',
+    'bin/web_wrappers/${name}Executor.dart',
     '-O0',
     '-o',
     outfileName,
