@@ -203,6 +203,7 @@
   {
     "run": {
       "exec": "dart_native",
+      "icu_version": "icu76",
       "test_type": [
         "collation",
         "number_fmt",
