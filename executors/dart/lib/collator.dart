@@ -1,7 +1,5 @@
 // The Collator used for the actual testing.
 
-// !!! TODO: Collation: determine the sensitivity that corresponds
-// to the strength.
 import 'dart:convert';
 
 import 'package:intl4x/collation.dart';

@@ -47,8 +47,10 @@ void main() {
       final result = switch (testType) {
         TestTypes.collation => testCollation(line),
         TestTypes.decimal_fmt => testDecimalFormat(line),
-        TestTypes.datetime_fmt => throw UnimplementedError(),
-        TestTypes.display_names => throw UnimplementedError(),
+        TestTypes.datetime_fmt =>
+          throw UnimplementedError('datetime_fmt is not supported yet'),
+        TestTypes.display_names =>
+          throw UnimplementedError('display_names is not supported yet'),
         TestTypes.lang_names => testLangNames(line),
         TestTypes.number_fmt => testDecimalFormat(line),
       };
