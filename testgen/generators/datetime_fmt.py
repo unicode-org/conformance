@@ -94,6 +94,13 @@ class DateTimeFmtGenerator(DataGenerator):
                 if 'dateTimeFormatType' in test_item:
                     new_test['dateTimeFormatType'] = test_item['dateTimeFormatType']
 
+                if 'classicalSkeleton' in test_item:
+                    new_test['skeleton'] = test_item['classicalSkeleton']
+                if 'semanticSkeleton' in test_item:
+                    new_test['semanticSkeleton'] = test_item['semanticSkeleton']
+                if 'semanticSkeletonLength' in test_item:
+                    new_test['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
+
                 new_verify = {"label": label_str,
                               "verify": test_item['expected']
                 }

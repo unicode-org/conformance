@@ -751,6 +751,9 @@ class TestReport:
 
     def characterize_datetime_tests(self, test_list, results):
         # look for consistencies with datetime_fmt test
+        # TODO: this is a workaround for issue #438
+        if not test_list:
+            return
         for test in test_list:
             label = test['label']
             if 'input_data' in test and 'skeleton' in test['input_data']:
