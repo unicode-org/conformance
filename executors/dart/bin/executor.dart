@@ -3,8 +3,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:dart_executor/collator.dart';
 import 'package:dart_executor/lang_names.dart';
+import 'package:dart_executor/likely_subtags.dart';
 import 'package:dart_executor/numberformat.dart';
 import 'package:dart_executor/version.dart' show intl4xVersion;
 
@@ -19,6 +21,7 @@ enum TestTypes {
   display_names,
   lang_names,
   number_fmt,
+  likely_subtags,
 }
 
 void main() {
@@ -41,10 +44,10 @@ void main() {
         throw 'ERRORSTART $line ERROREND';
       }
 
-      final testType = TestTypes.values.firstWhere(
+      final testType = TestTypes.values.firstWhereOrNull(
         (type) => type.name == decoded['test_type'],
       );
-      final result = switch (testType) {
+      final outputLine = switch (testType) {
         TestTypes.collation => testCollation(line),
         TestTypes.decimal_fmt => testDecimalFormat(line),
         TestTypes.datetime_fmt =>
@@ -53,10 +56,12 @@ void main() {
           throw UnimplementedError('display_names is not supported yet'),
         TestTypes.lang_names => testLangNames(line),
         TestTypes.number_fmt => testDecimalFormat(line),
+        TestTypes.likely_subtags => testLikelySubtags(line),
+        null =>
+          throw ArgumentError.value(decoded['test_type'], 'Unknown test type'),
       };
 
-      final outputLine = {'label': decoded['label'], 'result': result};
-      print(json.encode(outputLine));
+      print(outputLine);
     }
   }
 }
