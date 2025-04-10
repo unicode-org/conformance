@@ -184,7 +184,9 @@ class TestReport:
 
         self.differ = Differ()
 
-        self.am_pm_pattern = re.compile('[\s,\b][aApP][mM][\s\b]')  # AM/PM as separate item
+        # Pattern for finding AM/PM in date time formatted output
+        # ??self.am_pm_pattern = re.compile('[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
+        self.am_pm_pattern = re.compile('\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
 
@@ -755,8 +757,14 @@ class TestReport:
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
-            output = test['result']
-            expected = test['expected']
+            if 'result' in test:
+                output = test['result']
+            else:
+                output = 'NO RESULT'
+            if 'expected' in test:
+               expected = test['expected']
+            else:
+                expected = 'NO EXPECTED VALUE'
             if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
@@ -766,9 +774,9 @@ class TestReport:
             if output != expected:
                 result_ampm = self.am_pm_pattern.search(output)
                 expected_ampm = self.am_pm_pattern.search(expected)
-                if ((output.replace('AM', 'PM') == expected) or
-                     (result_ampm and not expected_ampm) or
-                     (not result_ampm and expected_ampm)):
+                if ((result_ampm and not expected_ampm) or
+                        (not result_ampm and expected_ampm) or
+                        (result_ampm and expected_ampm and (result_ampm.group(1) != expected_ampm.group(1)))):
                     results.setdefault('AM/PM', []).append(label)
         return
 
