@@ -753,11 +753,18 @@ class TestReport:
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
+            output = test['result']
+            expected = test['expected']
             if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
             if 'dateTimeFormatType' in test:
                 results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], []).append(label)
+            # Check for AM/PM difference
+            if (output != expected and
+                    (output.replace('AM', 'PM') == expected or
+                     output.replace('PM', 'AM') == expected)):
+                results.setdefault('AM/PM', []).append(label)
         return
 
     # TODO: Use the following function to update lists.
