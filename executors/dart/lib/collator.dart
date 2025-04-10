@@ -1,15 +1,17 @@
 // The Collator used for the actual testing.
 
-// !!! TODO: Collation: determine the sensitivity that corresponds
-// to the strength.
 import 'dart:convert';
 
 import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
 String testCollation(String jsonEncoded) {
-  final json = jsonDecode(jsonEncoded)
-      as Map<String, dynamic>; // For the moment, use strings for easier interop
+  final json =
+      jsonDecode(jsonEncoded)
+          as Map<
+            String,
+            dynamic
+          >; // For the moment, use strings for easier interop
   // Global default locale
   final testLocale = json['locale'] as String? ?? 'en';
   final Map<String, dynamic> outputLine = {'label': json['label']};
@@ -29,7 +31,8 @@ String testCollation(String jsonEncoded) {
     Object() => throw UnimplementedError('strength must be of type String?'),
   };
   final numeric = json.containsKey('numeric');
-  final caseFirst = CaseFirst.values
+  final caseFirst =
+      CaseFirst.values
           .where((value) => value.jsName == json['case_first'])
           .firstOrNull ??
       CaseFirst.localeDependent;
