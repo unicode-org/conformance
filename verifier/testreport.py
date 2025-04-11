@@ -19,6 +19,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -182,6 +183,10 @@ class TestReport:
         self.diff_summary = DiffSummary()
 
         self.differ = Differ()
+
+        # Pattern for finding AM/PM in date time formatted output
+        # ??self.am_pm_pattern = re.compile('[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
+        self.am_pm_pattern = re.compile('\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
 
@@ -748,16 +753,31 @@ class TestReport:
             results.setdefault(sample_type, []).append(label)
         return
 
-
     def characterize_datetime_tests(self, test_list, results):
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
+            if 'result' in test:
+                output = test['result']
+            else:
+                output = 'NO RESULT'
+            if 'expected' in test:
+               expected = test['expected']
+            else:
+                expected = 'NO EXPECTED VALUE'
             if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
             if 'dateTimeFormatType' in test:
                 results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], []).append(label)
+            # Check for AM/PM difference
+            if output != expected:
+                result_ampm = self.am_pm_pattern.search(output)
+                expected_ampm = self.am_pm_pattern.search(expected)
+                if ((result_ampm and not expected_ampm) or
+                        (not result_ampm and expected_ampm) or
+                        (result_ampm and expected_ampm and (result_ampm.group(1) != expected_ampm.group(1)))):
+                    results.setdefault('AM/PM', []).append(label)
         return
 
     # TODO: Use the following function to update lists.
