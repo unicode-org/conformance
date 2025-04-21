@@ -208,8 +208,8 @@ class ExecutorLang(Enum):
 # Actual commmands to run the executors.
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
-    "dart_web" : "node ../executors/dart_web/out/executor.js",
-    "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
+    "dart_web" : "node ../executors/dart/out/executor.js",
+    "dart_native" : "../executors/dart/bin/executor/executor.exe",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
     "icu4j" : "java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar"
@@ -451,16 +451,16 @@ allExecutors.addSystem(system, '77',
 
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,
-                       'node ../executors/dart_web/out/executor.js',
+                       'node ../executors/dart/out/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 allExecutors.addSystem(system, NodeVersion.Node18_7,
-                       'node ../executors/dart_web/out/executor.js',
+                       'node ../executors/dart/out/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
-                       '../executors/dart_native/bin/executor/executor.exe',
+                       '../executors/dart/bin/executor/executor.exe',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 # TESTING

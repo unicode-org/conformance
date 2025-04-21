@@ -1,96 +1,45 @@
 import 'dart:convert';
 
-import 'package:intl4x/ecma_policy.dart';
 import 'package:intl4x/intl4x.dart';
 import 'package:intl4x/number_format.dart';
 
 final _patternsToOptions = <String, NumberFormatOptions>{
-  '0.0':
-      NumberFormatOptions.custom(digits: Digits.withFractionDigits(minimum: 1)),
+  '0.0': NumberFormatOptions.custom(
+    digits: Digits.withFractionDigits(minimum: 1),
+  ),
   '00': NumberFormatOptions.custom(
-      digits: Digits.withSignificantDigits(minimum: 1)),
+    digits: Digits.withSignificantDigits(minimum: 1),
+  ),
   '@@@': NumberFormatOptions.custom(
-      digits: Digits.withSignificantDigits(minimum: 3)),
+    digits: Digits.withSignificantDigits(minimum: 3),
+  ),
   '@@###': NumberFormatOptions.custom(
-      digits: Digits.withSignificantDigits(minimum: 2, maximum: 5)),
+    digits: Digits.withSignificantDigits(minimum: 2, maximum: 5),
+  ),
   '0.0000E0': NumberFormatOptions.custom(
-      notation: ScientificNotation(),
-      digits: Digits.withFractionDigits(minimum: 4)),
+    notation: ScientificNotation(),
+    digits: Digits.withFractionDigits(minimum: 4),
+  ),
 };
-
-// The nodejs version that first supported advance rounding options
-const _firstV3Version = 'v20.1.0';
-
-enum NodeVersion {
-  v3,
-  preV3,
-}
 
 const _unsupportedSkeletonTerms = [
   'scientific/+ee/sign-always',
   'decimal-always',
 ];
 
-// Use this
-const _supportedOptionsByVersion = {
-  NodeVersion.v3: [
-    'compactDisplay',
-    'currency',
-    'currencyDisplay',
-    'currencySign',
-    'localeMatcher',
-    'notation',
-    'numberingSystem',
-    'signDisplay',
-    'style',
-    'unit',
-    'unitDisplay',
-    'useGrouping',
-    'roundingMode',
-    'roundingPriority',
-    'roundingIncrement',
-    'trailingZeroDisplay',
-    'minimumIntegerDigits',
-    'minimumFractionDigits',
-    'maximumFractionDigits',
-    'minimumSignificantDigits',
-    'maximumSignificantDigits'
-  ],
-  NodeVersion.preV3: [
-    'compactDisplay',
-    'currency',
-    'currencyDisplay',
-    'currencySign',
-    'localeMatcher',
-    'notation',
-    'numberingSystem',
-    'signDisplay',
-    'style',
-    'unit',
-    'unitDisplay',
-    'useGrouping',
-    'roundingMode',
-    'minimumIntegerDigits',
-    'minimumFractionDigits',
-    'maximumFractionDigits',
-    'minimumSignificantDigits',
-    'maximumSignificantDigits'
-  ]
-  // TODO: Add older version support.
-};
-
 String testDecimalFormat(
   String encoded, [
-  bool doLogInput = false,
-  String nodeVersion = '',
+  bool loggingEnabled = false,
+  List<String> unsupportedOptionsForNode = const [],
 ]) {
   final json = jsonDecode(encoded) as Map<String, dynamic>;
   final label = json['label'] as String?;
   final skeleton = json['skeleton'] as String?;
   final pattern = json['pattern'] as String?;
   final rounding = json['rounding'] as String?;
-  var input =
-      double.parse(json['input'] as String); // May be changed with some options
+  var input = double.parse(
+    json['input'] as String,
+  ); // May be changed with some options
 
   // If options are in the JSON, use them...
   NumberFormatOptions options;
@@ -131,7 +80,7 @@ String testDecimalFormat(
   // Handle scale in the skeleton
   final skeletonTerms = skeleton?.split(' ') ?? [];
   if (skeleton != null) {
-    if (doLogInput) {
+    if (loggingEnabled) {
       print('# SKEL: $skeletonTerms');
     }
     final scaleRegex = RegExp(r'scale/(\d+\.\d*)');
@@ -144,23 +93,25 @@ String testDecimalFormat(
   }
 
   // Supported options depends on the nodejs version
-  if (doLogInput) {
-    print('#NNNN $nodeVersion');
+  if (loggingEnabled) {
+    print('#NNNN $unsupportedOptionsForNode');
   }
 
-  final unsupportedOptions = _getUnsupportedOptions(
-    jsonOptions,
+  final unsupportedSkeletonTerms = _getUnsupportedSkeletonterms(
     skeletonTerms,
-    nodeVersion,
-    doLogInput,
+    loggingEnabled,
   );
+  final unsupportedOptions = [
+    ...unsupportedOptionsForNode,
+    ...unsupportedSkeletonTerms,
+  ];
 
   if (unsupportedOptions.isNotEmpty) {
     return jsonEncode({
       'label': label,
       'unsupported': 'unsupported_options',
       'error_type': 'unsupported',
-      'error_detail': {'unsupported_options': unsupportedOptions}
+      'error_detail': {'unsupported_options': unsupportedOptions},
     });
   }
 
@@ -170,15 +121,9 @@ String testDecimalFormat(
   Map<String, dynamic> outputLine;
   try {
     if (testLocale != null) {
-      intl = Intl(
-        locale: Locale.parse(testLocale),
-        ecmaPolicy: AlwaysEcma(),
-      );
+      intl = Intl(locale: Locale.parse(testLocale));
     } else {
-      intl = Intl(
-        locale: const Locale(language: 'und'),
-        ecmaPolicy: AlwaysEcma(),
-      );
+      intl = Intl(locale: const Locale(language: 'und'));
     }
     final NumberFormat nf = intl.numberFormat(options);
 
@@ -203,35 +148,11 @@ String testDecimalFormat(
   return jsonEncode(outputLine);
 }
 
-List<String> _getUnsupportedOptions(
-  Map<String, dynamic> jsonOptions,
+List<String> _getUnsupportedSkeletonterms(
   List<String> skeletonTerms,
-  String nodeVersion,
   bool doLogInput,
 ) {
-  List<String> versionSupportedOptions;
-  if (nodeVersion.compareTo(_firstV3Version) >= 0) {
-    if (doLogInput) {
-      print('#V3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.v3]!;
-  } else {
-    if (doLogInput) {
-      print('#pre_v3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.preV3]!;
-  }
-  if (doLogInput) {
-    print('#NNNN $versionSupportedOptions');
-  }
-
   final unsupportedOptions = <String>[];
-  // Check for option items that are not supported
-  for (var key in jsonOptions.keys) {
-    if (!versionSupportedOptions.contains(key)) {
-      unsupportedOptions.add('$key:${jsonOptions[key]}');
-    }
-  }
 
   // Check for skelection terms that are not supported
   for (var skelTerm in skeletonTerms) {
@@ -249,12 +170,15 @@ List<String> _getUnsupportedOptions(
 }
 
 NumberFormatOptions _decimalPatternToOptions(
-    String? pattern, String? rounding) {
+  String? pattern,
+  String? rounding,
+) {
   final numberFormatOptions =
       _patternsToOptions[pattern] ?? NumberFormatOptions.custom();
   if (rounding != null) {
-    final roundingMode =
-        RoundingMode.values.firstWhere((mode) => mode.name == rounding);
+    final roundingMode = RoundingMode.values.firstWhere(
+      (mode) => mode.name == rounding,
+    );
     return numberFormatOptions.copyWith(roundingMode: roundingMode);
   } else {
     return numberFormatOptions;
@@ -264,62 +188,71 @@ NumberFormatOptions _decimalPatternToOptions(
 NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   Unit? unit;
   if (options['unit'] != null) {
-    unit = Unit.values
-        .where((element) => element.jsName == options['unit'])
-        .firstOrNull;
+    unit =
+        Unit.values
+            .where((element) => element.jsName == options['unit'])
+            .firstOrNull;
     if (unit == null) {
       throw ArgumentError('Unknown unit ${options['unit']}');
     }
   }
-  final unitDisplay = UnitDisplay.values
-      .where((element) => element.name == options['unitDisplay'])
-      .firstOrNull;
+  final unitDisplay =
+      UnitDisplay.values
+          .where((element) => element.name == options['unitDisplay'])
+          .firstOrNull;
   final currency = options['currency'];
-  final currencyDisplay = CurrencyDisplay.values
-      .where((element) => element.name == options['currencyDisplay'])
-      .firstOrNull;
-  final style = [
-    DecimalStyle(),
-    if (currency != null)
-      CurrencyStyle(
-        currency: currency,
-        display: currencyDisplay ?? CurrencyDisplay.symbol,
-      ),
-    if (unit != null)
-      UnitStyle(
-        unit: unit,
-        unitDisplay: unitDisplay ?? UnitDisplay.short,
-      ),
-  ].where((element) => element.name == options['style']).firstOrNull;
+  final currencyDisplay =
+      CurrencyDisplay.values
+          .where((element) => element.name == options['currencyDisplay'])
+          .firstOrNull;
+  final style =
+      [
+        DecimalStyle(),
+        if (currency != null)
+          CurrencyStyle(
+            currency: currency,
+            display: currencyDisplay ?? CurrencyDisplay.symbol,
+          ),
+        if (unit != null)
+          UnitStyle(unit: unit, unitDisplay: unitDisplay ?? UnitDisplay.short),
+      ].where((element) => element.name == options['style']).firstOrNull;
 
-  final compactDisplay = CompactDisplay.values
-      .where((element) => element.name == options['compactDisplay'])
-      .firstOrNull;
-  final notation = [
-    CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
-    StandardNotation(),
-    ScientificNotation(),
-    EngineeringNotation(),
-  ].where((element) => element.name == options['notation']).firstOrNull;
-  final signDisplay = SignDisplay.values
-      .where((element) => element.name == options['signDisplay'])
-      .firstOrNull;
-  final localeMatcher = LocaleMatcher.values
-      .where((element) => element.jsName == options['localeMatcher'])
-      .firstOrNull;
-  final useGrouping = Grouping.values
-      .where((element) => element.jsName == options['useGrouping'])
-      .firstOrNull;
-  final roundingMode = RoundingMode.values
-      .where((element) => element.name == options['roundingMode'])
-      .firstOrNull;
-  final trailingZeroDisplay = TrailingZeroDisplay.values
-      .where((element) => element.name == options['trailingZeroDisplay'])
-      .firstOrNull;
+  final compactDisplay =
+      CompactDisplay.values
+          .where((element) => element.name == options['compactDisplay'])
+          .firstOrNull;
+  final notation =
+      [
+        CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
+        StandardNotation(),
+        ScientificNotation(),
+        EngineeringNotation(),
+      ].where((element) => element.name == options['notation']).firstOrNull;
+  final signDisplay =
+      SignDisplay.values
+          .where((element) => element.name == options['signDisplay'])
+          .firstOrNull;
+  final localeMatcher =
+      LocaleMatcher.values
+          .where((element) => element.jsName == options['localeMatcher'])
+          .firstOrNull;
+  final useGrouping =
+      Grouping.values
+          .where((element) => element.jsName == options['useGrouping'])
+          .firstOrNull;
+  final roundingMode =
+      RoundingMode.values
+          .where((element) => element.name == options['roundingMode'])
+          .firstOrNull;
+  final trailingZeroDisplay =
+      TrailingZeroDisplay.values
+          .where((element) => element.name == options['trailingZeroDisplay'])
+          .firstOrNull;
   final minimumSignificantDigits = options['minimumSignificantDigits'] as int?;
   final maximumSignificantDigits = options['maximumSignificantDigits'] as int?;
   final roundingIncrement = options['roundingIncrement'] as int?;
-  final roundingPriority = RoundingPriority.values
+  final roundingPriority =
+      RoundingPriority.values
           .where((element) => element.name == options['roundingPriority'])
           .firstOrNull ??
       RoundingPriority.auto;
