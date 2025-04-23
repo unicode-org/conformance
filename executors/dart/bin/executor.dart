@@ -49,13 +49,13 @@ void main() {
       );
       final outputLine = switch (testType) {
         TestTypes.collation => testCollation(line),
-        TestTypes.decimal_fmt => testDecimalFormat(line),
+        TestTypes.decimal_fmt => testDecimalFormatWrapped(line),
         TestTypes.datetime_fmt =>
           throw UnimplementedError('datetime_fmt is not supported yet'),
         TestTypes.display_names =>
           throw UnimplementedError('display_names is not supported yet'),
         TestTypes.lang_names => testLangNames(line),
-        TestTypes.number_fmt => testDecimalFormat(line),
+        TestTypes.number_fmt => testDecimalFormatWrapped(line),
         TestTypes.likely_subtags => testLikelySubtags(line),
         null =>
           throw ArgumentError.value(decoded['test_type'], 'Unknown test type'),

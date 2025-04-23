@@ -25,7 +25,7 @@ void main() {
         'numberingSystem': 'latn',
       },
     };
-    final outputLine = testDecimalFormat(jsonEncode(inputLine));
+    final outputLine = testDecimalFormatWrapped(jsonEncode(inputLine));
     final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
     expect(decoded['result'], '91,827.365');
   });
