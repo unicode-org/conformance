@@ -8,6 +8,7 @@ use icu::datetime::input::ZonedDateTime;
 use icu::datetime::options::*;
 use icu::datetime::DateTimeFormatter;
 use icu::datetime::DateTimeFormatterPreferences;
+use icu::time::zone::UtcOffsetCalculator;
 
 use icu::locale::extensions::unicode;
 use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
@@ -35,6 +36,9 @@ struct DateTimeFormatOptions {
     minute: Option<String>,
     second: Option<String>,
     fractional_second: Option<String>,
+
+    semantic_skeleton: Option<String>,
+    semantic_skeleton_length: Option<String>,
 }
 
 pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
@@ -45,6 +49,8 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let options = &json_obj["options"]; // This will be an array.
 
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
+
+    let skeleton_str = json_obj["semanticSkeleton"].as_str();
 
     let calendar_algorithm = option_struct.calendar.as_ref().map(|calendar_str| {
         CalendarAlgorithm::try_from(&unicode::Value::try_from_str(calendar_str).unwrap()).unwrap()
@@ -65,7 +71,25 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("medium") => Some(DateFields::YMD),
         Some("short") => Some(DateFields::YMD),
         Some(other) => panic!("unknown length: {other}"),
-        None => None,
+        None => match skeleton_str {
+            Some("D" | "DT" | "DTZ") => Some(DateFields::D),
+            Some("MD" | "MDT" | "MDTZ") => Some(DateFields::MD),
+            Some("YMD" | "YMDT" | "YMDTZ") => Some(DateFields::YMD),
+            Some("DE" | "DET" | "DETZ") => Some(DateFields::DE),
+            Some("MDE" | "MDET" | "MDETZ") => Some(DateFields::MDE),
+            Some("YMDE" | "YMDET" | "YMDETZ") => Some(DateFields::YMDE),
+            Some("E" | "ET" | "ETZ") => Some(DateFields::E),
+            Some("M") => Some(DateFields::M),
+            Some("YM") => Some(DateFields::YM),
+            Some("Y") => Some(DateFields::Y),
+            Some("T" | "Z" | "TZ") => None,
+            Some(other) => return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown skeleton: {other}"),
+                "error_type": format!("Unknown skeleton"),
+            })),
+            None => None,
+        },
     };
     builder.time_precision = match option_struct.time_style.as_deref() {
         Some("full") => Some(TimePrecision::Second),
@@ -73,7 +97,17 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("medium") => Some(TimePrecision::Second),
         Some("short") => Some(TimePrecision::Minute),
         Some(other) => panic!("unknown length: {other}"),
-        None => None,
+        None => {
+            if let Some(skeleton_str) = skeleton_str {
+                if skeleton_str.contains("T") {
+                    Some(TimePrecision::Second)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        },
     };
     builder.zone_style = match option_struct.time_style.as_deref() {
         Some("full") => Some(ZoneStyle::SpecificShort),
@@ -94,11 +128,20 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     // Get ISO instant in UTC time zone
     let input_iso = &json_obj["original_input"].as_str().unwrap();
 
+    // Workaround for https://github.com/unicode-org/icu4x/issues/6489
+    let input_iso = input_iso.replace("Z[", "+00:00[");
+
     // Extract all the information we need from the string
-    let input_zoned_date_time = super::try_or_return_error!(label, locale, {
-        ZonedDateTime::try_from_str(&input_iso, Iso, Default::default(), &Default::default())
+    let parsed_zdt = super::try_or_return_error!(label, locale, {
+        ZonedDateTime::try_loose_from_str(&input_iso, Iso, Default::default())
             .map_err(|e| format!("{e:?}"))
     });
+
+    let input_zoned_date_time = ZonedDateTime {
+        date: parsed_zdt.date,
+        time: parsed_zdt.time,
+        zone: parsed_zdt.zone.infer_zone_variant(&UtcOffsetCalculator::new()),
+    };
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.
@@ -109,8 +152,8 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Err(e) => {
             return Ok(json!({
                 "label": label,
-                "error_detail": format!("{option_struct:?}"),
-                "error_type": format!("Failed to create DateTimeFormatter instance: {e:?}"),
+                "error_detail": format!("{e:?}: {option_struct:?}"),
+                "error_type": format!("Failed to create DateTimeFormatter instance"),
             }));
         }
     };
