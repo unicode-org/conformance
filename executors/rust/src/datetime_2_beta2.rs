@@ -96,10 +96,15 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("long") => Some(TimePrecision::Second),
         Some("medium") => Some(TimePrecision::Second),
         Some("short") => Some(TimePrecision::Minute),
-        Some(other) => panic!("unknown length: {other}"),
+        Some(other) => return Ok(json!({
+            "label": label,
+            "error_detail": format!("Unknown time style: {other}"),
+            "error_type": format!("Unknown time style"),
+        })),
         None => {
             if let Some(skeleton_str) = skeleton_str {
                 if skeleton_str.contains("T") {
+                    // TODO: The input should contain TimePrecision but it doesn't
                     Some(TimePrecision::Second)
                 } else {
                     None
@@ -114,15 +119,31 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("long") => Some(ZoneStyle::SpecificShort),
         Some("medium") => None,
         Some("short") => None,
-        Some(other) => panic!("unknown length: {other}"),
-        None => None,
-    };
-    let Ok(field_set) = builder.build_composite() else {
-        return Ok(json!({
+        Some(other) => return Ok(json!({
             "label": label,
-            "error_detail": format!("{option_struct:?}"),
+            "error_detail": format!("Unknown time style: {other}"),
+            "error_type": format!("Unknown time style"),
+        })),
+        None => {
+            if let Some(skeleton_str) = skeleton_str {
+                if skeleton_str.contains("Z") {
+                    // TODO: The input should contain ZoneStyle but it doesn't
+                    Some(ZoneStyle::SpecificShort)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        },
+    };
+    let field_set = match builder.build_composite() {
+        Ok(field_set) => field_set,
+        Err(e) => return Ok(json!({
+            "label": label,
+            "error_detail": format!("Couldn't build field set: {e}"),
             "error_type": format!("Invalid datetime fields or options"),
-        }));
+        }))
     };
 
     // Get ISO instant in UTC time zone
