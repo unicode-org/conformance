@@ -71,20 +71,24 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("long") => Some(Length::Long),
         Some("medium") => Some(Length::Medium),
         Some("short") => Some(Length::Short),
-        Some(other) => return Ok(json!({
-            "label": label,
-            "error_detail": format!("Unknown date style: {other}"),
-            "error_type": format!("Unknown date style"),
-        })),
+        Some(other) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown date style: {other}"),
+                "error_type": format!("Unknown date style"),
+            }))
+        }
         None => match skeleton_length {
             Some("long") => Some(Length::Long),
             Some("medium") => Some(Length::Medium),
             Some("short") => Some(Length::Short),
-            Some(other) => return Ok(json!({
-                "label": label,
-                "error_detail": format!("Unknown length: {other}"),
-                "error_type": format!("Unknown length"),
-            })),
+            Some(other) => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": format!("Unknown length: {other}"),
+                    "error_type": format!("Unknown length"),
+                }))
+            }
             None => None,
         },
     };
@@ -93,11 +97,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("long") => Some(DateFields::YMD),
         Some("medium") => Some(DateFields::YMD),
         Some("short") => Some(DateFields::YMD),
-        Some(other) => return Ok(json!({
-            "label": label,
-            "error_detail": format!("Unknown date style: {other}"),
-            "error_type": format!("Unknown date style"),
-        })),
+        Some(other) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown date style: {other}"),
+                "error_type": format!("Unknown date style"),
+            }))
+        }
         None => match skeleton_str {
             Some("D" | "DT" | "DTZ") => Some(DateFields::D),
             Some("MD" | "MDT" | "MDTZ") => Some(DateFields::MD),
@@ -110,11 +116,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
             Some("YM") => Some(DateFields::YM),
             Some("Y") => Some(DateFields::Y),
             Some("T" | "Z" | "TZ") => None,
-            Some(other) => return Ok(json!({
-                "label": label,
-                "error_detail": format!("Unknown skeleton: {other}"),
-                "error_type": format!("Unknown skeleton"),
-            })),
+            Some(other) => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": format!("Unknown skeleton: {other}"),
+                    "error_type": format!("Unknown skeleton"),
+                }))
+            }
             None => None,
         },
     };
@@ -123,11 +131,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         Some("long") => Some(TimePrecision::Second),
         Some("medium") => Some(TimePrecision::Second),
         Some("short") => Some(TimePrecision::Minute),
-        Some(other) => return Ok(json!({
-            "label": label,
-            "error_detail": format!("Unknown time style: {other}"),
-            "error_type": format!("Unknown time style"),
-        })),
+        Some(other) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown time style: {other}"),
+                "error_type": format!("Unknown time style"),
+            }))
+        }
         None => {
             if let Some(skeleton_str) = skeleton_str {
                 if skeleton_str.contains("T") {
@@ -139,18 +149,20 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
             } else {
                 None
             }
-        },
+        }
     };
     builder.zone_style = match option_struct.time_style.as_deref() {
         Some("full") => Some(ZoneStyle::SpecificShort),
         Some("long") => Some(ZoneStyle::SpecificShort),
         Some("medium") => None,
         Some("short") => None,
-        Some(other) => return Ok(json!({
-            "label": label,
-            "error_detail": format!("Unknown time style: {other}"),
-            "error_type": format!("Unknown time style"),
-        })),
+        Some(other) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown time style: {other}"),
+                "error_type": format!("Unknown time style"),
+            }))
+        }
         None => {
             if let Some(skeleton_str) = skeleton_str {
                 if skeleton_str.contains("Z") {
@@ -162,7 +174,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
             } else {
                 None
             }
-        },
+        }
     };
     if skeleton_str == Some("Z") {
         // workaround
@@ -170,11 +182,13 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     }
     let field_set = match builder.build_composite() {
         Ok(field_set) => field_set,
-        Err(e) => return Ok(json!({
-            "label": label,
-            "error_detail": format!("Couldn't build field set: {e}"),
-            "error_type": format!("Invalid datetime fields or options"),
-        }))
+        Err(e) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Couldn't build field set: {e}"),
+                "error_type": format!("Invalid datetime fields or options"),
+            }))
+        }
     };
 
     // Get ISO instant in UTC time zone
@@ -192,7 +206,9 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let input_zoned_date_time = ZonedDateTime {
         date: parsed_zdt.date,
         time: parsed_zdt.time,
-        zone: parsed_zdt.zone.infer_zone_variant(&UtcOffsetCalculator::new()),
+        zone: parsed_zdt
+            .zone
+            .infer_zone_variant(&UtcOffsetCalculator::new()),
     };
 
     // The constructor is called with the given options
