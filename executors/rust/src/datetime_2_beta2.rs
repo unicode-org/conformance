@@ -51,6 +51,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
     let skeleton_str = json_obj["semanticSkeleton"].as_str();
+    let skeleton_length = json_obj["semanticSkeletonLength"].as_str();
 
     let calendar_algorithm = option_struct.calendar.as_ref().map(|calendar_str| {
         CalendarAlgorithm::try_from(&unicode::Value::try_from_str(calendar_str).unwrap()).unwrap()
@@ -65,12 +66,38 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     preferences.calendar_algorithm = calendar_algorithm;
 
     let mut builder = FieldSetBuilder::default();
+    builder.length = match option_struct.date_style.as_deref() {
+        Some("full") => Some(Length::Long),
+        Some("long") => Some(Length::Long),
+        Some("medium") => Some(Length::Medium),
+        Some("short") => Some(Length::Short),
+        Some(other) => return Ok(json!({
+            "label": label,
+            "error_detail": format!("Unknown date style: {other}"),
+            "error_type": format!("Unknown date style"),
+        })),
+        None => match skeleton_length {
+            Some("long") => Some(Length::Long),
+            Some("medium") => Some(Length::Medium),
+            Some("short") => Some(Length::Short),
+            Some(other) => return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown length: {other}"),
+                "error_type": format!("Unknown length"),
+            })),
+            None => None,
+        },
+    };
     builder.date_fields = match option_struct.date_style.as_deref() {
         Some("full") => Some(DateFields::YMDE),
         Some("long") => Some(DateFields::YMD),
         Some("medium") => Some(DateFields::YMD),
         Some("short") => Some(DateFields::YMD),
-        Some(other) => panic!("unknown length: {other}"),
+        Some(other) => return Ok(json!({
+            "label": label,
+            "error_detail": format!("Unknown date style: {other}"),
+            "error_type": format!("Unknown date style"),
+        })),
         None => match skeleton_str {
             Some("D" | "DT" | "DTZ") => Some(DateFields::D),
             Some("MD" | "MDT" | "MDTZ") => Some(DateFields::MD),
@@ -137,6 +164,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
             }
         },
     };
+    if skeleton_str == Some("Z") {
+        // workaround
+        builder.length = None;
+    }
     let field_set = match builder.build_composite() {
         Ok(field_set) => field_set,
         Err(e) => return Ok(json!({
