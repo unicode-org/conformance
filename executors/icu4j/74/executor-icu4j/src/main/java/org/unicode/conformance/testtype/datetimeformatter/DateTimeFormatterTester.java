@@ -30,13 +30,14 @@ public class DateTimeFormatterTester implements ITestType {
 
     result.label = (String) inputMapData.get("label", null);
     result.locale_string = (String) inputMapData.get("locale", null);
-    result.skeleton = (String) inputMapData.get("skeleton", null);
 
     // The instant in UTC time.
     result.inputString = (String) inputMapData.get("input_string", null);
 
     java.util.Map<String, Object> inputOptions =
         (java.util.Map<String, Object>) inputMapData.get("options", null);
+
+    result.skeleton = (String) inputOptions.get("skeleton");
 
     result.timeZoneName = (String) inputOptions.get("timeZone");
     if (result.timeZoneName == null) {

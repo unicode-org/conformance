@@ -83,26 +83,35 @@ class DateTimeFmtGenerator(DataGenerator):
                     if options['calendar'] == 'gregorian':
                         options['calendar'] = 'gregory'
 
+                if 'yearStyle' in test_item:
+                    options['yearStyle'] = test_item['yearStyle']
+                if 'zoneStyle' in test_item:
+                    options['zoneStyle'] = test_item['zoneStyle']
+
                 # Generate UTC time equivalent and get the offset in seconds
                 u_time = raw_time.astimezone(timezone.utc)
                 input_string = u_time.isoformat().replace('+00:00', 'Z')
                 tz_offset_secs = raw_time.utcoffset().total_seconds()
 
-                new_test = {"locale": test_item['locale'], "input_string": input_string, "options": options,
-                            'tz_offset_secs': tz_offset_secs, 'label': label_str,
-                            'original_input': raw_input}
                 if 'dateTimeFormatType' in test_item:
-                    new_test['dateTimeFormatType'] = test_item['dateTimeFormatType']
-
+                    options['dateTimeFormatType'] = test_item['dateTimeFormatType']
                 if 'classicalSkeleton' in test_item:
-                    new_test['skeleton'] = test_item['classicalSkeleton']
+                    options['skeleton'] = test_item['classicalSkeleton']
                 if 'semanticSkeleton' in test_item:
-                    new_test['semanticSkeleton'] = test_item['semanticSkeleton']
+                    options['semanticSkeleton'] = test_item['semanticSkeleton']
                 if 'semanticSkeletonLength' in test_item:
-                    new_test['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
+                    options['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
 
-                new_verify = {"label": label_str,
-                              "verify": test_item['expected']
+                new_test = {
+                    'label': label_str,
+                    'locale': test_item['locale'],
+                    'input_string': input_string,
+                    'options': options,
+                    'tz_offset_secs': tz_offset_secs,
+                    'original_input': raw_input}
+
+                new_verify = {'label': label_str,
+                              'verify': test_item['expected']
                 }
                 test_cases.append(new_test)
                 verify_cases.append(new_verify)
