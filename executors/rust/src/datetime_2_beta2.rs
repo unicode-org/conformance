@@ -165,7 +165,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 "error_type": format!("Unknown time style"),
             }))
         }
-        None => match (option_struct.zone_style.as_deref(), skeleton_str == Some("Z")) {
+        None => match (
+            option_struct.zone_style.as_deref(),
+            skeleton_str == Some("Z"),
+        ) {
             // Standalone uses long length ?
             (Some("specific"), true) => Some(ZoneStyle::SpecificLong),
             (Some("specific"), false) => Some(ZoneStyle::SpecificShort),
