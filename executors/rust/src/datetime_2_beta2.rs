@@ -154,7 +154,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
     builder.zone_style = match option_struct.time_style.as_deref() {
-        Some("full") => Some(ZoneStyle::SpecificShort),
+        Some("full") => Some(ZoneStyle::SpecificLong),
         Some("long") => Some(ZoneStyle::SpecificShort),
         Some("medium") => None,
         Some("short") => None,
@@ -165,23 +165,24 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 "error_type": format!("Unknown time style"),
             }))
         }
-        None => match option_struct.zone_style.as_deref() {
-            Some("specific_long") => Some(ZoneStyle::SpecificLong),
-            Some("specific_short") => Some(ZoneStyle::SpecificShort),
-            Some("localized_offset_long") => Some(ZoneStyle::LocalizedOffsetLong),
-            Some("localized_offset_short") => Some(ZoneStyle::LocalizedOffsetShort),
-            Some("generic_long") => Some(ZoneStyle::GenericLong),
-            Some("generic_short") => Some(ZoneStyle::GenericShort),
-            Some("location") => Some(ZoneStyle::Location),
-            Some("exemplar_city") => Some(ZoneStyle::ExemplarCity),
-            Some(other) => {
+        None => match (option_struct.zone_style.as_deref(), skeleton_str == Some("Z")) {
+            // Standalone uses long length ?
+            (Some("specific"), true) => Some(ZoneStyle::SpecificLong),
+            (Some("specific"), false) => Some(ZoneStyle::SpecificShort),
+            (Some("offset"), true) => Some(ZoneStyle::LocalizedOffsetLong),
+            (Some("offset"), false) => Some(ZoneStyle::LocalizedOffsetShort),
+            (Some("generic"), true) => Some(ZoneStyle::GenericLong),
+            (Some("generic"), false) => Some(ZoneStyle::GenericShort),
+            (Some("location"), _) => Some(ZoneStyle::Location),
+            // Some("exemplar_city") => Some(ZoneStyle::ExemplarCity),
+            (Some(other), _) => {
                 return Ok(json!({
                     "label": label,
-                    "error_detail": format!("Unknown length: {other}"),
-                    "error_type": format!("Unknown length"),
+                    "error_detail": format!("Unknown zone style: {other}"),
+                    "error_type": format!("Unknown zone style"),
                 }))
             }
-            None => None,
+            (None, _) => None,
         },
     };
     builder.year_style = match option_struct.year_style.as_deref() {
