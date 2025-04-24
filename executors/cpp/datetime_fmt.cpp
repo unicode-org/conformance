@@ -143,16 +143,16 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
     }
   }
 
-  json_object *date_skeleton_obj =
-      json_object_object_get(json_in, "skeleton");
+  json_object *date_skeleton_item =
+      json_object_object_get(options_obj, "skeleton");
   string skeleton_string;
   if (date_style == icu::DateFormat::EStyle::kNone &&
       time_style == icu::DateFormat::EStyle::kNone) {
     skeleton_string = default_skeleton_string;
   }
-  if (date_skeleton_obj != nullptr) {
+  if (date_skeleton_item != nullptr) {
     // Data specifies a date time skeleton. Make a formatter based on this.
-    skeleton_string = json_object_get_string(date_skeleton_obj);
+    skeleton_string = json_object_get_string(date_skeleton_item);
   }
   if (!skeleton_string.empty()) {
     UnicodeString u_skeleton(skeleton_string.c_str());
