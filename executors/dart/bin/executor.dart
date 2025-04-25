@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dart_executor/collator.dart';
 import 'package:dart_executor/lang_names.dart';
-import 'package:dart_executor/likely_subtags.dart';
 import 'package:dart_executor/numberformat.dart';
 import 'package:dart_executor/version.dart' show intl4xVersion;
 
@@ -49,14 +48,18 @@ void main() {
       );
       final outputLine = switch (testType) {
         TestTypes.collation => testCollation(line),
-        TestTypes.decimal_fmt => testDecimalFormat(line),
+        TestTypes.decimal_fmt => testDecimalFormatWrapped(line),
         TestTypes.datetime_fmt =>
           throw UnimplementedError('datetime_fmt is not supported yet'),
         TestTypes.display_names =>
           throw UnimplementedError('display_names is not supported yet'),
         TestTypes.lang_names => testLangNames(line),
-        TestTypes.number_fmt => testDecimalFormat(line),
-        TestTypes.likely_subtags => testLikelySubtags(line),
+        TestTypes.number_fmt => testDecimalFormatWrapped(line),
+        // TestTypes.likely_subtags => testLikelySubtags(line),
+        TestTypes.likely_subtags =>
+          throw UnimplementedError(
+            'likely_subtags is not supported yet, as the Locale object is not yet migrated to ICU4X',
+          ),
         null =>
           throw ArgumentError.value(decoded['test_type'], 'Unknown test type'),
       };
