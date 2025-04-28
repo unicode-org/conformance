@@ -39,6 +39,8 @@ struct DateTimeFormatOptions {
 
     semantic_skeleton: Option<String>,
     semantic_skeleton_length: Option<String>,
+    year_style: Option<String>,
+    zone_style: Option<String>,
 }
 
 pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
@@ -50,8 +52,8 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
-    let skeleton_str = json_obj["semanticSkeleton"].as_str();
-    let skeleton_length = json_obj["semanticSkeletonLength"].as_str();
+    let skeleton_str = option_struct.semantic_skeleton.as_deref();
+    let skeleton_length = option_struct.semantic_skeleton_length.as_deref();
 
     let calendar_algorithm = option_struct.calendar.as_ref().map(|calendar_str| {
         CalendarAlgorithm::try_from(&unicode::Value::try_from_str(calendar_str).unwrap()).unwrap()
@@ -152,7 +154,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
     builder.zone_style = match option_struct.time_style.as_deref() {
-        Some("full") => Some(ZoneStyle::SpecificShort),
+        Some("full") => Some(ZoneStyle::SpecificLong),
         Some("long") => Some(ZoneStyle::SpecificShort),
         Some("medium") => None,
         Some("short") => None,
@@ -163,18 +165,41 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 "error_type": format!("Unknown time style"),
             }))
         }
-        None => {
-            if let Some(skeleton_str) = skeleton_str {
-                if skeleton_str.contains("Z") {
-                    // TODO: The input should contain ZoneStyle but it doesn't
-                    Some(ZoneStyle::SpecificShort)
-                } else {
-                    None
-                }
-            } else {
-                None
+        None => match (
+            option_struct.zone_style.as_deref(),
+            skeleton_str == Some("Z"),
+        ) {
+            // Standalone uses long length ?
+            (Some("specific"), true) => Some(ZoneStyle::SpecificLong),
+            (Some("specific"), false) => Some(ZoneStyle::SpecificShort),
+            (Some("offset"), true) => Some(ZoneStyle::LocalizedOffsetLong),
+            (Some("offset"), false) => Some(ZoneStyle::LocalizedOffsetShort),
+            (Some("generic"), true) => Some(ZoneStyle::GenericLong),
+            (Some("generic"), false) => Some(ZoneStyle::GenericShort),
+            (Some("location"), _) => Some(ZoneStyle::Location),
+            // Some("exemplar_city") => Some(ZoneStyle::ExemplarCity),
+            (Some(other), _) => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": format!("Unknown zone style: {other}"),
+                    "error_type": format!("Unknown zone style"),
+                }))
             }
+            (None, _) => None,
+        },
+    };
+    builder.year_style = match option_struct.year_style.as_deref() {
+        Some("with_era") => Some(YearStyle::WithEra),
+        Some("full") => Some(YearStyle::Full),
+        Some("auto") => Some(YearStyle::Auto),
+        Some(other) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown year style: {other}"),
+                "error_type": format!("Unknown year style"),
+            }))
         }
+        None => None,
     };
     if skeleton_str == Some("Z") {
         // workaround
