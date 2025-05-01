@@ -6,7 +6,7 @@ import multiprocessing as mp
 import re
 
 from test_type import TestType, test_types
-from generators.collation_short import CollationShortGenerator
+from generators.collation import CollationGenerator
 from generators.datetime_fmt import DateTimeFmtGenerator
 from generators.lang_names import LangNamesGenerator
 from generators.localeDisplayNames import LocaleNamesGenerator
@@ -62,9 +62,9 @@ def generate_versioned_data(version_info):
     if len(args.test_types) < len(TestType):
         logging.info("(Only generating %s)", ", ".join(args.test_types))
 
-    if TestType.COLLATION_SHORT in args.test_types:
+    if TestType.COLLATION in args.test_types:
         # This is slow
-        generator = CollationShortGenerator(icu_version, args.run_limit)
+        generator = CollationGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
     ## DISABLED FOR NOW. Use new .js generator with Node version

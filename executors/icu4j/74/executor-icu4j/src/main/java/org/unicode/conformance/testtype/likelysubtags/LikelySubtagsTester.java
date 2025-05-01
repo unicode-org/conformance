@@ -36,9 +36,10 @@ public class LikelySubtagsTester implements ITestType {
 
     try {
       output.result = getLikelySubtagString(input);
-    } catch (Exception e) {
-      output.error = e.getMessage();
-      output.error_message = e.getMessage();
+    } catch (UnsupportedOperationException e) {
+      output.error_type = "unsupported";
+      output.unsupported = e.getMessage();
+      output.error_detail = e.getMessage();
       return output;
     }
 
@@ -80,9 +81,10 @@ public class LikelySubtagsTester implements ITestType {
         return ULocale.minimizeSubtags(locale).toLanguageTag();
       case minimizeFavorScript:
         throw new UnsupportedOperationException(
-            "Likely Subtags test option `minimizeFavorScript` not supported");
+            "Option `minimizeFavorScript` not supported");
       default:
-        throw new UnsupportedOperationException("Likely Subtags test option not supported");
+        throw new UnsupportedOperationException(
+            "Pption " + option + "not supported");
     }
   }
 }

@@ -20,6 +20,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -183,6 +184,10 @@ class TestReport:
         self.diff_summary = DiffSummary()
 
         self.differ = Differ()
+
+        # Pattern for finding AM/PM in date time formatted output
+        # ??self.am_pm_pattern = re.compile('[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
+        self.am_pm_pattern = re.compile('\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
 
@@ -381,7 +386,8 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            # Don't look at tests labeled as "unsupported"
+            [self.failing_tests, self.test_errors])
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -586,13 +592,17 @@ class TestReport:
     def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
+        if not test_list:
+            # no test --> no characterizations
+            return results
+
         results['locale'] = {}  # Dictionary of labels for each locale
 
         # Look at particular test types
-        if self.test_type == 'plural_rules' and test_list:
+        if self.test_type == 'plural_rules':
             self.characterize_plural_rules_tests(test_list, results)
 
-        if self.test_type == 'datetime_fmt' and test_list:
+        if self.test_type == 'datetime_fmt':
             self.characterize_datetime_tests(test_list, results)
 
         for test in test_list:
@@ -690,6 +700,7 @@ class TestReport:
                 'locale_label',
                 'locale',
                 'options',
+                'option',
                 'rules',
                 'test_description',
                 'unsupported_options',
@@ -743,16 +754,31 @@ class TestReport:
             results.setdefault(sample_type, []).append(label)
         return
 
-
     def characterize_datetime_tests(self, test_list, results):
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
-            if 'skeleton' in  test['input_data']:
+            if 'result' in test:
+                output = test['result']
+            else:
+                output = 'NO RESULT'
+            if 'expected' in test:
+               expected = test['expected']
+            else:
+                expected = 'NO EXPECTED VALUE'
+            if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
             if 'dateTimeFormatType' in test:
                 results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], []).append(label)
+            # Check for AM/PM difference
+            if output != expected:
+                result_ampm = self.am_pm_pattern.search(output)
+                expected_ampm = self.am_pm_pattern.search(expected)
+                if ((result_ampm and not expected_ampm) or
+                        (not result_ampm and expected_ampm) or
+                        (result_ampm and expected_ampm and (result_ampm.group(1) != expected_ampm.group(1)))):
+                    results.setdefault('AM/PM', []).append(label)
         return
 
     # TODO: Use the following function to update lists.
@@ -780,12 +806,14 @@ class TestReport:
                             pass
                 except:
                     pass
-                
+
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
-                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
+                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
+                      'comma_type', 'unexpected_comma']
+
         for check in all_checks:
             results[check] = set()
 
@@ -870,6 +898,14 @@ class TestReport:
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
+
+                # Comma stuff
+                # ASCII vs. Arabic
+                if expected.replace('\u002c', '\u060c') == actual:
+                    results['comma_type'].add(label);
+                # Check for extra comma
+                if actual.replace('\u002c', '') == expected:
+                    results['unexpected_comma'].add(label);
 
                 # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
@@ -964,7 +1000,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.collation_short.value:
+        if self.test_type == testType.collation.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

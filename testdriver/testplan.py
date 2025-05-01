@@ -519,7 +519,7 @@ class TestPlan:
                                 }
                 return json.dumps(error_result)
         except BaseException as err:
-            logging.error('!!! send_one_line fails: input => %s<. Err = %s', input_line, err)
+            logging.error('Err = %s', err)
             input = json.loads(input_line.replace('#EXIT', '').strip())
             error_result = {'label': input['label'],
                             'input_data': input,

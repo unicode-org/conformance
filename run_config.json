@@ -1,6 +1,29 @@
 [
   {
     "prereq": {
+      "name": "Get ICU4C 77",
+      "version": "77.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-77_1-Ubuntu22.04-x64.tgz"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "cpp",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "Get ICU4C 76",
       "version": "76.1",
       "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-76_1-Ubuntu22.04-x64.tgz"
@@ -9,7 +32,7 @@
       "icu_version": "icu76",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -32,7 +55,7 @@
       "icu_version": "icu71",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -54,7 +77,7 @@
       "icu_version": "icu72",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -76,7 +99,7 @@
       "icu_version": "icu73",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -98,7 +121,7 @@
       "icu_version": "icu74",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "list_fmt",
@@ -120,7 +143,7 @@
       "icu_version": "icu75",
       "exec": "cpp",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -143,7 +166,7 @@
       "icu_version": "icu76",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
@@ -165,7 +188,7 @@
       "icu_version": "icu75",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
@@ -173,6 +196,73 @@
         "likely_subtags",
         "rdt_fmt",
         "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "run": {
+      "exec": "dart_native",
+      "icu_version": "icu76",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "decimal_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
+      "version": "23.3.0",
+      "command": "nvm install 23.3.0;nvm use 23.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
+      "version": "22.6.0",
+      "command": "nvm install 22.6.0;nvm use 22.6.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu75",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm",
+      "version": "21.6.0",
+      "command": "nvm install 21.6.0;nvm use 21.6 --silent"
+    },
+    "run": {
+      "icu_version": "icu74",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -187,7 +277,7 @@
       "icu_version": "icu73",
       "exec": "dart_web",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt",
         "lang_names",
         "likely_subtags"
@@ -205,7 +295,7 @@
       "icu_version": "icu74",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
@@ -227,7 +317,7 @@
       "icu_version": "icu73",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
@@ -249,7 +339,7 @@
       "icu_version": "icu72",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "list_fmt",
         "number_fmt",
@@ -270,7 +360,7 @@
       "icu_version": "icu71",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "list_fmt",
         "datetime_fmt",
         "number_fmt",
@@ -290,7 +380,7 @@
       "icu_version": "icu70",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -306,7 +396,7 @@
       "icu_version": "icu69",
       "exec": "node",
       "test_type": [
-        "collation_short",
+        "collation",
         "number_fmt"
       ],
       "per_execution": 10000
@@ -322,7 +412,7 @@
       "icu_version": "icu73",
       "exec": "rust",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "number_fmt",
         "lang_names",
@@ -344,7 +434,7 @@
       "icu_version": "icu74",
       "exec": "rust",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "number_fmt",
         "lang_names",
@@ -366,7 +456,7 @@
       "icu_version": "icu75",
       "exec": "rust",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "number_fmt",
         "lang_names",
@@ -388,7 +478,29 @@
       "icu_version": "icu76",
       "exec": "rust",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "rust2.0-beta2",
+      "version": "2.0-beta2",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/2.0-beta2/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "rust",
+      "test_type": [
+        "collation",
         "datetime_fmt",
         "number_fmt",
         "lang_names",
@@ -410,7 +522,7 @@
       "icu_version": "icu73",
       "exec": "icu4j",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -432,7 +544,7 @@
       "icu_version": "icu74",
       "exec": "icu4j",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -454,7 +566,7 @@
       "icu_version": "icu75",
       "exec": "icu4j",
       "test_type": [
-        "collation_short",
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",
@@ -477,7 +589,30 @@
       "icu_version": "icu76",
       "exec": "icu4j",
       "test_type": [
-        "collation_short",
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-77-shaded",
+      "version": "77",
+      "command": "mvn -q -P icu77 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
         "datetime_fmt",
         "lang_names",
         "likely_subtags",

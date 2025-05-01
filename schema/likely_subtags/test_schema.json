@@ -83,7 +83,6 @@
            "type": "string"
          },
          "option": {
-           "type": "string",
            "description": "Type of processing requested",
            "enum": ["maximize", "minimize",
                     "minimizeFavorScript",

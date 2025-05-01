@@ -25,7 +25,7 @@ using icu::Locale;
 using icu::StringByteSink;
 using icu::UnicodeString;
 
-string TestLikelySubtags(json_object *json_in) {
+auto TestLikelySubtags(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -41,7 +41,7 @@ string TestLikelySubtags(json_object *json_in) {
 
   Locale displayLocale(locale_string.c_str());
 
-  string test_result = "";
+  string test_result;
 
   json_object *return_json = json_object_new_object();
   json_object_object_add(return_json, "label", label_obj);
@@ -91,10 +91,6 @@ string TestLikelySubtags(json_object *json_in) {
     bool favorScript = true;
     json_object_object_add(
         return_json,
-        "error",
-        json_object_new_string("unsupported option"));
-    json_object_object_add(
-        return_json,
         "error_type",
         json_object_new_string("unsupported"));
     json_object_object_add(
@@ -105,9 +101,9 @@ string TestLikelySubtags(json_object *json_in) {
         return_json,
         "error_detail",
         json_object_new_string("This ICU4C API is protected"));
-
     // This is a protected API in ICU4C.
     // displayLocale.minimizeSubtags(favorScript, status);
+    return json_object_to_json_string(return_json);
   } else {
     // An error in the call.
     json_object_object_add(

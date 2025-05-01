@@ -22,7 +22,7 @@ using icu::UnicodeString;
 
 using std::string;
 
-string TestPluralRules (json_object* json_in) {
+auto TestPluralRules (json_object* json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object* label_obj = json_object_object_get(json_in, "label");
@@ -30,7 +30,7 @@ string TestPluralRules (json_object* json_in) {
 
   // The locale in which the name is given.
   string locale_string = "und";
-  string type_string = "";
+  string type_string;
 
   json_object* locale_label_obj = json_object_object_get(json_in, "locale");
   if (locale_label_obj != nullptr) {

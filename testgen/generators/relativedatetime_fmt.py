@@ -15,29 +15,35 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
     def process_test_data(self):
         # Use NOde JS to create the .json files
         icu_nvm_versions = {
+            'icu77': '23.10.0',   # NOT YET AVAILABLE
             'icu76': '23.3.0',
             'icu75': '22.9.0',
             'icu74': '21.6.0',
             'icu73': '20.1.0',
             'icu72': '18.14.2',
             'icu71': '18.7.0',
+            'icu70': '14.21.3',
+            'icu69': '14.18.3',
+            'icu68': '14.17.0',
+            'icu67': '14.16.0',
+            'icu66': '14.0.0'
         }
 
         exec_list = ['node generators/rdt_fmt_gen.js']
         if self.run_limit:
             exec_list.append('-run_limit')
             exec_list.append(str(self.run_limit))
-            print("RDTF generator: ", exec_list)
+        exec_command = ' '.join(exec_list)
 
-        run_list = [
-            ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0 --silent'],
-            exec_list,
-            ['mv rdt_fmt*.json icu74']
-        ]
+        nodejs_version = icu_nvm_versions[self.icu_version]
+        source_command = 'source ~/.nvm/nvm.sh; nvm run %s; %s' % (
+            nodejs_version, exec_command)
 
         if self.icu_version not in icu_nvm_versions:
             logging.warning('Generating relative date/time data not configured for icu version %s', self.icu_version)
             return False
+
+        # TODO: If available, use pre-generated test data instead of creating it from the NodeJS version.
 
         # Set up Node version and call the generator
         nvm_version = icu_nvm_versions[self.icu_version]
