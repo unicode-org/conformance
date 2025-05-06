@@ -118,6 +118,24 @@ class TestReport:
         self.unsupported_cases = []
         self.known_issues = []
 
+        # Find directories for comparison options
+        # Same component in other platforms, same ICU version
+        # Same component, same platform, other versions
+        # Get top level with testOutput, platforms, and test type
+        dir_name = os.path.dirname(report_path)
+        icu_version = os.path.basename(os.path.dirname(dir_name))
+        platform_path = os.path.dirname(os.path.dirname(dir_name))
+        platform_name = os.path.basename(platform_path)
+        top_dir_name = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(dir_name))))
+        test_type = os.path.basename(dir_name)
+
+        # Get same in
+        path_all_platforms_same_icu = os.path.join(top_dir_name, 'testOutput', '*', icu_version, test_type + '_test_file.*')
+        other_platforms_same_icu = glob.glob(path_all_platforms_same_icu)
+        path_platform_all_icu = os.path.join(platform_path, '*', test_type)
+        same_platform_all_icu = glob.glob(path_platform_all_icu)
+        # Next, store these paths, subsituting 'testReport' for 'testData'
+
         self.templates = templates = reportTemplate()
 
         # For a simple template replacement
@@ -1397,7 +1415,13 @@ class CompareReport():
         logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
 
         # TODO: Get the values for these to add to template
-        common_path = os.path.commonpath(self.raw_reports)
+        try:
+            common_path = os.path.commonpath(self.raw_reports)
+        except:
+            logging.error('testreport.py: No raw reports for test type %s in this join: %s',
+                      self.test_type, test_type_raw_join)
+            return None
+
         data_dirs = [x.replace(common_path, '.') for x in self.raw_reports]
         self.html_map['data_dirs'] = data_dirs
 
