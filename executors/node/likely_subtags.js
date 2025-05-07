@@ -29,6 +29,13 @@ module.exports = {
       } else if (test_option === 'minimizeFavorRegion' ||
                  test_option === 'minimize') {
         result_locale = intl_locale.minimize().baseName;
+        // Unlikely subtags: lang is "und", result is same as input, and favor region
+        if (result_locale == locale && locale.split('-')[0] == 'und' &&
+           test_option == 'minimumzeFavorRegion') {
+          // TODO: set unsupported as function taking test option and unsupported field.
+          return_json['error_detail'] = test_option;
+          return_json['error_type'] = 'unsupported';
+          return_json['unsupported'] = 'UND not supported with these
       } else {
         return_json['error_detail'] = test_option;
         return_json['error_type'] = 'unsupported';
@@ -40,4 +47,5 @@ module.exports = {
     }
     return return_json;
   }
+
 }
