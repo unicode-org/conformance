@@ -101,6 +101,8 @@ class DateTimeFmtGenerator(DataGenerator):
                     options['semanticSkeleton'] = test_item['semanticSkeleton']
                 if 'semanticSkeletonLength' in test_item:
                     options['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
+                if 'hourCycle' in test_item:
+                    options['hourCycle'] = test_item['hourCycle']
 
                 new_test = {
                     'label': label_str,

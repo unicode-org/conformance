@@ -141,6 +141,12 @@
              "semanticSkeletonLength": {
                "description": "Size of semantic skeleton for date/time format",
                "type": "string"
+             },
+             "hourCycle": {
+               "description": "hour cycle option date/time format",
+               "type": "string",
+               "enum": ["H11", "H12", "H23"]
+
              }
            }
          }
