@@ -6,8 +6,6 @@ import logging
 import subprocess
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
-
 class ListFmtGenerator(DataGenerator):
     json_test = {"test_type": "list_fmt"}
     json_verify = {"test_type": "list_fmt"}

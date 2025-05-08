@@ -6,7 +6,6 @@ import logging
 import subprocess
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
 
 class RelativeDateTimeFmtGenerator(DataGenerator):
     json_test = {"test_type": "rdt_fmt"}
