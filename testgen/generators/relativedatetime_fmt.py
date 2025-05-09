@@ -6,7 +6,6 @@ import logging
 import subprocess
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
 
 class RelativeDateTimeFmtGenerator(DataGenerator):
     json_test = {"test_type": "rdt_fmt"}
@@ -15,7 +14,7 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
     def process_test_data(self):
         # Use NOde JS to create the .json files
         icu_nvm_versions = {
-            'icu77': '23.10.0',   # NOT YET AVAILABLE
+            'icu77': '24.0.0',
             'icu76': '23.3.0',
             'icu75': '22.9.0',
             'icu74': '21.6.0',
