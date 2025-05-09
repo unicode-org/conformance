@@ -9,7 +9,6 @@ import math
 import subprocess
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
 
 class DateTimeFmtGenerator(DataGenerator):
     json_test = {"test_type": "datetime_fmt"}
@@ -101,6 +100,8 @@ class DateTimeFmtGenerator(DataGenerator):
                     options['semanticSkeleton'] = test_item['semanticSkeleton']
                 if 'semanticSkeletonLength' in test_item:
                     options['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
+                if 'hourCycle' in test_item:
+                    options['hourCycle'] = test_item['hourCycle'].lower()
 
                 new_test = {
                     'label': label_str,
@@ -138,7 +139,8 @@ class DateTimeFmtGenerator(DataGenerator):
     def process_test_data(self):
         # Use NOde JS to create the .json files
         icu_nvm_versions = {
-            'icu76': '23.3.0',
+            'icu77': '24.0.0',
+            'icu76': '23.11.0',
             'icu75': '22.9.0',
             'icu74': '21.6.0',
             'icu73': '20.1.0',

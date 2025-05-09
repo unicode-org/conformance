@@ -17,7 +17,6 @@ from generators.number_fmt import NumberFmtGenerator
 from generators.plurals import PluralGenerator
 from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
 
-reblankline = re.compile("^\s*$")
 
 def setupArgs():
     parser = argparse.ArgumentParser(prog="testdata_gen")
