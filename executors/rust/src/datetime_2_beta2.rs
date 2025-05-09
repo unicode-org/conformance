@@ -12,6 +12,7 @@ use icu::time::zone::UtcOffsetCalculator;
 
 use icu::locale::extensions::unicode;
 use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
+use icu::locale::preferences::extensions::unicode::keywords::HourCycle;
 use icu::locale::Locale;
 
 use serde::{Deserialize, Serialize};
@@ -25,6 +26,7 @@ struct DateTimeFormatOptions {
     numbering_system: Option<String>,
     time_style: Option<String>,
     time_zone: Option<String>,
+    hour_cycle: Option<String>,
 
     era: Option<String>,
     year: Option<String>,
@@ -52,6 +54,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
+    let hour_cycle = option_struct.hour_cycle.as_ref().map(|hour_cycle_str| {
+        HourCycle::try_from(&unicode::Value::try_from_str(hour_cycle_str).unwrap()).unwrap()
+    });
+
     let skeleton_str = option_struct.semantic_skeleton.as_deref();
     let skeleton_length = option_struct.semantic_skeleton_length.as_deref();
 
@@ -66,6 +72,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         .unwrap();
     let mut preferences = DateTimeFormatterPreferences::from(&locale);
     preferences.calendar_algorithm = calendar_algorithm;
+    preferences.hour_cycle = hour_cycle;
 
     let mut builder = FieldSetBuilder::default();
     builder.length = match option_struct.date_style.as_deref() {
