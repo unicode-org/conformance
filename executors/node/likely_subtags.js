@@ -31,11 +31,12 @@ module.exports = {
         result_locale = intl_locale.minimize().baseName;
         // Unlikely subtags: lang is "und", result is same as input, and favor region
         if (result_locale == locale && locale.split('-')[0] == 'und' &&
-           test_option == 'minimumzeFavorRegion') {
+           test_option == 'minimizeFavorRegion') {
           // TODO: set unsupported as function taking test option and unsupported field.
           return_json['error_detail'] = test_option;
           return_json['error_type'] = 'unsupported';
-          return_json['unsupported'] = 'UND not supported with these
+          return_json['unsupported'] = 'UND not supported with these options';
+        }
       } else {
         return_json['error_detail'] = test_option;
         return_json['error_type'] = 'unsupported';
