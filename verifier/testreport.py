@@ -130,7 +130,7 @@ class TestReport:
         test_type = os.path.basename(dir_name)
 
         # Get same in
-        path_all_platforms_same_icu = os.path.join(top_dir_name, 'testOutput', '*', icu_version, test_type + '_test_file.*')
+        path_all_platforms_same_icu = os.path.join(top_dir_name, 'testOutput', '*', icu_version, test_type + '_test_file.json')
         other_platforms_same_icu = glob.glob(path_all_platforms_same_icu)
         path_platform_all_icu = os.path.join(platform_path, '*', test_type)
         same_platform_all_icu = glob.glob(path_platform_all_icu)
