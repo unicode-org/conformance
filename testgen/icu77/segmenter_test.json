@@ -36,15 +36,6 @@
     {
       "locale": "ja-JP",
       "options": {
-        "granularity": "word"
-      },
-      "input": "吾輩は猫である。名前はたぬき。",
-      "hexhash": "123",
-      "label": "004"
-    },
-    {
-      "locale": "ja-JP",
-      "options": {
         "granularity": "grapheme"
       },
       "input": "吾輩は猫である。名前はたぬき。",
@@ -105,10 +96,34 @@
     {
       "locale": "my",
       "options": {
+        "granularity": "grapheme"
+      },
+      "input": "သီးခြားစကားလုံးတွေပါ။",
+      "label": "010"      
+    },
+    {
+      "locale": "my",
+      "options": {
         "granularity": "word"
       },
       "input": "ဒါတွေအားလုံးဟာ သီးခြားစကားလုံးတွေပါ။",
-      "label": "010"      
+      "label": "011"      
+    },
+    {
+      "locale": "ff-Adlm",
+      "options": {
+        "granularity": "grapheme"
+      },
+      "input": "𞤑𞤌𞤈𞤌𞥅𞤐𞤀 𞤏𞤀𞤒𞤂𞤀𞤒 𞤔𞤋𞤑𞥆𞤓",
+      "label": "012"
+    },
+    {
+      "locale": "ff-Adlm",
+      "options": {
+        "granularity": "word"
+      },
+      "input": "𞤑𞤌𞤈𞤌𞥅𞤐𞤀 𞤏𞤀𞤒𞤂𞤀𞤒 𞤔𞤋𞤑𞥆𞤓",
+      "label": "013"
     }
 
   ]
