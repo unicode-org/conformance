@@ -467,8 +467,11 @@ class TestReport:
         # Flatten and combine the dictionary values
         fail_characterized = self.characterize_results_by_options(self.failing_tests, 'fail')
         fail_simple_diffs = self.check_simple_text_diffs(self.failing_tests, 'fail')
-        flat_combined_dict = self.flatten_and_combine(fail_characterized,
-                                                      fail_simple_diffs)
+        fail_list_differences = self.check_list_differences(self.failing_tests, 'fail')
+        # Should check for list differences
+
+        flat_combined_dict = self.flatten_and_combine(fail_characterized, fail_simple_diffs)
+        # TODO Add list differences to results
         self.save_characterized_file(flat_combined_dict, "fail")
 
         failure_labels = []
@@ -820,6 +823,9 @@ class TestReport:
             label = fail['label']
             actual = fail.get('result', None)
             expected = fail.get('expected', None)
+            if type(actual) != type(expected):
+                # This is a type mismatch
+                continue
             if (actual is None) or (expected is None):
                 continue
             # Special case for differing by a single character.
@@ -920,6 +926,28 @@ class TestReport:
                 continue
 
         return dict(results)
+
+    def check_list_differences(self, test_list, category):
+        #TODO Check if expected and results are differences in list content
+        results = defaultdict(list)
+        all_checks = ['different lengths', 'different_content', 'other list difference']
+        for check in all_checks:
+            results[check] = set()
+
+        for fail in test_list:
+            label = fail['label']
+            actual = fail['result']
+            expected = fail.get('expected', None)
+            if type(actual) != type(expected):
+                # This is a type mismatch
+                continue
+            if type(actual) == list:
+                if len(actual) != len(expected):
+                    results['different lengths'].add(label)
+                else:
+                    results['other list difference'].add(label)
+
+        return results
 
     def save_characterized_file(self, characterized_data, characterized_type):
         try:

@@ -1,0 +1,67 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/segmenter_verify_schema.json'",
+ "title": "ICU Plural Rules verify data description",
+ "description": "This documents format of plural rules verify data",
+ "type": "object",
+ "properties": {
+   "additionalProperties": false,
+   "test_type": {
+     "description": "The name of the test",
+     "const": "segmenter"
+   },
+   "tests": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": true,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "The expected value for the test result",
+           "type": "string"
+         },
+         "result": {
+           "description": "The actual result found",
+           "type": "array",
+           "items": {
+             "type": "string"
+           }
+           
+         },
+         "line" : {
+           "description": "line of the source of test data",
+           "type": "integer"
+         },
+         "error": {
+           "description": "What was unexpected",
+           "type": "string"
+         },
+         "error_message": {
+           "description": "More about the error",
+           "type": "string"
+         },
+         "actual_options": {
+           "description": "What was sent to the collation function",
+           "type": "string"
+         },
+         "input_data": {
+           "type": "string",
+           "description": "Information provided to the executor"
+         },
+         "actual_locale": {
+           "type": "string",
+           "description": "If present, the substitute locale actually used in the test"
+         }
+       }
+     },
+     "required": [
+       "label",
+       "result"
+     ]
+   }
+ },
+ "required": ["tests", "test_type"]
+}
