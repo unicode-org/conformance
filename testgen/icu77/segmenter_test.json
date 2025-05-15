@@ -27,7 +27,7 @@
     {
       "locale": "en-US",
       "options": {
-        "granularity": "word"
+        "granularity": "sentence"
       },
       "input": "The cat, in the hat. The dog in the yard.",
       "hexhash": "123",
@@ -42,15 +42,6 @@
       "hexhash": "123",
       "label": "004"
     },
-    {
-      "locale": "ja-JP",
-      "options": {
-        "granularity": "grapheme"
-      },
-      "input": "吾輩は猫である。名前はたぬき。",
-      "hexhash": "123",
-      "label": "003"
-    }, 
     {
       "locale": "ja-JP",
       "options": {

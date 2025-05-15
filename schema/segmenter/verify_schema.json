@@ -29,7 +29,7 @@
        },
        "required": [
          "label",
-         "verify" 
+         "verify"
        ]       
      }
    }
