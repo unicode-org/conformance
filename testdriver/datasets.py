@@ -200,7 +200,7 @@ testName = 'segmenter'
 testDatasets[testName] = DataSet(testType.rdt_fmt.value,
                                  'segmenter_test.json',
                                  'segmenter_verify.json',
-                                 CLDRVersion.CLDR44, ICUVersion.ICU74)
+                                 CLDRVersion.CLDR47, ICUVersion.ICU77)
 
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".

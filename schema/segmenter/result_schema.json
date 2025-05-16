@@ -1,7 +1,7 @@
 {"$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://github.com/unicode/conformance/segmenter_verify_schema.json'",
- "title": "ICU Plural Rules verify data description",
- "description": "This documents format of plural rules verify data",
+ "title": "ICU Segmenter verify data description",
+ "description": "This documents of verify data for a segmenter",
  "type": "object",
  "properties": {
    "additionalProperties": false,

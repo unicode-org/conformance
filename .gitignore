@@ -1,8 +1,11 @@
 #*#
 *~
 *#
+*.#
 .vscode
 
+*Minibuf-*
+    
 .pylintrc
 .idea
 .devcontainer
@@ -20,6 +23,14 @@ DDT_DATA/testOutput*/*
 DDT_DATA/testReports*/*
 
 TEMP_DATA
+
+# Generator and run config files. Ignore non-standard ones
+gen*.sh
+run*.json*
+run*.sh
+!generateDataAndRun.sh
+!run_config.json
+!genData100.sh    
 
 # testgen temporary files
 testgen/icu*/*.json
@@ -53,3 +64,6 @@ dependency-reduced-pom.xml
 
 # Dart
 executors/dart/.dart_tool/
+executors/dart_native
+executors/dart_web
+    
