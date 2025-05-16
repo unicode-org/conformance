@@ -11,6 +11,6 @@ class TestType(str, Enum):
     NUMBER_FMT = "number_fmt"
     PLURAL_RULES = "plural_rules"
     RELATIVE_DATETIME_FMT = "rdt_fmt"
-
+    SEGMENTER = "segmenter"
 
 test_types = [t.value for t in TestType]

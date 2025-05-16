@@ -34,6 +34,8 @@ let plural_rules = require('./plural_rules.js');
 
 let rdt_fmt = require('./relativedatetime_fmt.js');
 
+let segmenter = require('./segmenter.js');
+
 /**
  * TODOs:
  * 1. Handle other types of test cases.
@@ -64,7 +66,8 @@ const testTypes = {
   TestDisplayNames : Symbol("display_names"),
   TestListFmt : Symbol("list_fmt"),
   TestLocaleDisplayNames : Symbol("language_display_name"),
-  TestRelativeDateTimeFormat : Symbol("rdt_fmt")
+  TestRelativeDateTimeFormat : Symbol("rdt_fmt"),
+  TestSegmenter : Symbol("segmenter")
 };
 
 const supported_test_types = [
@@ -79,8 +82,9 @@ const supported_test_types = [
   Symbol("local_info"),
   Symbol("datetime_fmt"),
   Symbol("list_fmt"),
+  Symbol("plural_rules"),
   Symbol("rdt_fmt"),
-  Symbol("plural_rules")
+  Symbol("segmenter")
 ];
 
 const supported_tests_json = {
@@ -93,8 +97,9 @@ const supported_tests_json = {
     "lang_names",
     "language_display_name",
     "list_fmt",
+    "plural_rules",
     "rdt_fmt",
-    "plural_rules"
+    "segmenter"
   ]};
 
 // Test line-by-line input, with output as string.
@@ -166,7 +171,6 @@ function parseJsonForTestId(parsed) {
 let lineId = 0;
 rl.on('line', function(line) {
 
-  // if logging input.
   if (doLogInput > 0) {
     console.log("## NODE RECEIVED " + lineId + ' ' + line + ' !!!!!');
   }
@@ -247,6 +251,9 @@ rl.on('line', function(line) {
     } else
     if (test_type == "plural_rules") {
       outputLine = plural_rules.testPluralRules(parsedJson);
+    } else
+    if (test_type == "segmenter") {
+      outputLine = segmenter.testSegmenter(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type',
                     'test_type': test_type,
