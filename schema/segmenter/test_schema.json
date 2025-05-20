@@ -21,7 +21,7 @@
      "description": "version of conformance data",
      "type": "string"
    },
-   "test_ environmment": {
+   "test_environmment": {
      "test_language":  {
        "description": "Programming language of execution",
        "type": "string"
@@ -93,7 +93,7 @@
              "granularity": {
                "type": "string",
                "description": "What kind of segmentation to do",
-               "enum": ["grapheme", "word", "sentence"]
+               "enum": ["grapheme_cluster", "word", "sentence", "line", "grapheme"]
              }
            }
          }

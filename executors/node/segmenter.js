@@ -2,28 +2,33 @@
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter
 
+const supported_options = ['grapheme', 'word', 'sentence'];
 
 module.exports = {
   testSegmenter: function (json) {
     const label = json['label'];
     const locale = json['locale'];
     let options;
-    let test_option;
+    let ecma_intl_test_option;
     if (json['options']) {
       options = json['options'];
-      let desired_granularity;
+      ecma_intl_test_option = options['granularity'];
       if (options['granularity'] == 'grapheme_cluster') {
-        desired_granularity = 'grapheme';
-      } else {
-        desired_granularity = options['granularity'];
+        // Change to use ECMAScript's enum.
+        ecma_intl_test_option = 'grapheme';
       }
-      test_option = desired_granularity;
     }
 
     let return_json = {'label': label};
+    if (!supported_options.includes(ecma_intl_test_option)) {
+      // Not supported
+      return_json['unsupported'] = 'granularity';
+      return_json['error_detail'] = ecma_intl_test_option;
+      return return_json;
+    }
     let segmented_result = [];
     try {
-      segmenter = new Intl.Segmenter(locale, options);
+      segmenter = new Intl.Segmenter(locale, {'granularity': ecma_intl_test_option});
     } catch (error) {
       /* Something is wrong with the constructor */
       return_json['error'] = 'CONSTRUCTOR: ' + error.message;

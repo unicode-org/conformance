@@ -17,13 +17,19 @@ let debug = false;
 
 const test_type = "segmenter";
 
-const granularity = ['grapheme', 'word', 'sentence'];
+// TODO: set line to be same as word
+const granularity = ['grapheme', 'word', 'sentence', 'line'];
 
 const locale_text_data = [
     {
+      // Empty input
       "locale": "en-US",
+      "input": "",
+    },
+
+    {
       "locale": "en-US",
-      "input": "The cat, in the hat. There's a dog in the yard?",
+      "input": "The cât, in the hat. There's a dog̈ in the yard?",
     },
     {
       "locale": "ja-JP",
@@ -89,14 +95,18 @@ function generateAll() {
     for (const segmentation_type of granularity) {
 
       // Create format object with these options
-      let all_options = {
-        'granularity': segmentation_type
+      let all_options = {};
+      if (segmentation_type == 'line') {
+        // To get line data, even though not supported in ECMA Intl
+        all_options['granularity'] = 'word';
+      } else {
+        all_options['granularity'] = segmentation_type;
       }
 
       let segmenter;
       try {
         segmenter = new Intl.Segmenter(locale, all_options);
-      } catch (error) {q
+      } catch (error) {
         console.log(error, ' with locale ',
                     locale, ' and options: ', all_options);
         continue;
@@ -116,6 +126,9 @@ function generateAll() {
       }
       const label_string = String(label_num);
 
+      if (segmentation_type == 'grapheme') {
+        all_options['granularity'] = 'grapheme_cluster';
+      }
       let test_list;
       let test_case = {
         "locale": locale,
@@ -128,10 +141,22 @@ function generateAll() {
       if (debug) {
         console.log("TEST CASE :", test_case);
       }
+      if (segmentation_type == 'line') {
+        // To get line data, even though not supported in ECMAIntl
+        all_options['granularity'] = 'line';
+      }
       test_cases.push(test_case);
 
       // Generate what we get.
       try{
+        // TEMP TO cause tests to fail. DO NOT SUBMIT
+        if (label_num % 5 == 0) {
+          result[0] = result[0] + ' BOGUS';
+        }
+        if (label_num % 7 == 0) {
+          result.push('one more item');
+        }
+
         verify_cases.push({'label': label_string,
                            'verify': result});
 
@@ -151,7 +176,7 @@ function generateAll() {
 
   test_obj['tests'] = common_fns.sample_tests(test_cases, run_limit);
   try {
-    fs.writeFileSync('segmenter_test.json', JSON.stringify(test_obj, null, 2));
+    fs.writeFileSync('segmenter_test.json', JSON.stringify(test_obj, null));
     // file written successfully
   } catch (err) {
     console.error(err);

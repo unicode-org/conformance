@@ -61,9 +61,3 @@ logrotate.state
 
 # Maven
 dependency-reduced-pom.xml
-
-# Dart
-executors/dart/.dart_tool/
-executors/dart_native
-executors/dart_web
-    
