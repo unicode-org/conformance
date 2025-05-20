@@ -149,17 +149,8 @@ function generateAll() {
 
       // Generate what we get.
       try{
-        // TEMP TO cause tests to fail. DO NOT SUBMIT
-        if (label_num % 5 == 0) {
-          result[0] = result[0] + ' BOGUS';
-        }
-        if (label_num % 7 == 0) {
-          result.push('one more item');
-        }
-
         verify_cases.push({'label': label_string,
                            'verify': result});
-
       } catch (error) {
         console.log('!!! error ', error, ' in label ', label_num,
                     ' for options ', options);
