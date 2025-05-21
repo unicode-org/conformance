@@ -23,17 +23,10 @@ class SegmenterGenerator(DataGenerator):
         }
 
         # Just copy the files from generators folder
-        # exec_list = ['node generators/segmenter_gen.js']
-        exec_list = []
+        exec_list = ['node generators/segmenter_gen.js']
         if self.run_limit > 0:
             exec_list.append('-run_limit')
             exec_list.append(str(self.run_limit))
-
-        run_list = [
-            # ['source ~/.nvm/nvm.sh; nvm install 24.0.0; nvm use 24.0.0 --silent'],
-            exec_list,
-            ['mv segmenter*.json icu77']
-        ]
 
         if self.icu_version not in icu_nvm_versions:
             logging.warning('Generating segmenter data not configured for icu version %s', self.icu_version)
@@ -45,7 +38,7 @@ class SegmenterGenerator(DataGenerator):
                            (nvm_version, nvm_version, ' '.join(exec_list))
 
         logging.debug('Running this command: %s', generate_command)
-        result = result = subprocess.run(generate_command, shell=True)
+        result = subprocess.run(generate_command, shell=True)
 
         # Move results to the right directory
         mv_command = 'mv segmenter*.json %s' % self.icu_version
