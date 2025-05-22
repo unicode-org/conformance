@@ -20,6 +20,12 @@ const test_type = "segmenter";
 // TODO: set line to be same as word
 const granularity = ['grapheme', 'word', 'sentence', 'line'];
 
+// An incomplete list of things that should not be separated in line breaking.
+const line_values_to_merge_with_previous = [
+  " ", ".", ",", "?", "!", "。", "", "။",
+  ". ", ", ", "? ", "! "
+];
+
 const locale_text_data = [
     {
       // Empty input
@@ -139,12 +145,31 @@ function generateAll() {
       test_case['label'] = label_string;
 
       if (debug) {
-        console.log("TEST CASE :", test_case);
+        console.log("TEST CASE :", '<', test_case);
       }
       if (segmentation_type == 'line') {
         // To get line data, even though not supported in ECMAIntl
         all_options['granularity'] = 'line';
+        // Expected data should not yield spaces or punctuation as separate results.
+        let line_result = [];
+        let previous = '';
+        let last = result.length;
+        let index = last - 1;
+        let new_result = [];
+        while (index > 0) {
+          if (line_values_to_merge_with_previous.indexOf(result[index]) >= 0) {
+            result[index-1] += result[index];
+          } else {
+            new_result.unshift(result[index]);
+          }
+          index -= 1;
+        }
+        if (result.length > 0) {
+          new_result.unshift(result[0]);
+        }
+        result = new_result;
       }
+
       test_cases.push(test_case);
 
       // Generate what we get.

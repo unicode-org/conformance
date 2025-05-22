@@ -23,7 +23,7 @@ class SegmenterGenerator(DataGenerator):
         }
 
         # Just copy the files from generators folder
-        # exec_list = ['node generators/segmenter_gen.js']
+        exec_list = ['node generators/segmenter_gen.js']
         exec_list = []
         if self.run_limit > 0:
             exec_list.append('-run_limit')
