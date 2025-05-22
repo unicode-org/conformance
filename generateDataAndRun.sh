@@ -86,14 +86,14 @@ popd
 
 all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 
-if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
-then
-    pushd executors/dart/
-    dart pub get
-    dart bin/set_version.dart
-    dart build bin/executor.dart
-    popd
-fi
+# if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
+# then
+#     pushd executors/dart/
+#     dart pub get
+#     dart bin/set_version.dart
+#     dart build bin/executor.dart
+#     popd
+# fi
 
 if jq -e 'index("dart_web")' <<< $all_execs_json > /dev/null
 then
