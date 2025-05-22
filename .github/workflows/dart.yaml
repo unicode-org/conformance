@@ -46,10 +46,10 @@ jobs:
         run: dart analyze --fatal-infos
         if: always()
 
-      - run: dart --enable-experiment=native-assets,record-use test
+      - run: dart test
         if: ${{ matrix.run-tests }}
 
-      - run: dart --enable-experiment=native-assets,record-use test -p chrome
+      - run: dart test -p chrome
         if: ${{ matrix.run-tests && matrix.os == 'ubuntu-latest' }}
 
       - name: Check if version is set correctly
