@@ -1,4 +1,4 @@
-package org.unicode.conformance.segmenter.icu74.icu74;
+package org.unicode.conformance.segmenter.icu74;
 
 import static org.junit.Assert.assertThat;
 
@@ -16,7 +16,7 @@ public class SegmenterTest {
           "\t{\"locale\":\"en-US\",\"options\":{\"granularity\":\"grapheme_cluster\"},\"input\":\"The cat;\",\"hexhash\":\"123\",\"label\":\"000\"}";
       SegmenterOutputJson output =
                   (SegmenterOutputJson) SegmenterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
-      List<String> expected = new Arrays.asList("T",  "h", "e", " ", "c", "a", "t", ";");
+      List<String> expected = Arrays.asList("T",  "h", "e", " ", "c", "a", "t", ";");
       assertThat(expected).isEqualTo(output.result);
   }
 
@@ -26,7 +26,7 @@ public class SegmenterTest {
         "\t{\"locale\":\"en-US\",\"options\":{\"granularity\":\"word\"},\"input\":\"The cat;\",\"hexhash\":\"123\",\"label\":\"000\"}";
     SegmenterOutputJson output =
         (SegmenterOutputJson) SegmenterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
-    List<String> expected = new Array.asList("The", "cat", ";");
-    assertThat(expected).isEqualTo(output.result);
+    List<String> expected = Arrays.asList("The", "cat", ";");
+    Assert.assertThat(expected).isEqualTo(output.result);
   }
 }
