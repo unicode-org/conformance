@@ -173,7 +173,8 @@
         "lang_names",
         "likely_subtags",
         "rdt_fmt",
-        "plural_rules"
+        "plural_rules",
+        "segmenter"
       ],
       "per_execution": 10000
     }

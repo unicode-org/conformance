@@ -231,8 +231,13 @@ class Verifier:
 
             processor_pool = mp.Pool(num_processors)
             with processor_pool as p:
-                result = p.map(self.verify_one_plan, verify_plans)
-            return result
+                try:
+                    result = p.map(self.verify_one_plan, verify_plans)
+                except BaseException as err:
+                    logging.error('%s: Problem with verify_data for %s',
+                                  err, verify_plans)
+
+                    return result
         else:
             logging.info('Running serially!')
             for vplan in self.verify_plans:
