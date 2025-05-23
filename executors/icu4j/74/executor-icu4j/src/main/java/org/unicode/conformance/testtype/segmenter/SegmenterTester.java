@@ -9,7 +9,9 @@ import com.ibm.icu.text.BreakIterator;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
@@ -30,7 +32,6 @@ public class SegmenterTester implements ITestType {
 
     java.util.Map<String, Object> inputOptions =
         (java.util.Map<String, Object>) inputMapData.get("options", null);
-
     result.segmenterType = (String) inputOptions.get("granularity");
 
     result.inputString = (String) inputMapData.get("input", null);
@@ -47,7 +48,7 @@ public class SegmenterTester implements ITestType {
     output.label = input.label;
 
     try {
-      output.result = getSegmenterResult(input.inputString);
+      output.result = getSegmenterResult(input);
     } catch (Exception e) {
       output.error = e.getMessage();
       output.error_message = e.getMessage();
@@ -76,7 +77,7 @@ public class SegmenterTester implements ITestType {
     return ExecutorUtils.GSON.toJson((SegmenterOutputJson) outputJson);
   }
 
-  public List<String> getSegmenterResult(ListFormatterInputJson input) {
+  public List<String> getSegmenterResult(SegmenterInputJson input) {
     ULocale locale = ULocale.forLanguageTag(input.locale);
 
     BreakIterator segmenter;
@@ -90,17 +91,24 @@ public class SegmenterTester implements ITestType {
         break;
       case "sentence":
         segmenter = getSentenceInstance(locale);
-        break
+        break;
       case "line":
         segmenter = getLineInstance(locale);
-        break
+        break;
     }
-
+    segmenter.setText(input.inputString);
     // Segment the input, creating a list of strings as output.
-    List<String> result;
-    while (segmenter.next() != BreakIterator.DONE) {
+    List<String> result = new ArrayList<>();
+    int start_pos = segmenter.first();
+    int end_pos = segmenter.next();
+
+    while (end_pos != BreakIterator.DONE) {
+      String target = input.inputString.substring(start_pos, end_pos);
+      start_pos = end_pos;
+      end_pos = segmenter.next();
+      result.add(target);
     }
 
-    return segmenter.next(input.inputList);
+    return result;
   }
 }

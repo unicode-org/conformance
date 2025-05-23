@@ -1,5 +1,6 @@
 package org.unicode.conformance.testtype.segmenter;
 
+import java.util.List;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
 
 import java.util.Arrays;
@@ -10,7 +11,7 @@ public class SegmenterOutputJson implements ITestTypeOutputJson {
 
   public String label;
 
-  public  List<String> result;
+  public List<String> result;
 
   public String error;
 
