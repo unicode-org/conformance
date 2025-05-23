@@ -224,19 +224,6 @@
     }
   },
   {
-    "run": {
-      "exec": "dart_native",
-      "icu_version": "icu76",
-      "test_type": [
-        "collation",
-        "number_fmt",
-        "lang_names",
-        "decimal_fmt"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
     "prereq": {
       "name": "nvm",
       "version": "23.3.0",
