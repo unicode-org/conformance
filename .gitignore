@@ -1,8 +1,11 @@
 #*#
 *~
 *#
+*.#
 .vscode
 
+*Minibuf-*
+    
 .pylintrc
 .idea
 .devcontainer
@@ -50,6 +53,3 @@ logrotate.state
 
 # Maven
 dependency-reduced-pom.xml
-
-# Dart
-executors/dart/.dart_tool/

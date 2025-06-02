@@ -1,0 +1,38 @@
+{"$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/unicode/conformance/segmenter_verify_schema.json'",
+ "title": "ICU segmenter subtags verify data description",
+ "description": "This documents format of segmenter verify data",
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+   "test_type": {
+     "description": "The name of the test",
+     "const": "segmenter"
+   },
+   "verifications": {
+     "type": "array",
+     "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "properties": {
+         "label": {
+           "description": "A numeric ID, unique for the set of tests",
+           "type": "string"
+         },
+         "verify": {
+           "description": "List of the expected string segments",
+           "type": "array",
+           "items": {
+             "type": "string"
+           }
+         }
+       },
+       "required": [
+         "label",
+         "verify"
+       ]       
+     }
+   }
+ },
+ "required": ["test_type", "verifications"]
+}

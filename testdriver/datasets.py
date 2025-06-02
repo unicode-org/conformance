@@ -115,7 +115,8 @@ class testType(Enum):
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
   plural_rules = 'plural_rules'
-  
+  segmenter = 'segmenter'
+
 # Returns default value for a key not defined.
 def def_value():
   return "Not present"
@@ -194,6 +195,12 @@ testDatasets[testName] = DataSet(testType.rdt_fmt.value,
                                  'plural_rules_test.json',
                                  'plural_rules_verify.json',
                                  CLDRVersion.CLDR44, ICUVersion.ICU74)
+
+testName = 'segmenter'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'segmenter_test.json',
+                                 'segmenter_verify.json',
+                                 CLDRVersion.CLDR47, ICUVersion.ICU77)
 
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".

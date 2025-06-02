@@ -173,7 +173,8 @@
         "lang_names",
         "likely_subtags",
         "rdt_fmt",
-        "plural_rules"
+        "plural_rules",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -218,19 +219,6 @@
         "likely_subtags",
         "rdt_fmt",
         "plural_rules"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "run": {
-      "exec": "dart_native",
-      "icu_version": "icu76",
-      "test_type": [
-        "collation",
-        "number_fmt",
-        "lang_names",
-        "decimal_fmt"
       ],
       "per_execution": 10000
     }

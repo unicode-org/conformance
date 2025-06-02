@@ -35,7 +35,9 @@ class DdtOptions():
 type_options = ['collation', 'datetime_fmt',
                 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt',
-                'message_fmt2', 'rdt_fmt', 'plural_rules', 'ALL']
+                'message_fmt2', 'rdt_fmt', 'plural_rules',
+                'segmenter',
+                'ALL']
 
 class DdtArgs():
   def __init__(self, args):
@@ -160,7 +162,8 @@ def argsTestData():
       ['--test_type', 'collation', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
        'lang_names',
        'likely_subtags',
-       'plural_rules'],
+       'plural_rules',
+       'segmenter'],
       ['--test', 'collation', 'ALL', 'decimal_fmt'],
 
       ['--test_type', 'datetime_fmt'],
