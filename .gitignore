@@ -25,9 +25,6 @@ DDT_DATA/testReports*/*
 TEMP_DATA
 
 # Generator and run config files. Ignore non-standard ones
-gen*.sh
-run*.json*
-run*.sh
 !generateDataAndRun.sh
 !run_config.json
 !genData100.sh    

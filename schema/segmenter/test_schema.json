@@ -9,10 +9,6 @@
      "description": "The name of the test",
      "const": "segmenter"
    },
-   "Test scenario": {
-     "type": "string",
-     "description":" Obsolete tag to be removed and replaced with test Type"
-   },
    "source_file": {
      "description": "origin of conformance data",
      "type": "string"
