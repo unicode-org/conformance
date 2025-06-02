@@ -17,6 +17,7 @@ import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 import org.unicode.conformance.testtype.ITestTypeOutputJson;
 
+
 public class SegmenterTester implements ITestType {
 
   public static SegmenterTester INSTANCE = new SegmenterTester();
