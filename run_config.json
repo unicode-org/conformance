@@ -196,7 +196,8 @@
         "lang_names",
         "likely_subtags",
         "rdt_fmt",
-        "plural_rules"
+        "plural_rules",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -217,8 +218,9 @@
         "number_fmt",
         "lang_names",
         "likely_subtags",
+        "plural_rules",
         "rdt_fmt",
-        "plural_rules"
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -584,7 +586,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -607,7 +610,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -630,7 +634,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
