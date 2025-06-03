@@ -217,8 +217,9 @@
         "number_fmt",
         "lang_names",
         "likely_subtags",
+        "plural_rules",
         "rdt_fmt",
-        "plural_rules"
+        "segmenter"
       ],
       "per_execution": 10000
     }
