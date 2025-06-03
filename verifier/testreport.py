@@ -425,15 +425,16 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            fail_result = str(fail['result'])
-            if len(fail_result) > max_fail_length:
-                max_fail_length = len(fail_result)
+            fail_result = fail['result']
+            # if len(fail_result) > max_fail_length:
+            #     max_fail_length = len(fail_result)
 
-            if len(fail_result) > 30:
-                # Make the actual text shorter so it doesn't distort the table column
-                fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
-            line = self.fail_line_template.safe_substitute(fail)
-            fail_lines.append(line)
+            # if len(fail_result) > 30:
+            #     # Make the actual text shorter so it doesn't distort the table column
+            #     fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
+            if fail_result is str:
+                line = self.fail_line_template.safe_substitute(fail_result)
+                fail_lines.append(line)
 
         # Call functions to identify known issues, moving things from fail, error, and unsupported
         # to known_issues as needed
@@ -466,9 +467,11 @@ class TestReport:
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
         fail_characterized = self.characterize_results_by_options(self.failing_tests, 'fail')
-        fail_simple_diffs = self.check_simple_text_diffs(self.failing_tests, 'fail')
-        flat_combined_dict = self.flatten_and_combine(fail_characterized,
-                                                      fail_simple_diffs)
+        fail_simple_diffs = self.check_text_diffs(self.failing_tests, 'fail')
+        flat_combined_dict = self.flatten_and_combine(fail_characterized, fail_simple_diffs)
+
+        flat_combined_dict = self.flatten_and_combine(fail_characterized, fail_simple_diffs)
+        # TODO Add list differences to results
         self.save_characterized_file(flat_combined_dict, "fail")
 
         failure_labels = []
@@ -806,32 +809,39 @@ class TestReport:
                 except:
                     pass
 
-    def check_simple_text_diffs(self, test_list, category):
+    def check_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
-                      'comma_type', 'unexpected_comma']
-
+                      'comma_type', 'unexpected_comma', 'result_type_difference', 'boolean_difference',
+                      'error_in_key', 'other_list_difference']
+        list_differences = defaultdict(set)
         for check in all_checks:
             results[check] = set()
 
         for fail in test_list:
             label = fail['label']
-            actual = fail.get('result', None)
-            expected = fail.get('expected', None)
+            actual = fail['result']
+            expected = fail['expected']
+            if type(actual) != type(expected):
+                # This is a type mismatch. Note this and skip the string-specific characterizations.
+                results['result_type_difference'].add(label)
+                continue
             if (actual is None) or (expected is None):
                 continue
-            # Special case for differing by a single character.
+            if  isinstance(actual, list) and isinstance(expected, list):
+                list_differences = self.check_list_differences(fail, list_differences)
+                # Merge these into the results
+                continue
+            # Special cases for boolean difference.
             # Look for white space difference
-
             if isinstance(actual, bool) and isinstance(expected, bool):
-                # TODO: record boolean difference
-                return
+                results['boolean_difference'].add(label)
+                continue
 
             # The following checks work on strings
             try:
-                # Try
                 try:
                     # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
@@ -917,9 +927,38 @@ class TestReport:
                         results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
+                results['error_in_key'].add(label);
                 continue
 
+        results.update(list_differences)
         return dict(results)
+
+    def check_list_differences(self, test, results):
+        # Look at data where expected and actual are lists of strings
+        # Update results with new instances
+        # results = defaultdict(list)
+        # all_checks = ['different lengths', 'different_content', 'other list difference',
+        #               'type_difference']
+        # for check in all_checks:
+        #     results[check] = set()
+
+        label = test['label']
+        actual = test['result']
+        expected = test.get('expected', None)
+
+        if len(actual) != len(expected):
+            results['different_lengths'].add(label)
+        else:
+            results['other_list_difference'].add(label)
+
+            # Same length. Check how many items are different
+            diff_count = 0
+            for item1, item2 in zip(expected, actual):
+                if item1 != item2:
+                    diff_count += 1
+            results['%d diffs' % diff_count].add(label)
+
+        return results
 
     def save_characterized_file(self, characterized_data, characterized_type):
         try:
