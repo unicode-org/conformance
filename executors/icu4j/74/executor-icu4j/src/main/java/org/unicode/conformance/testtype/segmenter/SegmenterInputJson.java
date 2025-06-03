@@ -11,7 +11,7 @@ public class SegmenterInputJson implements ITestTypeInputJson {
 
   public String locale;
 
-  public String segmenterType;
+  public SegmenterType segmenterType;
 
   public String inputString;
 }

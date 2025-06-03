@@ -33,7 +33,7 @@ public class SegmenterTester implements ITestType {
 
     java.util.Map<String, Object> inputOptions =
         (java.util.Map<String, Object>) inputMapData.get("options", null);
-    result.segmenterType = (String) inputOptions.get("granularity");
+    result.segmenterType = SegmenterType.getFromString((String) inputOptions.get("granularity"));
 
     result.inputString = (String) inputMapData.get("input", null);
 
@@ -84,16 +84,16 @@ public class SegmenterTester implements ITestType {
     BreakIterator segmenter;
     switch (input.segmenterType) {
       default:
-      case "grapheme_cluster":
+      case GRAPHEME_CLUSTER:
         segmenter = getCharacterInstance(locale);
         break;
-      case "word":
+      case WORD:
         segmenter = getWordInstance(locale);
         break;
-      case "sentence":
+      case SENTENCE:
         segmenter = getSentenceInstance(locale);
         break;
-      case "line":
+      case LINE:
         segmenter = getLineInstance(locale);
         break;
     }
