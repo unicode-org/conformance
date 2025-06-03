@@ -815,7 +815,7 @@ class TestReport:
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
                       'comma_type', 'unexpected_comma', 'result_type_difference', 'boolean_difference',
-                      'error_in_key']
+                      'error_in_key', 'other_list_difference']
         list_differences = defaultdict(set)
         for check in all_checks:
             results[check] = set()
@@ -947,9 +947,9 @@ class TestReport:
         expected = test.get('expected', None)
 
         if len(actual) != len(expected):
-            results['different lengths'].add(label)
+            results['different_lengths'].add(label)
         else:
-            results['other list difference'].add(label)
+            results['other_list_difference'].add(label)
 
             # Same length. Check how many items are different
             diff_count = 0
