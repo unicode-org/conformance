@@ -815,7 +815,7 @@ class TestReport:
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
                       'comma_type', 'unexpected_comma', 'result_type_difference', 'boolean_difference',
-                      'error_in_key']
+                      'error_in_key', 'other_list_difference']
         list_differences = defaultdict(set)
         for check in all_checks:
             results[check] = set()
