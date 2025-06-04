@@ -57,7 +57,7 @@ auto TestSegmenter(json_object *json_in) -> string {
   json_object *granularity_obj = json_object_object_get(options_obj, "granularity");
   string granularity_value = json_object_get_string(granularity_obj);
 
-  // Store results in output array
+  // Create output array to store results
   struct json_object* test_result = json_object_new_array();
 
   json_object *return_json = json_object_new_object();
