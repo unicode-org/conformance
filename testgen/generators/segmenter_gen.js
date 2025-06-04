@@ -177,8 +177,6 @@ function generateAll() {
       gen_hash.generate_hash_for_test(test_case);
       test_case['label'] = label_string;
 
-      if (debug) {
-      }
       if (segmentation_type == 'line') {
         // To get line data, even though not supported in ECMAIntl
         all_options['granularity'] = 'line';
