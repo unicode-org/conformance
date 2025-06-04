@@ -144,14 +144,14 @@ testDatasets[testName] = DataSet(testType.decimal_fmt.value,
 
 testName = 'display_names'
 testDatasets[testName] = DataSet(testType.display_names.value,
-                                 'lang_name_test_file.json',
-                                 'lang_name_verify_file.json',
+                                 'lang_names_test_file.json',
+                                 'lang_names_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'lang_names'
 testDatasets[testName] = DataSet(testType.lang_names.value,
-                                 'lang_name_test_file.json',
-                                 'lang_name_verify_file.json',
+                                 'lang_names_test_file.json',
+                                 'lang_names_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'likely_subtags'
