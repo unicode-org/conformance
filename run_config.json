@@ -522,7 +522,8 @@
         "likely_subtags",
         "list_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
