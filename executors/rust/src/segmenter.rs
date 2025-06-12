@@ -55,7 +55,6 @@ pub fn run_segmenter_test(json_obj: &Value) -> Result<Value, String> {
             // Get options
             let mut options = LineBreakOptions::default();
             options.strictness = Some(LineBreakStrictness::Strict);
-            options.word_option = Some(LineBreakWordOption::BreakAll);
             options.content_locale = Some(&lang_identifier);
             let segmenter = LineSegmenter::new_auto(options);
             segmenter.segment_str(input_string).collect()
