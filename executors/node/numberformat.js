@@ -9,6 +9,12 @@
                                   maximumSignificantDigits: 5});
   patternsToOptions.set("0.0000E0", {notation: "scientific",
                                      minimunFractionDigits: 4});
+  patternsToOptions.set("0005", {useGrouping: false,
+                                 minimumIntegerDigits: 4,
+                                 roundingIncrement: 5,
+                                 maximumFractionDigits: 0,
+                                 roundingPriority: "auto",
+                                });
 
 let debug = 1;
 
@@ -103,28 +109,20 @@ const unsupported_combinations = [
   {"unit": "furlong"}
 ];
 
-
 const unsupported_rounding_modes = [
+  "halfOdd",
   "unnecessary"
+];
+
+
+const unsupported_pattern_regex = [
+  /0+0.#+E/,  // More than on signficant integer digit with scientific
+  /^.0#*E/,     // Zero signficant integer digits with scientific
 ];
 
 // TODO: supported options and allowed values should be indexed by Node version
 
 module.exports = {
-  decimalPatternToOptions: function(pattern, rounding) {
-    let options = {};
-
-    if (patternsToOptions.has(pattern)) {
-      options = patternsToOptions.get(pattern);
-    }
-    if (rounding) {
-      options['roundingMode'] = rounding;
-    } else {
-      // Default expected by the data
-      options['roundingMode'] = 'halfEven';
-    }
-    return options;
-  },
 
   testDecimalFormat: function(json, doLogInput) {
     const node_version = process.version;
@@ -132,119 +130,103 @@ module.exports = {
     const skeleton = json['skeleton'];
 
     const pattern = json['pattern'];
-    const rounding = json['roundingMode'];
+    // Leave input as string unless it is adjusted.
     let input = parseFloat(json['input']);  // May be changed with some options
+    let input_as_string = json['input'];  // May be changed with some options
 
     let options;
     let error = "unimplemented pattern";
     let unsupported_options = [];
     let return_json = {};
 
-    // If options are in the JSON, use them...
-    options = json['options'];
-    if (!options) {
-      try {
-        options = this.decimalPatternToOptions(pattern, rounding);
-      } catch (error) {
-        // Some error - to return this message
-        return_json['error'] = "Can't convert pattern";
-        return_json['label'] = label;
-        options = none;
-      }
-    } else {
-      // Default maximumFractionDigits and rounding modes are set in test generation
-      let roundingMode = options['roundingMode'];
-      if (! roundingMode) {
-        // Tests assume halfEven.
-        roundingMode = options['roundingMode'] = 'halfEven';
-      }
-
-      // Check each option for implementation.
-
-      // Check each option for implementation.
-      // Handle percent - input value is the basis of the actual percent
-      // expected, e.g., input='0.25' should be interpreted '0.25%'
-      if (options['style'] && options['style'] === 'percent') {
-        input = input / 100.0;
-      }
-
-      // Handle scale in the skeleton
-      let skeleton_terms;
-      if (skeleton) {
-        skeleton_terms = skeleton.split(" ");  // all the components
-        if (doLogInput > 0) {
-          console.log("# SKEL: " + skeleton_terms);
+    if (pattern) {
+      // only for checking unsupported patterns
+      for (let item of unsupported_pattern_regex) {
+        if (item.test(pattern)) {
+          unsupported_options.push('pattern: ' + pattern);
+          return {'label': label,
+                  "unsupported": "unsupported_options",
+                  "error_detail": {'unsupported_options': unsupported_options}
+                 }
         }
-        const scale_regex = /scale\/(\d+\.\d*)/;
-        const match_scale = skeleton.match(scale_regex);
-        if (match_scale) {
-          // Get the value and use it
-          const scale_value = parseFloat(match_scale[1]);
-          input = input * scale_value;
-        }
-
-        //
-      }
-
-      // Check for "code":. Change to "currency":
-      if (options['code']) {
-        options['currency'] = options['code'];
-        delete options['code'];
-      }
-
-      // Supported options depends on the nodejs version
-      if (doLogInput > 0) {
-        console.log("#NNNN " + node_version);
-      }
-      let version_supported_options;
-      if (node_version >= first_v3_version) {
-        if (doLogInput > 0) {
-          console.log("#V3 !!!! " + node_version);
-        }
-        version_supported_options =
-            supported_options_by_version['v3'];
-      } else {
-        if (doLogInput > 0) {
-          console.log("#pre_v3 !!!! " + node_version);
-        }
-        version_supported_options =
-        supported_options_by_version['pre_v3'];
-      }
-      if (doLogInput > 0) {
-        console.log("#NNNN " + version_supported_options);
-      }
-      // Check for option items that are not supported
-      for (let key in options) {
-        if (!version_supported_options.includes(key)) {
-          unsupported_options.push((key + ":" +  options[key]));
-        }
-      }
-
-      // Check for skelection terms that are not supported
-      for (let skel_index in skeleton_terms) {
-        const skel_term = skeleton_terms[skel_index];
-        if (doLogInput > 0) {
-          console.log("# SKEL_TERM: " + skel_term);
-        }
-        if (unsupported_skeleton_terms.includes(skel_term)) {
-          unsupported_options.push(skel_term);
-          if (doLogInput > 0) {
-            console.log("# UNSUPPORTED SKEL_TERM: " + skel_term);
-          }
-        }
-      }
-
-      if (unsupported_rounding_modes.includes(roundingMode)) {
-        unsupported_options.push(roundingMode);
-      }
-      if (unsupported_options.length > 0) {
-        return {'label': label,
-                "unsupported": "unsupported_options",
-                "error_detail": {'unsupported_options': unsupported_options}
-               };
       }
     }
 
+    // Use options instead of pattern
+    options = json['options'];
+    const rounding = options['roundingMode'];
+    // Default maximumFractionDigits and rounding modes are set in test generation
+    if (! rounding) {
+      options['roundingMode'] = 'halfEven';
+    }
+    // Check each option for implementation.
+
+    // Handle percent - input value is the basis of the actual percent
+    // expected, e.g., input='0.25' should be interpreted '0.25%'
+    if (options['style'] && options['style'] === 'percent') {
+      input = input / 100.0;
+      input_as_string = input.toString();
+    }
+
+    // Handle scale in the skeleton
+    let skeleton_terms;
+    if (skeleton) {
+      skeleton_terms = skeleton.split(" ");  // all the components
+
+      const scale_regex = /scale\/(\d+\.\d*)/;
+      const match_scale = skeleton.match(scale_regex);
+      if (match_scale) {
+        // Get the value and use it
+        const scale_value = parseFloat(match_scale[1]);
+        input = input * scale_value;
+        input_as_string = input.toString();
+      }
+
+      //
+    }
+
+    // Check for "code":. Change to "currency":
+    if (options['code']) {
+      options['currency'] = options['code'];
+      delete options['code'];
+    }
+
+    // Supported options depends on the nodejs version
+    let version_supported_options;
+    if (node_version >= first_v3_version) {
+      version_supported_options =
+          supported_options_by_version['v3'];
+    } else {
+      version_supported_options =
+          supported_options_by_version['pre_v3'];
+    }
+
+    // Check for option items that are not supported
+    for (let key in options) {
+      if (!version_supported_options.includes(key)) {
+        unsupported_options.push((key + ":" +  options[key]));
+      }
+    }
+
+    // Check for skelection terms that are not supported
+    for (let skel_index in skeleton_terms) {
+      const skel_term = skeleton_terms[skel_index];
+
+      if (unsupported_skeleton_terms.includes(skel_term)) {
+        unsupported_options.push(skel_term);
+      }
+    }
+
+    if (unsupported_rounding_modes.includes(options['roundingMode'])) {
+      unsupported_options.push(options['roundingMode']);
+    }
+
+    if (unsupported_options.length > 0) {
+      return {'label': label,
+              "unsupported": "unsupported_options",
+              "error_detail": {'unsupported_options': unsupported_options}
+             };
+    }
     if (!options) {
       // Don't test, but return an error
       return {'label': label,
@@ -262,13 +244,12 @@ module.exports = {
       }
 
       let result = 'NOT IMPLEMENTED';
-      result = nf.format(input);
+      // Use the string form, possibly adjusted.
+      result = nf.format(input_as_string);
 
       // TODO: Catch unsupported units, e.g., furlongs.
       // Formatting as JSON
-      resultString = result ? result : 'None'
-
-
+      resultString = result ? result : 'None';
 
       outputLine = {"label": json['label'],
                     "result": resultString,
