@@ -22,6 +22,8 @@ import io.lacuna.bifurcan.Map;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
@@ -108,13 +110,6 @@ public class NumberFormatterTester implements ITestType {
         NumberFormatterTestOptionKey.roundingMode,
         RoundingModeVal.getFromString(
             (String) parsedOptionsMap.get("roundingMode")));
-    int roundingIncrement =
-        (int) parsedOptionsMap.getOrDefault("roundingIncrement", RoundingIncrementUtil.DEFAULT);
-    assert RoundingIncrementUtil.isValidVal(roundingIncrement);
-    options.put(
-        NumberFormatterTestOptionKey.roundingIncrement,
-        roundingIncrement
-    );
     options.put(
         NumberFormatterTestOptionKey.trailingZeroDisplay,
         TrailingZeroDispalyVal.getFromString(
@@ -136,6 +131,32 @@ public class NumberFormatterTester implements ITestType {
     NumberFormatterOutputJson output = new NumberFormatterOutputJson();
     output.label = input.label;
 
+    // Check for unsupported patterns
+    if (input.pattern != null && input.pattern != "") {
+      Pattern check1 = Pattern.compile("0+0.#+E");
+      Matcher matcher1 = check1.matcher(input.pattern);
+      Pattern check2 = Pattern.compile("^.0#*E");
+      Matcher matcher2 = check2.matcher(input.pattern);
+      if (matcher1.find() || matcher2.find()) {
+        output.error_type = "unsupported";
+        output.unsupported = "unsupported pattern";
+        output.error_detail = input.pattern;
+        return output;
+      }
+    }
+
+    // Check unsupport options in skeleton
+    if (input.skeleton != null) {
+      Pattern check_unnessary = Pattern.compile("rounding-mode-(unnecessary|half-odd)");
+      Matcher matcher1 = check_unnessary.matcher(input.skeleton);
+      if (matcher1.find()) {
+        output.error_type = "unsupported";
+        output.unsupported = "skeleton option";
+        output.error_detail = matcher1.group();
+        return output;
+      }
+
+    }
     try {
       output.result = getFormattedNumber(input);
     } catch (Exception e) {
@@ -352,13 +373,6 @@ public class NumberFormatterTester implements ITestType {
         );
       } else {
         precision = fractionPrecision;
-      }
-
-      if (precision == null
-          && input.options.containsKey(NumberFormatterTestOptionKey.roundingIncrement)) {
-        int roundingIncrement =
-            (int) input.options.get(NumberFormatterTestOptionKey.roundingIncrement);
-        precision = Precision.increment(new BigDecimal(roundingIncrement));
       }
 
       if (precision != null

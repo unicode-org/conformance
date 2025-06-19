@@ -383,6 +383,8 @@ auto TestNumfmt(json_object *json_in) -> string {
         rounding_setting = UNUM_ROUND_CEILING;
       } else if (roundingMode_string == "halfEven") {
         rounding_setting = UNUM_ROUND_HALFEVEN;
+      } else if (roundingMode_string == "halfOdd") {
+        rounding_setting = UNUM_ROUND_HALF_ODD;
       } else if (roundingMode_string == "halfTrunc") {
         rounding_setting = UNUM_ROUND_HALFDOWN;
       } else if (roundingMode_string == "halfExpand") {
