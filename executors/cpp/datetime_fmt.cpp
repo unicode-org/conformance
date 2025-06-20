@@ -129,6 +129,11 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
   // skeleton or date_style.
   string default_skeleton_string = "M/d/yyyy";
 
+  // Indicates if the library outputs date and time with the "at", as in "July 1 at 10:00"
+  bool supports_atTime = true;
+
+  string dateTimeFormatType_str = "";
+
   if (options_obj != nullptr) {
     json_object* option_item = json_object_object_get(options_obj, "dateStyle");
     if (option_item != nullptr) {
@@ -140,6 +145,32 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
     if (option_item != nullptr) {
       timeStyle_str = json_object_get_string(option_item);
       time_style = StringToEStyle(timeStyle_str);
+    }
+
+    option_item = json_object_object_get(options_obj, "dateTimeFormatType");
+    if (option_item != nullptr) {
+      // What this data item expects.
+      dateTimeFormatType_str = json_object_get_string(option_item);
+      // Check if this is not supported?
+      if ((dateTimeFormatType_str == "atTime" && !supports_atTime) ||
+          (dateTimeFormatType_str != "atTime" && supports_atTime)) {
+        const char* error_name = u_errorName(status);
+        // Inexact result is unsupported.
+        json_object_object_add(
+            return_json,
+            "error_type",
+            json_object_new_string("unsupported"));
+        json_object_object_add(
+            return_json,
+            "unsupported",
+            json_object_new_string("format type"));
+        string detail_str = "formatType: " + dateTimeFormatType_str;
+        json_object_object_add(
+            return_json,
+            "error_detail",
+            json_object_new_string(detail_str.c_str()));
+        return json_object_to_json_string(return_json);
+      }
     }
   }
 

@@ -76,6 +76,9 @@ class DateTimeFmtGenerator(DataGenerator):
                     options['dateStyle'] = test_item['dateLength']
                 if 'timeLength' in test_item:
                     options['timeStyle'] = test_item['timeLength']
+                # Specifies if the expected output includes "at"
+                if 'dateTimeFormatType' in test_item:
+                    options['dateTimeFormatType'] = test_item['dateTimeFormatType']
 
                 if 'calendar' in test_item:
                     options['calendar'] = test_item['calendar']
