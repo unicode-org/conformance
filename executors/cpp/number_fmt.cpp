@@ -542,7 +542,6 @@ auto TestNumfmt(json_object *json_in) -> string {
 
     if (U_FAILURE(status) != 0) {
       // Report a failure
-      cout << "ERROR CODE: " << status << endl;
       if (status == U_FORMAT_INEXACT_ERROR) {
         const char* error_name = u_errorName(status);
         // Inexact result is unsupported.
