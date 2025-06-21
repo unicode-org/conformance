@@ -133,9 +133,9 @@ public class NumberFormatterTester implements ITestType {
 
     // Check for unsupported patterns
     if (input.pattern != null && input.pattern != "") {
-      Pattern check1 = Pattern.compile("0+0.#+E");
+      Pattern check1 = Pattern.compile("0+0\\.#+E");
       Matcher matcher1 = check1.matcher(input.pattern);
-      Pattern check2 = Pattern.compile("^.0#*E");
+      Pattern check2 = Pattern.compile("^\\.0#*E");
       Matcher matcher2 = check2.matcher(input.pattern);
       if (matcher1.find() || matcher2.find()) {
         output.error_type = "unsupported";

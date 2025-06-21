@@ -231,8 +231,8 @@ auto TestNumfmt(json_object *json_in) -> string {
     pattern = json_object_get_string(pattern_obj);
 
     // Check for unsupported patterns.
-    std::regex check1("(0+0.#+E)");
-    std::regex check2("(^.0#*E)");
+    std::regex check1("(0+0\\.#+E)");
+    std::regex check2("(^\\.0#*E)");
     std::smatch m;
 
     if (std::regex_search(pattern, m, check1) || std::regex_search(pattern, m, check2)) {
