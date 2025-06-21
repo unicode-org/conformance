@@ -130,9 +130,11 @@ module.exports = {
     const skeleton = json['skeleton'];
 
     const pattern = json['pattern'];
-    // Leave input as string unless it is adjusted.
-    let input = parseFloat(json['input']);  // May be changed with some options
-    let input_as_string = json['input'];  // May be changed with some options
+
+    // The formatter can take a string as input, which is needed for very long
+    // sets of digits. In some cases, the input data may be adjusted, e.g.,
+    // for "percent" and "scale" options (see below).
+    let input_as_string = json['input'];
 
     let options;
     let error = "unimplemented pattern";
@@ -164,7 +166,7 @@ module.exports = {
     // Handle percent - input value is the basis of the actual percent
     // expected, e.g., input='0.25' should be interpreted '0.25%'
     if (options['style'] && options['style'] === 'percent') {
-      input = input / 100.0;
+      const input = parseFloat(input_as_string) / 100;
       input_as_string = input.toString();
     }
 
@@ -178,11 +180,9 @@ module.exports = {
       if (match_scale) {
         // Get the value and use it
         const scale_value = parseFloat(match_scale[1]);
-        input = input * scale_value;
+        const input = parseFloat(input_as_string) * scale_value;;
         input_as_string = input.toString();
       }
-
-      //
     }
 
     // Check for "code":. Change to "currency":
@@ -208,7 +208,7 @@ module.exports = {
       }
     }
 
-    // Check for skelection terms that are not supported
+    // Check for skeleton terms that are not supported
     for (let skel_index in skeleton_terms) {
       const skel_term = skeleton_terms[skel_index];
 
