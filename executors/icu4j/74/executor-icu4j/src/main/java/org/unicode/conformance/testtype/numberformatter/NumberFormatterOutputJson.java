@@ -8,7 +8,10 @@ public class NumberFormatterOutputJson implements ITestTypeOutputJson {
 
   public String result;
 
+  public String unsupported;
   public String error;
-
+  public String error_detail;
+  public String error_type;
   public String error_message;
 }
+

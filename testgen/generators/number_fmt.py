@@ -174,15 +174,29 @@ class NumberFmtGenerator(DataGenerator):
 
         # Transforming patterns to skeltons
         pattern_to_skeleton = {
-            "0.0000E0": "scientific .0000/@",
-            "00": "integer-width/##00 group-off",
-            # '0.00': '.##/@@@',  # TODO: Fix this skeleton
+            "0.0000E0": "scientific .0000",
+            "0.000E0": "scientific .000",
+            "0.00E0": "scientific .00",
+            "0.0##E0": "scientific .0##",  # ??
+            "00.##E0": "scientific .##",  # ??
+            "0.#E0": "scientific .0",  # ??
+            "0.##E0": "scientific .00",  # ???
+            ".0E0": "scientific .0",  # ??
+            ".0#E0": "scientific .0#",  # ??
+            ".0##E0": "scientific .0##",  # ??
+            "00": "integer-width/##00 precision-integer group-off",
+            "0.0": ".0",
+            '0.00': '.00',
+            '0.0##': '.0##',
+            '0.00##': '.00##',
             "@@@": "@@@ group-off",
             "@@###": "@@### group-off",
-            "#": "@ group-off",
-            "@@@@E0": "scientific/+e .0000/@@+",
+            "#": "precision-integer group-off",
+            "#.#": ".# group-off",
+            "@@@@E0": "scientific/+e @@@@",
             "0.0##@E0": "scientific/+e .##/@@+",
-            "0005": "integer-width/0000 precision-increment/0005",
+            "0005": "integer-width/0000 precision-increment/0005 group-off",
+            "@@@@@@@@@@@@@@@@@@@@@@@@@": "@@@@@@@@@@@@@@@@@@@@@@@@@ group-off"
         }
 
         expected = len(test_list) + count
@@ -200,13 +214,15 @@ class NumberFmtGenerator(DataGenerator):
                 if pattern == None:
                     continue
 
-                rounding_mode = self.mapRoundingToECMA402(round_mode)
                 label = str(count).rjust(max_digits, "0")
 
                 # TODO!!: Look up the patterns to make skeletons
                 if pattern in pattern_to_skeleton:
                     skeleton = pattern_to_skeleton[pattern]
+                    if round_mode:
+                        skeleton += ' ' + self.mapRoundingToSkeleton(round_mode)
                 else:
+                    logging.error('Pattern %s not converted to skelection', pattern)
                     skeleton = None
 
                 if skeleton:
@@ -234,8 +250,9 @@ class NumberFmtGenerator(DataGenerator):
                 # None of these old patterns use groupings
                 resolved_options_dict["useGrouping"] = False
 
-                if rounding_mode:
-                    entry["options"]["roundingMode"] = rounding_mode
+                if round_mode:
+                    ecma_rounding_mode = self.mapRoundingToECMA402(round_mode)
+                    entry["options"]["roundingMode"] = ecma_rounding_mode
                 else:
                     # Default if not specified
                     entry["options"]["roundingMode"] = self.mapRoundingToECMA402(
@@ -255,7 +272,7 @@ class NumberFmtGenerator(DataGenerator):
 
     def parseDcmlFmtTestData(self, rawtestdata):
         reformat = re.compile(
-            r"format +([\d.E@\#]+) +(default|ceiling|floor|down|up|halfeven|halfdown|halfup|unnecessary) +\"(-?[\d.E]+)\" +\"(-?[\d.E]+|Inexact)\""
+            r"format +([\d.E@\#]+) +(default|ceiling|floor|down|up|halfeven|halfdown|halfup|halfodd|halfceiling|halffloor|unnecessary) +\"(-?[\d.E]+)\" +\"(-?[\d.E]+|Inexact)\""
         )
         # TODO: ignore 'parse' line
         try:
@@ -347,7 +364,12 @@ class NumberFmtGenerator(DataGenerator):
                 "minimumFractionDigits": 1,
                 "maximumFractionDigits": 3,
             },
-            "0005": {"minimumIntegerDigits": 2},
+            "0005": {
+                "minimumIntegerDigits": 4,
+                "roundingIncrement": 5,
+                "maximumFractionDigits": 0,
+                "roundingPriority": "auto",
+                "roundingIncrement": 5},
             "0.00": {
                 "minimumIntegerDigits": 1,
                 "minimumFractionDigits": 2,
@@ -401,13 +423,13 @@ class NumberFmtGenerator(DataGenerator):
         options_dict = {}
         # Which combinatins of skeleton entries need modificiation?
         # Look at the expected output...
-        for o in options:
-            if o != "scale/0.5" and o != "decimal-always":
-                option_detail = ecma402_map[o]
+        for option in options:
+            if option != "scale/0.5" and option != "decimal-always":
+                option_detail = ecma402_map[option]
                 options_dict = options_dict | option_detail
-            if o[0:5] == "scale":
-                options_dict = options_dict | {"conformanceScale": o[6:]}
-            if o == "decimal-always":
+            if option[0:5] == "scale":
+                options_dict = options_dict | {"conformanceScale": option[6:]}
+            if option == "decimal-always":
                 options_dict = options_dict | {"conformanceDecimalAlways": True}
 
         # TODO: resolve some combinations of entries that are in conflict
@@ -417,7 +439,7 @@ class NumberFmtGenerator(DataGenerator):
         ecma402_rounding_map = {
             "default": "halfEven",
             "halfeven": "halfEven",
-            "halfodd": "none",
+            "halfodd": "halfOdd",
             "halfdown": "halfTrunc",
             "halfup": "halfExpand",
             "down": "trunc",
@@ -429,6 +451,24 @@ class NumberFmtGenerator(DataGenerator):
             "unnecessary": "unnecessary",
         }
         return ecma402_rounding_map[rounding]
+
+    def mapRoundingToSkeleton(self, rounding):
+        ecma402_rounding_map = {
+            "default": "rounding-mode-half-even",
+            "halfeven": "rounding-mode-half-even",
+            "halfodd": "rounding-mode-half-odd",   # valid??
+            "halfdown": "rounding-mode-half-down",
+            "halfup": "rounding-mode-half-up",
+            "down": "rounding-mode-down",
+            "up": "rounding-mode-up",
+            "halfceiling": "rounding-mode-half-up",  # correct?
+            "halffloor": "rounding-mode-half-down",  # correct?
+            "ceiling": "rounding-mode-ceiling",
+            "floor": "rounding-mode-floor",
+            "unnecessary": "rounding-mode-unnecessary",
+        }
+        return ecma402_rounding_map[rounding]
+
 
     def resolveOptions(self, raw_options, skeleton_list):
         # Resolve conflicts with options before putting them into the test's options.

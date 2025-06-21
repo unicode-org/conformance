@@ -30,6 +30,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <regex>
 #include <string>
 #include <cstring>
 
@@ -220,6 +221,42 @@ auto TestNumfmt(json_object *json_in) -> string {
     locale_string = json_object_get_string(locale_label_obj);
   }
 
+  // JSON for the results
+  json_object *return_json = json_object_new_object();
+  json_object_object_add(return_json, "label", label_obj);
+
+  json_object *pattern_obj = json_object_object_get(json_in, "pattern");
+  string pattern = "";
+  if (pattern_obj) {
+    pattern = json_object_get_string(pattern_obj);
+
+    // Check for unsupported patterns.
+    std::regex check1("(0+0\\.#+E)");
+    std::regex check2("(^\\.0#*E)");
+    std::smatch m;
+
+    if (std::regex_search(pattern, m, check1) || std::regex_search(pattern, m, check2)) {
+      // No, not a supported pattern
+      // Report a failure
+      json_object_object_add(
+          return_json,
+          "error_type",
+          json_object_new_string("unsupported"));
+      json_object_object_add(
+          return_json,
+          "unsupported",
+          json_object_new_string("unsupported pattern"));
+      json_object_object_add(
+          return_json,
+          "error_detail",
+          json_object_new_string(pattern.c_str()));
+
+      // Nothing more to do here.
+      string return_string = json_object_to_json_string(return_json);
+      return return_string;
+    }
+  }
+
   const Locale displayLocale(locale_string.c_str());
 
   // Get options
@@ -244,6 +281,7 @@ auto TestNumfmt(json_object *json_in) -> string {
   string unitDisplay_string;
   string style_string;
   string compactDisplay_string;
+  string roundingMode_string;
 
   // Defaults for settings.
   CurrencyUnit currency_unit_setting = CurrencyUnit();
@@ -338,13 +376,15 @@ auto TestNumfmt(json_object *json_in) -> string {
     // TODO: Make this a function rather than inline.
     roundingMode_obj = json_object_object_get(options_obj, "roundingMode");
     if (roundingMode_obj != nullptr) {
-      string roundingMode_string = json_object_get_string(roundingMode_obj);
+      roundingMode_string = json_object_get_string(roundingMode_obj);
       if (roundingMode_string == "floor") {
         rounding_setting = UNUM_ROUND_FLOOR;
       } else if (roundingMode_string == "ceil") {
         rounding_setting = UNUM_ROUND_CEILING;
       } else if (roundingMode_string == "halfEven") {
         rounding_setting = UNUM_ROUND_HALFEVEN;
+      } else if (roundingMode_string == "halfOdd") {
+        rounding_setting = UNUM_ROUND_HALF_ODD;
       } else if (roundingMode_string == "halfTrunc") {
         rounding_setting = UNUM_ROUND_HALFDOWN;
       } else if (roundingMode_string == "halfExpand") {
@@ -353,26 +393,28 @@ auto TestNumfmt(json_object *json_in) -> string {
         rounding_setting = UNUM_ROUND_DOWN;
       } else if (roundingMode_string == "expand") {
         rounding_setting = UNUM_ROUND_UP;
+      } else if (roundingMode_string == "unnecessary") {
+        rounding_setting = UNUM_ROUND_UNNECESSARY;
       }
-      // TODO: Finish this
-      //  UNUM_ROUND_HALFEVEN , UNUM_FOUND_HALFEVEN = UNUM_ROUND_HALFEVEN ,
-      //  UNUM_ROUND_HALFDOWN = UNUM_ROUND_HALFEVEN + 1 , UNUM_ROUND_HALFUP ,
-      //  UNUM_ROUND_UNNECESSARY , UNUM_ROUND_HALF_ODD ,
-      //  UNUM_ROUND_HALF_CEILING , UNUM_ROUND_HALF_FLOOR
     }
 
-    // TODO: make a function
+    // TODO: make a function for group_setting
     group_obj = json_object_object_get(options_obj, "useGrouping");
     if (group_obj != nullptr) {
       string group_string = json_object_get_string(group_obj);
-      if (group_string == "false") {
+      if (group_string == "false" || group_string == "off") {
         grouping_setting = UNUM_GROUPING_OFF;
-      } else if (group_string == "true") {
+      } else if (group_string == "true" || group_string == "auto") {
         grouping_setting = UNUM_GROUPING_AUTO;
       } else if (group_string == "on_aligned") {
         grouping_setting = UNUM_GROUPING_ON_ALIGNED;
+      } else if (group_string == "mim2") {
+        grouping_setting = UNUM_GROUPING_MIN2;
+      } else if (group_string == "thousands") {
+        grouping_setting = UNUM_GROUPING_THOUSANDS;
+      } else if (group_string == "count") {
+        grouping_setting = UNUM_GROUPING_COUNT;
       }
-      // TODO: FINISH - could be OFF, MIN2, AUTO, ON_ALIGNED, THOUSANDS
     }
 
     // Need to avoid resetting when not options are specifierd.
@@ -421,10 +463,6 @@ auto TestNumfmt(json_object *json_in) -> string {
   string input_string = json_object_get_string(input_obj);
 
   // Start using these things
-
-  // JSON for the results
-  json_object *return_json = json_object_new_object();
-  json_object_object_add(return_json, "label", label_obj);
 
   int32_t chars_out;  // Results of extracting characters from Unicode string
   bool no_error = true;
@@ -504,12 +542,27 @@ auto TestNumfmt(json_object *json_in) -> string {
 
     if (U_FAILURE(status) != 0) {
       // Report a failure
-      const char* error_name = u_errorName(status);
-      json_object_object_add(
-          return_json, "error",
-          json_object_new_string("error in string extract"));
-      json_object_object_add(
-          return_json, "error_detail", json_object_new_string(error_name));
+      if (status == U_FORMAT_INEXACT_ERROR) {
+        const char* error_name = u_errorName(status);
+        // Inexact result is unsupported.
+        json_object_object_add(
+            return_json,
+            "error_type",
+            json_object_new_string("unsupported"));
+        json_object_object_add(
+            return_json,
+            "unsupported",
+            json_object_new_string(error_name));
+      }
+      else {
+        const char* error_name = u_errorName(status);
+
+        json_object_object_add(
+            return_json, "error",
+            json_object_new_string("error getting result string"));
+        json_object_object_add(
+            return_json, "error_detail", json_object_new_string(error_name));
+      }
     } else {
       // It worked!
       json_object_object_add(return_json,
