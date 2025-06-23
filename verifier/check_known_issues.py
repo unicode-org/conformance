@@ -63,6 +63,10 @@ class knownIssueType(Enum):
     langnames_tag_option = 'unsupported option in locale'
     langnames_bracket_parens = 'brackets_vs_parentheses'
 
+    # Number format
+    # https://github.com/unicode-org/icu4x/issues/6678
+    number_fmt_icu4x_small_fractional_numbers = 'icu4x#6678 small fractional numbers'
+
     # Plural rules
     plural_rules_floating_point_sample = 'limited floating point support'
     plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
@@ -141,10 +145,12 @@ def unsupported_unit_quarter(test):
 
 def dt_check_for_alternate_long_form(test, actual, expected):
     # For datetime_fmt, is the format type "standard"?
+    at_strings = [' at', 'เวลา', ' هـ']
     if actual == expected:
         return None
-    if actual.replace(' at', ',') == expected:
-        return knownIssueType.datetime_fmt_at_inserted
+    for at_string in at_strings:
+        if actual.replace(at_string, ',') == expected:
+            return knownIssueType.datetime_fmt_at_inserted
     return None
 
 
@@ -294,6 +300,13 @@ def langname_brackets(test):
     else:
         return None
 
+# Number format known issues
+def check_number_fmt_issues(test):
+    input = test['input_data']['input']
+    if 'result' in test and test['result'] == '-' and abs(float(input)) < 1.0:
+        return knownIssueType.number_fmt_icu4x_small_fractional_numbers
+    return None
+
 
 def check_plural_rules_issues(test):
     try:
@@ -324,6 +337,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_likely_subtags_issues(test)
     elif test_type == ddt_data.testType.lang_names.value:
         known_issue_found = check_langnames_issues(test)
+    elif test_type == ddt_data.testType.number_fmt.value:
+        known_issue_found = check_number_fmt_issues(test)
     elif test_type == ddt_data.testType.plural_rules.value:
         known_issue_found = check_plural_rules_issues(test)
 
