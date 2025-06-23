@@ -116,8 +116,8 @@ const unsupported_rounding_modes = [
 
 
 const unsupported_pattern_regex = [
-  /0+0.#+E/,  // More than on signficant integer digit with scientific
-  /^.0#*E/,     // Zero signficant integer digits with scientific
+  /0+0\\.#+E/,  // More than on signficant integer digit with scientific
+  /^\\.0#*E/,     // Zero signficant integer digits with scientific
 ];
 
 // TODO: supported options and allowed values should be indexed by Node version
