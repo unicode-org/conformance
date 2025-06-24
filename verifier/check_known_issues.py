@@ -63,6 +63,8 @@ class knownIssueType(Enum):
     langnames_tag_option = 'unsupported option in locale'
     langnames_bracket_parens = 'brackets_vs_parentheses'
 
+    # Number format
+    number_fmt_inexact_rounding = 'Rounding unnecessary'
     # Plural rules
     plural_rules_floating_point_sample = 'limited floating point support'
     plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
@@ -271,6 +273,7 @@ def langname_fonipa(test):
     else:
         return None
 
+
 def langname_tag_option(test):
     # TODO: Add other unsupported tags
     input_data = test['input_data']
@@ -293,6 +296,21 @@ def langname_brackets(test):
         return knownIssueType.langnames_bracket_parens
     else:
         return None
+
+
+# Number format known issues
+def check_number_fmt_issues(test):
+    input_data = test['input_data']
+    expected = test['expected']
+    if expected == 'Inexact' and input_data['options']['roundingMode'] == 'unnecessary':
+        return knownIssueType.number_fmt_inexact_rounding
+
+    if 'result' not in test:
+        # This must be an error
+        if 'error' in test and re.match(r'Rounding is required', test['error']):
+            return knownIssueType.number_fmt_inexact_rounding
+        # No known issue for this case
+    return None
 
 
 def check_plural_rules_issues(test):
@@ -326,7 +344,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_langnames_issues(test)
     elif test_type == ddt_data.testType.plural_rules.value:
         known_issue_found = check_plural_rules_issues(test)
-
+    elif test_type == ddt_data.testType.number_fmt.value:
+        known_issue_found = check_number_fmt_issues(test)
     # TODO: Add checks here for known issues in other test types
 
     return known_issue_found
