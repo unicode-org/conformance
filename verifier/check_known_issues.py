@@ -299,7 +299,7 @@ def langname_brackets(test):
 
 
 # Number format known issues
-def check_number_fmt_issues(test):
+def check_number_fmt_issues(test, platform_info):
     input_data = test['input_data']
     if 'expected' in test:
         expected = test['expected']
@@ -329,7 +329,7 @@ def check_plural_rules_issues(test):
         return None
 
 
-def compute_known_issues_for_single_test(test_type, test):
+def compute_known_issues_for_single_test(test_type, test, platform_info):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
 
@@ -346,12 +346,12 @@ def compute_known_issues_for_single_test(test_type, test):
     elif test_type == ddt_data.testType.plural_rules.value:
         known_issue_found = check_plural_rules_issues(test)
     elif test_type == ddt_data.testType.number_fmt.value:
-        known_issue_found = check_number_fmt_issues(test)
+        known_issue_found = check_number_fmt_issues(test, platform_info)
     # TODO: Add checks here for known issues in other test types
 
     return known_issue_found
 
-def check_issues(test_type, test_results_to_check):
+def check_issues(test_type, test_results_to_check, platform_info):
     # Look at the array of test result types, failure, error, unsupported
     # Extract any tests from these that are known issues
     # Return the list of tests that are known issues
@@ -363,7 +363,7 @@ def check_issues(test_type, test_results_to_check):
         index = 0
 
         for test in category:
-            is_known_issue = compute_known_issues_for_single_test(test_type, test)
+            is_known_issue = compute_known_issues_for_single_test(test_type, test, platform_info)
             if is_known_issue:
                 known_issues_list.append(test)
                 test_indices_with_known_issues.add(index)

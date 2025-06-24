@@ -385,7 +385,8 @@ class TestReport:
         new_known_issues = check_issues(
             self.test_type,
             # Don't look at tests labeled as "unsupported"
-            [self.failing_tests, self.test_errors])
+            [self.failing_tests, self.test_errors],
+            self.platform_info)
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -424,26 +425,27 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            fail_result = fail['result']
-            # if len(fail_result) > max_fail_length:
-            #     max_fail_length = len(fail_result)
+            if 'result' in fail:
+                fail_result = fail['result']
+                # if len(fail_result) > max_fail_length:
+                #     max_fail_length = len(fail_result)
 
-            # if len(fail_result) > 30:
-            #     # Make the actual text shorter so it doesn't distort the table column
-            #     fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
-            if fail_result is str:
-                line = self.fail_line_template.safe_substitute(fail_result)
-                fail_lines.append(line)
+                # if len(fail_result) > 30:
+                #     # Make the actual text shorter so it doesn't distort the table column
+                #     fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
+                if fail_result is str:
+                    line = self.fail_line_template.safe_substitute(fail_result)
+                    fail_lines.append(line)
 
         # Call functions to identify known issues, moving things from fail, error, and unsupported
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            [self.failing_tests, self.test_errors, self.unsupported_cases],
+            platform_info)
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
-
 
         # Characterize successes, too.
         pass_characterized = self.characterize_results_by_options(self.passing_tests, 'pass')
