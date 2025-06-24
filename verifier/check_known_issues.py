@@ -301,9 +301,10 @@ def langname_brackets(test):
 # Number format known issues
 def check_number_fmt_issues(test):
     input_data = test['input_data']
-    expected = test['expected']
-    if expected == 'Inexact' and input_data['options']['roundingMode'] == 'unnecessary':
-        return knownIssueType.number_fmt_inexact_rounding
+    if 'expected' in test:
+        expected = test['expected']
+        if expected == 'Inexact' and input_data['options']['roundingMode'] == 'unnecessary':
+            return knownIssueType.number_fmt_inexact_rounding
 
     if 'result' not in test:
         # This must be an error
