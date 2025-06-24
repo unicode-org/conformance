@@ -64,9 +64,9 @@ class knownIssueType(Enum):
     langnames_bracket_parens = 'brackets_vs_parentheses'
 
     # Number format
-    # Support expected errors https: // github.com / unicode - org / conformance / issues / 242
+    # Support expected errors  https://github.com/unicode-org/conformance/issues/242
     number_fmt_inexact_rounding = 'Rounding unnecessary'
-    
+
     # Plural rules
     plural_rules_floating_point_sample = 'limited floating point support'
     plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
