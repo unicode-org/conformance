@@ -821,7 +821,10 @@ class TestReport:
 
         for fail in test_list:
             label = fail['label']
-            actual = fail['result']
+            try:
+                actual = fail['result']
+            except:
+                actual = None
             expected = fail['expected']
             if type(actual) != type(expected):
                 # This is a type mismatch. Note this and skip the string-specific characterizations.
