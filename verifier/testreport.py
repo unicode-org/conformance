@@ -944,7 +944,7 @@ class TestReport:
         #     results[check] = set()
 
         label = test['label']
-        actual = test['result']
+        actual = test.get('result', None)
         expected = test.get('expected', None)
 
         if len(actual) != len(expected):
