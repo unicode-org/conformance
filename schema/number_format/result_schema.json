@@ -122,7 +122,7 @@
                "description": "rounding mode to be used",
                "enum": ["ceil", "floor", "expand", "trunc",
                         "halfCeil", "halfFloor", "halfExpand",
-                        "halfTrunc", "halfEven",
+                        "halfTrunc", "halfEven", "halfOdd",
                         "unnecessary"],
                "default": "halfEven"
              },
