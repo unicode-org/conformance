@@ -402,14 +402,14 @@ class TestReport:
             except KeyError:
                 self.platform_info['icuVersion'] = 'Unknown'
 
-        platform_info = '%s %s - ICU %s' % (
+        platform_data = '%s %s - ICU %s' % (
             self.platform_info['platform'], self.platform_info['platformVersion'],
             self.platform_info['icuVersion'])
         html_map = {'test_type': self.test_type,
                     'exec': self.exec,
                     # TODO: Change to 'icu4x' instead of rust
                     'library_name': self.library_name,
-                    'platform_info': platform_info,
+                    'platform_info': platform_data,
                     'test_environment': dict_to_html(self.test_environment),
                     'timestamp': self.timestamp,
                     'total_tests': self.number_tests,
@@ -442,7 +442,7 @@ class TestReport:
         new_known_issues = check_issues(
             self.test_type,
             [self.failing_tests, self.test_errors, self.unsupported_cases],
-            platform_info)
+            self.platform_info)
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
