@@ -236,7 +236,6 @@ class Verifier:
                 except BaseException as err:
                     logging.error('%s: Problem with verify_data for %s',
                                   err, verify_plans)
-
                     return result
         else:
             logging.info('Running serially!')

@@ -64,7 +64,8 @@ class knownIssueType(Enum):
     langnames_bracket_parens = 'brackets_vs_parentheses'
 
     # Number format
-    # Support expected errors  https://github.com/unicode-org/conformance/issues/242
+    # https://github.com/unicode-org/icu4x/issues/6678
+    number_fmt_icu4x_small_fractional_numbers = 'icu4x#6678 small fractional numbers'
     number_fmt_inexact_rounding = 'Rounding unnecessary'
 
     # Plural rules
@@ -303,18 +304,30 @@ def langname_brackets(test):
 # Number format known issues
 def check_number_fmt_issues(test, platform_info):
     input_data = test['input_data']
-    if 'expected' in test:
-        expected = test['expected']
-        if expected == 'Inexact' and input_data['options']['roundingMode'] == 'unnecessary':
-            return knownIssueType.number_fmt_inexact_rounding
+    result = test.get('result', None)
+    expected = test.get('expected', None)
+    options = input_data.get('options', None)
 
-    if 'result' not in test:
-        # This must be an error
+    if not result:
+        # This must be an error because no result is found
         if 'error' in test and re.match(r'Rounding is required', test['error']):
             return knownIssueType.number_fmt_inexact_rounding
-        # No known issue for this case
-    return None
 
+    try:
+        if platform_info['platform'] == 'ICU4X' and result:
+            if options:
+                notation = options.get('notation', None)
+                input_value = input_data.get('input', None)
+                if notation == 'compact' and result[0:1] == '-' and abs(float(input_value)) < 1.0:
+                    return knownIssueType.number_fmt_icu4x_small_fractional_numbers
+
+        if expected == 'Inexact' and 'roundingMode' in input_data['options']:
+            if input_data['options']['roundingMode'] == 'unnecessary':
+                return knownIssueType.number_fmt_inexact_rounding
+
+    except BaseException as error:
+        pass
+    return None
 
 def check_plural_rules_issues(test):
     try:
@@ -345,10 +358,11 @@ def compute_known_issues_for_single_test(test_type, test, platform_info):
         known_issue_found = check_likely_subtags_issues(test)
     elif test_type == ddt_data.testType.lang_names.value:
         known_issue_found = check_langnames_issues(test)
-    elif test_type == ddt_data.testType.plural_rules.value:
-        known_issue_found = check_plural_rules_issues(test)
     elif test_type == ddt_data.testType.number_fmt.value:
         known_issue_found = check_number_fmt_issues(test, platform_info)
+    elif test_type == ddt_data.testType.plural_rules.value:
+        known_issue_found = check_plural_rules_issues(test)
+
     # TODO: Add checks here for known issues in other test types
 
     return known_issue_found
