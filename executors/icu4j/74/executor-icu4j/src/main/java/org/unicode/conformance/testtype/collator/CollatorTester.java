@@ -97,6 +97,25 @@ public class CollatorTester implements ITestType {
       }
     }
 
+    // Use the compare_type field to set the strength of collation test.
+    if (input.compare_type != null){
+      if (input.compare_type.equals("=")) {
+        coll.setStrength(Collator.IDENTICAL);
+      } else
+      if (input.compare_type.equals("<1")) {
+        coll.setStrength(Collator.PRIMARY);
+      } else
+      if (input.compare_type.equals("<2")) {
+        coll.setStrength(Collator.SECONDARY);
+      } else
+      if (input.compare_type.equals("<3")) {
+        coll.setStrength(Collator.TERTIARY);
+      } else
+      if (input.compare_type.equals("<4")) {
+        coll.setStrength(Collator.QUATERNARY);
+      }
+    }
+
     try {
       int collResult = coll.compare(input.s1, input.s2);
       // TODO! Use compare_type to check for <= or ==.
@@ -158,7 +177,7 @@ public class CollatorTester implements ITestType {
         }
       }
     } else {
-      ULocale locale = ULocale.forLanguageTag(input.locale);
+      ULocale locale = new ULocale(input.locale);
       result = (RuleBasedCollator) Collator.getInstance(locale);
       if (input.rules != null) {
         String defaultRules = result.getRules();

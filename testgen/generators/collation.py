@@ -10,6 +10,14 @@ class ParseResults(Enum):
     NO_RESULT = 0
     RULE_RESET = 1
 
+
+# Routine for replacing parts of input lines that have double back slashes
+def escaped_ucode_to_unicode(matchobj):
+    # replaces the string \\uDDDD with the Unicode form
+    code = int(matchobj.group(1), 16)
+    return chr(code)
+
+
 class CollationGenerator(DataGenerator):
 
     def set_patterns(self):
@@ -27,6 +35,26 @@ class CollationGenerator(DataGenerator):
 
         self.attribute_test = re.compile(r"^% (\S+)\s*=\s*(.+)")
         self.reorder_test = re.compile(r"^% (reorder)\s+(.+)")
+
+        # These break out of the loop processing rules or sets of tests
+        self.compare_breakout_patterns = [
+            self.compare_pattern,
+            self.locale_string,
+            self.root_locale,
+            self.test_line,
+            self.attribute_test]
+
+        self.rule_breakout_patterns = [
+            self.compare_pattern,
+            self.locale_string,
+            self.root_locale,
+            self.test_line,
+            self.attribute_test]
+
+        # For detecting and converting \x coded values
+        self.xcoding = re.compile(r"\\\\x([0-9A-Fa-f]{2})")
+        self.escaped_ucoding = re.compile(r"\\\\u([0-9A-Fa-f]{4})")
+
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
@@ -110,15 +138,6 @@ class CollationGenerator(DataGenerator):
         if not self.compare_pattern.match(line_in):
             return None, line_index, None
 
-        # Patterns that end the processing of this "* compare" section
-        breakout_patterns = [self.compare_pattern,
-                             self.locale_string,
-                             self.root_locale,
-                             self.reorder_test,
-                             self.rule_header_pattern,
-                             self.test_line
-                             ]
-
         # The tests constructed
         tests = []
         string2_errors = []  # line numbers and values that have conversion problems
@@ -126,10 +145,15 @@ class CollationGenerator(DataGenerator):
         line_index += 1
         while line_index < len(lines):
             # Use Unicode escapes rather than byte escapes
-            line_in = lines[line_index].replace('\\x', '\\u00')
+            # Convert x codes to Unicode
+            raw_line = lines[line_index]
+
+            # Fix escapes \xDD and \uDDDD to Unicode characters
+            unxcoded = self.xcoding.sub(escaped_ucode_to_unicode, raw_line)
+            line_in = self.escaped_ucoding.sub(escaped_ucode_to_unicode, unxcoded)
 
             # Time to end this set of comparison tests.
-            if any([p.match(line_in) for p in breakout_patterns]):
+            if any([p.match(line_in) for p in self.compare_breakout_patterns]):
                 break
 
             # Ignore a blank line or a comment-only line
@@ -137,8 +161,7 @@ class CollationGenerator(DataGenerator):
                 line_index += 1
                 continue
 
-            is_comparison_match = self.comparison_line.match(line_in)
-            if is_comparison_match:
+            if is_comparison_match := self.comparison_line.match(line_in):
                 compare_type = is_comparison_match.group(1)
                 # TODO !!! Check string2 for \u vs \U inm the line
                 raw_string2 = is_comparison_match.group(3)
@@ -159,7 +182,7 @@ class CollationGenerator(DataGenerator):
                     'line': line_index,
                 }
 
-                if compare_comment:= is_comparison_match.group(5):
+                if compare_comment := is_comparison_match.group(5):
                     new_test['compare_comment'] = compare_comment
 
                 # Remember the previous string for the next test
@@ -167,7 +190,7 @@ class CollationGenerator(DataGenerator):
                 tests.append(new_test)
             line_index += 1
 
-# Check for string conversion errors. ???
+        # Check for string conversion errors. ???
         if string2_errors:
             pass
 
@@ -187,20 +210,15 @@ class CollationGenerator(DataGenerator):
         rule_list = []
         rule_comments = []
 
-        # These will terminate rule definition
-        breakout_patterns = [self.compare_pattern,
-                             self.locale_string,
-                             self.root_locale,
-                             self.test_line,
-                             self.attribute_test
-                             ]
         while line_index < len(lines):
             line_index += 1
             # Use Unicode escapes rather than byte escapes
-            line_in = lines[line_index].replace('\\x', '\\u00')
+            raw_line = lines[line_index]
+            bytes = raw_line.encode()
+            line_in = bytes.decode('utf-8')
 
             # Is it time to end this set of rule lines?
-            if any([p.match(line_in) for p in breakout_patterns]):
+            if any([p.match(line_in) for p in self.rule_breakout_patterns]):
                 break
 
             if line_in == '' or line_in[0] == '#':
@@ -269,7 +287,7 @@ class CollationGenerator(DataGenerator):
                 line_number += 1
                 continue
 
-            if locale_match:= self.locale_string.match(line_in):
+            if locale_match := self.locale_string.match(line_in):
                 locale = locale_match.group(1)
                 rules = None
                 attributes = {}
@@ -277,7 +295,7 @@ class CollationGenerator(DataGenerator):
                 continue
 
             # Find "** test" section. Simply reset the description but leave rules alone.
-            if is_test_line:= self.test_line.match(line_in):
+            if is_test_line := self.test_line.match(line_in):
                 # Get the description for subsequent tests
                 test_description = is_test_line.group(1).strip()
                 line_number += 1
@@ -333,7 +351,7 @@ class CollationGenerator(DataGenerator):
 
                     # # If either string has unpaired surrogates, ignore the case and record an encoding error.
                     if (self.check_unpaired_surrogate_in_string(test['s1']) or
-                        self.check_unpaired_surrogate_in_string(test['s2'])):
+                            self.check_unpaired_surrogate_in_string(test['s2'])):
                         # Record the problem and skip the test
                         encode_errors.append([line_number, line_in])
                     else:
@@ -360,7 +378,7 @@ class CollationGenerator(DataGenerator):
                             test_case["test_description"] = test_description
 
                         if rules:
-                            test_case["rules"] = rules   # a string
+                            test_case["rules"] = rules  # a string
 
                         if attributes:
                             for key, value in attributes.items():
