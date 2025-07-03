@@ -2,10 +2,10 @@
 
 #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
 use fixed_decimal::FixedDecimal as Decimal;
-#[cfg(ver = "2.0-beta1")]
-use fixed_decimal::RoundingMode;
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
-use fixed_decimal::{Decimal, SignedRoundingMode, UnsignedRoundingMode};
+use fixed_decimal::{Decimal, RoundingIncrement, SignedRoundingMode, UnsignedRoundingMode};
+#[cfg(ver = "2.0-beta1")]
+use fixed_decimal::{RoundingIncrement, RoundingMode};
 
 use fixed_decimal::SignDisplay;
 // TODO: use fixed_decimal::ScientificDecimal;
@@ -56,6 +56,7 @@ struct NumberFormatOptions {
     notation: Option<String>,
     numbering_system: Option<String>,
     rounding_mode: Option<String>,
+    rounding_increment: Option<isize>,
     sign_display: Option<String>,
     style: Option<String>,
     unit: Option<String>,
@@ -206,7 +207,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                 _ => input_num.half_even(-(x as i16)),
             };
             #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
-            input_num.round_with_mode(
+            input_num.round_with_mode_and_increment(
                 -(x as i16),
                 #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
                 match option_struct.rounding_mode.as_deref() {
@@ -219,6 +220,14 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                     Some("halfExpand") => RoundingMode::HalfExpand,
                     Some("halfTrunc") => RoundingMode::HalfTrunc,
                     Some("halfEven") => RoundingMode::HalfEven,
+                    Some("halfOdd") | Some("unnecessary") => {
+                        return Ok(json!({
+                            "label": label,
+                            "error_detail": option_struct.rounding_mode,
+                            "unsupported": "roundingMode",
+                            "error_type": "unsupported",
+                        }));
+                    }
                     _ => RoundingMode::HalfEven,
                 },
                 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
@@ -238,7 +247,28 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
                     Some("halfEven") => {
                         SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven)
                     }
+                    Some("halfOdd") | Some("unnecessary") => {
+                        return Ok(json!({
+                            "label": label,
+                            "error_detail": option_struct.rounding_mode,
+                            "unsupported": "roundingMode",
+                            "error_type": "unsupported",
+                        }));
+                    }
                     _ => SignedRoundingMode::Unsigned(UnsignedRoundingMode::HalfEven),
+                },
+                match option_struct.rounding_increment.as_ref() {
+                    Some(2) => RoundingIncrement::MultiplesOf2,
+                    Some(5) => RoundingIncrement::MultiplesOf5,
+                    Some(25) => RoundingIncrement::MultiplesOf25,
+                    Some(1) | None => RoundingIncrement::MultiplesOf1,
+                    _ => {
+                        return Ok(json!({
+                            "label": label,
+                            "error_detail": option_struct.rounding_increment,
+                            "error_type": "bad rounding increment",
+                        }));
+                    }
                 },
             );
             input_num.trim_end();

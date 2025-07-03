@@ -177,7 +177,10 @@ class VerifyPlan:
 
             # Get the result
             try:
-                actual_result = test['result']
+                if 'result' in test:
+                    actual_result = test['result']
+                else:
+                    actual_result = None
 
                 verification_data = self.find_expected_with_label(test_label)
 

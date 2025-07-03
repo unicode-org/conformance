@@ -4,7 +4,7 @@ import re
 import logging
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
+reblankline = re.compile(r"^\s*$")
 
 class ParseResults(Enum):
     NO_RESULT = 0
@@ -54,6 +54,7 @@ class CollationGenerator(DataGenerator):
         # For detecting and converting \x coded values
         self.xcoding = re.compile(r"\\\\x([0-9A-Fa-f]{2})")
         self.escaped_ucoding = re.compile(r"\\\\u([0-9A-Fa-f]{4})")
+
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
@@ -255,7 +256,7 @@ class CollationGenerator(DataGenerator):
         max_digits = 1 + self.computeMaxDigitsForCount(
             len(raw_testdata_list)
         )  # Approximate
-        recommentline = re.compile("^[\ufeff\s]*#(.*)")
+        recommentline = re.compile(r"^[\ufeff\s]*#(.*)")
 
         rules = None
 
@@ -415,7 +416,7 @@ class CollationGenerator(DataGenerator):
 
         # Handles lines of strings to be compared with collation.
         # Adds field for ignoring punctuation as needed.
-        recommentline = re.compile("^\s*#")
+        recommentline = re.compile(r"^\s*#")
 
         max_digits = 1 + self.computeMaxDigitsForCount(
             len(raw_testdata_list)
@@ -494,9 +495,6 @@ class CollationGenerator(DataGenerator):
 
     def check_unpaired_surrogate_in_string(self, text):
         # Look for unmatched high/low surrogates in the text
-        # high_surrogate_pattern = re.compile(r'([\ud800-\udbff])')
-        # low_surrogate_pattern = re.compile(r'([\udc00-\udfff])')
-
         match_high = self.high_surrogate_pattern.findall(text)
         match_low = self.low_surrogate_pattern.findall(text)
 
