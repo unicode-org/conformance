@@ -25,7 +25,7 @@ module.exports = {
       // Check if this locale is actually supported
       try {
         const supported_locales =
-              Intl.Collator.supportedLocalesOf([testLocale], {localeMatcher: "bestfit"});
+              Intl.Collator.supportedLocalesOf([testLocale], {localeMatcher: "best fit"});
 
         if (supported_locales.length == 1 && supported_locales[0] != testLocale) {
           testLocale = supported_locales[0];
