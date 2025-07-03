@@ -5,11 +5,50 @@ module.exports = {
   testCollationShort: function(json) {
     // Global default locale
 
+    let outputLine = {'label':json['label']};
+
     // Locale if provided in the test data.
     let testLocale = undefined;
     if ('locale' in json) {
       testLocale = json['locale'];
+
+      if (testLocale == 'root') {
+        outputLine =  {'label': json['label'],
+                       'error_message': "root locale",
+                       'unsupported': 'root locale',
+                       'error_detail': testLocale,
+                       'error': 'Unsupported locale'
+                      };
+        return outputLine;
+      }
+
+      // Check if this locale is actually supported
+      try {
+        const supported_locales =
+              Intl.Collator.supportedLocalesOf([testLocale], {localeMatcher: "lookup"});
+
+        if (supported_locales.length == 1 && supported_locales[0] != testLocale) {
+          testLocale = supported_locales[0];
+          outputLine['substituted_locale'] = testLocale;;
+        } else
+        if (supported_locales.length <= 0 ||
+            !supported_locales.includes(testLocale)) {
+          // Report as unsupported
+          outputLine['error_message'] = "unsupported locale";
+          outputLine['unsupported'] = testLocale;
+          outputLine['error_detail'] = supported_locales;
+          outputLine['error'] = 'unsupported locale';
+          return outputLine;
+        }
+      } catch (error) {
+        outputLine['error_message'] = error.message;
+        outputLine['error_detail'] = testLocale;
+        outputLine['error'] = 'Locale ' + testLocale + " : " + error.message;
+        return outputLine;
+      }
+
     }
+
     let testCollOptions = {};
     if ('ignorePunctuation' in json) {
       testCollOptions['ignorePunctuation'] = json['ignorePunctuation'];

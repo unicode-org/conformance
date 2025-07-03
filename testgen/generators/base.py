@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
+import codecs
 import copy
 import hashlib
 import json
@@ -132,7 +133,7 @@ class DataGenerator(ABC):
         if version:
             path = os.path.join(version, filename)
         try:
-            with open(path, "r", encoding="utf-8") as testdata:
+            with codecs.open(path, "r", encoding="utf-8") as testdata:
                 return json.load(testdata) if filetype == "json" else testdata.read()
         except BaseException as err:
             logging.warning("** readFile: %s", err)
