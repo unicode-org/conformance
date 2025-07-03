@@ -4,11 +4,7 @@ import re
 import logging
 from generators.base import DataGenerator
 
-# Set all matches to use Unicode strings
-re.UNICODE
-
-reblankline = re.compile(r"^\s*$")
-
+reblankline = re.compile("^\s*$")
 
 class ParseResults(Enum):
     NO_RESULT = 0
@@ -20,6 +16,7 @@ def escaped_ucode_to_unicode(matchobj):
     # replaces the string \\uDDDD with the Unicode form
     code = int(matchobj.group(1), 16)
     return chr(code)
+
 
 class CollationGenerator(DataGenerator):
 
@@ -39,23 +36,24 @@ class CollationGenerator(DataGenerator):
         self.attribute_test = re.compile(r"^% (\S+)\s*=\s*(.+)")
         self.reorder_test = re.compile(r"^% (reorder)\s+(.+)")
 
-        # For detecting and converting \x coded values
-        self.xcoding = re.compile("\\\\x([0-9A-Fa-f][0-9A-Fa-f])")
-        self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
-
         # These break out of the loop processing rules or sets of tests
-        self.compare_breakout_patterns = [self.compare_pattern,
-                             self.locale_string,
-                             self.root_locale,
-                             self.test_line,
-                             self.attribute_test
-                             ]
-        self.rule_breakout_patterns = [self.compare_pattern,
-                             self.locale_string,
-                             self.root_locale,
-                             self.test_line,
-                             self.attribute_test
-                             ]
+        self.compare_breakout_patterns = [
+            self.compare_pattern,
+            self.locale_string,
+            self.root_locale,
+            self.test_line,
+            self.attribute_test]
+
+        self.rule_breakout_patterns = [
+            self.compare_pattern,
+            self.locale_string,
+            self.root_locale,
+            self.test_line,
+            self.attribute_test]
+
+        # For detecting and converting \x coded values
+        self.xcoding = re.compile(r"\\\\x([0-9A-Fa-f]{2})")
+        self.escaped_ucoding = re.compile(r"\\\\u([0-9A-Fa-f]{4})")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
