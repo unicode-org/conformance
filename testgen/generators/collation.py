@@ -52,8 +52,8 @@ class CollationGenerator(DataGenerator):
             self.attribute_test]
 
         # For detecting and converting \x coded values
-        self.xcoding = re.compile(r"\\\\x([0-9A-Fa-f]{2})")
-        self.escaped_ucoding = re.compile(r"\\\\u([0-9A-Fa-f]{4})")
+        self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
+        self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
