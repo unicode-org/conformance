@@ -25,25 +25,28 @@ module.exports = {
       // Check if this locale is actually supported
       try {
         const supported_locales =
-              Intl.Collator.supportedLocalesOf([testLocale], {localeMatcher: "lookup"});
+              Intl.Collator.supportedLocalesOf([testLocale], {localeMatcher: "bestfit"});
 
         if (supported_locales.length == 1 && supported_locales[0] != testLocale) {
           testLocale = supported_locales[0];
           outputLine['substituted_locale'] = testLocale;;
-        } else
-        if (supported_locales.length <= 0 ||
-            !supported_locales.includes(testLocale)) {
+        }
+        else if (supported_locales.length <= 0 ||
+                 !supported_locales.includes(testLocale)) {
           // Report as unsupported
           outputLine['error_message'] = "unsupported locale";
           outputLine['unsupported'] = testLocale;
           outputLine['error_detail'] = supported_locales;
-          outputLine['error'] = 'unsupported locale';
+          outputLine['error'] = "unsupported locale";
           return outputLine;
         }
       } catch (error) {
+        console.log("ERROR @ 44 ", error.name, " ", error.message);
+        console.log(" testLocale = ", testLocale);
+        outputLine['unsupported'] = "supportedLocalsOf";
         outputLine['error_message'] = error.message;
         outputLine['error_detail'] = testLocale;
-        outputLine['error'] = 'Locale ' + testLocale + " : " + error.message;
+        outputLine['error'] = error.name;
         return outputLine;
       }
 
@@ -69,11 +72,10 @@ module.exports = {
         testCollOptions['sensitivity'] = 'accent';
       } else
       if (strength == 'tertiary') {
-        testCollOptions['sensitivity'] = 'case';
+        testCollOptions['sensitivity'] = 'variant';
       }
     }
 
-    let outputLine = {'label':json['label']};
     // Get other fields if provided
     let rules = undefined;
     if ('rules' in json) {
@@ -132,20 +134,22 @@ module.exports = {
 
     } catch (error) {
       const error_message = error.message;
-      if (testLocale == "root" ||
-          error_message == "Incorrect locale information provided")  {
+      console.log('ERROR @ 135: ', error);
+      if (error_message == "Incorrect locale information provided")  {
         outputLine =  {'label': json['label'],
                        'error_message': error.message,
-                       'unsupported': 'root locale',
+                       'unsupported': 'UNSUPPORTED',
                        'error_detail': error_message + ': ' + testLocale,
-                       'error': 'Unsupported locale'
+                       'actual_options': JSON.stringify(coll.resolvedOptions()),
                       };
       } else {
+        console.log("ERROR @ 144 ", error.name, " ", error.message);
         // Another kind of error.
         outputLine =  {'label': json['label'],
                        'error_message': error.message,
                        'error_detail': testLocale,
-                       'error': error.name
+                       'error': error.name,
+                       'actual_options': JSON.stringify(coll.resolvedOptions()),
                       };
       }
     }
