@@ -29,7 +29,7 @@ class CollationGenerator(DataGenerator):
         self.compare_pattern = re.compile(r"^\* compare(.*)")
 
         # A comparison line begins with the type of compare function.
-        self.comparison_line = re.compile(r"^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
+        self.comparison_line = re.compile(r"^([<=]\S*)(\s*)([^#]*)#?(.*)")
 
         self.input_pattern_with_comment = re.compile(r"^([^#]+)#?(.*)")
 
@@ -162,11 +162,10 @@ class CollationGenerator(DataGenerator):
 
             if is_comparison_match := self.comparison_line.match(line_in):
                 compare_type = is_comparison_match.group(1)
-                # TODO !!! Check string2 for \u vs \U inm the line
                 raw_string2 = is_comparison_match.group(3)
                 string2 = ''
                 try:
-                    string2 = raw_string2  # Don't do any unescaping
+                    string2 = raw_string2.rstrip()  # Don't do any unescaping
                 except Exception as err:
                     # Catch an error. What should be done here ???
                     string2_errors.append([line_index, raw_string2, err])
@@ -181,7 +180,7 @@ class CollationGenerator(DataGenerator):
                     'line': line_index,
                 }
 
-                if compare_comment := is_comparison_match.group(5):
+                if compare_comment := is_comparison_match.group(4):
                     new_test['compare_comment'] = compare_comment
 
                 # Remember the previous string for the next test
