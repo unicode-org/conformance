@@ -445,7 +445,7 @@ class CollationGenerator(DataGenerator):
                 continue
 
             label = str(count).rjust(max_digits, "0")
-            new_test = {"label": label, "s1": prev, "s2": next, "line": line_number, "source_file": filename}
+            new_test = {"label": label, "s1": prev, "s2": next, "strength": "identical", "line": line_number, "source_file": filename}
             if ignorePunctuation:
                 new_test["ignorePunctuation"] = True
             test_list.append(new_test)

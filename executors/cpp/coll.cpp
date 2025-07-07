@@ -55,7 +55,7 @@ auto TestCollator(json_object *json_in) -> string {
   json_object *str2 = json_object_object_get(json_in, "s2");
 
   // Unescape the input strings?
-  string string1 = json_object_get_string(str1);
+  string string1 = json_object_get_string(str1) ;
   string string2 = json_object_get_string(str2);
 
   // Does this conversion preserve the data?
@@ -139,7 +139,7 @@ auto TestCollator(json_object *json_in) -> string {
     if (check_icu_error(status, return_json, "create RuleBasedCollator")) {
       // Put json_in as the actual input received.
       json_object_object_add(
-          return_json, "actual_input",
+          return_json, "actual_options",
           json_object_new_string(json_object_get_string(json_in)));
 
       return json_object_to_json_string(return_json);
@@ -233,14 +233,19 @@ auto TestCollator(json_object *json_in) -> string {
   if (!coll_result) {
     // Test did not succeed!
     // Include data compared in the failing test
-    json_object_object_add(
-        return_json, "s1", json_object_new_string(string1.c_str()));
-    json_object_object_add(
-        return_json, "s2", json_object_new_string(string2.c_str()));
+    json_object* actual_values = json_object_new_object();
 
     json_object_object_add(
-        return_json, "actual_input",
+        actual_values, "s1_actual", json_object_new_string(string1.c_str()));
+    json_object_object_add(
+        actual_values, "s2_actual", json_object_new_string(string2.c_str()));
+    json_object_object_add(
+        actual_values, "input",
         json_object_new_string(json_object_get_string(json_in)));
+
+    json_object_object_add(
+        return_json, "actual_options",
+        actual_values);
 
     // Record the actual returned value
     json_object_object_add(
