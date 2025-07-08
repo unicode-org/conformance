@@ -8,8 +8,10 @@ module.exports = {
     let outputLine = {'label':json['label']};
 
     // Locale if provided in the test data.
-    let testLocale = undefined;
-    testLocale = json['locale'];
+    let testLocale = 'en';  // default
+    if ('locale' in json) {
+      testLocale = json['locale'];
+    }
 
     if (testLocale == 'root') {
       outputLine =  {'label': json['label'],
