@@ -75,6 +75,21 @@ module.exports = {
       }
     }
 
+    // Locale special cases
+    if (testLocale.search('co-search') >= 0) {
+        testCollOptions['usage'] = 'search';
+    }
+
+    if (testLocale.search('-kr-') >= 0) {
+      outputLine =  {'label': json['label'],
+                     'error_message': "unsupported locale extension",
+                     'unsupported': '-kr-',
+                     'error_detail': testLocale,
+                     'error': 'Unsupported locale extension'
+                    };
+      return outputLine;
+    }
+
     // Get other fields if provided
     let rules = undefined;
     if ('rules' in json) {
