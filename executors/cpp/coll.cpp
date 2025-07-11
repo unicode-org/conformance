@@ -42,10 +42,60 @@ using icu::RuleBasedCollator;
 
 const char error_message[] = "error";
 
+UnicodeString get_char_from_hex_list(json_object* str_codes_obj,
+                                     int debug_level) {
+    // Get the hex codes and assemble into a string with \u
+    int input_length = json_object_array_length(str_codes_obj);
+
+    // Construct the list of Unicode Strings
+    string hex_list = "";
+    for (int i = 0; i < input_length; i++) {
+      // get the i-th object in the input list
+      json_object* item = json_object_array_get_idx(str_codes_obj, i);
+      string hex_string = json_object_get_string(item);
+      string escape_prefix;
+      switch (hex_string.size()) {
+        case 5:
+          escape_prefix = "\\U000";
+          break;
+        case 6:
+          escape_prefix = "\\U00";
+          break;
+        case 7:
+          escape_prefix = "\\U0";
+          break;
+        case 4:
+        default:
+          escape_prefix = "\\u";
+          break;
+        case 3:
+          escape_prefix = "\\u0";
+          break;
+        case 2:
+          escape_prefix = "\\u00";
+          break;
+        case 1:
+          escape_prefix = "\\u000";
+          break;
+      }
+      hex_list += escape_prefix + hex_string;
+    }
+    // Finally, unescape this list.
+    UnicodeString u_hex = UnicodeString::fromUTF8(hex_list);
+    UnicodeString s_new = u_hex.unescape();
+    if (debug_level > 0) {
+      string target;
+      s_new.toUTF8String(target);
+      cout << "# hex_list: " << hex_list << " == >" << target << "<" << endl;
+    }
+
+    return s_new;
+}
+
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
-auto TestCollator(json_object *json_in) -> string {
+auto TestCollator(json_object *json_in, int debug_level) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -61,6 +111,17 @@ auto TestCollator(json_object *json_in) -> string {
   // Does this conversion preserve the data?
   UnicodeString us1 = UnicodeString::fromUTF8(string1);
   UnicodeString us2 = UnicodeString::fromUTF8(string2);
+
+  json_object *str1_codes_obj = json_object_object_get(json_in, "s1_codes");
+  json_object *str2_codes_obj = json_object_object_get(json_in, "s2_codes");
+
+  // Use the hex codes if they are provided rather than s1 and s2.
+  if (str1_codes_obj) {
+    us1 = get_char_from_hex_list(str1_codes_obj, debug_level);
+  }
+  if (str2_codes_obj) {
+    us2 = get_char_from_hex_list(str2_codes_obj, debug_level);
+  }
 
   string test_result;
   int uni_result_utf8;
