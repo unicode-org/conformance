@@ -40,6 +40,22 @@
             "description": "Second string for comparison",
             "type": "string"
           },
+          "s1_codes": {
+            "type": "array",
+            "description": "List hex values for characters of the string"
+            "items": {
+              "type": string,
+              "description": "hex values in string form of the Unicode value"
+            }
+          },
+          "s2_codes": {
+            "type": "array",
+            "description": "List hex values for characters of the string"
+            "items": {
+              "type": string,
+              "description": "hex values in string form of the Unicode value"
+            }
+          },
           "locale": {
             "description": "optional field indication locale tag for running test",
             "type": "string"
