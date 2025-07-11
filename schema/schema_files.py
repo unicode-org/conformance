@@ -16,7 +16,6 @@ TEST_FILE_TO_TEST_TYPE_MAP = {
     'collation_test': 'collation',
     'datetime_fmt_test_file': 'datetime_fmt',
     'datetime_fmt_test': 'datetime_fmt',
-    'lang_name_test_file': 'lang_names',
     'lang_names_test_file': 'lang_names',
     'likely_subtags_test': 'likely_subtags',
     'list_fmt_test_file': 'list_fmt',
@@ -98,15 +97,15 @@ SCHEMA_FILE_MAP = {
     "lang_names": {
         "test_data": {
             "schema_file": "lang_names/test_schema.json",
-            'prod_file': 'lang_name_test_file.json'
+            'prod_file': 'lang_names_test_file.json'
         },
         "verify_data": {
             "schema_file": "lang_names/verify_schema.json",
-            'prod_file': 'lang_name_verify_file.json'
+            'prod_file': 'lang_names_verify_file.json'
         },
         "result_data": {
             "schema_file": "lang_names/result_schema.json",
-            "prod_file": "lang_name_test_file.json"
+            "prod_file": "lang_names_test_file.json"
         }
     },
 
