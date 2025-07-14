@@ -77,101 +77,106 @@ module.exports = {
 
     // Locale special cases
     if (testLocale.search('co-search') >= 0) {
-        testCollOptions['usage'] = 'search';
+      testCollOptions['usage'] = 'search';
     }
 
-    if (testLocale.search('-kr-') >= 0) {
-      outputLine =  {'label': json['label'],
-                     'error_message': "unsupported locale extension",
-                     'unsupported': '-kr-',
-                     'error_detail': testLocale,
-                     'error': 'Unsupported locale extension'
-                    };
-      return outputLine;
-    }
-
-    // Get other fields if provided
-    let rules = undefined;
-    if ('rules' in json) {
-      rules = json['rules'];
-      outputLine['unsupported'] = 'Collator rules not available';
-      outputLine['error_detail'] = 'Rules not supported';
-      return outputLine;
-    }
-
-    let compare_type;
-    if ('compare_type' in json) {
-      compare_type = json['compare_type'].trim();
-      compare_type = compare_type.replace('&lt;', '<');
-    }
-
-    let reoder;
-    if ('reorder' in json) {
-      reorder = json['reorder'];
-    }
-
-    // Set up collator object with optional locale and testOptions.
-    let coll;
-    try {
-      coll = new Intl.Collator(testLocale, testCollOptions);
-
-      let d1 = json['s1'];
-      let d2 = json['s2'];
-
-      // Should we check with < or <=?
-      const compared = coll.compare(d1, d2);
-
-      let result = false;
-      // Check for strict equality comparison
-      if (compare_type) {
-        if (compare_type == '=' && compared == 0) {
-          result = true;
-        } else
-        // Check results with different compare types
-        if (compare_type[0] == '<' && compared < 0) {
-          result = true;
-        }
-      } else {
-        // Default comparison method.
-        result = (compared <=  0);
-      }
-
-      outputLine['result'] = result;
-      if (result == true) {
-        outputLine['compare_result'] = compared;
-      } else {
-        // Additional info for the comparison
-        outputLine['actual_options'] = {
-          'compared_result': compared,
-          's1': d1,
-          's2': d2,
-          'options': JSON.stringify(coll.resolvedOptions())
-        };
-        outputLine['compare_result'] = compared;
-        outputLine['result'] = result;
-      }
-
-    } catch (error) {
-      const error_message = error.message;
-      console.log('ERROR @ 135: ', error);
-      if (error_message == "Incorrect locale information provided")  {
-        outputLine =  {'label': json['label'],
-                       'error_message': error.message,
-                       'unsupported': 'UNSUPPORTED',
-                       'error_detail': error_message + ': ' + testLocale,
-                       'actual_options': JSON.stringify(coll.resolvedOptions()),
-                      };
-      } else {
-        console.log("ERROR @ 144 ", error.name, " ", error.message);
-        // Another kind of error.
-        outputLine =  {'label': json['label'],
-                       'error_message': error.message,
-                       'error_detail': testLocale,
-                       'error': error.name,
-                       'actual_options': JSON.stringify(coll.resolvedOptions()),
-                      };
-      }
-    }
+    if (testLocale.search('-kr-') >= 0 ||
+        testLocale.search('-kn-') >= 0 ||
+        testLocale.search('-kv-') >= 0 ||
+        testLocale.search('-kc-') >= 0 ||
+        testLocale.search('-ks-') >= 0
+       ) {
+    outputLine =  {'label': json['label'],
+                   'error_message': "unsupported locale extension",
+                   'unsupported': '-kr-',
+                   'error_detail': testLocale,
+                   'error': 'Unsupported locale extension'
+                  };
     return outputLine;
   }
+
+  // Get other fields if provided
+  let rules = undefined;
+  if ('rules' in json) {
+    rules = json['rules'];
+    outputLine['unsupported'] = 'Collator rules not available';
+    outputLine['error_detail'] = 'Rules not supported';
+    return outputLine;
+  }
+
+  let compare_type;
+  if ('compare_type' in json) {
+    compare_type = json['compare_type'].trim();
+    compare_type = compare_type.replace('&lt;', '<');
+  }
+
+  let reoder;
+  if ('reorder' in json) {
+    reorder = json['reorder'];
+  }
+
+  // Set up collator object with optional locale and testOptions.
+  let coll;
+  try {
+    coll = new Intl.Collator(testLocale, testCollOptions);
+
+    let d1 = json['s1'];
+    let d2 = json['s2'];
+
+    // Should we check with < or <=?
+    const compared = coll.compare(d1, d2);
+
+    let result = false;
+    // Check for strict equality comparison
+    if (compare_type) {
+      if (compare_type == '=' && compared == 0) {
+        result = true;
+      } else
+      // Check results with different compare types
+      if (compare_type[0] == '<' && compared < 0) {
+        result = true;
+      }
+    } else {
+      // Default comparison method.
+      result = (compared <=  0);
+    }
+
+    outputLine['result'] = result;
+    if (result == true) {
+      outputLine['compare_result'] = compared;
+    } else {
+      // Additional info for the comparison
+      outputLine['actual_options'] = {
+        'compared_result': compared,
+        's1': d1,
+        's2': d2,
+        'options': JSON.stringify(coll.resolvedOptions())
+      };
+      outputLine['compare_result'] = compared;
+      outputLine['result'] = result;
+    }
+
+  } catch (error) {
+    const error_message = error.message;
+    console.log('ERROR @ 135: ', error);
+    if (error_message == "Incorrect locale information provided")  {
+      outputLine =  {'label': json['label'],
+                     'error_message': error.message,
+                     'unsupported': 'UNSUPPORTED',
+                     'error_detail': error_message + ': ' + testLocale,
+                     'actual_options': JSON.stringify(coll.resolvedOptions()),
+                    };
+    } else {
+      console.log("ERROR @ 144 ", error.name, " ", error.message);
+      // Another kind of error.
+      outputLine =  {'label': json['label'],
+                     'error_message': error.message,
+                     'error_detail': testLocale,
+                     'error': error.name,
+                     'actual_options': JSON.stringify(coll.resolvedOptions()),
+                    };
+    }
+  }
+  return outputLine;
+}
 };
