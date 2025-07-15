@@ -80,21 +80,6 @@ module.exports = {
       testCollOptions['usage'] = 'search';
     }
 
-    if (testLocale.search('-kr-') >= 0 ||
-        testLocale.search('-kn-') >= 0 ||
-        testLocale.search('-kv-') >= 0 ||
-        testLocale.search('-kc-') >= 0 ||
-        testLocale.search('-ks-') >= 0
-       ) {
-    outputLine =  {'label': json['label'],
-                   'error_message': "unsupported locale extension",
-                   'unsupported': '-kr-',
-                   'error_detail': testLocale,
-                   'error': 'Unsupported locale extension'
-                  };
-    return outputLine;
-  }
-
   // Get other fields if provided
   let rules = undefined;
   if ('rules' in json) {
