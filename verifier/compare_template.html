@@ -1,0 +1,281 @@
+<html>
+  <!--
+      Build a comparison page for test results on the same test suite,
+      including graphics and other tools to better understand differences
+      in results between platforms and different test data versions.
+      E.g., NodeJS v 21.6.0 number format with ICU 74 vs.
+      ICU4C 74.2 with ICU74 test data.
+
+      Started 19-Jan-2024, cwc.
+
+      https://www.freecodecamp.org/news/interactive-heatmap-in-javascript/
+    -->
+  <head>
+    <title>Heatmap in JavaScript</title>
+    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-heatmap.min.js"></script>
+
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+
+    <script>
+
+    // Pointers to the data directories
+    const data_dirs = $data_dirs;
+    const test_names = $test_names;
+    let compare_directories = ['', ''];  // Two data directories for comparison
+
+    let results = {};
+
+      let heat_map_data = {
+      };
+
+        let states = ['pass', 'fail', 'error', 'unsupported'];
+
+      for (let state1 of states) {
+          for (let state2 of states) {
+              let data_item = {x:state1, y:state2, heat:0}
+          }
+      }
+    function load_and_update() {
+        // Get the values from the selectors.
+        const checked1 = document.querySelector(
+            "input[type='radio'][name='select1']:checked");
+        if (checked1 == null) {
+            alert('Pick 2 items');
+            return;
+        }
+
+        const checked2 = document.querySelector(
+            "input[type='radio'][name='select2']:checked");
+        if (checked2 == null) {
+            alert('Pick 2 items');
+            return;
+        }
+
+        // loadRawData for each.
+        const dir1 = checked1.value;
+        const dir2 = checked2.value;
+
+        let results1 = loadRawData(dir1);
+
+        let results2 = loadRawData(dir2);
+
+        // update the heat map.
+        Promise.all([results1, results2])
+            .then(([results1, results2]) => {
+                reloadHeatMap(results1, results2);
+            }
+        )
+    }
+
+    function loadRawData(data_dir) {
+        // Get the pass, fail, etc. JSON data from this directory.
+        // Via fetch
+        // TODO: Open the files and the JSON data for each status.
+
+        let load_results = {};
+    // Return these data pointers
+    let p1 = fetch(data_dir + '/pass.json');
+    let p2 = fetch(data_dir + '/failing_tests.json');
+    let p3 = fetch(data_dir + '/test_errors.json');
+    let p4 = fetch(data_dir + '/unsupported.json');
+
+    // Synchronize all the data loading and charts / pagination
+
+    //  Wait for results, then return data
+    let all_promises = Promise.all([
+        p1.then((response) => response.json())
+          .then((data) => {
+            load_results['pass'] = data}),
+        p2.then((response) => response.json())
+          .then((data) => {
+            load_results['fail'] = data}),
+        p3.then((response) => response.json())
+          .then((data) => {
+            load_results['error'] = data}),
+        p4.then((response) => response.json())
+          .then((data) => {
+            load_results['unsupported'] = data}),
+        new Promise((resolve, reject) => {
+           $(document).ready(resolve);
+       })
+    ]).
+      then(([p1, p2, p3, p4, _ready]) => {
+         return load_results;
+       }
+          )
+        return all_promises;
+    }
+
+      function setOfIdentifiers(test_list) {
+          let result = new Set();
+          for (let test of test_list) {
+              let input_data = test['input_data'];
+              result.add(input_data['hash_id']);
+          }
+          return result;
+      }
+
+    function reloadHeatMap(result1, result2) {
+        // Compute intersections of test identifiers
+        // Redo the heat map.
+        heat_map_data = [];
+      for (let state1 of states) {
+          let id_set1 = setOfIdentifiers(result1[state1]);
+
+          for (let state2 of states) {
+              let id_set2 = setOfIdentifiers(result2[state2]);
+
+              let inter_set =
+                new Set([...id_set1].filter((x) => id_set2.has(x)));
+              let data_item = {x:state1, y:state2, heat:inter_set.size}
+              heat_map_data.push(data_item);
+
+          }
+      }
+
+        draw_heat_map();
+    }
+
+    function build_page() {
+        build_radio_buttons('select1', 'select1');
+        build_radio_buttons('select2', 'select2');
+    }
+
+    function build_radio_buttons(div_id, rb_name) {
+        const div = document.getElementById(div_id);
+        for (const index in test_names) {
+            const name = test_names[index];
+            const data_dir = data_dirs[index];
+            let rb = document.createElement("INPUT");
+            rb.setAttribute("type", "radio");
+            rb.name = rb_name;
+            rb.value = data_dir;
+
+            let html_label = document.createElement("label");
+            html_label.appendChild(document.createTextNode(name));
+
+            div.appendChild(html_label);
+            html_label.appendChild(rb);
+        }
+    }
+
+
+      // Global chart;
+      let chart = null;
+
+      // Set up a heat map
+      function draw_heat_map() {
+          //          anychart.onDocumentReady(function () {
+              // create a heatmap
+              const heat_data = getData();
+              chart = anychart.heatMap(heat_data);
+              // set a custom color scale
+              var colorScale = anychart.scales.ordinalColor();
+              // TODO: Compute max and scale the values as greyscale
+              let max_val = 0
+              for (let item of heat_data) {
+                  max_val = Math.max(item.heat, max_val);
+              }
+
+              colorScale.ranges([
+                  { less: max_val / 100, color: "#B0D8A4" },
+                  { from: max_val / 100, to: max_val / 20, color: "#FEE191" },
+                  { from: max_val / 20, to: max_val * 0.90, color: "#FD8060" },
+                  { greater: max_val * 0.90, color: "#CC333F" }
+              ]);
+              chart.colorScale(colorScale);
+
+              var customColorScale = anychart.scales.linearColor();
+              customColorScale.colors(["#222222", "#eeeeee"]);
+
+              // set the color scale as the color scale of the chart
+              chart.colorScale(customColorScale);
+              // Not defined? chart.palette(anychart.palettes.monochrome);
+
+
+              // style the coloring in the hovered state
+              chart
+                  .hovered()
+                  .fill(function () {
+                      return anychart.color.darken(this.sourceColor, 0.25);
+                  });
+
+              // TODO: decide on this hide the item labels
+              chart.labels(true);
+              // customize the axes
+              chart.xAxis().stroke(null);
+              chart.yAxis().stroke(null);
+              chart.yAxis().labels().padding([0, 10, 0, 0]);
+              chart.xAxis().labels().padding([0, 0, 10, 0]);
+              // set the tooltip
+              chart.tooltip().title().useHtml(true);
+              chart
+                  .tooltip()
+                  .useHtml(true)
+                  .titleFormat(function () {
+                      return this.x + "," + this.y + ': ' +this.heat;
+                  })
+                  .format(function () {
+                      return (
+                          '<span style="color: #CECECE">Test 1: </span>' +
+                              this.x +
+                              "<br/>" +
+                              '<span style="color: #CECECE">Test 2:: </span>' +
+                              this.y
+                      );
+                  });
+              // name the heatmap
+              chart
+                  .title()
+                  .enabled(true)
+                  .text('$title')
+                  .padding([0, 0, 20, 0]);
+              // set the container for the heatmap
+              chart.container("heat_map_container");
+              // draw the heatmap
+              chart.draw();
+//          });
+
+      }
+
+    // All the code for the JS heatmap will come here
+      // add the data
+      function getData() {
+         // TODO: Fill this in
+          return heat_map_data;
+    }
+
+
+    </script>
+    <style type="text/css">
+      html, body, #head_map_container_ container {
+          width: 80%; height: 80%; margin: 0; padding: 0;
+      }
+      </style>
+      <style>
+        .main div {
+          float: left;
+          clear: none;
+        }
+      </style>
+</head>
+
+  <body onLoad="build_page()">
+    <h2>Compare test results for $test_type</h2>
+    <div if="instance_selection">
+      <p>Instances for test $test_type. Pick 2!</p>
+      <div id="instance_selectors">
+        <div id="select1"><label for='select1: '>Select 1:</label></div>
+        <div id="select2"><label for='select2: '>Select 2: </label></div>
+        <div id="choose_items">
+          <button type="button" onclick="load_and_update();">Load data</button>
+        </div>
+      </div>
+      </div>
+    <div id="heat_map_container"></div>
+
+  </body>
+</html>
