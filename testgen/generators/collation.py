@@ -174,9 +174,9 @@ class CollationGenerator(DataGenerator):
                 # Special cases for comparing only with \u0020 or \u000a
                 if string2 == '' and raw_line.find('\\u0020') > 0:
                     string2 = '\u0020'
-                # if string2 == '' and raw_line.find('\\u000A') > 0:
-                #     string2 = '\u000a'
-                # ??? re-encode to get escaped version of s2?
+                if string2 == '' and raw_line.find('\\u000A') > 0:
+                    string2 = '\u000a'
+
                 new_test = {
                     'compare_type': compare_type,
                     's1': string1,
