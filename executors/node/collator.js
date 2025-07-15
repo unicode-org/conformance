@@ -8,16 +8,16 @@ module.exports = {
     let outputLine = {'label':json['label']};
 
     // Locale if provided in the test data.
-    let testLocale = 'en';  // default
+    let test_locale = 'en';  // default
     if ('locale' in json) {
-      testLocale = json['locale'];
+      test_locale = json['locale'];
     }
 
-    if (testLocale == 'root') {
+    if (test_locale == 'root') {
       outputLine =  {'label': json['label'],
                      'error_message': "root locale",
                      'unsupported': 'root locale',
-                     'error_detail': testLocale,
+                     'error_detail': test_locale,
                      'error': 'Unsupported locale'
                     };
       return outputLine;
@@ -26,27 +26,25 @@ module.exports = {
     // Check if this locale is actually supported
     try {
       const supported_locales =
-            Intl.Collator.supportedLocalesOf([testLocale], {localeMatcher: "best fit"});
+            Intl.Collator.supportedLocalesOf([test_locale], {localeMatcher: "best fit"});
 
-      if (supported_locales.length == 1 && supported_locales[0] != testLocale) {
-        testLocale = supported_locales[0];
-        outputLine['substituted_locale'] = testLocale;;
+      if (supported_locales.length == 1 && supported_locales[0] != test_locale) {
+        test_locale = supported_locales[0];
+        outputLine['substituted_locale'] = test_locale;;
       }
       else if (supported_locales.length <= 0 ||
-               !supported_locales.includes(testLocale)) {
+               !supported_locales.includes(test_locale)) {
         // Report as unsupported
         outputLine['error_message'] = "unsupported locale";
-        outputLine['unsupported'] = testLocale;
+        outputLine['unsupported'] = test_locale;
         outputLine['error_detail'] = supported_locales;
         outputLine['error'] = "unsupported locale";
         return outputLine;
       }
     } catch (error) {
-      console.log("ERROR @ 44 ", error.name, " ", error.message);
-      console.log(" testLocale = ", testLocale);
       outputLine['unsupported'] = "supportedLocalsOf";
       outputLine['error_message'] = error.message;
-      outputLine['error_detail'] = testLocale;
+      outputLine['error_detail'] = test_locale;
       outputLine['error'] = error.name;
       return outputLine;
     }
@@ -76,8 +74,19 @@ module.exports = {
     }
 
     // Locale special cases
-    if (testLocale.search('co-search') >= 0) {
+    if (test_locale.search('co-search') >= 0) {
       testCollOptions['usage'] = 'search';
+    }
+
+    if (test_locale.search('-kr-') >= 0) {
+      // Unsupport if not already replaced by a substitued locale.
+      outputLine =  {'label': json['label'],
+                     'error_message': "unsupported locale extension",
+                     'unsupported': '-kr-',
+                     'error_detail': test_locale,
+                     'error': 'Unsupported locale extension'
+                    };
+      return outputLine;
     }
 
   // Get other fields if provided
@@ -103,7 +112,7 @@ module.exports = {
   // Set up collator object with optional locale and testOptions.
   let coll;
   try {
-    coll = new Intl.Collator(testLocale, testCollOptions);
+    coll = new Intl.Collator(test_locale, testCollOptions);
 
     let d1 = json['s1'];
     let d2 = json['s2'];
@@ -143,20 +152,18 @@ module.exports = {
 
   } catch (error) {
     const error_message = error.message;
-    console.log('ERROR @ 135: ', error);
     if (error_message == "Incorrect locale information provided")  {
       outputLine =  {'label': json['label'],
                      'error_message': error.message,
                      'unsupported': 'UNSUPPORTED',
-                     'error_detail': error_message + ': ' + testLocale,
+                     'error_detail': error_message + ': ' + test_locale,
                      'actual_options': JSON.stringify(coll.resolvedOptions()),
                     };
     } else {
-      console.log("ERROR @ 144 ", error.name, " ", error.message);
       // Another kind of error.
       outputLine =  {'label': json['label'],
                      'error_message': error.message,
-                     'error_detail': testLocale,
+                     'error_detail': test_locale,
                      'error': error.name,
                      'actual_options': JSON.stringify(coll.resolvedOptions()),
                     };
