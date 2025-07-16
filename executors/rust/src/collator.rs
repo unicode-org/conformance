@@ -43,29 +43,23 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     }
 
     // Use compare_type to get < or =.
-    let mut compare_symbol = "<"; // Default
-    if let Some(comparison) = compare_option {
-        compare_symbol = &comparison[0..1];
-    }
+    let compare_symbol = compare_option.and_then(|c| c.get(0..1)).unwrap_or("<");
 
     if let Some(strength) = strength_option {
-        options.strength = if strength == "primary" {
-            Some(Strength::Tertiary)
-        } else if strength == "secondary" {
-            Some(Strength::Secondary)
-        } else if strength == "tertiary" {
-            Some(Strength::Tertiary)
-        } else if strength == "quaternary" {
-            Some(Strength::Quaternary)
-        } else if strength == "identical" {
-            Some(Strength::Identical)
-        } else {
-            return Ok(json!({
-                "label": label,
-                "error_detail": {"strength": strength},
-                "unsupported": "strength",
-                "error_type": "unsupported",
-            }));
+        options.strength = match strength {
+            "primary" => Some(Strength::Primary),
+            "secondary" => Some(Strength::Secondary),
+            "tertiary" => Some(Strength::Tertiary),
+            "quaternary" => Some(Strength::Quaternary),
+            "identical" => Some(Strength::Identical),
+            _ => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": {"strength": strength},
+                    "unsupported": "strength",
+                    "error_type": "unsupported",
+                }));
+            }
         };
     };
 
@@ -83,19 +77,19 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     let comparison = collator.compare(str1, str2);
 
-    let result_string = if compare_symbol == "<" {
-        comparison.is_le()
-    } else if compare_symbol == "=" {
-        comparison.is_eq()
-    } else {
-        return Ok(json!({
-            "label": label,
-            "error_detail": {
-                "compare_type": compare_symbol,
-            },
-            "unsupported": "compare_symbol",
-            "error_type": "unsupported",
-        }));
+    let result_string = match compare_symbol {
+        "<" => comparison.is_le(),
+        "=" => comparison.is_eq(),
+        _ => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": {
+                    "compare_type": compare_symbol,
+                },
+                "unsupported": "compare_symbol",
+                "error_type": "unsupported",
+            }));
+        }
     };
 
     let mut comparison_number: i16 = 0;
