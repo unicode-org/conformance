@@ -104,7 +104,7 @@ module.exports = {
     compare_type = compare_type.replace('&lt;', '<');
   }
 
-  let reoder;
+  let reorder;
   if ('reorder' in json) {
     reorder = json['reorder'];
   }
