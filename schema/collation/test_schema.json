@@ -44,7 +44,7 @@
             "type": "array",
             "description": "List hex values for characters of the string"
             "items": {
-              "type": string,
+              "type": "string",
               "description": "hex values in string form of the Unicode value"
             }
           },
@@ -52,7 +52,7 @@
             "type": "array",
             "description": "List hex values for characters of the string"
             "items": {
-              "type": string,
+              "type": "string",
               "description": "hex values in string form of the Unicode value"
             }
           },
