@@ -31,7 +31,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     let mut options = CollatorOptions::default();
 
     // TODO: Get and apply locale if given. Else use "und" or "en"
-    
+
     // Rules not yet supported.
     if rules.is_some() {
         return Ok(json!({
