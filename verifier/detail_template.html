@@ -33,7 +33,7 @@
         cursor: pointer;
         font-size:20px;
     }
-    
+
     .diff_area {
         font-size: 24px;
         font-color: blue;
@@ -102,7 +102,7 @@ table th {
   <script type="text/javascript">
     // Global for the test_type.
     const test_type = "$test_type";
-    
+
     // Stores info from the json data fetched asynchronously.
     let test_results = {
         'pass': {
@@ -122,7 +122,7 @@ table th {
             count: 0,
             characterized: null,
             check_boxes: [],
-            widget_label_sets: [], 
+            widget_label_sets: [],
             box_labels: [],
             selected_set: null,
             pagination_container: null
@@ -160,7 +160,7 @@ table th {
             selected_set: null,
             pagination_container: null
         }
-    
+
     };
 
     // Get the JSON data from the tests.
@@ -196,8 +196,8 @@ table th {
         p5.then((response) => response.json())
             .then((data) => {
                 test_results['known_issue'].json = data}),
- 
- 
+
+
        // TODO: Make a separate promise.all for this?
         p_pass_char.then((response) => response.json())
             .then((data) => {
@@ -261,12 +261,12 @@ table th {
         // Update the group selected with the intersection or inclusion of label sets
         const class_name = widget.className;
         const test_data = test_results[class_name];
-        
+
         // Start with all the tests, intersecting or removing data as needed.
         test_data.selected_set = new Set(test_data.all_labels);
 
         const selected_count_items = document.getElementsByName('selectedCount');
-        
+
         // Update the number of results size
         let newSize = test_data.selected_set == null ? 0 : test_data.selected_set.size;
         const output = [...selected_count_items].filter(elem => elem.className == class_name);
@@ -276,7 +276,7 @@ table th {
         }
 
         let excluded_set = new Set();  // Remove these label after the loop.
-        
+
         // For each widget, if active, update the state of the selected and exclued sets
         for (let index in test_data.check_boxes) {
             const widget = test_data.check_boxes[index];
@@ -284,13 +284,13 @@ table th {
 
             // This is a tristate item.
             const which_state = widget.value;
-            
+
             // Choose the value depending on the status of the control
             if (which_state == check_mark) {
                 // Update by intersection with this set.
                 test_data.selected_set =
                     new Set([...test_data.selected_set].filter((x) => label_set.has(x)));
-            } 
+            }
             else if (which_state == cross_mark) {
                 // Update by removing all these labels, i.e., intersect with the inverse
                 for (let label of label_set) {
@@ -298,7 +298,7 @@ table th {
                 }
             }
         }
-        
+
         // Remove the excluded values from selected set.
         excluded_set.forEach((label) => {
             test_data.selected_set.delete(label);
@@ -310,7 +310,7 @@ table th {
             // Set the current count of items
             output[0].innerHTML = output[0].innerText = newSize;
         }
-        
+
         // Get the characterized data from the correct set of items
         if (newSize == 0) {
             // Reset all widgets in this group
@@ -320,7 +320,7 @@ table th {
             for (let index in test_data.check_boxes) {
                 const widget = test_data.check_boxes[index];
                 const label_set = test_data.widget_label_sets[index];
-                
+
                 // Compute overlap between the selected set and this widgetss data.
                 let intersectSet = new Set(
                     [...label_set].filter(i => test_data.selected_set.has(i)));
@@ -364,7 +364,7 @@ table th {
         const diff_area_name = "diff_area_" + c_type;
         const onclick_call =
               '"captureInputDataOnClick(this);" onmouseover="hoverDiffText(this,' + diff_area_name + ');"';
-              
+
         let table_opening =
             '<table id="table_' + c_type +
             '" class="class_' + c_type + '">';
@@ -482,7 +482,7 @@ table th {
     // -----------------------
     function create_tristate_area(
         id, data_class, characterization, count, container) {
-        // Make a tristate control for the items in this data class 
+        // Make a tristate control for the items in this data class
         // Reference:  https://jsfiddle.net/wf_bitplan_com/941std72/8/
         // Creates this widget, storing the result in the data_class
         // <input title="this is a tri-state button: &#x2753;,&#x2705;,&#x274C;" type="button" onclick="tristate1(this)" value="&#x2753;" />
@@ -511,7 +511,7 @@ table th {
         if (container) {
             container.appendChild(box_div);
         }
-        return box;      
+        return box;
     }
 
     function tristate1(control) {
@@ -541,7 +541,7 @@ table th {
                 // display the current value if it's unexpected
                 alert(control.value);
         }
-    }      
+    }
 
     function create_widget_area(data_class, make_widget_function) {
         /* Given a set of labels and named characteristics, create a set of checkboxes with
@@ -551,11 +551,11 @@ table th {
         const test_info = test_results[data_class];
 
         const selected_count_items = document.getElementsByName('selectedCount');
-        
+
         let leftover_labels = new Set();
         const json = test_info.json;
         for (const item of json) {
-            const label = item['label'];    
+            const label = item['label'];
             test_info.all_labels.add(label);
             leftover_labels.add(label);
         }
@@ -566,7 +566,7 @@ table th {
         if (output) {
             output[0].innerHTML = output[0].innerText = newSize;
         }
-        
+
         let div_name = data_class + '_characterized';
         let container = document.getElementById(div_name);
         for (const characterization in test_info.characterized) {
@@ -600,7 +600,7 @@ table th {
                 test_info.check_boxes.push(new_widget);
             }
         }
-        
+
         // Handle any non-characterized tests.
         if (leftover_labels.size > 0) {
             // Create an item for non-categorized results.
@@ -624,7 +624,7 @@ table th {
             div_for_checkbox.attributeStyleMap.clear();
         });
 
-        
+
         // reset the number of results size
         const selected_count_items = document.getElementsByName('selectedCount');
         const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
@@ -634,6 +634,15 @@ table th {
             // Set the current count of items
             output[0].innerHTML = output[0].innerText = newSize;
         }
+    }
+
+    function unEscape(htmlStr) {
+        htmlStr = htmlStr.replace(/&lt;/g , "<");
+        htmlStr = htmlStr.replace(/&gt;/g , ">");
+        htmlStr = htmlStr.replace(/&quot;/g , "\"");
+        htmlStr = htmlStr.replace(/&#39;/g , "\'");
+        htmlStr = htmlStr.replace(/&amp;/g , "&");
+        return htmlStr;
     }
 
     // For getting contents of output into json string for testing
@@ -647,7 +656,7 @@ table th {
         }
         // alert(output);
         // Copy to clipboard.
-        navigator.clipboard.writeText(output);
+        navigator.clipboard.writeText(unEscape(output));
     }
 
     // On hover, show the difference between expected and actual result
@@ -676,14 +685,14 @@ table th {
         let found = false;
         const label_data = document.getElementById('label_data');
         label_data.innerHTML = "???";
-      
+
         let item_index;
         let pagination_container;
         let pagination_obj;
 
         for (const type of result_types) {
             const results = test_results[type].all_labels;
-            
+
             if (results.has(label)) {
                 // Show the result type and the data for this one,
                 // i.e., label, expected result, result, input_data.
@@ -733,7 +742,7 @@ table th {
        Intended to use for differences between expected and actual result.
     -->
     <script src="../../../diff_match_patch.js"></script>
-  
+
  </head>
  <body>
     <h1>Verification report: $test_type on $library_name</h1>
@@ -845,7 +854,7 @@ table th {
             </div> <!-- grid end -->
           </details>
         </div>
-      </details>      
+      </details>
 
       <details id="error_details">
         <summary>Test errors <span id='error_count'>($error_count)</span></summary>
