@@ -43,10 +43,10 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     }
 
     // Use compare_type to get < or =.
-    let mut compare_symbol = "<";  // Default
+    let mut compare_symbol = "<"; // Default
     if let Some(comparison) = compare_option {
         compare_symbol = &comparison[0..1];
-    } 
+    }
 
     if let Some(strength) = strength_option {
         options.strength = if strength == "primary" {
@@ -68,7 +68,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
             }));
         };
     };
-    
+
     // Ignore punctuation only if using shifted test.
     if let Some(ip) = ignore_punctuation {
         if *ip {
