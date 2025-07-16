@@ -30,8 +30,8 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
     let mut options = CollatorOptions::default();
 
-    // Handle the given options
-
+    // TODO: Get and apply locale if given. Else use "und" or "en"
+    
     // Rules not yet supported.
     if rules.is_some() {
         return Ok(json!({
