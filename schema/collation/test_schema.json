@@ -42,7 +42,7 @@
           },
           "s1_codes": {
             "type": "array",
-            "description": "List hex values for characters of the string"
+            "description": "List hex values for characters of the string",
             "items": {
               "type": "string",
               "description": "hex values in string form of the Unicode value"
