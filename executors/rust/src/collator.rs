@@ -50,7 +50,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     if let Some(strength) = strength_option {
         options.strength = if strength == "primary" {
-            Some(Strength::Tertiary)
+            Some(Strength::Primary)
         } else if strength == "secondary" {
             Some(Strength::Secondary)
         } else if strength == "tertiary" {
