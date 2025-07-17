@@ -110,4 +110,13 @@ public class CollatorTest {
 
     assertTrue(output.result);
   }
+
+  @Test
+  public void testBackwards() {
+    String testInput = "{\"test_type\": \"collation\", \"strength\": \"secondary\", \"compare_type\":\"<2\",\"s1\":\"côte\",\"s2\":\"coté\",\"source_file\":\"collationtest.txt\",\"line\":347,\"label\":\"00153\",\"locale\":\"fr-CA\",\"test_description\":\"côté with backwards secondary\",\"backwards\":\"on\",\"hexhash\":\"0054321a336610ec2eabc4e824736e7e886bab4d\"}";
+    CollatorOutputJson output =
+        (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
 }

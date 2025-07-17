@@ -39,6 +39,7 @@ public class CollatorTester implements ITestType {
     }
 
     result.locale = (String) inputMapData.get("locale", null);
+    result.strength = (String) inputMapData.get("strength", null);
 
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
@@ -67,6 +68,8 @@ public class CollatorTester implements ITestType {
     result.rules = (String) inputMapData.get("rules", null);
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
     result.warning = (String) inputMapData.get("warning", null);
+
+    result.backwards = (String) inputMapData.get("backwards", null);
 
     return result;
   }
@@ -98,20 +101,20 @@ public class CollatorTester implements ITestType {
     }
 
     // Use the compare_type field to set the strength of collation test.
-    if (input.compare_type != null){
-      if (input.compare_type.equals("=")) {
+    if (input.strength != null) {
+      if (input.strength.equals("identical")) {
         coll.setStrength(Collator.IDENTICAL);
       } else
-      if (input.compare_type.equals("<1")) {
+      if (input.strength.equals("primary")) {
         coll.setStrength(Collator.PRIMARY);
       } else
-      if (input.compare_type.equals("<2")) {
+      if (input.strength.equals("secondary")) {
         coll.setStrength(Collator.SECONDARY);
       } else
-      if (input.compare_type.equals("<3")) {
+      if (input.strength.equals("tertiary")) {
         coll.setStrength(Collator.TERTIARY);
       } else
-      if (input.compare_type.equals("<4")) {
+      if (input.strength.equals("quaternary")) {
         coll.setStrength(Collator.QUATERNARY);
       }
     }
@@ -166,7 +169,13 @@ public class CollatorTester implements ITestType {
   public Collator getCollatorForInput(CollatorInputJson input) {
     RuleBasedCollator result = null;
 
+    // Special case: Reset the locale to fr-CA in special case of backwards diacritics
+    if (input.backwards != null && input.backwards.equals("on")) {
+      input.locale = "fr-CA";
+    }
+
     if (input.locale == null || input.locale == "root") {
+      // Review this logic
       if (input.rules == null) {
         result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {
