@@ -637,12 +637,8 @@ table th {
     }
 
     function unEscape(htmlStr) {
-        htmlStr = htmlStr.replace(/&lt;/g , "<");
-        htmlStr = htmlStr.replace(/&gt;/g , ">");
-        htmlStr = htmlStr.replace(/&quot;/g , "\"");
-        htmlStr = htmlStr.replace(/&#39;/g , "\'");
-        htmlStr = htmlStr.replace(/&amp;/g , "&");
-        return htmlStr;
+        var doc = new DOMParser().parseFromString(htmlStr, "text/html");
+        return doc.documentElement.textContent;
     }
 
     // For getting contents of output into json string for testing
