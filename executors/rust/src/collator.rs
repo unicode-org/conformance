@@ -80,7 +80,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     // Ignore punctuation only if using shifted test.
     if let Some(ip) = ignore_punctuation {
-        if *ip {
+        if ip {
             options.alternate_handling = Some(AlternateHandling::Shifted);
         }
     }
@@ -89,7 +89,6 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // at compare type (1, 2, 3, 4, i, c) to see if it matches
 
     let collator = Collator::try_new(pref!(&langid), options).map_err(|e| e.to_string())?;
-
     let comparison = collator.compare(str1, str2);
 
     let result_string = match compare_symbol {
