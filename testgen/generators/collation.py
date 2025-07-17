@@ -171,8 +171,12 @@ class CollationGenerator(DataGenerator):
                     # Catch an error. What should be done here ???
                     string2_errors.append([line_index, raw_string2, err])
                     pass
+                # Special cases for comparing only with \u0020 or \u000a
+                if string2 == '' and raw_line.find('\\u0020') > 0:
+                    string2 = '\u0020'
+                if string2 == '' and raw_line.find('\\u000A') > 0:
+                    string2 = '\u000a'
 
-                # ??? re-encode to get escaped version of s2?
                 new_test = {
                     'compare_type': compare_type,
                     's1': string1,

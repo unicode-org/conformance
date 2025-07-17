@@ -107,13 +107,13 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
+
     let comparison_number: i16 = match comparison {
         Ordering::Less => -1,
         Ordering::Greater => 1,
         Ordering::Equal => 0,
     };
 
-    // TODO: Convert comparison to "<", "=", or ">"
     let json_result = json!({
         "label": label,
         "result": result_string,
