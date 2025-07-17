@@ -12,7 +12,6 @@ use super::compat::{pref, Locale};
 
 // Function runs comparison using collator
 pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
-
     let label = &json_obj["label"].as_str().unwrap();
     let ignore_punctuation: &Option<bool> = &json_obj["ignorePunctuation"].as_bool();
     let str1: &str = json_obj["s1"].as_str().unwrap();
@@ -30,7 +29,9 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     // Apply locale if given. Else use default locale.
     // Replace "root" with default locale
-    let locale_name_opt = json_obj.get("locale").map(|json_val| json_val.as_str().unwrap());
+    let locale_name_opt = json_obj
+        .get("locale")
+        .map(|json_val| json_val.as_str().unwrap());
     let langid = match locale_name_opt {
         Some("root") | None => Locale::default(),
         Some(other) => match other.parse() {
@@ -41,9 +42,9 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
                     "error_detail": other,
                     "unsupported": "Unsupported locale",
                     "error_type": "unsupported",
-                }))                
+                }))
             }
-        }
+        },
     };
 
     // Rules not yet supported.
