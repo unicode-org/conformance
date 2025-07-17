@@ -13,7 +13,7 @@ use super::compat::{pref, Locale};
 // Function runs comparison using collator
 pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     let label = &json_obj["label"].as_str().unwrap();
-    let ignore_punctuation: &Option<bool> = &json_obj["ignorePunctuation"].as_bool();
+    let ignore_punctuation: Option<bool> = json_obj["ignorePunctuation"].as_bool();
     let str1: &str = json_obj["s1"].as_str().unwrap();
     let str2: &str = json_obj["s2"].as_str().unwrap();
 
@@ -88,7 +88,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // TODO !! Iterate to find actual level of comparison, then look
     // at compare type (1, 2, 3, 4, i, c) to see if it matches
 
-    let collator = Collator::try_new(pref!(&langid), options).unwrap();
+    let collator = Collator::try_new(pref!(&langid), options).map_err(|e| e.to_string())?;
 
     let comparison = collator.compare(str1, str2);
 
@@ -106,7 +106,6 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
             }));
         }
     };
-
 
     let comparison_number: i16 = match comparison {
         Ordering::Less => -1,
