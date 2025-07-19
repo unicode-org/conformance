@@ -1,11 +1,14 @@
 package org.unicode.conformance.testtype.collator;
 
 import com.ibm.icu.text.Collator;
+import com.ibm.icu.lang.UScript;
 import com.ibm.icu.text.RuleBasedCollator;
 import com.ibm.icu.util.ULocale;
 import io.lacuna.bifurcan.IMap;
 import io.lacuna.bifurcan.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
@@ -25,6 +28,18 @@ public class CollatorTester implements ITestType {
     CollatorInputJson result = new CollatorInputJson();
     result.test_type = (String) inputMapData.get("test_type", null);
     result.label = (String) inputMapData.get("label", null);
+
+    HashMap<String, Integer> script_tags_map = new HashMap<String, Integer>();
+    script_tags_map.put("digit", Collator.ReorderCodes.DIGIT);
+    script_tags_map.put("space", Collator.ReorderCodes.SPACE);
+    script_tags_map.put("symbol", Collator.ReorderCodes.SYMBOL);
+    script_tags_map.put("punct", Collator.ReorderCodes.PUNCTUATION);
+    script_tags_map.put("Latn", UScript.LATIN);
+    script_tags_map.put("Goth", UScript.GOTHIC);
+    script_tags_map.put("Hang", UScript.HANGUL);
+    script_tags_map.put("Hani", UScript.HAN);
+    script_tags_map.put("Hira", UScript.HIRAGANA);
+    script_tags_map.put("Zzzz", UScript.UNKNOWN);
 
     // TODO: clean up after schema validation gets turned on at runtime
     result.s1 = (String) inputMapData.get("s1", null);
@@ -52,6 +67,8 @@ public class CollatorTester implements ITestType {
         result.compare_type = "<" + next_part;
       }
     }
+    result.strength = (String) inputMapData.get("strength", null);
+
     result.test_description = (String) inputMapData.get("test_description", null);
 
     // TODO: implement this correctly recursively (either using APIs or else DIY)
@@ -67,7 +84,30 @@ public class CollatorTester implements ITestType {
     result.rules = (String) inputMapData.get("rules", null);
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
     result.warning = (String) inputMapData.get("warning", null);
+    result.backwards = (String) inputMapData.get("backwards", null);
 
+    // Compute reorder codes from input reorder_string
+    String reorder_tag_string =  (String) inputMapData.get("reorder", null);
+    if (reorder_tag_string != null) {
+      List<Integer> reorder_codes_list = new ArrayList<>();
+      // Split the string into tags
+      String[] tags = reorder_tag_string.split(" ");
+      // Create the list for setting reorder codes.
+      result.reorder_codes = new int[tags.length];
+
+      // For each tag, look up the code and add to a list
+      int index = 0;
+      for (String tag : tags) {
+        // For each tag, look up the code and add to a list of codes
+        int script_code = script_tags_map.getOrDefault(tag, -1);
+        if (script_code != -1) {
+          result.reorder_codes[index] = script_code;
+          index ++;
+        }
+      }
+    }
+    // Split the string into tags
+    // For each tag, look up the code and add to a list
     return result;
   }
 
@@ -80,6 +120,12 @@ public class CollatorTester implements ITestType {
     output.label = input.label;
     output.s1 = input.s1;
     output.s2 = input.s2;
+
+    if (input.backwards != null) {
+      // Special case
+      output.actual_options = "Backwards reset of locale from " + input.locale;
+      input.locale = "fr-CA";  // Reset the locale to be fr-CA
+    }
 
     // get and run collator based on options provided for test case input
     Collator coll = null;
@@ -98,22 +144,27 @@ public class CollatorTester implements ITestType {
     }
 
     // Use the compare_type field to set the strength of collation test.
-    if (input.compare_type != null){
-      if (input.compare_type.equals("=")) {
+    if (input.strength != null){
+      if (input.strength.equals("identical")) {
         coll.setStrength(Collator.IDENTICAL);
       } else
-      if (input.compare_type.equals("<1")) {
+      if (input.strength.equals("primary")) {
         coll.setStrength(Collator.PRIMARY);
       } else
-      if (input.compare_type.equals("<2")) {
+      if (input.strength.equals("secondary")) {
         coll.setStrength(Collator.SECONDARY);
       } else
-      if (input.compare_type.equals("<3")) {
+      if (input.strength.equals("tertiary")) {
         coll.setStrength(Collator.TERTIARY);
       } else
-      if (input.compare_type.equals("<4")) {
+      if (input.strength.equals("quaternary")) {
         coll.setStrength(Collator.QUATERNARY);
       }
+    }
+
+    // Set the reorder codes if present
+    if (input.reorder_codes != null && input.reorder_codes.length > 0) {
+      coll.setReorderCodes(input.reorder_codes);
     }
 
     try {
@@ -166,7 +217,7 @@ public class CollatorTester implements ITestType {
   public Collator getCollatorForInput(CollatorInputJson input) {
     RuleBasedCollator result = null;
 
-    if (input.locale == null || input.locale == "root") {
+    if (input.locale == null || input.locale.equals("root")) {
       if (input.rules == null) {
         result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {
