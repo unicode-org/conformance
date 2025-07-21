@@ -90,10 +90,6 @@ UnicodeString get_char_from_hex_list(json_object* str_codes_obj,
     // Finally, unescape this list.
     UnicodeString u_hex = UnicodeString::fromUTF8(hex_list);
     UnicodeString s_new = u_hex.unescape();
-    if (debug_level > 0) {
-      string target;
-      s_new.toUTF8String(target);
-    }
 
     return s_new;
 }
@@ -127,14 +123,16 @@ auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t>
   }
 
   // Split reorder_string into strings.
+  char delimiter = ' ';
+  std::stringstream ss(reorder_string);
+
   vector<string> reorder_strings;
-  size_t start = 0;
-  size_t end = reorder_string.find_first_of(' ');
-  while (end != std::string::npos) {
-    string this_one = reorder_string.substr(start, end-start);
-    reorder_strings.emplace_back(this_one);
-    start = end + 1;
-    end = reorder_string.find(' ', start);
+  string segment;
+  while (std::getline(ss, segment, delimiter)) {
+    reorder_strings.push_back(segment);
+  }
+  if (debug_level > 0) {
+    cout << "REORDER count: " << reorder_strings.size() << endl;
   }
 
   // Create an array of codes based on number of strings
@@ -148,10 +146,11 @@ auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t>
     string script_tag = *it;
     map_it = reorder_map.find(script_tag);
     if (map_it != reorder_map.end()) {
+      return_codes.push_back(map_it->second);
       if (debug_level > 0) {
-        return_codes.push_back(map_it->second);
+        cout << "# RECOGNIZED SCRIPT CODE: " <<
+            script_tag << " --> " << map_it->second << endl;
       }
-      cout << "# RECOGNIZED SCRIPT CODE: " << script_tag << " --> " << map_it->second << endl;
     } else {
       cout << "# UNRECOGNIZED SCRIPT CODE: " << script_tag << endl;
     }

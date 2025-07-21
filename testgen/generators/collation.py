@@ -39,17 +39,22 @@ class CollationGenerator(DataGenerator):
         # These break out of the loop processing rules or sets of tests
         self.compare_breakout_patterns = [
             self.compare_pattern,
+            self.rule_header_pattern,
             self.locale_string,
             self.root_locale,
             self.test_line,
-            self.attribute_test]
+            self.attribute_test,
+            self.reorder_test
+        ]
 
         self.rule_breakout_patterns = [
             self.compare_pattern,
             self.locale_string,
             self.root_locale,
             self.test_line,
-            self.attribute_test]
+            self.attribute_test,
+            self.reorder_test
+        ]
 
         # For detecting and converting \x coded values
         self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
@@ -336,7 +341,10 @@ class CollationGenerator(DataGenerator):
             if is_reorder:
                 key = is_reorder.group(1)
                 value = is_reorder.group(2)
-                attributes[key] = value
+                if value == 'default':
+                    del attributes['reorder']  # Resets
+                else:
+                    attributes[key] = value
                 line_number += 1
                 continue
 
