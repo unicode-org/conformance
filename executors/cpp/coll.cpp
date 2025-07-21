@@ -45,8 +45,6 @@ using icu::UnicodeString;
 using icu::Collator;
 using icu::RuleBasedCollator;
 
-using namespace std;
-
 const char error_message[] = "error";
 
 UnicodeString get_char_from_hex_list(json_object* str_codes_obj,
