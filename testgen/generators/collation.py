@@ -437,14 +437,11 @@ class CollationGenerator(DataGenerator):
             # It's a data line. Include in testing.
             if not prev:
                 # Just getting started.
-                prev, prev_codepoints = self.parseCollTestData(item)
+                prev = self.parseCollTestData(item)
                 continue
 
             # Get the code points for each test
-            try:
-                next, next_codepoints = self.parseCollTestData(item)
-            except BaseException as e:
-                pass
+            next = self.parseCollTestData(item)
 
             if not next:
                 # This is a problem with the data input. D80[0-F] is the high surrogate
@@ -452,10 +449,7 @@ class CollationGenerator(DataGenerator):
                 continue
 
             label = str(count).rjust(max_digits, "0")
-            new_test = {"label": label, "s1": prev, "s2": next, "strength": "identical", "line": line_number,
-                        "source_file": filename,
-                        "s1_codes": prev_codepoints,
-                        "s2_codes": next_codepoints}
+            new_test = {"label": label, "s1": prev, "s2": next, "strength": "identical", "line": line_number, "source_file": filename}
             if ignorePunctuation:
                 new_test["ignorePunctuation"] = True
             test_list.append(new_test)
@@ -463,7 +457,6 @@ class CollationGenerator(DataGenerator):
             verify_list.append({"label": label, "verify": True})
 
             prev = next  # set up for next pair
-            prev_codepoints = next_codepoints
             count += 1
             index += 1
 
@@ -483,21 +476,16 @@ class CollationGenerator(DataGenerator):
         recodepoint = re.compile(r"[0-9a-fA-F]{4,6}")
 
         return_list = []
-        code_text = []
         codepoints = recodepoint.findall(testdata)
         for code in codepoints:
-            code_text.append(code)
             num_code = int(code, 16)
             if num_code >= 0xD800 and num_code <= 0xDFFF:
-                return None, None
+                return None
             return_list.append(self.stringifyCode(num_code))
-        return "".join(return_list), code_text
+        return "".join(return_list)
 
     def stringifyCode(self, cp):
         # Just include character and escaping will work in JSONification
-        if cp >= 0x10000:
-            # This is an SMP character. Do we handle it differently?
-            pass
         try:
             teststring = chr(cp)
         except ValueError as err:
