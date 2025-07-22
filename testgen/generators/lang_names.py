@@ -5,7 +5,7 @@ import re
 import logging
 from generators.base import DataGenerator
 
-reblankline = re.compile(r"^\s*$")
+RE_BLANK_LINE = re.compile(r"^\s*$")
 
 
 class LangNamesGenerator(DataGenerator):
@@ -57,7 +57,7 @@ class LangNamesGenerator(DataGenerator):
 
     def generateLanguageNameTestDataObjects(self, rawtestdata):
         # Get the JSON data for tests and verification for language names
-        recommentline = re.compile(r"^\s*#")
+        re_comment_line = re.compile(r"^\s*#")
         count = 0
 
         jtests = []
@@ -68,7 +68,7 @@ class LangNamesGenerator(DataGenerator):
         num_samples = len(test_lines)
         max_digits = self.computeMaxDigitsForCount(num_samples)
         for item in test_lines:
-            if not (recommentline.match(item) or reblankline.match(item)):
+            if not (re_comment_line.match(item) or RE_BLANK_LINE.match(item)):
                 test_data = self.parseLanguageNameData(item)
                 if test_data == None:
                     logging.debug(
