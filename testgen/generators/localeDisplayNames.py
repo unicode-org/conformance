@@ -59,6 +59,8 @@ class LocaleNamesGenerator(DataGenerator):
 
     def generateLanguageNameTestDataObjects(self, rawtestdata):
         # Get the JSON data for tests and verification for language names
+        re_comment_line = re.compile(r"^\s*#")
+
         set_locale = re.compile(r"@locale=(\w+)")
         set_languageDisplay = re.compile(r"@languageDisplay=(\w+)")
 
@@ -76,7 +78,7 @@ class LocaleNamesGenerator(DataGenerator):
         language_display = 'standard'
 
         for item in test_lines:
-            if not (recommentline.match(item) or reblankline.match(item)):
+            if not (re_comment_line.match(item) or reblankline.match(item)):
 
                 locale_match = set_locale.match(item)
                 if locale_match:
