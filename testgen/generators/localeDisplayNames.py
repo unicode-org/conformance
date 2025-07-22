@@ -5,9 +5,6 @@ import re
 import logging
 from generators.base import DataGenerator
 
-reblankline = re.compile(r"^\s*$")
-
-
 class LocaleNamesGenerator(DataGenerator):
     json_test = {"test_type": "lang_names"}
     json_verify = {"test_type": "lang_names"}
@@ -59,6 +56,7 @@ class LocaleNamesGenerator(DataGenerator):
 
     def generateLanguageNameTestDataObjects(self, rawtestdata):
         # Get the JSON data for tests and verification for language names
+        re_blank_line = re.compile(r"^\s*$")
         re_comment_line = re.compile(r"^\s*#")
 
         set_locale = re.compile(r"@locale=(\w+)")
@@ -78,7 +76,7 @@ class LocaleNamesGenerator(DataGenerator):
         language_display = 'standard'
 
         for item in test_lines:
-            if not (re_comment_line.match(item) or reblankline.match(item)):
+            if not (re_comment_line.match(item) or re_blank_line.match(item)):
 
                 locale_match = set_locale.match(item)
                 if locale_match:

@@ -55,7 +55,6 @@ class LangNamesGenerator(DataGenerator):
     def generateLanguageNameTestDataObjects(self, rawtestdata):
         # Get the JSON data for tests and verification for language names
         re_blank_line = re.compile(r"^\s*$")
-
         re_comment_line = re.compile(r"^\s*#")
         count = 0
 
