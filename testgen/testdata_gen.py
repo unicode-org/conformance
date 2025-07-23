@@ -104,7 +104,7 @@ def generate_versioned_data(version_info):
         generator = LikelySubtagsGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
-    # if TestType.MESSAGE_FMT2 in args.test_types:
+    if TestType.MESSAGE_FMT2 in args.test_types:
         generator = MessageFmt2Generator(icu_version, args.run_limit)
         generator.process_test_data()
 
