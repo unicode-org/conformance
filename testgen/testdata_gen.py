@@ -25,6 +25,10 @@ def setupArgs():
     parser.add_argument(
         "--test_types", nargs="*", choices=test_types, default=test_types
     )
+
+    # Indicates which ICU versions, if any, will include the large test sets
+    parser.add_argument('--generate_long_collation', nargs="*", default=[])
+
     # -1 is no limit
     parser.add_argument("--run_limit", nargs="?", type=int, default=-1)
     new_args = parser.parse_args()
@@ -54,6 +58,9 @@ def generate_versioned_data(version_info):
     args = version_info["args"]
     icu_version = version_info["icu_version"]
 
+    # TODO: make this a parameter passed per icu_version
+    generate_large_tests = False
+
     logging.info(
         "Generating .json files for data driven testing. ICU_VERSION requested = %s",
         icu_version,
@@ -63,9 +70,10 @@ def generate_versioned_data(version_info):
         logging.info("(Only generating %s)", ", ".join(args.test_types))
 
     if TestType.COLLATION in args.test_types:
-        # This is slow
+        # This is slow for the large test generation
         generator = CollationGenerator(icu_version, args.run_limit)
-        generator.process_test_data()
+        generate_large_tests = icu_version in args.generate_long_collation
+        generator.process_test_data(generate_large_tests)
 
     ## DISABLED FOR NOW. Use new .js generator with Node version
     if TestType.DATETIME_FMT in args.test_types:
@@ -96,7 +104,7 @@ def generate_versioned_data(version_info):
         generator = LikelySubtagsGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
-    if TestType.MESSAGE_FMT2 in args.test_types:
+    # if TestType.MESSAGE_FMT2 in args.test_types:
         generator = MessageFmt2Generator(icu_version, args.run_limit)
         generator.process_test_data()
 
