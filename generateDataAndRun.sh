@@ -49,6 +49,7 @@ mkdir -p $TEMP_DIR/testData
 source_file=${1:-'run_config.json'}
 pushd testgen
 all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
+# TESTING LONG COLLATION? Add "--generate_long_collation" followed by icu versions
 python3 testdata_gen.py  --icu_versions $all_icu_versions
 # And copy results to subdirectories.
 cp -r icu* ../$TEMP_DIR/testData
