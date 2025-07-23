@@ -162,7 +162,7 @@ auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t>
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
-auto TestCollator(json_object *json_in, int debug_level) -> string {
+auto TestCollator(json_object *json_in) -> string {
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -178,17 +178,6 @@ auto TestCollator(json_object *json_in, int debug_level) -> string {
   // Does this conversion preserve the data?
   UnicodeString us1 = UnicodeString::fromUTF8(string1);
   UnicodeString us2 = UnicodeString::fromUTF8(string2);
-
-  json_object *str1_codes_obj = json_object_object_get(json_in, "s1_codes");
-  json_object *str2_codes_obj = json_object_object_get(json_in, "s2_codes");
-
-  // Use the hex codes if they are provided rather than s1 and s2.
-  if (str1_codes_obj) {
-    us1 = get_char_from_hex_list(str1_codes_obj, debug_level);
-  }
-  if (str2_codes_obj) {
-    us2 = get_char_from_hex_list(str2_codes_obj, debug_level);
-  }
 
   string test_result;
   int uni_result_utf8;
