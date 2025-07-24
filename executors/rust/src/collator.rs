@@ -8,21 +8,18 @@ use icu::collator::*;
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
 use icu::collator::options::*;
 
-use super::compat::{locale, pref};
+use super::compat::{pref, Locale};
 
 // Function runs comparison using collator
 pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
-    // TODO: Handle errors of missing values and failures.
     let label = &json_obj["label"].as_str().unwrap();
-    let ignore_punctuation: &Option<bool> = &json_obj["ignorePunctuation"].as_bool();
+    let ignore_punctuation: Option<bool> = json_obj["ignorePunctuation"].as_bool();
     let str1: &str = json_obj["s1"].as_str().unwrap();
     let str2: &str = json_obj["s2"].as_str().unwrap();
 
-    // This may be missing
+    // These fields may be missing in tests
     let compare_option: Option<&str> = json_obj["compare_type"].as_str();
-
     let strength_option: Option<&str> = json_obj["strength"].as_str();
-
     let rules: Option<&str> = json_obj["rules"].as_str();
 
     #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5"))]
@@ -30,7 +27,25 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5")))]
     let mut options = CollatorOptions::default();
 
-    // TODO: Get and apply locale if given. Else use "und" or "en"
+    // Apply locale if given. Else use default locale.
+    // Replace "root" with default locale
+    let locale_name_opt = json_obj
+        .get("locale")
+        .map(|json_val| json_val.as_str().unwrap());
+    let langid = match locale_name_opt {
+        Some("root") | None => Locale::default(),
+        Some(other) => match other.parse() {
+            Ok(l) => l,
+            Err(_) => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": other,
+                    "unsupported": "Unsupported locale",
+                    "error_type": "unsupported",
+                }))
+            }
+        },
+    };
 
     // Rules not yet supported.
     if rules.is_some() {
@@ -65,7 +80,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     // Ignore punctuation only if using shifted test.
     if let Some(ip) = ignore_punctuation {
-        if *ip {
+        if ip {
             options.alternate_handling = Some(AlternateHandling::Shifted);
         }
     }
@@ -73,8 +88,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // TODO !! Iterate to find actual level of comparison, then look
     // at compare type (1, 2, 3, 4, i, c) to see if it matches
 
-    let collator = Collator::try_new(pref!(locale!("en")), options).unwrap();
-
+    let collator = Collator::try_new(pref!(&langid), options).map_err(|e| e.to_string())?;
     let comparison = collator.compare(str1, str2);
 
     let result_string = match compare_symbol {
@@ -92,19 +106,19 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
-    let mut comparison_number: i16 = 0;
-    if comparison == Ordering::Less {
-        comparison_number = -1;
-    } else if comparison == Ordering::Greater {
-        comparison_number = 1;
-    }
+    let comparison_number: i16 = match comparison {
+        Ordering::Less => -1,
+        Ordering::Greater => 1,
+        Ordering::Equal => 0,
+    };
 
-    // TODO: Convert comparison to "<", "=", or ">"
     let json_result = json!({
         "label": label,
         "result": result_string,
-        "compare_result": comparison_number,
-        "actual_options": format!("{options:?}")
+        "actual_options": {
+            "options": format!("{options:?}"),
+            "compared_result": comparison_number,
+        }
     });
     Ok(json_result)
 }

@@ -39,24 +39,29 @@ class CollationGenerator(DataGenerator):
         # These break out of the loop processing rules or sets of tests
         self.compare_breakout_patterns = [
             self.compare_pattern,
+            self.rule_header_pattern,
             self.locale_string,
             self.root_locale,
             self.test_line,
-            self.attribute_test]
+            self.attribute_test,
+            self.reorder_test
+        ]
 
         self.rule_breakout_patterns = [
             self.compare_pattern,
             self.locale_string,
             self.root_locale,
             self.test_line,
-            self.attribute_test]
+            self.attribute_test,
+            self.reorder_test
+        ]
 
         # For detecting and converting \x coded values
         self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
         self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
 
 
-    def process_test_data(self):
+    def process_test_data(self, generate_large_tests=False):
         # Get each kind of collation tests and create a unified data set
         json_test = {"test_type": "collation", "tests": [], "data_errors": []}
         json_verify = {"test_type": "collation", "verifications": []}
@@ -80,39 +85,41 @@ class CollationGenerator(DataGenerator):
 
         data_error_list.extend(encode_errors)
 
-        # Collation ignoring punctuation
-        test_ignorable, verify_ignorable, data_errors = (
-            self.generateCollTestDataObjects(
-                "CollationTest_SHIFTED_SHORT.txt",
-                self.icu_version,
-                ignorePunctuation=True,
-                start_count=len(json_test["tests"]),
+        if generate_large_tests:
+            # Only if large tests are required
+            # Collation ignoring punctuation
+            test_ignorable, verify_ignorable, data_errors = (
+                self.generateCollTestDataObjects(
+                    "CollationTest_SHIFTED_SHORT.txt",
+                    self.icu_version,
+                    ignorePunctuation=True,
+                    start_count=len(json_test["tests"]),
+                )
             )
-        )
+            json_test["tests"].extend(test_ignorable)
+            json_verify["verifications"].extend(verify_ignorable)
+            data_error_list.extend(data_errors)
 
-        json_test["tests"].extend(test_ignorable)
-        json_verify["verifications"].extend(verify_ignorable)
-        data_error_list.extend(data_errors)
-
-        # Collation considering punctuation
-        test_nonignorable, verify_nonignorable, data_errors = (
-            self.generateCollTestDataObjects(
-                "CollationTest_NON_IGNORABLE_SHORT.txt",
-                self.icu_version,
-                ignorePunctuation=False,
-                start_count=len(json_test["tests"]),
+            # Collation considering punctuation
+            test_nonignorable, verify_nonignorable, data_errors = (
+                self.generateCollTestDataObjects(
+                    "CollationTest_NON_IGNORABLE_SHORT.txt",
+                    self.icu_version,
+                    ignorePunctuation=False,
+                    start_count=len(json_test["tests"]),
+                )
             )
-        )
+            json_verify["verifications"].extend(verify_nonignorable)
 
-        # Resample as needed
-        json_test["tests"].extend(test_nonignorable)
-        json_test["tests"] = self.sample_tests(json_test["tests"])
-        data_error_list.extend(data_errors)
+            json_test["tests"].extend(test_nonignorable)
+            json_verify["verifications"].extend(verify_nonignorable)
+            data_error_list.extend(data_errors)
 
         # Store data errors with the tests
         json_test["data_errors"] = data_error_list
 
-        json_verify["verifications"].extend(verify_nonignorable)
+        # Resample as needed
+        json_test["tests"] = self.sample_tests(json_test["tests"])
         json_verify["verifications"] = self.sample_tests(json_verify["verifications"])
         # TODO: Store data errors with the tests
 
@@ -336,7 +343,10 @@ class CollationGenerator(DataGenerator):
             if is_reorder:
                 key = is_reorder.group(1)
                 value = is_reorder.group(2)
-                attributes[key] = value
+                if value == 'default':
+                    del attributes['reorder']  # Resets
+                else:
+                    attributes[key] = value
                 line_number += 1
                 continue
 
