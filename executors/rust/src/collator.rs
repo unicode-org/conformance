@@ -9,8 +9,7 @@ use icu::collator::*;
 use icu::collator::options::*;
 
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
-use icu::collator::preferences::{CollationCaseFirst as CaseFirst,
-                                 CollationNumericOrdering};
+use icu::collator::preferences::{CollationCaseFirst as CaseFirst, CollationNumericOrdering};
 
 use super::compat::{pref, Locale};
 
@@ -137,7 +136,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
                     }));
                 }
             }
-        }        
+        }
         #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
         {
             options.case_first = match case_first {
@@ -170,7 +169,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
             }
         }
     };
-    
+
     // Numeric sort order.
     // CollatorPreferences in beta2 vs. Enum Numeric
     if let Some(numeric) = numeric_option {
@@ -191,7 +190,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         };
         // !!! TODO: handle before 2.0beta2
     };
-    
+
     if let Some(alternate) = alternate_option {
         options.alternate_handling = match alternate {
             "shifted" => Some(AlternateHandling::Shifted),
@@ -223,7 +222,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
             }
         }
     };
-    
+
     // Ignore punctuation only if using shifted test.
     if let Some(ip) = ignore_punctuation {
         if ip {
