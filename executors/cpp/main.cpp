@@ -39,8 +39,7 @@ using std::endl;
 using std::string;
 
 // Test functions
-extern auto TestCollator(json_object *json_in,
-                         int debug_level) -> const string;
+extern auto TestCollator(json_object *json_in) -> const string;
 extern auto TestDatetimeFmt(json_object *json_in) -> const string;
 extern auto TestLocaleDisplayNames(json_object *json_in) -> const string;
 extern auto TestLikelySubtags(json_object *json_in) -> const string;
@@ -63,8 +62,6 @@ extern auto TestRelativeDateTimeFmt(json_object *json_in) -> const string;
  *            test data is JSON format
  */
 auto main(int argc, const char** argv) -> int {
-  int debug_level = 0;
-
   // All the currently supported test types.
   std::vector <string> supported_tests;
   supported_tests = {
@@ -78,15 +75,6 @@ auto main(int argc, const char** argv) -> int {
     "rdt_fmt",
     "segmenter"
   };
-
-  if (argc > 1) {
-    for (int i = 1; i < argc; i++) {
-      string arg_string = argv[i];
-      if (arg_string == "DEBUG") {
-        debug_level += 1;
-      }
-    }
-  }
 
   for (std::string line; std::getline(cin, line);) {
     if (line == "#EXIT") {
@@ -127,7 +115,7 @@ auto main(int argc, const char** argv) -> int {
       std::string test_type = json_object_get_string(test_type_obj);
 
       if (test_type == "collation") {
-        outputLine = TestCollator(json_input, debug_level);
+        outputLine = TestCollator(json_input);
       } else if (test_type == "datetime_fmt") {
          outputLine = TestDatetimeFmt(json_input);
 #if U_ICU_VERSION_MAJOR_NUM >= 75
