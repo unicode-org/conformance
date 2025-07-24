@@ -25,20 +25,15 @@
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 
-#include <bits/stdc++.h>
 #include <cstring>
 #include <iostream>
-#include <map>
 #include <string>
-#include <vector>
 
 #include "./util.h"
 
 using std::cout;
 using std::endl;
-using std::map;
 using std::string;
-using std::vector;
 
 using icu::Locale;
 using icu::UnicodeString;
@@ -47,123 +42,10 @@ using icu::RuleBasedCollator;
 
 const char error_message[] = "error";
 
-UnicodeString get_char_from_hex_list(json_object* str_codes_obj,
-                                     int debug_level) {
-    // Get the hex codes and assemble into a string with \u
-    int input_length = json_object_array_length(str_codes_obj);
-
-    // Construct the list of Unicode Strings
-    string hex_list = "";
-    for (int i = 0; i < input_length; i++) {
-      // get the i-th object in the input list
-      json_object* item = json_object_array_get_idx(str_codes_obj, i);
-      string hex_string = json_object_get_string(item);
-      string escape_prefix;
-      switch (hex_string.size()) {
-        case 5:
-          escape_prefix = "\\U000";
-          break;
-        case 6:
-          escape_prefix = "\\U00";
-          break;
-        case 7:
-          escape_prefix = "\\U0";
-          break;
-        case 4:
-        default:
-          escape_prefix = "\\u";
-          break;
-        case 3:
-          escape_prefix = "\\u0";
-          break;
-        case 2:
-          escape_prefix = "\\u00";
-          break;
-        case 1:
-          escape_prefix = "\\u000";
-          break;
-      }
-      hex_list += escape_prefix + hex_string;
-    }
-    // Finally, unescape this list.
-    UnicodeString u_hex = UnicodeString::fromUTF8(hex_list);
-    UnicodeString s_new = u_hex.unescape();
-
-    return s_new;
-}
-
-  std::map<string, int> reorder_map = {
-    // Note that this is a subset of the script codes
-    {"digit", UCOL_REORDER_CODE_DIGIT},
-    {"space", UCOL_REORDER_CODE_SPACE},
-    {"symbol", UCOL_REORDER_CODE_SYMBOL},
-    {"punct", UCOL_REORDER_CODE_PUNCTUATION},
-    {"Latn", USCRIPT_LATIN},
-    {"Grek", USCRIPT_GREEK},
-    {"Goth", USCRIPT_GOTHIC},
-    {"Hani", USCRIPT_HAN},
-    {"Hang", USCRIPT_HANGUL},
-    {"Hebr", USCRIPT_HEBREW},
-    {"Hira", USCRIPT_HIRAGANA},
-    {"Zyyy", USCRIPT_COMMON},
-    {"Zzzz", USCRIPT_UNKNOWN}
-  };
-
-/*
- * BuildReorderList -- Convert string containing reorder specs to integers
- */
-auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t> {
-  // https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/uscript_8h_source.html
-  UErrorCode status = U_ZERO_ERROR;
-
-  if (debug_level > 0) {
-    cout << "# BuildReorderList: " << reorder_string << endl;
-  }
-
-  // Split reorder_string into strings.
-  char delimiter = ' ';
-  std::stringstream ss(reorder_string);
-
-  vector<string> reorder_strings;
-  string segment;
-  while (std::getline(ss, segment, delimiter)) {
-    reorder_strings.push_back(segment);
-  }
-  if (debug_level > 0) {
-    cout << "REORDER count: " << reorder_strings.size() << endl;
-  }
-
-  // Create an array of codes based on number of strings
-  vector<int32_t> return_codes;
-  // For each, set the UCOL value in return_codes
-  std::vector<string>::iterator it;
-  std::map<string,int>::iterator map_it;
-  int index = 0;
-  for (vector<string>::iterator it = reorder_strings.begin();
-       it != reorder_strings.end(); ++it) {
-    string script_tag = *it;
-    map_it = reorder_map.find(script_tag);
-    if (map_it != reorder_map.end()) {
-      return_codes.push_back(map_it->second);
-      if (debug_level > 0) {
-        cout << "# RECOGNIZED SCRIPT CODE: " <<
-            script_tag << " --> " << map_it->second << endl;
-      }
-    } else {
-      cout << "# UNRECOGNIZED SCRIPT CODE: " << script_tag << endl;
-    }
-  }
-  if (debug_level > 0) {
-    cout << "# SCRIPT CODES: " << return_codes.size() << endl;
-  }
-  return return_codes;
-}
-
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
 auto TestCollator(json_object *json_in) -> string {
-  int debug_level = 0;
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -222,15 +104,6 @@ auto TestCollator(json_object *json_in) -> string {
     }
   }
 
-  // Apply reordering if present
-  json_object *reorder_obj = json_object_object_get(json_in, "reorder");
-  string reorder_string;
-  vector<int32_t> reorder_codes_v;
-  if (reorder_obj) {
-    reorder_string = json_object_get_string(reorder_obj);
-    reorder_codes_v = BuildReorderList(reorder_string, debug_level);
-  }
-
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
   string rules_string;
@@ -271,15 +144,6 @@ auto TestCollator(json_object *json_in) -> string {
 
       return json_object_to_json_string(return_json);
     }
-    if (reorder_obj) {
-      if (debug_level > 0) {
-        cout << "# RB_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-      }
-      rb_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
-      if (check_icu_error(status, return_json, "rb_coll with reorder")) {
-        return json_object_to_json_string(return_json);
-      }
-    }
 
     uni_result = rb_coll->compare(us1, us2, status);
     if (check_icu_error(status, return_json, "rb_coll->compare")) {
@@ -306,16 +170,6 @@ auto TestCollator(json_object *json_in) -> string {
     if (check_icu_error(
             status, return_json, "create collator instance")) {
       return json_object_to_json_string(return_json);
-    }
-
-    if (reorder_obj) {
-      if (debug_level > 0) {
-        cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-      }
-      uni_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
-      if (check_icu_error(status, return_json, "uni_coll->setReorderCodes")) {
-        return json_object_to_json_string(return_json);
-      }
     }
 
     // Make sure normalization is consistent
