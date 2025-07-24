@@ -54,6 +54,7 @@ public class CollatorTester implements ITestType {
     }
 
     result.locale = (String) inputMapData.get("locale", null);
+    result.strength = (String) inputMapData.get("strength", null);
 
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
@@ -108,6 +109,7 @@ public class CollatorTester implements ITestType {
     }
     // Split the string into tags
     // For each tag, look up the code and add to a list
+    result.backwards = (String) inputMapData.get("backwards", null);
     return result;
   }
 
@@ -217,7 +219,13 @@ public class CollatorTester implements ITestType {
   public Collator getCollatorForInput(CollatorInputJson input) {
     RuleBasedCollator result = null;
 
-    if (input.locale == null || input.locale.equals("root")) {
+    // Special case: Reset the locale to fr-CA in special case of backwards diacritics
+    if (input.backwards != null && input.backwards.equals("on")) {
+      input.locale = "fr-CA";
+    }
+
+    if (input.locale == null || input.locale == "root") {
+      // Review this logic
       if (input.rules == null) {
         result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
       } else {

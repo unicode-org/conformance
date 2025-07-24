@@ -163,6 +163,7 @@ auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t>
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
 auto TestCollator(json_object *json_in) -> string {
+  int debug_level = 0;
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
