@@ -247,6 +247,20 @@
     }
   },
   {
+    "run": {
+      "icu_version": "icu74",
+      "exec": "dart_native",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "plural_rules",
+        "list_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
     "prereq": {
       "name": "nvm",
       "version": "22.6.0",
@@ -259,20 +273,8 @@
         "collation",
         "number_fmt",
         "lang_names",
-        "plural_rules"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "run": {
-      "icu_version": "icu74",
-      "exec": "dart_native",
-      "test_type": [
-        "collation",
-        "number_fmt",
-        "lang_names",
-        "plural_rules"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -290,7 +292,8 @@
         "collation",
         "number_fmt",
         "lang_names",
-        "plural_rules"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -307,7 +310,8 @@
       "test_type": [
         "collation",
         "number_fmt",
-        "lang_names"
+        "lang_names",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
