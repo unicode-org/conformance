@@ -22,6 +22,7 @@ Future<void> main(List<String> args) async {
       name: 'testPluralRules',
       argNames: ['encoded'],
     ),
+    'list_format': ExportFunction(name: 'testListFmt', argNames: ['encoded']),
   };
   for (final MapEntry(key: name, value: function) in names.entries) {
     await compile(name, function);
