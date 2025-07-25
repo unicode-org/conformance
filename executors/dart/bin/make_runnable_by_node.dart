@@ -23,6 +23,10 @@ Future<void> main(List<String> args) async {
       argNames: ['encoded'],
     ),
     'list_format': ExportFunction(name: 'testListFmt', argNames: ['encoded']),
+    'datetimeformat': ExportFunction(
+      name: 'testDateTimeFmt',
+      argNames: ['encoded'],
+    ),
   };
   for (final MapEntry(key: name, value: function) in names.entries) {
     await compile(name, function);

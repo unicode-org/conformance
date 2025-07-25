@@ -229,6 +229,20 @@
     }
   },
   {
+    "run": {
+      "icu_version": "icu74",
+      "exec": "dart_native",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "plural_rules",
+        "list_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
     "prereq": {
       "name": "nvm",
       "version": "23.3.0",
@@ -237,19 +251,6 @@
     "run": {
       "icu_version": "icu76",
       "exec": "dart_web",
-      "test_type": [
-        "collation",
-        "number_fmt",
-        "lang_names",
-        "plural_rules"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "run": {
-      "icu_version": "icu74",
-      "exec": "dart_native",
       "test_type": [
         "collation",
         "number_fmt",
@@ -311,6 +312,7 @@
         "collation",
         "number_fmt",
         "lang_names",
+        "plural_rules",
         "list_fmt"
       ],
       "per_execution": 10000
