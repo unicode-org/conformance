@@ -224,7 +224,7 @@ String testDecimalFormatWrapped(
     } else {
       intl = Intl(locale: Locale.parse('und'));
     }
-    final NumberFormat nf = intl.numberFormat(options);
+    final nf = intl.numberFormat(options);
 
     // TODO: Catch unsupported units, e.g., furlongs.
 
