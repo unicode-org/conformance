@@ -660,7 +660,6 @@ class TestReport:
                         'language_label',
                         # Some items for collation testing
                         'compare_result', 'compare_type',
-                        'reorder', 'caseFirst',
                         'ignorePunctuation',
                         'test_description',
                         'strength', 'caseFirst', 'backwards',
@@ -1275,6 +1274,7 @@ class SummaryReport:
                 if executor not in self.exec_summary:
                     # TESTING
                     self.exec_summary[slot] = [test_results]
+                    # self.exec_summary[executor] = [test_results]
                 else:
                     self.exec_summary[executor].append(test_results)
 

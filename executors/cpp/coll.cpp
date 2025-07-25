@@ -25,27 +25,20 @@
 #include <unicode/ustring.h>
 #include <unicode/utypes.h>
 
-#include <bits/stdc++.h>
 #include <cstring>
 #include <iostream>
-#include <map>
 #include <string>
-#include <vector>
 
 #include "./util.h"
 
 using std::cout;
 using std::endl;
-using std::map;
 using std::string;
-using std::vector;
 
 using icu::Locale;
 using icu::UnicodeString;
 using icu::Collator;
 using icu::RuleBasedCollator;
-
-using namespace std;
 
 const char error_message[] = "error";
 
@@ -93,73 +86,10 @@ UnicodeString get_char_from_hex_list(json_object* str_codes_obj,
     if (debug_level > 0) {
       string target;
       s_new.toUTF8String(target);
+      cout << "# hex_list: " << hex_list << " == >" << target << "<" << endl;
     }
 
     return s_new;
-}
-
-  std::map<string, int> reorder_map = {
-    // Note that this is a subset of the script codes
-    {"digit", UCOL_REORDER_CODE_DIGIT},
-    {"space", UCOL_REORDER_CODE_SPACE},
-    {"symbol", UCOL_REORDER_CODE_SYMBOL},
-    {"punct", UCOL_REORDER_CODE_PUNCTUATION},
-    {"Latn", USCRIPT_LATIN},
-    {"Grek", USCRIPT_GREEK},
-    {"Goth", USCRIPT_GOTHIC},
-    {"Hani", USCRIPT_HAN},
-    {"Hang", USCRIPT_HANGUL},
-    {"Hebr", USCRIPT_HEBREW},
-    {"Hira", USCRIPT_HIRAGANA},
-    {"Zyyy", USCRIPT_COMMON},
-    {"Zzzz", USCRIPT_UNKNOWN}
-  };
-
-/*
- * BuildReorderList -- Convert string containing reorder specs to integers
- */
-auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t> {
-  // https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/uscript_8h_source.html
-  UErrorCode status = U_ZERO_ERROR;
-
-  if (debug_level > 0) {
-    cout << "# BuildReorderList: " << reorder_string << endl;
-  }
-
-  // Split reorder_string into strings.
-  vector<string> reorder_strings;
-  size_t start = 0;
-  size_t end = reorder_string.find_first_of(' ');
-  while (end != std::string::npos) {
-    string this_one = reorder_string.substr(start, end-start);
-    reorder_strings.emplace_back(this_one);
-    start = end + 1;
-    end = reorder_string.find(' ', start);
-  }
-
-  // Create an array of codes based on number of strings
-  vector<int32_t> return_codes;
-  // For each, set the UCOL value in return_codes
-  std::vector<string>::iterator it;
-  std::map<string,int>::iterator map_it;
-  int index = 0;
-  for (vector<string>::iterator it = reorder_strings.begin();
-       it != reorder_strings.end(); ++it) {
-    string script_tag = *it;
-    map_it = reorder_map.find(script_tag);
-    if (map_it != reorder_map.end()) {
-      if (debug_level > 0) {
-        return_codes.push_back(map_it->second);
-      }
-      cout << "# RECOGNIZED SCRIPT CODE: " << script_tag << " --> " << map_it->second << endl;
-    } else {
-      cout << "# UNRECOGNIZED SCRIPT CODE: " << script_tag << endl;
-    }
-  }
-  if (debug_level > 0) {
-    cout << "# SCRIPT CODES: " << return_codes.size() << endl;
-  }
-  return return_codes;
 }
 
 /**
@@ -235,15 +165,6 @@ auto TestCollator(json_object *json_in, int debug_level) -> string {
     }
   }
 
-  // Apply reordering if present
-  json_object *reorder_obj = json_object_object_get(json_in, "reorder");
-  string reorder_string;
-  vector<int32_t> reorder_codes_v;
-  if (reorder_obj) {
-    reorder_string = json_object_get_string(reorder_obj);
-    reorder_codes_v = BuildReorderList(reorder_string, debug_level);
-  }
-
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
   string rules_string;
@@ -284,15 +205,6 @@ auto TestCollator(json_object *json_in, int debug_level) -> string {
 
       return json_object_to_json_string(return_json);
     }
-    if (reorder_obj) {
-      if (debug_level > 0) {
-        cout << "# RB_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-      }
-      rb_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
-      if (check_icu_error(status, return_json, "rb_coll with reorder")) {
-        return json_object_to_json_string(return_json);
-      }
-    }
 
     uni_result = rb_coll->compare(us1, us2, status);
     if (check_icu_error(status, return_json, "rb_coll->compare")) {
@@ -319,16 +231,6 @@ auto TestCollator(json_object *json_in, int debug_level) -> string {
     if (check_icu_error(
             status, return_json, "create collator instance")) {
       return json_object_to_json_string(return_json);
-    }
-
-    if (reorder_obj) {
-      if (debug_level > 0) {
-        cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-      }
-      uni_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
-      if (check_icu_error(status, return_json, "uni_coll->setReorderCodes")) {
-        return json_object_to_json_string(return_json);
-      }
     }
 
     // Make sure normalization is consistent
