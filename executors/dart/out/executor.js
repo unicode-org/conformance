@@ -24,6 +24,10 @@ let likely_subtags = require('./likely_subtags.js')
 
 let lang_names = require('./lang_names.js');
 
+let plural_rules = require('./plural_rules.js');
+
+let list_fmt = require('./list_format.js');
+
 const { dartVersion } = require('./version.js')
 
 /**
@@ -50,7 +54,8 @@ const supported_tests_json = {
       "decimal_fmt",
       "number_fmt",
       "display_names",
-      "language_display_name"
+      "language_display_name",
+      "plural_rules"
     ]
 };
 
@@ -135,7 +140,11 @@ rl.on('line', function (line) {
           outputLine = likely_subtags.testLikelySubtags(parsedJson);
         } else if (test_type == "language_display_name" || test_type == "lang_names") {
           outputLine = lang_names.testLangNames(parsedJson);
-        } else {
+        } else if (test_type == "plural_rules") {
+          outputLine = plural_rules.testPluralRules(parsedJson);
+        } else if (test_type == "list_fmt") {
+          outputLine = list_fmt.testListFmt(parsedJson);
+        }  else {
           outputLine = {
             'error': 'unknown test type', 'testId': testId,
             'unsupported_test': testId
