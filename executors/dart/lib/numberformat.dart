@@ -287,66 +287,55 @@ NumberFormatOptions _decimalPatternToOptions(
 NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   Unit? unit;
   if (options['unit'] != null) {
-    unit =
-        Unit.values
-            .where((element) => element.jsName == options['unit'])
-            .firstOrNull;
+    unit = Unit.values
+        .where((element) => element.jsName == options['unit'])
+        .firstOrNull;
     if (unit == null) {
       throw ArgumentError('Unknown unit ${options['unit']}');
     }
   }
-  final unitDisplay =
-      UnitDisplay.values
-          .where((element) => element.name == options['unitDisplay'])
-          .firstOrNull;
+  final unitDisplay = UnitDisplay.values
+      .where((element) => element.name == options['unitDisplay'])
+      .firstOrNull;
   final currency = options['currency'];
-  final currencyDisplay =
-      CurrencyDisplay.values
-          .where((element) => element.name == options['currencyDisplay'])
-          .firstOrNull;
-  final style =
-      [
-        DecimalStyle(),
-        if (currency != null)
-          CurrencyStyle(
-            currency: currency,
-            display: currencyDisplay ?? CurrencyDisplay.symbol,
-          ),
-        if (unit != null)
-          UnitStyle(unit: unit, unitDisplay: unitDisplay ?? UnitDisplay.short),
-      ].where((element) => element.name == options['style']).firstOrNull;
+  final currencyDisplay = CurrencyDisplay.values
+      .where((element) => element.name == options['currencyDisplay'])
+      .firstOrNull;
+  final style = [
+    DecimalStyle(),
+    if (currency != null)
+      CurrencyStyle(
+        currency: currency,
+        display: currencyDisplay ?? CurrencyDisplay.symbol,
+      ),
+    if (unit != null)
+      UnitStyle(unit: unit, unitDisplay: unitDisplay ?? UnitDisplay.short),
+  ].where((element) => element.name == options['style']).firstOrNull;
 
-  final compactDisplay =
-      CompactDisplay.values
-          .where((element) => element.name == options['compactDisplay'])
-          .firstOrNull;
-  final notation =
-      [
-        CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
-        StandardNotation(),
-        ScientificNotation(),
-        EngineeringNotation(),
-      ].where((element) => element.name == options['notation']).firstOrNull;
-  final signDisplay =
-      SignDisplay.values
-          .where((element) => element.name == options['signDisplay'])
-          .firstOrNull;
-  final localeMatcher =
-      LocaleMatcher.values
-          .where((element) => element.jsName == options['localeMatcher'])
-          .firstOrNull;
-  final useGrouping =
-      Grouping.values
-          .where((element) => element.jsName == options['useGrouping'])
-          .firstOrNull;
-  final roundingMode =
-      RoundingMode.values
-          .where((element) => element.name == options['roundingMode'])
-          .firstOrNull;
-  final trailingZeroDisplay =
-      TrailingZeroDisplay.values
-          .where((element) => element.name == options['trailingZeroDisplay'])
-          .firstOrNull;
+  final compactDisplay = CompactDisplay.values
+      .where((element) => element.name == options['compactDisplay'])
+      .firstOrNull;
+  final notation = [
+    CompactNotation(compactDisplay: compactDisplay ?? CompactDisplay.short),
+    StandardNotation(),
+    ScientificNotation(),
+    EngineeringNotation(),
+  ].where((element) => element.name == options['notation']).firstOrNull;
+  final signDisplay = SignDisplay.values
+      .where((element) => element.name == options['signDisplay'])
+      .firstOrNull;
+  final localeMatcher = LocaleMatcher.values
+      .where((element) => element.jsName == options['localeMatcher'])
+      .firstOrNull;
+  final useGrouping = Grouping.values
+      .where((element) => element.jsName == options['useGrouping'])
+      .firstOrNull;
+  final roundingMode = RoundingMode.values
+      .where((element) => element.name == options['roundingMode'])
+      .firstOrNull;
+  final trailingZeroDisplay = TrailingZeroDisplay.values
+      .where((element) => element.name == options['trailingZeroDisplay'])
+      .firstOrNull;
   final minimumSignificantDigits = options['minimumSignificantDigits'] as int?;
   final maximumSignificantDigits = options['maximumSignificantDigits'] as int?;
   final roundingIncrement = options['roundingIncrement'] as int?;
