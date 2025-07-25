@@ -61,9 +61,10 @@ String testPluralRules(String jsonEncoded) {
 
   // PluralRulesOptions setup
   var testOptions = PluralRulesOptions();
-  if (json['type'] != null) {
+  final typeString = json['type'] as String?;
+  if (typeString != null) {
     final pluralType = Type.values.firstWhereOrNull(
-      (type) => (json['type'] as String) == type.name,
+      (type) => typeString == type.name,
     );
     if (pluralType != null) {
       testOptions = testOptions.copyWith(type: pluralType);
@@ -71,7 +72,7 @@ String testPluralRules(String jsonEncoded) {
       returnJson.addAll({
         'error': 'unsupported',
         'unsupported': 'unsupported_plural_type',
-        'error_detail': {'type': pluralType},
+        'error_detail': {'type': typeString},
       });
       return jsonEncode(returnJson);
     }
