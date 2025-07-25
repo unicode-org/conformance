@@ -18,3 +18,5 @@ linter:
     - non_constant_identifier_names
     - prefer_final_locals
     - unnecessary_this
+    - omit_local_variable_types
+    - unnecessary_parenthesis

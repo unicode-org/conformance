@@ -222,7 +222,7 @@ String testDecimalFormatWrapped(
     if (testLocale != null) {
       intl = Intl(locale: Locale.parse(testLocale));
     } else {
-      intl = Intl(locale: const Locale(language: 'und'));
+      intl = Intl(locale: Locale.parse('und'));
     }
     final NumberFormat nf = intl.numberFormat(options);
 

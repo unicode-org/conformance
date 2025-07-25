@@ -11,11 +11,10 @@ String testLangNames(String jsonEncoded) {
   final Locale locale;
   try {
     if (json['locale_label'] != null) {
-      // Fix to use dash, not underscore.
       final localeJson = json['locale_label'] as String;
-      locale = Locale.parse(localeJson.replaceAll('_', '-'));
+      locale = Locale.parse(localeJson);
     } else {
-      locale = Locale(language: 'en');
+      locale = Locale.parse('en');
     }
   } catch (error) {
     outputLine.addAll({

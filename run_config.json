@@ -241,7 +241,7 @@
         "collation",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -259,7 +259,20 @@
         "collation",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "run": {
+      "icu_version": "icu74",
+      "exec": "dart_native",
+      "test_type": [
+        "collation",
+        "number_fmt",
+        "lang_names",
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -277,7 +290,7 @@
         "collation",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules"
       ],
       "per_execution": 10000
     }
@@ -294,8 +307,7 @@
       "test_type": [
         "collation",
         "number_fmt",
-        "lang_names",
-        "likely_subtags"
+        "lang_names"
       ],
       "per_execution": 10000
     }

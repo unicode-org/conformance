@@ -50,7 +50,8 @@ const supported_tests_json = {
       "decimal_fmt",
       "number_fmt",
       "display_names",
-      "language_display_name"
+      "language_display_name",
+      "plural_rules"
     ]
 };
 
@@ -134,6 +135,8 @@ rl.on('line', function (line) {
         } else if (test_type == "likely_subtags") {
           outputLine = likely_subtags.testLikelySubtags(parsedJson);
         } else if (test_type == "language_display_name" || test_type == "lang_names") {
+          outputLine = lang_names.testLangNames(parsedJson);
+        } else if (test_type == "plural_rules") {
           outputLine = lang_names.testLangNames(parsedJson);
         } else {
           outputLine = {
