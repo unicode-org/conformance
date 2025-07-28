@@ -40,9 +40,5 @@ public class CollatorInputJson implements ITestTypeInputJson {
 
  public String compare_comment;
 
-  public String backwards;
-
-  public String compare_comment;
-
   public String warning;
 }
