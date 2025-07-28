@@ -14,6 +14,8 @@ class ParseResults(Enum):
 # Routine for replacing parts of input lines that have double back slashes
 def escaped_ucode_to_unicode(matchobj):
     # replaces the string \\uDDDD with the Unicode form
+    # TODO: Handle \U as well as \u
+    u_size = len(matchobj.group(1))
     code = int(matchobj.group(1), 16)
     return chr(code)
 
@@ -42,19 +44,22 @@ class CollationGenerator(DataGenerator):
             self.locale_string,
             self.root_locale,
             self.test_line,
-            self.attribute_test]
+            self.attribute_test,
+            self.reorder_test
+        ]
 
         self.rule_breakout_patterns = [
             self.compare_pattern,
             self.locale_string,
             self.root_locale,
             self.test_line,
-            self.attribute_test]
+            self.attribute_test,
+            self.reorder_test
+        ]
 
-        # For detecting and converting \x coded values
+        # For detecting and converting \x, \u, and \U coded values
         self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
         self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
-
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
@@ -336,7 +341,10 @@ class CollationGenerator(DataGenerator):
             if is_reorder:
                 key = is_reorder.group(1)
                 value = is_reorder.group(2)
-                attributes[key] = value
+                if value == 'default':
+                    del attributes['reorder']  # Resets
+                else:
+                    attributes[key] = value
                 line_number += 1
                 continue
 
