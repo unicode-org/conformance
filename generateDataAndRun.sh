@@ -91,7 +91,7 @@ then
     pushd executors/dart/
     dart pub get
     dart bin/set_version.dart
-    dart build cli bin/executor.dart
+    dart build cli --target bin/executor.dart
     popd
 fi
 
