@@ -74,7 +74,7 @@ then
     echo "DART NATIVE COMPILE"
     pushd executors/dart/
     dart pub get
-    dart build cli --target bin/executor.dart
+    dart build cli --target bin/executor.dart -o build/
     popd
 fi
 
