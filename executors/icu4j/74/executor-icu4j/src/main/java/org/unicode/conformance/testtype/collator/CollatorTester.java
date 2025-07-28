@@ -54,6 +54,7 @@ public class CollatorTester implements ITestType {
     }
 
     result.locale = (String) inputMapData.get("locale", null);
+    result.strength = (String) inputMapData.get("strength", null);
 
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
@@ -84,6 +85,7 @@ public class CollatorTester implements ITestType {
     result.rules = (String) inputMapData.get("rules", null);
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
     result.warning = (String) inputMapData.get("warning", null);
+
     result.backwards = (String) inputMapData.get("backwards", null);
 
     // Compute reorder codes from input reorder_string
@@ -106,8 +108,6 @@ public class CollatorTester implements ITestType {
         }
       }
     }
-    // Split the string into tags
-    // For each tag, look up the code and add to a list
     return result;
   }
 
@@ -144,7 +144,8 @@ public class CollatorTester implements ITestType {
     }
 
     // Use the compare_type field to set the strength of collation test.
-    if (input.strength != null){
+
+    if (input.strength != null) {
       if (input.strength.equals("identical")) {
         coll.setStrength(Collator.IDENTICAL);
       } else

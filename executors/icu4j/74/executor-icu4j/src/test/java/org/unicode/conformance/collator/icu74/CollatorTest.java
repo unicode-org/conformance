@@ -18,7 +18,10 @@ public class CollatorTest {
         (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
     assertTrue(output.result);
-  }
+  }<<<<<<< collation_reorder
+118
+ 
+
 
   @Test
   public void testNonEscaped() {
@@ -134,3 +137,4 @@ public class CollatorTest {
     assertTrue(output.result);
   }
 }
+
