@@ -136,8 +136,6 @@ rl.on('line', function (line) {
           outputLine = collator.testCollation(parsedJson);
         } else if (test_type == "decimal_fmt" || test_type == "number_fmt") {
           outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput > 0, process.version);
-        } else if (test_type == "likely_subtags") {
-          outputLine = likely_subtags.testLikelySubtags(parsedJson);
         } else if (test_type == "language_display_name" || test_type == "lang_names") {
           outputLine = lang_names.testLangNames(parsedJson);
         } else if (test_type == "plural_rules") {
