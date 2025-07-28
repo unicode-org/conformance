@@ -27,13 +27,18 @@
 
 #include <cstring>
 #include <iostream>
+#include <map>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "./util.h"
 
 using std::cout;
 using std::endl;
+using std::map;
 using std::string;
+using std::vector;
 
 using icu::Locale;
 using icu::UnicodeString;
@@ -42,10 +47,114 @@ using icu::RuleBasedCollator;
 
 const char error_message[] = "error";
 
+// From icu/icu4c/source/text/intltest/collationtest.cpp
+std::map<string, UColAttribute> attribute_map = {
+    { "backwards", UCOL_FRENCH_COLLATION },
+    { "alternate", UCOL_ALTERNATE_HANDLING },
+    { "caseFirst", UCOL_CASE_FIRST },
+    { "caseLevel", UCOL_CASE_LEVEL },
+    // UCOL_NORMALIZATION_MODE is turned on and off automatically.
+    { "strength", UCOL_STRENGTH },
+    // UCOL_HIRAGANA_QUATERNARY_MODE is deprecated.
+    { "numeric", UCOL_NUMERIC_COLLATION }
+};
+
+std::map<string, UColAttributeValue> values_map = {
+    { "default", UCOL_DEFAULT },
+    { "primary", UCOL_PRIMARY },
+    { "secondary", UCOL_SECONDARY },
+    { "tertiary", UCOL_TERTIARY },
+    { "quaternary", UCOL_QUATERNARY },
+    { "identical", UCOL_IDENTICAL },
+    { "off", UCOL_OFF },
+    { "on", UCOL_ON },
+    { "shifted", UCOL_SHIFTED },
+    { "non-ignorable", UCOL_NON_IGNORABLE },
+    { "lower", UCOL_LOWER_FIRST },
+    { "upper", UCOL_UPPER_FIRST }
+};
+
+std::map<string, UColReorderCode> val_attribute_map = {
+  // For maxVariable setting
+  {"space", UCOL_REORDER_CODE_SPACE},
+  {"punct", UCOL_REORDER_CODE_PUNCTUATION},
+  {"symbol", UCOL_REORDER_CODE_SYMBOL},
+  {"currency", UCOL_REORDER_CODE_CURRENCY}
+};
+
+  std::map<string, int> reorder_map = {
+    // Note that this is a subset of the script codes
+    {"digit", UCOL_REORDER_CODE_DIGIT},
+    {"space", UCOL_REORDER_CODE_SPACE},
+    {"symbol", UCOL_REORDER_CODE_SYMBOL},
+    {"punct", UCOL_REORDER_CODE_PUNCTUATION},
+    {"Latn", USCRIPT_LATIN},
+    {"Grek", USCRIPT_GREEK},
+    {"Goth", USCRIPT_GOTHIC},
+    {"Hani", USCRIPT_HAN},
+    {"Hang", USCRIPT_HANGUL},
+    {"Hebr", USCRIPT_HEBREW},
+    {"Hira", USCRIPT_HIRAGANA},
+    {"Zyyy", USCRIPT_COMMON},
+    {"Zzzz", USCRIPT_UNKNOWN}
+  };
+
+/*
+ * BuildReorderList -- Convert string containing reorder specs to integers
+ */
+auto BuildReorderList(string reorder_string, int debug_level) -> vector<int32_t> {
+  // https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/uscript_8h_source.html
+  UErrorCode status = U_ZERO_ERROR;
+
+  if (debug_level > 0) {
+    cout << "# BuildReorderList: " << reorder_string << endl;
+  }
+
+  // Split reorder_string into strings.
+  char delimiter = ' ';
+  std::stringstream ss(reorder_string);
+
+  vector<string> reorder_strings;
+  string segment;
+  while (std::getline(ss, segment, delimiter)) {
+    reorder_strings.push_back(segment);
+  }
+  if (debug_level > 0) {
+    cout << "REORDER count: " << reorder_strings.size() << endl;
+  }
+
+  // Create an array of codes based on number of strings
+  vector<int32_t> return_codes;
+  // For each, set the UCOL value in return_codes
+  std::vector<string>::iterator it;
+  std::map<string,int>::iterator map_it;
+  int index = 0;
+  for (vector<string>::iterator it = reorder_strings.begin();
+       it != reorder_strings.end(); ++it) {
+    string script_tag = *it;
+    map_it = reorder_map.find(script_tag);
+    if (map_it != reorder_map.end()) {
+      return_codes.push_back(map_it->second);
+      if (debug_level > 0) {
+        cout << "# RECOGNIZED SCRIPT CODE: " <<
+            script_tag << " --> " << map_it->second << endl;
+      }
+    } else {
+      cout << "# UNRECOGNIZED SCRIPT CODE: " << script_tag << endl;
+    }
+  }
+  if (debug_level > 0) {
+    cout << "# SCRIPT CODES: " << return_codes.size() << endl;
+  }
+  return return_codes;
+}
+
 /**
  * TestCollator  --  process JSON inputs, run comparator, return result
  */
 auto TestCollator(json_object *json_in) -> string {
+  int debug_level = 0;
+
   UErrorCode status = U_ZERO_ERROR;
 
   json_object *label_obj = json_object_object_get(json_in, "label");
@@ -104,6 +213,15 @@ auto TestCollator(json_object *json_in) -> string {
     }
   }
 
+  // Apply reordering if present
+  json_object *reorder_obj = json_object_object_get(json_in, "reorder");
+  string reorder_string;
+  vector<int32_t> reorder_codes_v;
+  if (reorder_obj) {
+    reorder_string = json_object_get_string(reorder_obj);
+    reorder_codes_v = BuildReorderList(reorder_string, debug_level);
+  }
+
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
   string rules_string;
@@ -145,6 +263,16 @@ auto TestCollator(json_object *json_in) -> string {
       return json_object_to_json_string(return_json);
     }
 
+    if (reorder_obj) {
+      if (debug_level > 0) {
+        cout << "# RB_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
+      }
+      rb_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
+      if (check_icu_error(status, return_json, "rb_coll with reorder")) {
+        return json_object_to_json_string(return_json);
+      }
+    }
+
     uni_result = rb_coll->compare(us1, us2, status);
     if (check_icu_error(status, return_json, "rb_coll->compare")) {
       return json_object_to_json_string(return_json);
@@ -165,6 +293,16 @@ auto TestCollator(json_object *json_in) -> string {
         this_locale = Locale(locale_string);
       }
       uni_coll = Collator::createInstance(this_locale, status);
+    }
+
+    if (reorder_obj) {
+      if (debug_level > 0) {
+        cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
+      }
+      uni_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
+      if (check_icu_error(status, return_json, "uni_coll->setReorderCodes")) {
+        return json_object_to_json_string(return_json);
+      }
     }
 
     if (check_icu_error(
@@ -191,6 +329,45 @@ auto TestCollator(json_object *json_in) -> string {
                 status, return_json,
                 "set UCOL_ALTERNATE_HANDLING to UCOL_SHIFTED")) {
           return json_object_to_json_string(return_json);
+        }
+      }
+    }
+
+    // Check the other attributes and set values as needed.
+    for (auto const& [key, ucol_attribute] : attribute_map) {
+      // Is this key in the json data.
+      json_object *attribute_obj = json_object_object_get(json_in, key.c_str());
+      if (attribute_obj != nullptr) {
+        // Get the test value and the corresponding attribute value
+        string test_value = json_object_get_string(attribute_obj);
+
+        std::map<string,UColAttributeValue>::iterator values_it;
+        values_it = values_map.find(test_value);
+        if (values_it != values_map.end()) {
+          // This is the value that we can set
+          if (debug_level > 0) {
+            cout << "# SETTING attribute " << key << " to " << test_value << " == " << values_it->second << endl;
+          }
+          uni_coll->setAttribute(ucol_attribute, values_it->second, status);
+          if (check_icu_error(
+                  status, return_json,
+                  "getet UCOL_ALTERNATE_HANDLING")) {
+            return json_object_to_json_string(return_json);
+          }
+        }
+      }
+    }
+
+    // Set maxVariable, too!
+    json_object *attribute_obj = json_object_object_get(json_in, "maxVariable");
+    if (attribute_obj != nullptr) {
+      string test_value = json_object_get_string(attribute_obj);
+      std::map<string, UColReorderCode>::iterator values_it;
+      values_it = val_attribute_map.find(test_value);
+      if (values_it != val_attribute_map.end()) {
+        uni_coll->setMaxVariable(values_it->second, status);
+        if (debug_level > 0) {
+          cout << "# SETTING maxVariable to " << values_it->second << " = " << test_value << endl;
         }
       }
     }
