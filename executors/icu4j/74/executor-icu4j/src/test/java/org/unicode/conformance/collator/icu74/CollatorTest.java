@@ -19,7 +19,6 @@ public class CollatorTest {
 
     assertTrue(output.result);
   }
-
   @Test
   public void testNonEscaped() {
     String testInput =
@@ -90,7 +89,9 @@ public class CollatorTest {
 
     assertTrue(output.result);
   }
-/*  @Test
+
+  @Ignore
+  @Test
   public void testCompareLT2() {
     String testInput =
         "{\"test_type\": \"collation\", \"label\":\"00115\",\"s1\":\"cote\",\"s2\":\"cotÃ©\",\"line\":329,\"source_file\":\"collationtest.txt\",\"compare_type\":\"&lt;2\",\"test_description\":\" discontiguous contractions\",\"hexhash\":\"b56b2f345f58f7044c14e392ea94304c075cbaf5\"}";
@@ -98,7 +99,7 @@ public class CollatorTest {
         (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
     assertTrue(output.result);
-  }*/
+  }
 
   @Test
   public void test00002() {
@@ -112,11 +113,24 @@ public class CollatorTest {
   }
 
   @Test
+  public void testReorderCodes() {
+    String testInput =
+        "{\"test_type\": \"collation\", \"compare_type\": \"<1\",\"s1\": \"\",\"s2\": \"?\",\"source_file\": \"collationtest.txt\",\"line\": 397,\"label\": \"00174\",\"locale\": \"root\",\"test_description\": \"script reordering\",\"reorder\": \"Hani Zzzz digit\",\"hexhash\": \"80134ad71a184a3c27f8d4c71a3d74b4561c4445\"}";
+
+        CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+        assertTrue(output.result);
+  }
+
+  @Test
   public void testBackwards() {
-    String testInput = "{\"test_type\": \"collation\", \"strength\": \"secondary\", \"compare_type\":\"<2\",\"s1\":\"côte\",\"s2\":\"coté\",\"source_file\":\"collationtest.txt\",\"line\":347,\"label\":\"00153\",\"locale\":\"fr-CA\",\"test_description\":\"côté with backwards secondary\",\"backwards\":\"on\",\"hexhash\":\"0054321a336610ec2eabc4e824736e7e886bab4d\"}";
-    CollatorOutputJson output =
-        (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+    // Set locale to fr-CA if backwards option is set.
+    String testInput =
+        "{\"test_type\": \"collation\", \"compare_type\":\"<2\",\"s1\":\"côte\",\"s2\":\"coté\",\"source_file\":\"collationtest.txt\",\"line\":347,\"label\":\"00153\",\"locale\":\"root\",\"test_description\":\"côté with backwards secondary\",\"backwards\":\"on\",\"hexhash\":\"0054321a336610ec2eabc4e824736e7e886bab4d\"}";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
     assertTrue(output.result);
   }
 }
+

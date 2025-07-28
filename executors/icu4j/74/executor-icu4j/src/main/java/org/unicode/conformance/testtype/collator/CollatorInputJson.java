@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
 
 public class CollatorInputJson implements ITestTypeInputJson {
+
   public String test_type;
 
   public String label;
@@ -22,11 +23,14 @@ public class CollatorInputJson implements ITestTypeInputJson {
 
  public String compare_type;
 
- public String test_description;
+  public String test_description;
 
- public ArrayList<String> attributes;
+  public ArrayList<String> attributes;
 
- public String rules;
+  public String rules;
+
+  public String reorder_string;
+  public int[] reorder_codes;
 
  public String reorder;
 
@@ -36,7 +40,5 @@ public class CollatorInputJson implements ITestTypeInputJson {
 
  public String compare_comment;
 
- public String warning;
-
-
+  public String warning;
 }
