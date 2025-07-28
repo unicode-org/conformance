@@ -60,7 +60,6 @@ class CollationGenerator(DataGenerator):
         # For detecting and converting \x, \u, and \U coded values
         self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
         self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
-        self.escaped_ucoding_U = re.compile("\\\\U([0-9a-fA-F]{8})")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set

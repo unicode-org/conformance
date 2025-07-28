@@ -345,7 +345,6 @@ auto TestCollator(json_object *json_in) -> string {
         values_it = values_map.find(test_value);
         if (values_it != values_map.end()) {
           // This is the value that we can set
-          // !!!
           if (debug_level > 0) {
             cout << "# SETTING attribute " << key << " to " << test_value << " == " << values_it->second << endl;
           }
@@ -359,7 +358,7 @@ auto TestCollator(json_object *json_in) -> string {
       }
     }
 
-    // !!! TODO: set maxVariable, too!
+    // Set maxVariable, too!
     json_object *attribute_obj = json_object_object_get(json_in, "maxVariable");
     if (attribute_obj != nullptr) {
       string test_value = json_object_get_string(attribute_obj);
