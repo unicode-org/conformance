@@ -20,11 +20,11 @@ let collator = require('./collator.js')
 
 let numberformatter = require('./numberformat.js')
 
-let likely_subtags = require('./likely_subtags.js')
-
 let lang_names = require('./lang_names.js');
 
 let plural_rules = require('./plural_rules.js');
+
+let datetime_fmt = require('./datetimeformat.js');
 
 let list_fmt = require('./list_format.js');
 
@@ -140,6 +140,8 @@ rl.on('line', function (line) {
           outputLine = lang_names.testLangNames(parsedJson);
         } else if (test_type == "plural_rules") {
           outputLine = plural_rules.testPluralRules(parsedJson);
+        } else if (test_type == "datetime_fmt") {
+          outputLine = datetime_fmt.testDateTimeFmt(parsedJson, doLogInput > 0, process.version);
         } else if (test_type == "list_fmt") {
           outputLine = list_fmt.testListFmt(parsedJson);
         }  else {

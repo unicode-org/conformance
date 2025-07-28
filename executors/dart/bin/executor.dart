@@ -54,12 +54,12 @@ void main() {
       final outputLine = switch (testType) {
         TestTypes.collation => testCollation(line),
         TestTypes.decimal_fmt => testDecimalFormatWrapped(line),
+        TestTypes.number_fmt => testDecimalFormatWrapped(line),
         TestTypes.datetime_fmt => testDateTimeFmt(line),
         TestTypes.display_names => throw UnimplementedError(
           'display_names is not supported yet',
         ),
         TestTypes.lang_names => testLangNames(line),
-        TestTypes.number_fmt => testDecimalFormatWrapped(line),
         // TestTypes.likely_subtags => testLikelySubtags(line),
         TestTypes.likely_subtags => throw UnimplementedError(
           'likely_subtags is not supported yet, as the Locale object is not yet migrated to ICU4X',

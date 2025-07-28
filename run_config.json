@@ -234,7 +234,7 @@
       "exec": "dart_native",
       "test_type": [
         "collation",
-        "number_fmt",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
