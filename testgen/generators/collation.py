@@ -60,6 +60,7 @@ class CollationGenerator(DataGenerator):
         # For detecting and converting \x, \u, and \U coded values
         self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
         self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
+        self.escaped_bigU_coding = re.compile("\\\\U([0-9A-Fa-f]{8})")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
@@ -156,6 +157,8 @@ class CollationGenerator(DataGenerator):
             # Fix escapes \xDD and \uDDDD to Unicode characters
             unxcoded = self.xcoding.sub(escaped_ucode_to_unicode, raw_line)
             line_in = self.escaped_ucoding.sub(escaped_ucode_to_unicode, unxcoded)
+
+            line_in = self.escaped_bigU_coding.sub(escaped_ucode_to_unicode, line_in)
 
             # Time to end this set of comparison tests.
             if any([p.match(line_in) for p in self.compare_breakout_patterns]):
