@@ -14,7 +14,7 @@ String testCollation(String jsonEncoded) {
           >; // For the moment, use strings for easier interop
   // Global default locale
   final testLocale = json['locale'] as String? ?? 'en';
-  final Map<String, dynamic> outputLine = {'label': json['label']};
+  final outputLine = <String, dynamic>{'label': json['label']};
 
   // Set up collator object with optional locale and testOptions.
   final s1 = json['s1'];
@@ -22,7 +22,7 @@ String testCollation(String jsonEncoded) {
 
   // Get options
   final ignorePunctuation = json['ignorePunctuation'] as bool? ?? false;
-  final Sensitivity? sensitivity = switch (json['strength']) {
+  final sensitivity = switch (json['strength']) {
     'primary' => Sensitivity.base,
     'secondary' => Sensitivity.accent,
     'tertiary' => Sensitivity.caseSensitivity,
