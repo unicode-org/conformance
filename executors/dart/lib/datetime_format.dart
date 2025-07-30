@@ -53,11 +53,9 @@ String testDateTimeFmt(String jsonEncoded) {
   }
 
   // ignore: unused_local_variable - to be used with the timezoneformatter
-  String timezone;
+  String? timezone;
   if (testOptionsJson.containsKey('time_zone')) {
     timezone = testOptionsJson['time_zone'] as String;
-  } else {
-    timezone = 'UTC';
   }
 
   DateTime? testDate;
@@ -96,7 +94,7 @@ String testDateTimeFmt(String jsonEncoded) {
   }
 
   try {
-    final formattedDt = dtFormatter.d(testDate);
+    final formattedDt = dtFormatter.ymd(testDate);
     returnJson['result'] = formattedDt;
     returnJson['actual_options'] = dateTimeFormatOptions.toString();
   } catch (error) {
