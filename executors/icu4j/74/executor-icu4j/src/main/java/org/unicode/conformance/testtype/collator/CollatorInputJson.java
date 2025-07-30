@@ -21,7 +21,7 @@ public class CollatorInputJson implements ITestTypeInputJson {
 
   public String strength;
 
- public String compare_type;
+  public String compare_type;
 
   public String test_description;
 
@@ -32,13 +32,15 @@ public class CollatorInputJson implements ITestTypeInputJson {
   public String reorder_string;
   public int[] reorder_codes;
 
- public String reorder;
+  public String reorder;
 
- public String case_first;
+  public String case_first;
 
- public String backwards;
+  public String backwards;
 
- public String compare_comment;
+  public String alternate;
 
-  public String warning;
+  public String numeric;
+
+  public String compare_comment;
 }

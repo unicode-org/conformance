@@ -82,11 +82,13 @@ public class CollatorTester implements ITestType {
     }
     result.attributes = attrs;
 
+    // A bunch of options
     result.rules = (String) inputMapData.get("rules", null);
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
-    result.warning = (String) inputMapData.get("warning", null);
 
     result.backwards = (String) inputMapData.get("backwards", null);
+    result.alternate = (String) inputMapData.get("alternate", null);
+    result.numeric = (String) inputMapData.get("numeric", null);
 
     // Compute reorder codes from input reorder_string
     String reorder_tag_string =  (String) inputMapData.get("reorder", null);
@@ -216,40 +218,42 @@ public class CollatorTester implements ITestType {
   //
 
   public Collator getCollatorForInput(CollatorInputJson input) {
-    RuleBasedCollator result = null;
+    RuleBasedCollator collator = null;
 
-    if (input.locale == null || input.locale.equals("root")) {
-      if (input.rules == null) {
-        result = (RuleBasedCollator) Collator.getInstance(ULocale.ROOT);
-      } else {
-        try {
-          result = new RuleBasedCollator(input.rules);
-        } catch (Exception e) {
-          return null;
-        }
-      }
-    } else {
-      ULocale locale = new ULocale(input.locale);
-      result = (RuleBasedCollator) Collator.getInstance(locale);
-      if (input.rules != null) {
-        String defaultRules = result.getRules();
-        String newRules = defaultRules + input.rules;
-        try {
-          result = new RuleBasedCollator(newRules);
-        } catch (Exception e) {
-          return null;
-        }
+    ULocale locale = ULocale.ROOT;
+    if (input.locale != null && !input.locale.equals("root")) {
+      locale = new ULocale(input.locale);
+    }
+
+    collator = (RuleBasedCollator) Collator.getInstance(locale);
+    if (input.rules != null) {
+      // Convert it to a rule based collator.
+      String defaultRules = collator.getRules();
+      // Should we unescape the rules?
+      String newRules = defaultRules + input.rules;
+      try {
+        collator = new RuleBasedCollator(newRules);
+      } catch (Exception e) {
+        return null;
       }
     }
 
-    // ensure that ICU performs decomposition before collation in order to get proper results,
+    // ensure that ICU performs decomposition before collation in order to get proper collators,
     // per documentation: https://unicode-org.github.io/icu-docs/apidoc/dev/icu4j/com/ibm/icu/text/Collator.html
-    result.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
+    collator.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
 
     if (input.ignorePunctuation) {
-      result.setAlternateHandlingShifted(true);
+      collator.setAlternateHandlingShifted(true);
     }
 
-    return result;
+    if (input.alternate != null && input.alternate.equals("shifted")) {
+      collator.setAlternateHandlingShifted(true);
+    }
+
+    if (input.numeric != null) {
+      collator.setNumericCollation(true);
+    }
+
+    return collator;
   }
 }

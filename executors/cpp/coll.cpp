@@ -168,8 +168,8 @@ auto TestCollator(json_object *json_in) -> string {
   string string2 = json_object_get_string(str2);
 
   // Does this conversion preserve the data?
-  UnicodeString us1 = UnicodeString::fromUTF8(string1);
-  UnicodeString us2 = UnicodeString::fromUTF8(string2);
+  UnicodeString us1 = UnicodeString::fromUTF8(string1).unescape();
+  UnicodeString us2 = UnicodeString::fromUTF8(string2).unescape();
 
   string test_result;
   int uni_result_utf8;
@@ -228,7 +228,7 @@ auto TestCollator(json_object *json_in) -> string {
   if (rules_obj != nullptr) {
     rules_string = json_object_get_string(rules_obj);
   }
-  UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string);
+  UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string).unescape();
 
   // Handle some options
   json_object *ignore_obj =
