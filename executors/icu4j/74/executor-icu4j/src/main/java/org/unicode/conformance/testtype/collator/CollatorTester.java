@@ -1,5 +1,7 @@
 package org.unicode.conformance.testtype.collator;
 
+import static org.unicode.conformance.testtype.collator.UnicodeEscaper.unescapeUnicode;
+
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.lang.UScript;
 import com.ibm.icu.text.RuleBasedCollator;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.unicode.conformance.ExecutorUtils;
 import org.unicode.conformance.testtype.ITestType;
 import org.unicode.conformance.testtype.ITestTypeInputJson;
@@ -36,22 +40,14 @@ public class CollatorTester implements ITestType {
     script_tags_map.put("punct", Collator.ReorderCodes.PUNCTUATION);
     script_tags_map.put("Latn", UScript.LATIN);
     script_tags_map.put("Goth", UScript.GOTHIC);
+    script_tags_map.put("Grek", UScript.GREEK);
     script_tags_map.put("Hang", UScript.HANGUL);
     script_tags_map.put("Hani", UScript.HAN);
     script_tags_map.put("Hira", UScript.HIRAGANA);
     script_tags_map.put("Zzzz", UScript.UNKNOWN);
 
-    // TODO: clean up after schema validation gets turned on at runtime
-    result.s1 = (String) inputMapData.get("s1", null);
-    if (result.s1 == null) {
-      result.s1 = (String) inputMapData.get("string1", null);
-    }
-
-    // TODO: clean up after schema validation gets turned on at runtime
-    result.s2 = (String) inputMapData.get("s2", null);
-    if (result.s2 == null) {
-      result.s2 = (String) inputMapData.get("string2", null);
-    }
+    result.s1 = unescapeUnicode((String) inputMapData.get("s1", null));
+    result.s2 = unescapeUnicode((String) inputMapData.get("s2", null));
 
     result.locale = (String) inputMapData.get("locale", null);
     result.strength = (String) inputMapData.get("strength", null);
@@ -83,7 +79,7 @@ public class CollatorTester implements ITestType {
     result.attributes = attrs;
 
     // A bunch of options
-    result.rules = (String) inputMapData.get("rules", null);
+    result.rules = unescapeUnicode((String) inputMapData.get("rules", null));
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
 
     result.backwards = (String) inputMapData.get("backwards", null);
@@ -93,11 +89,12 @@ public class CollatorTester implements ITestType {
     // Compute reorder codes from input reorder_string
     String reorder_tag_string =  (String) inputMapData.get("reorder", null);
     if (reorder_tag_string != null) {
-      List<Integer> reorder_codes_list = new ArrayList<>();
       // Split the string into tags
       String[] tags = reorder_tag_string.split(" ");
       // Create the list for setting reorder codes.
       result.reorder_codes = new int[tags.length];
+
+      result.unrecognized_script_codes = "";
 
       // For each tag, look up the code and add to a list
       int index = 0;
@@ -107,10 +104,40 @@ public class CollatorTester implements ITestType {
         if (script_code != -1) {
           result.reorder_codes[index] = script_code;
           index ++;
+        } else {
+          // TODO: Report that this script tag was not found.
+          result.unrecognized_script_codes = result.unrecognized_script_codes + ", " + tag;
         }
       }
     }
     return result;
+  }
+
+  private String unescapeUnicode(String input) {
+    if (input == null || input.isEmpty()) {
+      return input;
+    }
+
+    // TODO: Also unescape \xdd!
+
+    // Pattern to find "\u4321" where XXXX are four hexadecimal digits
+    // The double backslash is because '\' is a special character in regex and needs to be escaped.
+    Pattern pattern = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
+    Matcher matcher = pattern.matcher(input);
+    StringBuffer sb = new StringBuffer();
+
+    while (matcher.find()) {
+      // Extract the hexadecimal part (e.g., "0041")
+      String hex = matcher.group(1);
+      // Parse the hexadecimal string to an integer
+      int codePoint = Integer.parseInt(hex, 16);
+      // Append the character corresponding to the code point
+      matcher.appendReplacement(sb, String.valueOf((char) codePoint));
+    }
+    // Append any remaining part of the string after the last match
+    matcher.appendTail(sb);
+
+    return sb.toString();
   }
 
   @Override

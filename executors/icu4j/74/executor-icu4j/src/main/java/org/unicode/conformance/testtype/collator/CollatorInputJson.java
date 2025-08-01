@@ -31,6 +31,7 @@ public class CollatorInputJson implements ITestTypeInputJson {
 
   public String reorder_string;
   public int[] reorder_codes;
+  public String unrecognized_script_codes;
 
   public String reorder;
 
