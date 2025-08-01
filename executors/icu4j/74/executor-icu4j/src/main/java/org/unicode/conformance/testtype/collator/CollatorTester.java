@@ -78,8 +78,11 @@ public class CollatorTester implements ITestType {
     result.attributes = attrs;
 
     // A bunch of options
-    String raw_rules = inputMapData.get("rules", null);
-    result.rules = Utility.unescape((String) inputMapData.get("rules", null));
+    String raw_rules = (String) inputMapData.get("rules", null);
+    if (raw_rules != null) {
+      result.rules = Utility.unescape(raw_rules);
+    }
+
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
 
     result.backwards = (String) inputMapData.get("backwards", null);
