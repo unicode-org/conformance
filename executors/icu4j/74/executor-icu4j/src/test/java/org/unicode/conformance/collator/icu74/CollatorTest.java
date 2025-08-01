@@ -149,9 +149,20 @@ public class CollatorTest {
     // Handle null character in string
     String testInput =
         "{\"test_type\": \"collation\",    \"compare_type\": \"<1\",   \"s1\": \"9\",   \"s2\": \"\\u0000\",   \"source_file\": \"collationtest.txt\",   \"line\": 45,   \"label\": \"00004\",   \"test_description\": \"simple CEs & expansions\",   \"rules\": \"&\\u0001<<<\\u0300&9<\u0000&\uA00A\uA00B=\uA002&\uA00A\uA00B\u00050005=\uA003\",   \"hexhash\": \"640c05d364b05f3329dd7c17f7ec229e632cc312\"}";
+
     CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
     assertTrue(output.result);
   }
+
+@Test
+public void testUnescapeX() {
+  String testInput =
+      "{\"test_type\": \"collation\", \"compare_type\":\"=\",\"s1\":\"\",\"s2\":\"\\u0001\",\"source_file\":\"collationtest.txt\",\"line\":41,\"label\":\"00000\",\"test_description\":\"simple CEs & expansions\",\"rules\":\"&\\\\x01<<<\\\\u0300&9<\\\\x00&\\\\uA00A\\\\uA00B=\\\\uA002&\\\\uA00A\\\\uA00B\\\\u00050005=\\\\uA003\",\"hexhash\":\"2f12126264afe7896a48c115f890c292a8cc4f30\"}";
+
+  CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+  assertTrue(output.result);
+}
 }
 
