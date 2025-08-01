@@ -1,7 +1,6 @@
 package org.unicode.conformance.testtype.collator;
 
-import static org.unicode.conformance.testtype.collator.UnicodeEscaper.unescapeUnicode;
-
+import com.ibm.icu.impl.Utility;
 import com.ibm.icu.text.Collator;
 import com.ibm.icu.lang.UScript;
 import com.ibm.icu.text.RuleBasedCollator;
@@ -46,8 +45,8 @@ public class CollatorTester implements ITestType {
     script_tags_map.put("Hira", UScript.HIRAGANA);
     script_tags_map.put("Zzzz", UScript.UNKNOWN);
 
-    result.s1 = unescapeUnicode((String) inputMapData.get("s1", null));
-    result.s2 = unescapeUnicode((String) inputMapData.get("s2", null));
+    result.s1 = Utility.unescape((String) inputMapData.get("s1", null));
+    result.s2 = Utility.unescape((String) inputMapData.get("s2", null));
 
     result.locale = (String) inputMapData.get("locale", null);
     result.strength = (String) inputMapData.get("strength", null);
@@ -79,7 +78,8 @@ public class CollatorTester implements ITestType {
     result.attributes = attrs;
 
     // A bunch of options
-    result.rules = unescapeUnicode((String) inputMapData.get("rules", null));
+    String raw_rules = inputMapData.get("rules", null);
+    result.rules = Utility.unescape((String) inputMapData.get("rules", null));
     result.compare_comment = (String) inputMapData.get("compare_comment", null);
 
     result.backwards = (String) inputMapData.get("backwards", null);
@@ -111,33 +111,6 @@ public class CollatorTester implements ITestType {
       }
     }
     return result;
-  }
-
-  private String unescapeUnicode(String input) {
-    if (input == null || input.isEmpty()) {
-      return input;
-    }
-
-    // TODO: Also unescape \xdd!
-
-    // Pattern to find "\u4321" where XXXX are four hexadecimal digits
-    // The double backslash is because '\' is a special character in regex and needs to be escaped.
-    Pattern pattern = Pattern.compile("\\\\u([0-9A-Fa-f]{4})");
-    Matcher matcher = pattern.matcher(input);
-    StringBuffer sb = new StringBuffer();
-
-    while (matcher.find()) {
-      // Extract the hexadecimal part (e.g., "0041")
-      String hex = matcher.group(1);
-      // Parse the hexadecimal string to an integer
-      int codePoint = Integer.parseInt(hex, 16);
-      // Append the character corresponding to the code point
-      matcher.appendReplacement(sb, String.valueOf((char) codePoint));
-    }
-    // Append any remaining part of the string after the last match
-    matcher.appendTail(sb);
-
-    return sb.toString();
   }
 
   @Override
