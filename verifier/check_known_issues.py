@@ -72,6 +72,8 @@ class knownIssueType(Enum):
     plural_rules_floating_point_sample = 'limited floating point support'
     plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
 
+    # Collation
+    collation_jsonc_bug_with_surrogates = 'JSON-C library mishandles some surrogates'
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
@@ -329,6 +331,7 @@ def check_number_fmt_issues(test, platform_info):
         pass
     return None
 
+
 def check_plural_rules_issues(test):
     try:
         input_data = test['input_data']
@@ -344,12 +347,27 @@ def check_plural_rules_issues(test):
         return None
 
 
+def check_collation_issues(test):
+    try:
+        input_data = test['input_data']
+        actual_options = test['actual_options']
+        s1 = actual_options['s1_actual']
+        s2 = actual_options['s2_actual']
+        if (s1.find('\ufffd') >= 0 or s2.find('\ufffd') >=0 or
+            ('rules' in input_data and input_data['rules'].find('\ufffd'))) >= 0:
+            return knownIssueType.collation_jsonc_bug_with_surrogates
+    except KeyError as e:
+        return None
+
+
 def compute_known_issues_for_single_test(test_type, test, platform_info):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
 
     # Returns True if this single test is an example of one or more known issues,
     known_issue_found = False
+    if test_type == ddt_data.testType.collation.value:
+        known_issue_found = check_collation_issues(test)
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
     elif test_type == ddt_data.testType.rdt_fmt.value:
