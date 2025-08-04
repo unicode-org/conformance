@@ -51,19 +51,30 @@ pub(crate) fn langid_und() -> LanguageIdentifier {
     locale!("und").id
 }
 
-
-#[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1", ver = "2.0-beta2")))]
+#[cfg(not(any(
+    ver = "1.3",
+    ver = "1.4",
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2"
+)))]
 macro_rules! as_borrowed_2_0 {
     ($expr:expr) => {
         $expr.as_borrowed()
-    }
+    };
 }
 
-#[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1", ver = "2.0-beta2"))]
+#[cfg(any(
+    ver = "1.3",
+    ver = "1.4",
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2"
+))]
 macro_rules! as_borrowed_2_0 {
     ($expr:expr) => {
         $expr
-    }
+    };
 }
 
 pub(crate) use as_borrowed_2_0;

@@ -158,7 +158,13 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     // From 2.0, backward second level is available only via the fr-CA locale
     // <https://github.com/unicode-org/icu4x/pull/6291>
     if let Some(backwards) = backwards_option {
-        #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1", ver = "2.0-beta2")))]
+        #[cfg(not(any(
+            ver = "1.3",
+            ver = "1.4",
+            ver = "1.5",
+            ver = "2.0-beta1",
+            ver = "2.0-beta2"
+        )))]
         {
             let _backwards = backwards;
             return Ok(json!({
@@ -168,7 +174,13 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
                 "error_type": "unsupported",
             }));
         }
-        #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1", ver = "2.0-beta2"))]
+        #[cfg(any(
+            ver = "1.3",
+            ver = "1.4",
+            ver = "1.5",
+            ver = "2.0-beta1",
+            ver = "2.0-beta2"
+        ))]
         {
             options.backward_second_level = match backwards {
                 "off" => Some(BackwardSecondLevel::Off),

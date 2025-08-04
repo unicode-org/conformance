@@ -17,7 +17,10 @@ use icu::locale::Locale;
 #[cfg(ver = "2.0-beta2")]
 fn parse_iso_zdt(
     rfc_9557_str: &str,
-) -> Result<icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::Full>>, icu::time::ParseError> {
+) -> Result<
+    icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::Full>>,
+    icu::time::ParseError,
+> {
     use icu::time::zone::UtcOffsetCalculator;
     let intermediate = ZonedDateTime::try_loose_from_str(rfc_9557_str, Iso, Default::default())?;
     Ok(ZonedDateTime {
@@ -31,7 +34,10 @@ fn parse_iso_zdt(
 #[cfg(not(ver = "2.0-beta2"))]
 fn parse_iso_zdt(
     rfc_9557_str: &str,
-) -> Result<icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::AtTime>>, icu::time::ParseError> {
+) -> Result<
+    icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::AtTime>>,
+    icu::time::ParseError,
+> {
     ZonedDateTime::try_lenient_from_str(rfc_9557_str, Iso, Default::default())
 }
 
@@ -251,8 +257,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     // Extract all the information we need from the string
     let input_zoned_date_time = super::try_or_return_error!(label, locale, {
-        parse_iso_zdt(&input_iso)
-            .map_err(|e| format!("{e:?}"))
+        parse_iso_zdt(&input_iso).map_err(|e| format!("{e:?}"))
     });
 
     // The constructor is called with the given options
