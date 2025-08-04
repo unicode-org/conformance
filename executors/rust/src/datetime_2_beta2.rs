@@ -8,12 +8,32 @@ use icu::datetime::input::ZonedDateTime;
 use icu::datetime::options::*;
 use icu::datetime::DateTimeFormatter;
 use icu::datetime::DateTimeFormatterPreferences;
-use icu::time::zone::UtcOffsetCalculator;
 
 use icu::locale::extensions::unicode;
 use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
 use icu::locale::preferences::extensions::unicode::keywords::HourCycle;
 use icu::locale::Locale;
+
+#[cfg(ver = "2.0-beta2")]
+fn parse_iso_zdt(
+    rfc_9557_str: &str,
+) -> Result<icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::Full>>, icu::time::ParseError> {
+    use icu::time::zone::UtcOffsetCalculator;
+    let intermediate = ZonedDateTime::try_loose_from_str(rfc_9557_str, Iso, Default::default())?;
+    Ok(ZonedDateTime {
+        date: intermediate.date,
+        time: intermediate.time,
+        zone: intermediate
+            .zone
+            .infer_zone_variant(&UtcOffsetCalculator::new()),
+    })
+}
+#[cfg(not(ver = "2.0-beta2"))]
+fn parse_iso_zdt(
+    rfc_9557_str: &str,
+) -> Result<icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::AtTime>>, icu::time::ParseError> {
+    ZonedDateTime::try_lenient_from_str(rfc_9557_str, Iso, Default::default())
+}
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -230,18 +250,10 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let input_iso = input_iso.replace("Z[", "+00:00[");
 
     // Extract all the information we need from the string
-    let parsed_zdt = super::try_or_return_error!(label, locale, {
-        ZonedDateTime::try_loose_from_str(&input_iso, Iso, Default::default())
+    let input_zoned_date_time = super::try_or_return_error!(label, locale, {
+        parse_iso_zdt(&input_iso)
             .map_err(|e| format!("{e:?}"))
     });
-
-    let input_zoned_date_time = ZonedDateTime {
-        date: parsed_zdt.date,
-        time: parsed_zdt.time,
-        zone: parsed_zdt
-            .zone
-            .infer_zone_variant(&UtcOffsetCalculator::new()),
-    };
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.

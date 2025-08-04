@@ -10,7 +10,7 @@ use fixed_decimal::{RoundingIncrement, RoundingMode};
 use fixed_decimal::SignDisplay;
 // TODO: use fixed_decimal::ScientificDecimal;
 
-use super::compat::{pref, unicode, Locale};
+use super::compat::{langid_und, pref, unicode, Locale};
 use icu::decimal::options;
 
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
@@ -75,7 +75,7 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
     let mut langid: Locale = json_obj
         .get("locale")
         .map(|locale_name| locale_name.as_str().unwrap().parse().unwrap())
-        .unwrap_or_default();
+        .unwrap_or_else(|| langid_und().into());
 
     let input = &json_obj["input"].as_str().unwrap();
 
