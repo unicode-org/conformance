@@ -11,7 +11,7 @@ use icu::collator::options::*;
 #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
 use icu::collator::preferences::{CollationCaseFirst as CaseFirst, CollationNumericOrdering};
 
-use super::compat::{pref, Locale};
+use super::compat::{langid_und, pref};
 
 // Function runs comparison using collator
 pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
@@ -44,7 +44,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         .get("locale")
         .map(|json_val| json_val.as_str().unwrap());
     let langid = match locale_name_opt {
-        Some("root") | None => Locale::default(),
+        Some("root") | None => langid_und(),
         Some(other) => match other.parse() {
             Ok(l) => l,
             Err(_) => {
@@ -155,17 +155,44 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
 
+    // From 2.0, backward second level is available only via the fr-CA locale
+    // <https://github.com/unicode-org/icu4x/pull/6291>
     if let Some(backwards) = backwards_option {
-        options.backward_second_level = match backwards {
-            "off" => Some(BackwardSecondLevel::Off),
-            "on" => Some(BackwardSecondLevel::On),
-            _ => {
-                return Ok(json!({
-                    "label": label,
-                    "error_detail": {"backwards": backwards},
-                    "unsupported": "backwards",
-                    "error_type": "unsupported",
-                }));
+        #[cfg(not(any(
+            ver = "1.3",
+            ver = "1.4",
+            ver = "1.5",
+            ver = "2.0-beta1",
+            ver = "2.0-beta2"
+        )))]
+        {
+            let _backwards = backwards;
+            return Ok(json!({
+                "label": label,
+                "error_detail": {"backwards": backwards},
+                "unsupported": "backwards",
+                "error_type": "unsupported",
+            }));
+        }
+        #[cfg(any(
+            ver = "1.3",
+            ver = "1.4",
+            ver = "1.5",
+            ver = "2.0-beta1",
+            ver = "2.0-beta2"
+        ))]
+        {
+            options.backward_second_level = match backwards {
+                "off" => Some(BackwardSecondLevel::Off),
+                "on" => Some(BackwardSecondLevel::On),
+                _ => {
+                    return Ok(json!({
+                        "label": label,
+                        "error_detail": {"backwards": backwards},
+                        "unsupported": "backwards",
+                        "error_type": "unsupported",
+                    }));
+                }
             }
         }
     };

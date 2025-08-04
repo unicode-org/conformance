@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 #[cfg(not(any(ver = "2.0-beta1")))]
 use icu::segmenter::{options::*, *};
 
-use super::compat::Locale;
+use super::compat::{as_borrowed_2_0, Locale};
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "snake_case")]
@@ -42,6 +42,7 @@ pub fn run_segmenter_test(json_obj: &Value) -> Result<Value, String> {
             options.content_locale = Some(&lang_identifier);
 
             let segmenter = WordSegmenter::try_new_auto(options).unwrap();
+            let segmenter = as_borrowed_2_0!(segmenter);
             segmenter.segment_str(input_string).collect()
         }
         "sentence" => {
@@ -49,6 +50,7 @@ pub fn run_segmenter_test(json_obj: &Value) -> Result<Value, String> {
             let mut options = SentenceBreakOptions::default();
             options.content_locale = Some(&lang_identifier);
             let segmenter = SentenceSegmenter::try_new(options).unwrap();
+            let segmenter = as_borrowed_2_0!(segmenter);
             segmenter.segment_str(input_string).collect()
         }
         "line" => {

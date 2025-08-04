@@ -12,7 +12,7 @@ use icu::decimal::{
     FixedDecimalFormatter as DecimalFormatter,
 };
 
-use super::compat::{pref, Locale};
+use super::compat::{langid_und, pref, Locale};
 
 // Runs decimal and number formatting given patterns or skeletons.
 pub fn _todo(json_obj: &Value) -> Result<Value, String> {
@@ -22,7 +22,7 @@ pub fn _todo(json_obj: &Value) -> Result<Value, String> {
     let langid: Locale = json_obj
         .get("locale")
         .map(|locale_name| locale_name.as_str().unwrap().parse().unwrap())
-        .unwrap_or_default();
+        .unwrap_or_else(|| langid_und().into());
 
     let input = &json_obj["input"].as_str().unwrap();
 
