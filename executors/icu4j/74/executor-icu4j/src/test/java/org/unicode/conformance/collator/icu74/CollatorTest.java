@@ -156,13 +156,24 @@ public class CollatorTest {
   }
 
 @Test
-public void testUnescapeX() {
-  String testInput =
-      "{\"test_type\": \"collation\", \"compare_type\":\"=\",\"s1\":\"\",\"s2\":\"\\u0001\",\"source_file\":\"collationtest.txt\",\"line\":41,\"label\":\"00000\",\"test_description\":\"simple CEs & expansions\",\"rules\":\"&\\\\x01<<<\\\\u0300&9<\\\\x00&\\\\uA00A\\\\uA00B=\\\\uA002&\\\\uA00A\\\\uA00B\\\\u00050005=\\\\uA003\",\"hexhash\":\"2f12126264afe7896a48c115f890c292a8cc4f30\"}";
+  public void testUnescapeX() {
+    String testInput =
+        "{\"test_type\": \"collation\", \"compare_type\":\"=\",\"s1\":\"\",\"s2\":\"\\u0001\",\"source_file\":\"collationtest.txt\",\"line\":41,\"label\":\"00000\",\"test_description\":\"simple CEs & expansions\",\"rules\":\"&\\\\x01<<<\\\\u0300&9<\\\\x00&\\\\uA00A\\\\uA00B=\\\\uA002&\\\\uA00A\\\\uA00B\\\\u00050005=\\\\uA003\",\"hexhash\":\"2f12126264afe7896a48c115f890c292a8cc4f30\"}";
 
-  CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
-  assertTrue(output.result);
-}
+    assertTrue(output.result);
+  }
+
+  @Test
+  public void testSHIFTED_SHORT() {
+    // Unexpected test failure
+    String testInput =
+        "{\"test_type\": \"collation\", \"label\":\"0004624\",\"s1\":\"／?\",\"s2\":\"\\\\!\",\"strength\":\"tertiary\",\"line\":3185,\"source_file\":\"CollationTest_SHIFTED_SHORT.txt\",\"ignorePunctuation\":true,\"hexhash\":\"03116a4cfdeb7812cbe4aed927009e4bb7962758\"}";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
 }
 

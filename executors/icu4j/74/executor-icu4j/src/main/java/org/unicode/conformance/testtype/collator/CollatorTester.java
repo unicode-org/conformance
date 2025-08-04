@@ -232,7 +232,6 @@ public class CollatorTester implements ITestType {
     if (input.rules != null) {
       // Convert it to a rule based collator.
       String defaultRules = collator.getRules();
-      // Should we unescape the rules?
       String newRules = defaultRules + input.rules;
       try {
         collator = new RuleBasedCollator(newRules);
@@ -253,7 +252,7 @@ public class CollatorTester implements ITestType {
       collator.setAlternateHandlingShifted(true);
     }
 
-    if (input.numeric != null) {
+    if (input.numeric != null && input.numeric.equals("on")) {
       collator.setNumericCollation(true);
     }
 
