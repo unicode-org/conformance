@@ -30,6 +30,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "./util.h"
@@ -38,6 +39,7 @@ using std::cout;
 using std::endl;
 using std::map;
 using std::string;
+using std::string_view;
 using std::vector;
 
 using icu::Locale;
@@ -164,12 +166,15 @@ auto TestCollator(json_object *json_in) -> string {
   json_object *str2 = json_object_object_get(json_in, "s2");
 
   // Unescape the input strings?
-  string string1 = json_object_get_string(str1) ;
-  string string2 = json_object_get_string(str2);
+  // We need to handle null characters, so get the length and the bytes.
+  int str1_len = json_object_get_string_len(str1);
+  string_view string1(json_object_get_string(str1), str1_len);
+  int str2_len = json_object_get_string_len(str2);
+  string_view string2(json_object_get_string(str2), str2_len);
 
   // Does this conversion preserve the data?
-  UnicodeString us1 = UnicodeString::fromUTF8(string1);
-  UnicodeString us2 = UnicodeString::fromUTF8(string2);
+  UnicodeString us1 = UnicodeString::fromUTF8(string1).unescape();
+  UnicodeString us2 = UnicodeString::fromUTF8(string2).unescape();
 
   string test_result;
   int uni_result_utf8;
@@ -224,11 +229,9 @@ auto TestCollator(json_object *json_in) -> string {
 
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
-  string rules_string;
-  if (rules_obj != nullptr) {
-    rules_string = json_object_get_string(rules_obj);
-  }
-  UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string);
+  int rules_len = json_object_get_string_len(rules_obj);
+  string_view rules_string(json_object_get_string(rules_obj), rules_len);
+  UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string).unescape();
 
   // Handle some options
   json_object *ignore_obj =
@@ -247,11 +250,7 @@ auto TestCollator(json_object *json_in) -> string {
   Collator *uni_coll = nullptr;
   RuleBasedCollator *rb_coll = nullptr;
 
-  if (!rules_string.empty()) {
-    string uni_rules_string;
-    // TODO: Check if this is needed.
-    uni_rules.toUTF8String(uni_rules_string);
-
+  if (rules_len > 0) {
     // Make sure normalization is consistent
     rb_coll = new RuleBasedCollator(uni_rules, UCOL_ON, status);
     if (check_icu_error(status, return_json, "create RuleBasedCollator")) {
@@ -413,9 +412,10 @@ auto TestCollator(json_object *json_in) -> string {
     json_object* actual_values = json_object_new_object();
 
     json_object_object_add(
-        actual_values, "s1_actual", json_object_new_string(string1.c_str()));
+        actual_values, "s1_actual", json_object_new_string_len(string1.data(), string1.size()));
     json_object_object_add(
-        actual_values, "s2_actual", json_object_new_string(string2.c_str()));
+        actual_values, "s2_actual", json_object_new_string_len(string2.data(), string2.size()));
+
     json_object_object_add(
         actual_values, "input",
         json_object_new_string(json_object_get_string(json_in)));
@@ -423,6 +423,17 @@ auto TestCollator(json_object *json_in) -> string {
     json_object_object_add(
         return_json, "actual_options",
         actual_values);
+
+
+    if (rules_len > 0) {
+      json_object_object_add(
+          actual_values,
+          "rules_actual",
+          json_object_new_string_len(
+              rules_string.data(),
+              rules_string.size())
+                             );
+    }
 
     // Record the actual returned value
     json_object_object_add(
