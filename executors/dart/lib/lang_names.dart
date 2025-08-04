@@ -25,7 +25,7 @@ String testLangNames(String jsonEncoded) {
     return jsonEncode(outputLine);
   }
 
-  final languageLabel = (json['language_label'] as String).replaceAll('_', '-');
+  final languageLabel = json['language_label'] as String;
   Locale languageLabelLocale;
   try {
     languageLabelLocale = Locale.parse(languageLabel);
