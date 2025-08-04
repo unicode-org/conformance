@@ -35,7 +35,7 @@ jobs:
       - name: Set version of Rust
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: 1.73
+            toolchain: 1.82
       - name: Run End-to-end script
         run: bash generateDataAndRun.sh
       - name: Setup Pages
