@@ -175,5 +175,16 @@ public class CollatorTest {
 
     assertTrue(output.result);
   }
+
+  @Test
+  public void testNON_IGNORABLE_0235457() {
+    // Unexpected test failure
+    String testInput =
+"{\"test_type\": \"collation\",   \"label\": \"0235457\",   \"s1\": \"\\ufe68A\",   \"s2\": \"\\\\b\",   \"line\": 8263,   \"source_file\": \"CollationTest_NON_IGNORABLE_SHORT.txt\",   \"hexhash\": \"c5dbf2d2a1b6eba940b76b840f2d991fde8f29c7\"  }";
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
 }
 

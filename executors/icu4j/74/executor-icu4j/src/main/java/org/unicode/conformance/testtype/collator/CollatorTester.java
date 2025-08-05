@@ -44,9 +44,9 @@ public class CollatorTester implements ITestType {
     script_tags_map.put("Hani", UScript.HAN);
     script_tags_map.put("Hira", UScript.HIRAGANA);
     script_tags_map.put("Zzzz", UScript.UNKNOWN);
-
-    result.s1 = Utility.unescape((String) inputMapData.get("s1", null));
-    result.s2 = Utility.unescape((String) inputMapData.get("s2", null));
+    
+    result.s1 = (String) inputMapData.get("s1", null);
+    result.s2 = (String) inputMapData.get("s2", null);
 
     result.locale = (String) inputMapData.get("locale", null);
     result.strength = (String) inputMapData.get("strength", null);
