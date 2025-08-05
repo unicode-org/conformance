@@ -4,10 +4,9 @@ publish_to: none
 environment:
   sdk: ^3.10.0-37.0.dev
 
-# Add regular dependencies here.
 dependencies:
   collection: ^1.19.1
-  intl4x: ^0.12.2
+  intl4x: 0.12.2
   node_preamble: ^2.0.2
   pubspec_lock_parse: ^2.2.0
 
