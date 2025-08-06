@@ -615,7 +615,7 @@ table th {
         }
     }
 
-      function escapeHtml(unsafe) {
+    function escapeHtml(unsafe) {
       // To make sure that table entries won't break the HTML code.
       if (typeof unsafe === 'string') {
         return unsafe
@@ -626,26 +626,26 @@ table th {
         .replace(/'/g, "&#039;");
       }
       return unsafe;
-   }
+    }
 
-function clearSelectedItems(the_button, test_class) {
-        // Clear all the check boxes for this test_class.
-        const test_data = test_results[test_class];
-        test_data.check_boxes.forEach((widget) => {
-            widget.value = question_mark;
-            const div_for_checkbox = widget.parentElement;
-            div_for_checkbox.attributeStyleMap.clear();
-        });
+    function clearSelectedItems(the_button, test_class) {
+      // Clear all the check boxes for this test_class.
+      const test_data = test_results[test_class];
+      test_data.check_boxes.forEach((widget) => {
+        widget.value = question_mark;
+        const div_for_checkbox = widget.parentElement;
+        div_for_checkbox.attributeStyleMap.clear();
+      });
 
 
-        // reset the number of results size
-        const selected_count_items = document.getElementsByName('selectedCount');
-        const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
+      // reset the number of results size
+      const selected_count_items = document.getElementsByName('selectedCount');
+      const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
 
-        const output = [...selected_count_items].filter(elem => elem.className == test_class);
+      const output = [...selected_count_items].filter(elem => elem.className == test_class);
         if (output) {
-            // Set the current count of items
-            output[0].innerHTML = output[0].innerText = newSize;
+          // Set the current count of items
+          output[0].innerHTML = output[0].innerText = newSize;
         }
     }
 
@@ -655,8 +655,8 @@ function clearSelectedItems(the_button, test_class) {
         .replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, "''")
-        .replace(/&#039/g, "''");
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
         }
       return htmlStr;
     }

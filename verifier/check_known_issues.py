@@ -356,7 +356,7 @@ def check_collation_issues(test):
         if (s1.find('\ufffd') >= 0 or s2.find('\ufffd') >=0 or
             ('rules' in input_data and input_data['rules'].find('\ufffd'))) >= 0:
             return knownIssueType.collation_jsonc_bug_with_surrogates
-    except BaseException as e:
+    except Exception as e:
         return None
 
 
