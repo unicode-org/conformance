@@ -45,7 +45,8 @@ class CollationGenerator(DataGenerator):
             self.root_locale,
             self.test_line,
             self.attribute_test,
-            self.reorder_test
+            self.reorder_test,
+            self.rule_header_pattern
         ]
 
         self.rule_breakout_patterns = [

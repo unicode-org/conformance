@@ -186,5 +186,16 @@ public class CollatorTest {
     assertTrue(output.result);
   }
 
+  @Ignore
+  @Test
+  public void test_01195_rules() {
+    // Unexpected test failure
+    String testInput =
+        "{\"test_type\": \"collation\",\"compare_type\": \"<1\",   \"s1\": \"opd\",   \"s2\": \"op\\u0109\",   \"source_file\": \"collationtest.txt\",   \"line\": 2104,   \"label\": \"01195\",   \"test_description\": \"fall back to mappings with shorter prefixes, not immediately to ones with no prefixes\",   \"rules\": \"&x=op|\\u0109&y=p|\\u00e7\",   \"hexhash\": \"bc322b1e989cd75f5956b758dbf770b94f4011ff\"  }";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
 }
 
