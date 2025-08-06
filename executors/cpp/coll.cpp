@@ -272,6 +272,42 @@ auto TestCollator(json_object *json_in) -> string {
       }
     }
 
+    json_object *alternate_obj = json_object_object_get(json_in, "alternate");
+    if (alternate_obj) {
+      // TODO: Check status
+      string alternate = json_object_get_string(alternate_obj);
+      if (alternate == "shifted") {
+        rb_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
+      } else
+      if (alternate == "non-ignorable") {
+        rb_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_NON_IGNORABLE, status);
+      }
+    }
+
+    json_object *case_first_obj = json_object_object_get(json_in, "caseFirst");
+    if (case_first_obj) {
+      // TODO: Check status
+      string case_first = json_object_get_string(case_first_obj);
+      if (case_first == "lower") {
+        rb_coll->setAttribute(UCOL_CASE_FIRST, UCOL_LOWER_FIRST, status);
+      } else
+      if (case_first == "upper") {
+        rb_coll->setAttribute(UCOL_CASE_FIRST, UCOL_UPPER_FIRST, status);
+      }
+    }
+
+    json_object *case_level_obj = json_object_object_get(json_in, "caseLevel");
+    if (case_level_obj) {
+      // TODO: Check status
+      string case_level = json_object_get_string(case_level_obj);
+      if (case_level == "off") {
+        rb_coll->setAttribute(UCOL_CASE_LEVEL, UCOL_OFF, status);
+      } else
+      if (case_level == "on") {
+        rb_coll->setAttribute(UCOL_CASE_LEVEL, UCOL_ON, status);
+      }
+    }
+
     uni_result = rb_coll->compare(us1, us2, status);
     if (check_icu_error(status, return_json, "rb_coll->compare")) {
       return json_object_to_json_string(return_json);
@@ -294,7 +330,19 @@ auto TestCollator(json_object *json_in) -> string {
       uni_coll = Collator::createInstance(this_locale, status);
     }
 
-    if (reorder_obj) {
+    json_object *alternate_obj = json_object_object_get(json_in, "alternate");
+    if (alternate_obj) {
+      // TODO: Check status
+      string alternate = json_object_get_string(alternate_obj);
+      if (alternate == "shifted") {
+        uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
+      } else
+      if (alternate == "non-ignorable") {
+        uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_NON_IGNORABLE, status);
+      }
+    }
+
+  if (reorder_obj) {
       if (debug_level > 0) {
         cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
       }
