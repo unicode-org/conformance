@@ -45,7 +45,7 @@ public class CollatorTest {
   public void testRule004() {
     // in ICU 76.1 data
     String testInput =
-        "{\"test_type\": \"collation\", \"compare_type\":\"&lt;3\",\"s1\":\"\u0002\",\"s2\":\"\u0300\",\"source_file\":\"collationtest.txt\",\"line\":43,\"label\":\"00002\",\"test_description\":\"simple CEs &amp; expansions\",\"rules\":\"&\\u0001<<<\\u0300&9<\\u0000&\\uA00A\\uA00B=\\uA002&\\uA00A\\uA00B\\u00050005=\\uA003\",\"hexhash\":\"7d3d23fab7f34c1cd44e90b40f7ed33c5bb317ba\"}";
+        "{\"test_type\": \"collation\", \"compare_type\":\"&lt;3\",\"s1\":\"\u0002\",\"s2\":\"\u0300\",\"source_file\":\"collationtest.txt\",\"line\":43,\"label\":\"00002\",\"test_description\":\"simple CEs & expansions\",\"rules\":\"&\\u0001<<<\\u0300&9<\\u0000&\\uA00A\\uA00B=\\uA002&\\uA00A\\uA00B\\u00050005=\\uA003\",\"hexhash\":\"7d3d23fab7f34c1cd44e90b40f7ed33c5bb317ba\"}";
 
     CollatorOutputJson output =
         (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
@@ -170,6 +170,60 @@ public class CollatorTest {
     // Unexpected test failure
     String testInput =
         "{\"test_type\": \"collation\", \"label\":\"0004624\",\"s1\":\"／?\",\"s2\":\"\\\\!\",\"strength\":\"tertiary\",\"line\":3185,\"source_file\":\"CollationTest_SHIFTED_SHORT.txt\",\"ignorePunctuation\":true,\"hexhash\":\"03116a4cfdeb7812cbe4aed927009e4bb7962758\"}";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
+  @Test
+  public void testNON_IGNORABLE_0235457() {
+    // Unexpected test failure
+    String testInput =
+"{\"test_type\": \"collation\",   \"label\": \"0235457\",   \"s1\": \"\\ufe68A\",   \"s2\": \"\\\\b\",   \"line\": 8263,   \"source_file\": \"CollationTest_NON_IGNORABLE_SHORT.txt\",   \"hexhash\": \"c5dbf2d2a1b6eba940b76b840f2d991fde8f29c7\"  }";
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
+  @Test
+  public void test_01195_rules() {
+    // Unexpected test failure
+    String testInput =
+        "{\"test_type\": \"collation\",\"compare_type\": \"<1\",   \"s1\": \"opd\",   \"s2\": \"op\\u0109\",   \"source_file\": \"collationtest.txt\",   \"line\": 2104,   \"label\": \"01195\",   \"test_description\": \"fall back to mappings with shorter prefixes, not immediately to ones with no prefixes\",   \"rules\": \"&x=op|\\u0109&y=p|\\u00e7\",   \"hexhash\": \"bc322b1e989cd75f5956b758dbf770b94f4011ff\"  }";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
+  @Test
+  public void test_00312_rules() {
+    // Unexpected test failure
+    String testInput =
+        "{\"test_type\": \"collation\", \"compare_type\":\"<3\",\"s1\":\"aAt\",\"s2\":\"aa\",\"source_file\":\"collationtest.txt\",\"line\":658,\"label\":\"00312\",\"test_description\":\"tertiary CEs, tertiary, caseLevel=off, caseFirst=upper\",\"rules\":\"&\\\\u0001<<<t<<<T\",\"caseFirst\":\"upper\",\"hexhash\":\"453fdaeaaaf99825d778f1573de2612aafda84b2\"}";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
+  @Test
+  public void test_00536_rules() {
+    // Unexpected test failure
+    String testInput =
+        "{\"test_type\": \"collation\", \"compare_type\":\"<1\",\"s1\":\"z\",\"s2\":\" \",\"source_file\":\"collationtest.txt\",\"line\":1047,\"label\":\"00536\",\"test_description\":\"adjust special reset positions according to previous rules, CLDR ticket 6070\",\"rules\":\"&[last primary ignorable]<<x<<<y&[last primary ignorable]<<z\",\"hexhash\":\"49f1099a0032106e6a3861bb5d228568c6a74d47\"}";
+
+    CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertTrue(output.result);
+  }
+
+  @Test
+  public void test_00543_rules() {
+    // Unexpected test failure
+    String testInput =
+        "{\"test_type\": \"collation\", \"compare_type\":\"<1\",\"s1\":\"\uFDD1\u00A0\",\"s2\":\"t\",\"source_file\":\"collationtest.txt\",\"line\":1070,\"label\":\"00543\",\"test_description\":\"adjust special reset positions according to previous rules, CLDR ticket 6070\",\"rules\":\"&[before 2][first variable]<<z&[before 2][first variable]<<y&[before 3][first variable]<<<x&[before 3][first variable]<<<w&[before 1][first variable]<v&[before 2][first variable]<<u&[before 3][first variable]<<<t&[before 2]\\\\uFDD1\\\\xA0<<s\",\"hexhash\":\"295bcd43ae62d58b89137aa45401f386881fc189\"}";
 
     CollatorOutputJson output = (CollatorOutputJson) CollatorTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 

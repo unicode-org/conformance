@@ -44,15 +44,18 @@ public class CollatorTester implements ITestType {
     script_tags_map.put("Hani", UScript.HAN);
     script_tags_map.put("Hira", UScript.HIRAGANA);
     script_tags_map.put("Zzzz", UScript.UNKNOWN);
-
-    result.s1 = Utility.unescape((String) inputMapData.get("s1", null));
-    result.s2 = Utility.unescape((String) inputMapData.get("s2", null));
+    
+    result.s1 = (String) inputMapData.get("s1", null);
+    result.s2 = (String) inputMapData.get("s2", null);
 
     result.locale = (String) inputMapData.get("locale", null);
     result.strength = (String) inputMapData.get("strength", null);
 
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
+
+    result.caseFirst = (String) inputMapData.get("caseFirst", null);
+    result.caseLevel = (String) inputMapData.get("caseLevel", null);
 
     // Resolve "&lt;"
     result.compare_type = (String) inputMapData.get("compare_type", null);
@@ -237,6 +240,17 @@ public class CollatorTester implements ITestType {
         collator = new RuleBasedCollator(newRules);
       } catch (Exception e) {
         return null;
+      }
+      if (input.caseFirst != null) {
+        if (input.caseFirst.equals("lower")) {
+          collator.setLowerCaseFirst(true);
+        } else if (input.caseFirst.equals("upper")) {
+          collator.setUpperCaseFirst(true);
+
+        }
+      }
+      if (input.caseLevel != null && input.caseLevel.equals("on")) {
+        collator.setCaseLevel(true);
       }
     }
 
