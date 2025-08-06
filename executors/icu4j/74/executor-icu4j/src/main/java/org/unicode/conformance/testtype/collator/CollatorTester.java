@@ -54,6 +54,9 @@ public class CollatorTester implements ITestType {
     result.ignorePunctuation = (boolean) inputMapData.get("ignorePunctuation", false);
     result.line = (int) ((double) inputMapData.get("line", 0.0));
 
+    result.caseFirst = (String) inputMapData.get("caseFirst", null);
+    result.caseLevel = (String) inputMapData.get("caseLevel", null);
+
     // Resolve "&lt;"
     result.compare_type = (String) inputMapData.get("compare_type", null);
     if (result.compare_type != null && ! result.compare_type.equals("") && result.compare_type.length() > 4) {
@@ -237,6 +240,17 @@ public class CollatorTester implements ITestType {
         collator = new RuleBasedCollator(newRules);
       } catch (Exception e) {
         return null;
+      }
+      if (input.caseFirst != null) {
+        if (input.caseFirst.equals("lower")) {
+          collator.setLowerCaseFirst(true);
+        } else if (input.caseFirst.equals("upper")) {
+          collator.setUpperCaseFirst(true);
+
+        }
+      }
+      if (input.caseLevel != null && input.caseLevel.equals("on")) {
+        collator.setCaseLevel(true);
       }
     }
 

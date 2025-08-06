@@ -173,6 +173,7 @@ class CollationGenerator(DataGenerator):
             if is_comparison_match := self.comparison_line.match(line_in):
                 compare_type = is_comparison_match.group(1)
                 raw_string2 = is_comparison_match.group(3)
+                # TODO: Handle raw_string.replace('\\x', '\u00')
                 string2 = ''
                 try:
                     string2 = raw_string2.rstrip()  # Don't do any unescaping
@@ -183,9 +184,13 @@ class CollationGenerator(DataGenerator):
                 # Special cases for comparing only with \u0020 or \u000a
                 if string2 == '' and raw_line.find('\\u0020') > 0:
                     string2 = '\u0020'
+                if string2 == '' and raw_line.find('\\x20') > 0:
+                    string2 = '\u0020'
                 if string2 == '' and raw_line.find('\\u000A') > 0:
                     string2 = '\u000a'
-
+                # A very special case. Generalize?\ to hand \xYZ?
+                if raw_line.find('\\uFDD1\\xA0') > 0:
+                    string2 = '\ufdd1\u00a0'
                 new_test = {
                     'compare_type': compare_type,
                     's1': string1,
