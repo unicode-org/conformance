@@ -74,6 +74,7 @@ class knownIssueType(Enum):
 
     # Collation
     collation_jsonc_bug_with_surrogates = 'JSON-C library mishandles some surrogates'
+    collation_icu4x_FFFE = 'https://github.com/unicode-org/icu4x/issues/6811'
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
@@ -356,9 +357,17 @@ def check_collation_issues(test):
         if (s1.find('\ufffd') >= 0 or s2.find('\ufffd') >=0 or
             ('rules' in input_data and input_data['rules'].find('\ufffd'))) >= 0:
             return knownIssueType.collation_jsonc_bug_with_surrogates
-    except KeyError as e:
-        return None
-
+    except Exception as e:
+        pass
+    try:
+        input_data = test['input_data']
+        s1 = input_data['s1']
+        s2 = input_data['s2']
+        if s1.find('\ufffe') >= 0 or s2.find('\ufffe') >= 0:
+            return knownIssueType.collation_icu4x_FFFE
+    except Exception as e:
+        pass
+    return None
 
 def compute_known_issues_for_single_test(test_type, test, platform_info):
     # Based on the type of test, check known issues against the expected vs. actual
