@@ -388,7 +388,7 @@ table th {
                         } else {
                             output = item[key];
                         }
-                        html.push('<td onclick=' + onclick_call +'>' + output +'</td>');
+                        html.push('<td onclick=' + onclick_call +'>' + escapeHtml(output) +'</td>');
                     }
                 }
                 html.push("</tr>");
@@ -615,30 +615,50 @@ table th {
         }
     }
 
+    function escapeHtml(unsafe) {
+      // To make sure that table entries won't break the HTML code.
+      if (typeof unsafe === 'string') {
+        return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+      }
+      return unsafe;
+    }
+
     function clearSelectedItems(the_button, test_class) {
-        // Clear all the check boxes for this test_class.
-        const test_data = test_results[test_class];
-        test_data.check_boxes.forEach((widget) => {
-            widget.value = question_mark;
-            const div_for_checkbox = widget.parentElement;
-            div_for_checkbox.attributeStyleMap.clear();
-        });
+      // Clear all the check boxes for this test_class.
+      const test_data = test_results[test_class];
+      test_data.check_boxes.forEach((widget) => {
+        widget.value = question_mark;
+        const div_for_checkbox = widget.parentElement;
+        div_for_checkbox.attributeStyleMap.clear();
+      });
 
 
-        // reset the number of results size
-        const selected_count_items = document.getElementsByName('selectedCount');
-        const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
+      // reset the number of results size
+      const selected_count_items = document.getElementsByName('selectedCount');
+      const newSize = test_data.selected_set == null ? 0 : test_data.all_labels.size;
 
-        const output = [...selected_count_items].filter(elem => elem.className == test_class);
+      const output = [...selected_count_items].filter(elem => elem.className == test_class);
         if (output) {
-            // Set the current count of items
-            output[0].innerHTML = output[0].innerText = newSize;
+          // Set the current count of items
+          output[0].innerHTML = output[0].innerText = newSize;
         }
     }
 
-    function unEscape(htmlStr) {
-        var doc = new DOMParser().parseFromString(htmlStr, "text/html");
-        return doc.documentElement.textContent;
+    function unescapeHtml(htmlStr) {
+      if (typeof htmlStr === 'string') {
+        return htmlStr
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+        }
+      return htmlStr;
     }
 
     // For getting contents of output into json string for testing
@@ -652,7 +672,7 @@ table th {
         }
         // alert(output);
         // Copy to clipboard.
-        navigator.clipboard.writeText(unEscape(output));
+        navigator.clipboard.writeText(unescapeHtml(output));
     }
 
     // On hover, show the difference between expected and actual result
