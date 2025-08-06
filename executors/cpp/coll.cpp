@@ -225,6 +225,21 @@ auto TestCollator(json_object *json_in) -> string {
   if (reorder_obj) {
     reorder_string = json_object_get_string(reorder_obj);
     reorder_codes_v = BuildReorderList(reorder_string, debug_level);
+    if (debug_level > 0) {
+      cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
+    }
+  }
+
+  json_object *alternate_obj = json_object_object_get(json_in, "alternate");
+  UColAttributeValue alternate_value;
+  if (alternate_obj) {
+    string alternate = json_object_get_string(alternate_obj);
+    if (alternate == "shifted") {
+      alternate_value = UCOL_SHIFTED;
+    } else
+      if (alternate == "non-ignorable") {
+        alternate_value = UCOL_NON_IGNORABLE;
+      }
   }
 
   // Check for rule-based collation
@@ -232,6 +247,7 @@ auto TestCollator(json_object *json_in) -> string {
   int rules_len = json_object_get_string_len(rules_obj);
   string_view rules_string(json_object_get_string(rules_obj), rules_len);
   UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string).unescape();
+  string actual_rules = "";
 
   // Handle some options
   json_object *ignore_obj =
@@ -262,25 +278,26 @@ auto TestCollator(json_object *json_in) -> string {
       return json_object_to_json_string(return_json);
     }
 
+    // Get the rules as seen by the collator.
+    UnicodeString gotten_rules = rb_coll->getRules();
+    gotten_rules.toUTF8String(actual_rules);
+
+    // Make sure that attributes and optionsare set for rule based collator, too.
     if (reorder_obj) {
-      if (debug_level > 0) {
-        cout << "# RB_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-      }
       rb_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
       if (check_icu_error(status, return_json, "rb_coll with reorder")) {
         return json_object_to_json_string(return_json);
       }
     }
 
-    json_object *alternate_obj = json_object_object_get(json_in, "alternate");
     if (alternate_obj) {
-      // TODO: Check status
-      string alternate = json_object_get_string(alternate_obj);
-      if (alternate == "shifted") {
-        rb_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
-      } else
-      if (alternate == "non-ignorable") {
-        rb_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_NON_IGNORABLE, status);
+      rb_coll->setAttribute(UCOL_ALTERNATE_HANDLING, alternate_value, status);
+      if (check_icu_error(status, return_json, "alternate")) {
+        json_object_object_add(
+            return_json, "actual_options",
+            json_object_new_string(json_object_get_string(json_in)));
+
+        return json_object_to_json_string(return_json);
       }
     }
 
@@ -291,9 +308,9 @@ auto TestCollator(json_object *json_in) -> string {
       if (case_first == "lower") {
         rb_coll->setAttribute(UCOL_CASE_FIRST, UCOL_LOWER_FIRST, status);
       } else
-      if (case_first == "upper") {
-        rb_coll->setAttribute(UCOL_CASE_FIRST, UCOL_UPPER_FIRST, status);
-      }
+        if (case_first == "upper") {
+          rb_coll->setAttribute(UCOL_CASE_FIRST, UCOL_UPPER_FIRST, status);
+        }
     }
 
     json_object *case_level_obj = json_object_object_get(json_in, "caseLevel");
@@ -303,9 +320,13 @@ auto TestCollator(json_object *json_in) -> string {
       if (case_level == "off") {
         rb_coll->setAttribute(UCOL_CASE_LEVEL, UCOL_OFF, status);
       } else
-      if (case_level == "on") {
-        rb_coll->setAttribute(UCOL_CASE_LEVEL, UCOL_ON, status);
-      }
+        if (case_level == "on") {
+          rb_coll->setAttribute(UCOL_CASE_LEVEL, UCOL_ON, status);
+        }
+    }
+
+    if (strength_obj != nullptr) {
+      rb_coll->setStrength(strength_type);
     }
 
     uni_result = rb_coll->compare(us1, us2, status);
@@ -328,24 +349,28 @@ auto TestCollator(json_object *json_in) -> string {
         this_locale = Locale(locale_string);
       }
       uni_coll = Collator::createInstance(this_locale, status);
+      if (check_icu_error(status, return_json,
+                          "Collator:createInstance")) {
+        json_object_object_add(
+            return_json, "actual_options",
+            json_object_new_string(json_object_get_string(json_in)));
+
+        return json_object_to_json_string(return_json);
+      }
     }
 
-    json_object *alternate_obj = json_object_object_get(json_in, "alternate");
     if (alternate_obj) {
-      // TODO: Check status
-      string alternate = json_object_get_string(alternate_obj);
-      if (alternate == "shifted") {
-        uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_SHIFTED, status);
-      } else
-      if (alternate == "non-ignorable") {
-        uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, UCOL_NON_IGNORABLE, status);
+      uni_coll->setAttribute(UCOL_ALTERNATE_HANDLING, alternate_value, status);
+      if (check_icu_error(status, return_json, "alternate")) {
+        json_object_object_add(
+            return_json, "actual_options",
+            json_object_new_string(json_object_get_string(json_in)));
+
+        return json_object_to_json_string(return_json);
       }
     }
 
-  if (reorder_obj) {
-      if (debug_level > 0) {
-        cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-      }
+    if (reorder_obj) {
       uni_coll->setReorderCodes(reorder_codes_v.data(), reorder_codes_v.size(), status);
       if (check_icu_error(status, return_json, "uni_coll->setReorderCodes")) {
         return json_object_to_json_string(return_json);
@@ -419,22 +444,10 @@ auto TestCollator(json_object *json_in) -> string {
       }
     }
 
-    // Just to check the result.
-    uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore return
-    if (check_icu_error(
-            status, return_json,
-            "getet UCOL_ALTERNATE_HANDLING")) {
-      return json_object_to_json_string(return_json);
-    }
-
     // Perform the string comparison
     uni_result = uni_coll->compare(us1, us2, status);
-    if (check_icu_error( status, return_json, "uni_coll_compare")) {
+    if (check_icu_error( status, return_json, "uni_coll->compare")) {
       return json_object_to_json_string(return_json);
-    }
-
-    if (uni_coll != nullptr) {
-      uni_coll->getAttribute(UCOL_ALTERNATE_HANDLING, status);  // ignore result
     }
     delete uni_coll;
     if (check_icu_error( status, return_json, "uni_coll->getATTRIBUTE")) {
@@ -456,7 +469,7 @@ auto TestCollator(json_object *json_in) -> string {
 
   if (!coll_result) {
     // Test did not succeed!
-    // Include data compared in the failing test
+    // Include the data compared in the failing test
     json_object* actual_values = json_object_new_object();
 
     json_object_object_add(
@@ -472,14 +485,12 @@ auto TestCollator(json_object *json_in) -> string {
         return_json, "actual_options",
         actual_values);
 
-
     if (rules_len > 0) {
+      // Show the rules that were actually found.
       json_object_object_add(
           actual_values,
           "rules_actual",
-          json_object_new_string_len(
-              rules_string.data(),
-              rules_string.size())
+          json_object_new_string(actual_rules.c_str())
                              );
     }
 
@@ -488,6 +499,7 @@ auto TestCollator(json_object *json_in) -> string {
         return_json, "compare", json_object_new_int64(uni_result));
   }
 
+  // The output
   json_object_object_add(
       return_json, "result", json_object_new_boolean(static_cast<json_bool>(coll_result)));
 
