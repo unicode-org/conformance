@@ -225,9 +225,6 @@ auto TestCollator(json_object *json_in) -> string {
   if (reorder_obj) {
     reorder_string = json_object_get_string(reorder_obj);
     reorder_codes_v = BuildReorderList(reorder_string, debug_level);
-    if (debug_level > 0) {
-      cout << "# UNI_COLL: reorder codes: " << reorder_string << "(" << reorder_codes_v.size() << ")" << endl;
-    }
   }
 
   json_object *alternate_obj = json_object_object_get(json_in, "alternate");
@@ -417,9 +414,6 @@ auto TestCollator(json_object *json_in) -> string {
         values_it = values_map.find(test_value);
         if (values_it != values_map.end()) {
           // This is the value that we can set
-          if (debug_level > 0) {
-            cout << "# SETTING attribute " << key << " to " << test_value << " == " << values_it->second << endl;
-          }
           uni_coll->setAttribute(ucol_attribute, values_it->second, status);
           if (check_icu_error(
                   status, return_json,
@@ -438,9 +432,6 @@ auto TestCollator(json_object *json_in) -> string {
       values_it = val_attribute_map.find(test_value);
       if (values_it != val_attribute_map.end()) {
         uni_coll->setMaxVariable(values_it->second, status);
-        if (debug_level > 0) {
-          cout << "# SETTING maxVariable to " << values_it->second << " = " << test_value << endl;
-        }
       }
     }
 
