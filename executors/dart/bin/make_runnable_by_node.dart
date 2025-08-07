@@ -17,11 +17,16 @@ Future<void> main(List<String> args) async {
       name: 'testDecimalFormat',
       argNames: ['encoded', 'log', 'version'],
     ),
-    'likely_subtags': ExportFunction(
-      name: 'testLikelySubtags',
+    'lang_names': ExportFunction(name: 'testLangNames', argNames: ['encoded']),
+    'plural_rules': ExportFunction(
+      name: 'testPluralRules',
       argNames: ['encoded'],
     ),
-    'lang_names': ExportFunction(name: 'testLangNames', argNames: ['encoded']),
+    'list_format': ExportFunction(name: 'testListFmt', argNames: ['encoded']),
+    'datetimeformat': ExportFunction(
+      name: 'testDateTimeFmt',
+      argNames: ['encoded'],
+    ),
   };
   for (final MapEntry(key: name, value: function) in names.entries) {
     await compile(name, function);
