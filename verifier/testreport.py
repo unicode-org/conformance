@@ -1165,6 +1165,9 @@ class SummaryReport:
 
         self.templates = reportTemplate()
 
+        # Order left-to-right of platforms in summary dashboard
+        self.platform_order = []
+
         if self.debug > 1:
             logging.info('SUMMARY REPORT base = %s', self.file_base)
 
@@ -1290,12 +1293,18 @@ class SummaryReport:
     def create_summary_html(self):
         # Generate HTML page containing this information
         # Create the template
+        platform_order_list = None
+        if self.platform_order and self.platform_order[0] and len(self.platform_order[0]) > 0:
+            platform_order_list = '", "'.join(self.platform_order)
+
         html_map = {
             'all_platforms': ', '.join(list(self.exec_summary.keys())),
             'all_icu_versions': None,  # TEMP!!!
             'all_tests': ', '.join(list(self.type_summary.keys())),
             'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'platform_order': platform_order_list
         }
+
         # Create header for each executor
         header_line = ''  # TODO
         html_map['header_line'] = header_line
