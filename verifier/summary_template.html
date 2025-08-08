@@ -22,6 +22,18 @@
   p {
       margin: 5px 0;
   }
+
+  .headclass th {
+      position : sticky;
+      top: 0;
+  }
+
+  .sticky {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 10000;
+  }
 </style>
 <!-- <script src="validation.js"</script> -->
     <script type="text/javascript">
@@ -158,24 +170,83 @@
 
           // Find all the kinds of executors
           let exec_set = new Set();
+          // And find how many tests are under each platform
+          let exec_test_counts = {};
           for (const test_type of test_types) {
               const tests = exec_summary_json[test_type];
               for (const node_version of tests) {
-                    exec_set.add(node_version['version']['platform'])
+                  let this_exec = node_version['version']['platform'];
+                  exec_set.add(this_exec);
+                  if (this_exec in exec_test_counts) {
+                      exec_test_counts[this_exec] += 1;
+                  } else {
+                      exec_test_counts[this_exec] = 1;
+                  }
               }
           }
 
-          const execs = Array.from(exec_set).sort();
-          let th = table.insertRow();
-          let td = th.insertCell();
-          td.innerHTML = "Test Type";
+          // If platform/exec order is specified, use that.
+          let execs = [];
+          // exec_set includes all those that are represented in the data
+          const platform_order = ["$platform_order"];
+          if (platform_order.length <= 0 || platform_order[0] == 'alphabetic'
+             || platform_order[0] == "None") {
+              // Default is alphabetic sort
+              execs = Array.from(exec_set).sort();
+          } else {
+              // Provided by the test report
+              // Remove those that are not in the exec_set.
+              if (platform_order[0] == 'component_count') {
+                  // Use to set the order
+                  const entries = Object.entries(exec_test_counts);
+                  // Sort with largest first
+                  entries.sort((a, b) => b[1] - a[1]);
+                  for (const [key, value] of entries) {
+                      execs.push(key);
+                  }
+              } else {
+                  // Check for "alphabetic", "component_count", and other options.
+                  // Does this preserve order?
+                  // It should not exclude things that are in test results,
+                  // nor include things that are not there.
+                  let execs_missing_set =
+                      new Set(Array.from(exec_set));
+                  for (let platform of platform_order) {
+                      // remove the underscores, too.
+                      const pl2 = platform.replaceAll('_', ' ');
+                      if (exec_set.has(pl2)) {
+                          execs.push(pl2);
+                          execs_missing_set.delete(pl2);
+                      }
+                  }
+                  // Make sure all the items from exec set are there, too.
+                  execs_missing_set.forEach(platform => execs.push(platform));
+              }
+          }
+
+          let header = table.createTHead();
+          let header_row = header.insertRow(0);
+          // ??? header_row.classList.add("sticky");
+          let th = document.createElement('th');
+          header_row.appendChild(th);
+          th.innerHTML = "Test Type";
+          th.style.position = 'sticky';
+          th.style.top = 0;
 
           for (const exec of execs) {
-              td = th.insertCell();
-              td.innerHTML = exec;
-              td.style.textAlign = 'center';
-              td = th.insertCell();
-              td.innerHTML = "Details";
+              th = document.createElement('th');
+              header_row.appendChild(th);
+              th.innerHTML = exec;
+              th.style.textAlign = 'center';
+              th.style.position = 'sticky';
+              th.style.top = 0;
+
+              th = document.createElement('th');
+              header_row.appendChild(th);
+              th = header_row.insertCell();
+              th.innerHTML = "Details";
+              th.style.position = 'sticky';
+              th.style.top = 0;
           }
 
           let background_color;
