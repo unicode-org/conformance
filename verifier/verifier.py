@@ -129,6 +129,7 @@ class Verifier:
             # Generates exec and test lists from the existing files in
             # testResults directories
             summary_report = SummaryReport(self.file_base)
+
             summary_report.summarize_reports()
             executor_list = summary_report.exec_summary.keys()
             test_list = summary_report.type_summary.keys()
@@ -306,6 +307,11 @@ class Verifier:
         # The following gets information from all the tests
         summary_report = SummaryReport(self.file_base)
         summary_report.setup_all_test_results()
+
+
+        if self.options.platform_order:
+            # Set the order of the platforms in the summary dashboard
+            summary_report.platform_order = self.options.platform_order
 
         # Get schema summary data to the testReport head
         schema_validation_list = self.schema_results()
