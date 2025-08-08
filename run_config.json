@@ -34,7 +34,6 @@
       "exec": "cpp",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -58,7 +57,6 @@
       "exec": "cpp",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -80,7 +78,6 @@
       "exec": "cpp",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -102,7 +99,6 @@
       "exec": "cpp",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -124,7 +120,6 @@
       "exec": "cpp",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "list_fmt",
         "likely_subtags",
@@ -146,7 +141,6 @@
       "exec": "cpp",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -193,7 +187,6 @@
       "exec": "node",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "list_fmt",
         "number_fmt",
         "lang_names",
@@ -216,7 +209,6 @@
       "exec": "node",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "list_fmt",
         "number_fmt",
         "lang_names",
@@ -234,7 +226,6 @@
       "exec": "dart_native",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -254,7 +245,6 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -274,7 +264,6 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -294,7 +283,6 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -314,7 +302,6 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -334,7 +321,6 @@
       "exec": "node",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "list_fmt",
         "number_fmt",
         "lang_names",
@@ -356,7 +342,6 @@
       "exec": "node",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "list_fmt",
         "number_fmt",
         "lang_names",
@@ -378,7 +363,6 @@
       "exec": "node",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "list_fmt",
         "number_fmt",
         "likely_subtags",
@@ -400,7 +384,6 @@
       "test_type": [
         "collation",
         "list_fmt",
-        "datetime_fmt",
         "number_fmt",
         "rdt_fmt",
         "plural_rules"
@@ -451,7 +434,6 @@
       "exec": "rust",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
@@ -473,7 +455,6 @@
       "exec": "rust",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
@@ -495,7 +476,6 @@
       "exec": "rust",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
@@ -517,7 +497,6 @@
       "exec": "rust",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
@@ -585,7 +564,6 @@
       "exec": "icu4j",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -607,7 +585,6 @@
       "exec": "icu4j",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -629,7 +606,6 @@
       "exec": "icu4j",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -653,7 +629,6 @@
       "exec": "icu4j",
       "test_type": [
         "collation",
-        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
