@@ -108,7 +108,7 @@ class VerifyArgs():
         '--platform_order',
         action='extend', nargs='*',
         choices=executor_options,
-        help='The order of the platforms in the Summary dashboard, e.g., NodeJ ICU4X Dart_Web',
+        help='The order of the platforms in the Summary dashboard, e.g., NodeJS ICU4X Dart_Web',
         default=None)
 
     self.options = self.parser.parse_args(args)

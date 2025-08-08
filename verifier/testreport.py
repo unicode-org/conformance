@@ -1293,8 +1293,9 @@ class SummaryReport:
     def create_summary_html(self):
         # Generate HTML page containing this information
         # Create the template
+
         platform_order_list = None
-        if self.platform_order and self.platform_order[0] and len(self.platform_order[0]) > 0:
+        if any(self.platform_order):
             platform_order_list = '", "'.join(self.platform_order)
 
         html_map = {

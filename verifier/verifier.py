@@ -130,10 +130,6 @@ class Verifier:
             # testResults directories
             summary_report = SummaryReport(self.file_base)
 
-            if self.options.platform_order:
-                # Set the order of the platforms in the summary dashboard
-                summary_report.platform_order = self.options.platform_order
-
             summary_report.summarize_reports()
             executor_list = summary_report.exec_summary.keys()
             test_list = summary_report.type_summary.keys()
