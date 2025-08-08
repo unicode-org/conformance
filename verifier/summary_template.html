@@ -22,6 +22,7 @@
   p {
       margin: 5px 0;
   }
+
 </style>
 <!-- <script src="validation.js"</script> -->
     <script type="text/javascript">
@@ -212,17 +213,28 @@
               }
           }
 
-          let th = table.insertRow();
-          let td = th.insertCell();
-          td.innerHTML = "Test Type";
+          // header row
+
+          let tr_header = table.insertRow();
+          let th = document.createElement("th");
+          th.className += ' headclass';
+          tr_header.appendChild(th);
+          th.innerHTML = "Test Type";
 
           for (const exec of executed_platforms) {
-              td = th.insertCell();
-              td.innerHTML = exec;
-              td.style.textAlign = 'center';
-              td = th.insertCell();
-              td.innerHTML = "Details";
+              let th = document.createElement("th");
+              th.className += ' headclass';
+              tr_header.appendChild(th);
+              th.innerHTML = exec;
+              th.style.textAlign = 'center';
+
+              let th_details = document.createElement("th");
+              th_details.className += ' headclass';
+              tr_header.appendChild(th_details);
+              th_details.innerHTML = "Details";
           }
+
+          // other rows after header
 
           let background_color;
           for (const test_type of test_types) {
@@ -321,6 +333,14 @@
                           td.innerHTML = "%s not tested in %s" % (test_type, exec);
                           td.style.textAlign = "center";
                       }
+
+                      // Unset position style to not conflict with the position: sticky style of the header row
+                      first_div_child = td.getElementsByTagName("div")[0];
+                      first_div_child.style.position = "";
+                      first_div_grandchild = first_div_child.getElementsByTagName("div")[0];
+                      first_div_grandchild.style.position = "";
+                      first_div_grand_grandchild = first_div_grandchild.getElementsByTagName("div")[0];
+                      first_div_grand_grandchild.style.position = "";
                   }
                   td = tr.insertCell();
                   td.innerHTML = details.join('');
@@ -354,6 +374,10 @@ h1, h2, h3, p {
 th {
     font-weight: bold;
     text-align: center;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    box-shadow: 5px 5px white, -5px 5px white, -5px -5px white, 5px -5px white;
 }
 
 #exec_test_table th {
