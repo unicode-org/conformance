@@ -42,7 +42,7 @@ type_options = ['collation', 'datetime_fmt',
 # Note that spaces in an executor name are replaced by '_' here.
 # component_count is an option to sort by number of test types present in test output, with largest cout at the left
 # TODO: when a new platform is added, put it in this option list.
-executor_options = ['alphabetic', 'component_count', 'ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
+platform_order_options = ['alphabetic', 'component_count', 'ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
 
 class DdtArgs():
   def __init__(self, args):
@@ -107,7 +107,7 @@ class VerifyArgs():
     self.parser.add_argument(
         '--platform_order',
         action='extend', nargs='*',
-        choices=executor_options,
+        choices=platform_order_options,
         help='The order of the platforms in the Summary dashboard, e.g., NodeJS ICU4X Dart_Web',
         default=None)
 

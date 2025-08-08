@@ -153,7 +153,7 @@
           // Sort output in alpha order by executor and by test_type
           const test_types = Object.keys(exec_summary_json);
           test_types.sort()
-          /* Get all the execs */
+          /* Get all the executed_platforms */
           let tests_by_type_and_exec = {};
 
           // Find all the kinds of executors
@@ -174,13 +174,13 @@
           }
 
           // If platform/exec order is specified, use that.
-          let execs = [];
+          let executed_platforms = [];
           // exec_set includes all those that are represented in the data
           const platform_order = ["$platform_order"];
           if (platform_order.length <= 0 || platform_order[0] == 'alphabetic'
              || platform_order[0] == "None") {
               // Default is alphabetic sort
-              execs = Array.from(exec_set).sort();
+              executed_platforms = Array.from(exec_set).sort();
           } else {
               // Provided by the test report
               // Remove those that are not in the exec_set.
@@ -190,7 +190,7 @@
                   // Sort with largest first
                   entries.sort((a, b) => b[1] - a[1]);
                   for (const [key, value] of entries) {
-                      execs.push(key);
+                      executed_platforms.push(key);
                   }
               } else {
                   // Check for "alphabetic", "component_count", and other options.
@@ -201,14 +201,14 @@
                       new Set(Array.from(exec_set));
                   for (let platform of platform_order) {
                       // remove the underscores, too.
-                      const pl2 = platform.replace('_', ' ');
+                      const pl2 = platform.replaceAll('_', ' ');
                       if (exec_set.has(pl2)) {
-                          execs.push(pl2);
+                          executed_platforms.push(pl2);
                           execs_missing_set.delete(pl2);
                       }
                   }
                   // Make sure all the items from exec set are there, too.
-                  execs_missing_set.forEach(platform => execs.push(platform));
+                  execs_missing_set.forEach(platform => executed_platforms.push(platform));
               }
           }
 
@@ -216,7 +216,7 @@
           let td = th.insertCell();
           td.innerHTML = "Test Type";
 
-          for (const exec of execs) {
+          for (const exec of executed_platforms) {
               td = th.insertCell();
               td.innerHTML = exec;
               td.style.textAlign = 'center';
@@ -231,7 +231,7 @@
               td.innerHTML = test_type
 
               const tests = exec_summary_json[test_type];
-              for (const exec of execs) {
+              for (const exec of executed_platforms) {
                   // Get all the report info for this test and this exec
                   let reports = [];
                   let data = [data_groups];

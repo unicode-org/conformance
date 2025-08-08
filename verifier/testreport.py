@@ -1294,16 +1294,16 @@ class SummaryReport:
         # Generate HTML page containing this information
         # Create the template
 
-        platform_order_list = None
+        platform_string_for_template = None
         if any(self.platform_order):
-            platform_order_list = '", "'.join(self.platform_order)
+            platform_string_for_template = '", "'.join(self.platform_order)
 
         html_map = {
             'all_platforms': ', '.join(list(self.exec_summary.keys())),
             'all_icu_versions': None,  # TEMP!!!
             'all_tests': ', '.join(list(self.type_summary.keys())),
             'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'platform_order': platform_order_list
+            'platform_order': platform_string_for_template
         }
 
         # Create header for each executor
