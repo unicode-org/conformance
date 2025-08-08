@@ -74,6 +74,7 @@ class knownIssueType(Enum):
 
     # Collation
     collation_jsonc_bug_with_surrogates = 'JSON-C library mishandles some surrogates'
+    collation_icu4x_FFFE = 'https://github.com/unicode-org/icu4x/issues/6811'
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
@@ -348,16 +349,26 @@ def check_plural_rules_issues(test):
 
 
 def check_collation_issues(test):
+    input_data = test.get('input_data', {})
+
+    # Check for jsonc bug with surrogates
     try:
-        input_data = test['input_data']
         actual_options = test['actual_options']
-        s1 = actual_options['s1_actual']
-        s2 = actual_options['s2_actual']
-        if (s1.find('\ufffd') >= 0 or s2.find('\ufffd') >=0 or
-            ('rules' in input_data and input_data['rules'].find('\ufffd'))) >= 0:
+        s1_actual = actual_options['s1_actual']
+        s2_actual = actual_options['s2_actual']
+        if ('\ufffd' in s1_actual or '\ufffd' in s2_actual or
+            ('rules' in input_data and '\ufffd' in input_data.get('rules', ''))):
             return knownIssueType.collation_jsonc_bug_with_surrogates
-    except Exception as e:
-        return None
+    except KeyError:
+        pass
+
+    # Check for ICU4X FFFE issue
+    s1 = input_data.get('s1', '')
+    s2 = input_data.get('s2', '')
+    if '\ufffe' in s1 or '\ufffe' in s2:
+        return knownIssueType.collation_icu4x_FFFE
+
+    return None
 
 
 def compute_known_issues_for_single_test(test_type, test, platform_info):
