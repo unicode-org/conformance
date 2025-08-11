@@ -218,8 +218,9 @@
           let tr_header = table.insertRow();
           let th = document.createElement("th");
           th.className += ' headclass';
-          tr_header.appendChild(th);
           th.innerHTML = "Test Type";
+          th.className += ' sticky';
+          tr_header.appendChild(th);
 
           for (const exec of executed_platforms) {
               let th = document.createElement("th");
@@ -238,9 +239,11 @@
 
           let background_color;
           for (const test_type of test_types) {
+              // First column contains the component name.
               tr = table.insertRow();
               td = tr.insertCell();
-              td.innerHTML = test_type
+              td.innerHTML = test_type;
+              td.className += '  sticky';
 
               const tests = exec_summary_json[test_type];
               for (const exec of executed_platforms) {
@@ -335,11 +338,11 @@
                       }
 
                       // Unset position style to not conflict with the position: sticky style of the header row
-                      first_div_child = td.getElementsByTagName("div")[0];
+                      const first_div_child = td.getElementsByTagName("div")[0];
                       first_div_child.style.position = "";
-                      first_div_grandchild = first_div_child.getElementsByTagName("div")[0];
+                      const first_div_grandchild = first_div_child.getElementsByTagName("div")[0];
                       first_div_grandchild.style.position = "";
-                      first_div_grand_grandchild = first_div_grandchild.getElementsByTagName("div")[0];
+                      const first_div_grand_grandchild = first_div_grandchild.getElementsByTagName("div")[0];
                       first_div_grand_grandchild.style.position = "";
                   }
                   td = tr.insertCell();
@@ -378,6 +381,45 @@ th {
     top: 0;
     background-color: white;
     box-shadow: 5px 5px white, -5px 5px white, -5px -5px white, 5px -5px white;
+}
+
+<!-- https://codepen.io/mikegolus/pen/jOZzRzw -->
+td.sticky {
+  position: sticky;
+  left: 0;
+  background: var(--stickyBackground);
+  background-color: white;
+  box-shadow: 5px 5px white, -5px 5px white, -5px -5px white, 5px -5px white;
+}
+
+th.sticky,
+td.sticky {
+  position: sticky;
+  left: 0;
+  background: var(--stickyBackground);
+}
+
+th.sticky::after,
+td.sticky::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 0;
+  bottom: -1px;
+  width: 5px;
+  border-left: 1px solid var(--borderColor);
+  background: linear-gradient(90deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0) 100%);
+}
+th.sticky::before,
+td.sticky::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0;
+  bottom: -1px;
+  width: 5px;
+  border-right: 1px solid var(--borderColor);
+  background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.08) 100%);
 }
 
 #exec_test_table th {
