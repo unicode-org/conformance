@@ -63,10 +63,18 @@ class knownIssueType(Enum):
     langnames_tag_option = 'unsupported option in locale'
     langnames_bracket_parens = 'brackets_vs_parentheses'
 
+    # Number format
+    # https://github.com/unicode-org/icu4x/issues/6678
+    number_fmt_icu4x_small_fractional_numbers = 'icu4x#6678 small fractional numbers'
+    number_fmt_inexact_rounding = 'Rounding unnecessary'
+
     # Plural rules
     plural_rules_floating_point_sample = 'limited floating point support'
     plural_rules_java_4_1_sample = 'ICU4J sample 4.1'
 
+    # Collation
+    collation_jsonc_bug_with_surrogates = 'JSON-C library mishandles some surrogates'
+    collation_icu4x_FFFE = 'https://github.com/unicode-org/icu4x/issues/6811'
 
 # TODO! Load known issues from file of known problems rather than hardcoding the detection in each test
 
@@ -271,6 +279,7 @@ def langname_fonipa(test):
     else:
         return None
 
+
 def langname_tag_option(test):
     # TODO: Add other unsupported tags
     input_data = test['input_data']
@@ -295,6 +304,35 @@ def langname_brackets(test):
         return None
 
 
+# Number format known issues
+def check_number_fmt_issues(test, platform_info):
+    input_data = test['input_data']
+    result = test.get('result', None)
+    expected = test.get('expected', None)
+    options = input_data.get('options', None)
+
+    if not result:
+        # This must be an error because no result is found
+        if 'error' in test and re.match(r'Rounding is required', test['error']):
+            return knownIssueType.number_fmt_inexact_rounding
+
+    try:
+        if platform_info['platform'] == 'ICU4X' and result:
+            if options:
+                notation = options.get('notation', None)
+                input_value = input_data.get('input', None)
+                if notation == 'compact' and result[0:1] == '-' and abs(float(input_value)) < 1.0:
+                    return knownIssueType.number_fmt_icu4x_small_fractional_numbers
+
+        if expected == 'Inexact' and 'roundingMode' in input_data['options']:
+            if input_data['options']['roundingMode'] == 'unnecessary':
+                return knownIssueType.number_fmt_inexact_rounding
+
+    except BaseException as error:
+        pass
+    return None
+
+
 def check_plural_rules_issues(test):
     try:
         input_data = test['input_data']
@@ -310,12 +348,37 @@ def check_plural_rules_issues(test):
         return None
 
 
-def compute_known_issues_for_single_test(test_type, test):
+def check_collation_issues(test):
+    input_data = test.get('input_data', {})
+
+    # Check for jsonc bug with surrogates
+    try:
+        actual_options = test['actual_options']
+        s1_actual = actual_options['s1_actual']
+        s2_actual = actual_options['s2_actual']
+        if ('\ufffd' in s1_actual or '\ufffd' in s2_actual or
+            ('rules' in input_data and '\ufffd' in input_data.get('rules', ''))):
+            return knownIssueType.collation_jsonc_bug_with_surrogates
+    except KeyError:
+        pass
+
+    # Check for ICU4X FFFE issue
+    s1 = input_data.get('s1', '')
+    s2 = input_data.get('s2', '')
+    if '\ufffe' in s1 or '\ufffe' in s2:
+        return knownIssueType.collation_icu4x_FFFE
+
+    return None
+
+
+def compute_known_issues_for_single_test(test_type, test, platform_info):
     # Based on the type of test, check known issues against the expected vs. actual
     # results
 
     # Returns True if this single test is an example of one or more known issues,
     known_issue_found = False
+    if test_type == ddt_data.testType.collation.value:
+        known_issue_found = check_collation_issues(test)
     if test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test)
     elif test_type == ddt_data.testType.rdt_fmt.value:
@@ -324,6 +387,8 @@ def compute_known_issues_for_single_test(test_type, test):
         known_issue_found = check_likely_subtags_issues(test)
     elif test_type == ddt_data.testType.lang_names.value:
         known_issue_found = check_langnames_issues(test)
+    elif test_type == ddt_data.testType.number_fmt.value:
+        known_issue_found = check_number_fmt_issues(test, platform_info)
     elif test_type == ddt_data.testType.plural_rules.value:
         known_issue_found = check_plural_rules_issues(test)
 
@@ -331,7 +396,7 @@ def compute_known_issues_for_single_test(test_type, test):
 
     return known_issue_found
 
-def check_issues(test_type, test_results_to_check):
+def check_issues(test_type, test_results_to_check, platform_info):
     # Look at the array of test result types, failure, error, unsupported
     # Extract any tests from these that are known issues
     # Return the list of tests that are known issues
@@ -343,7 +408,7 @@ def check_issues(test_type, test_results_to_check):
         index = 0
 
         for test in category:
-            is_known_issue = compute_known_issues_for_single_test(test_type, test)
+            is_known_issue = compute_known_issues_for_single_test(test_type, test, platform_info)
             if is_known_issue:
                 known_issues_list.append(test)
                 test_indices_with_known_issues.add(index)

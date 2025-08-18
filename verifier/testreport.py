@@ -385,7 +385,8 @@ class TestReport:
         new_known_issues = check_issues(
             self.test_type,
             # Don't look at tests labeled as "unsupported"
-            [self.failing_tests, self.test_errors])
+            [self.failing_tests, self.test_errors],
+            self.platform_info)
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -401,14 +402,14 @@ class TestReport:
             except KeyError:
                 self.platform_info['icuVersion'] = 'Unknown'
 
-        platform_info = '%s %s - ICU %s' % (
+        platform_data = '%s %s - ICU %s' % (
             self.platform_info['platform'], self.platform_info['platformVersion'],
             self.platform_info['icuVersion'])
         html_map = {'test_type': self.test_type,
                     'exec': self.exec,
                     # TODO: Change to 'icu4x' instead of rust
                     'library_name': self.library_name,
-                    'platform_info': platform_info,
+                    'platform_info': platform_data,
                     'test_environment': dict_to_html(self.test_environment),
                     'timestamp': self.timestamp,
                     'total_tests': self.number_tests,
@@ -424,26 +425,27 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            fail_result = fail['result']
-            # if len(fail_result) > max_fail_length:
-            #     max_fail_length = len(fail_result)
+            if 'result' in fail:
+                fail_result = fail['result']
+                # if len(fail_result) > max_fail_length:
+                #     max_fail_length = len(fail_result)
 
-            # if len(fail_result) > 30:
-            #     # Make the actual text shorter so it doesn't distort the table column
-            #     fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
-            if fail_result is str:
-                line = self.fail_line_template.safe_substitute(fail_result)
-                fail_lines.append(line)
+                # if len(fail_result) > 30:
+                #     # Make the actual text shorter so it doesn't distort the table column
+                #     fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
+                if fail_result is str:
+                    line = self.fail_line_template.safe_substitute(fail_result)
+                    fail_lines.append(line)
 
         # Call functions to identify known issues, moving things from fail, error, and unsupported
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            [self.failing_tests, self.test_errors, self.unsupported_cases],
+            self.platform_info)
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
-
 
         # Characterize successes, too.
         pass_characterized = self.characterize_results_by_options(self.passing_tests, 'pass')
@@ -821,7 +823,7 @@ class TestReport:
 
         for fail in test_list:
             label = fail['label']
-            actual = fail['result']
+            actual = fail.get('result', None)
             expected = fail['expected']
             if type(actual) != type(expected):
                 # This is a type mismatch. Note this and skip the string-specific characterizations.
@@ -942,7 +944,7 @@ class TestReport:
         #     results[check] = set()
 
         label = test['label']
-        actual = test['result']
+        actual = test.get('result', None)
         expected = test.get('expected', None)
 
         if len(actual) != len(expected):
@@ -1163,6 +1165,9 @@ class SummaryReport:
 
         self.templates = reportTemplate()
 
+        # Order left-to-right of platforms in summary dashboard
+        self.platform_order = []
+
         if self.debug > 1:
             logging.info('SUMMARY REPORT base = %s', self.file_base)
 
@@ -1288,12 +1293,19 @@ class SummaryReport:
     def create_summary_html(self):
         # Generate HTML page containing this information
         # Create the template
+
+        platform_string_for_template = None
+        if any(self.platform_order):
+            platform_string_for_template = '", "'.join(self.platform_order)
+
         html_map = {
             'all_platforms': ', '.join(list(self.exec_summary.keys())),
             'all_icu_versions': None,  # TEMP!!!
             'all_tests': ', '.join(list(self.type_summary.keys())),
             'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'platform_order': platform_string_for_template
         }
+
         # Create header for each executor
         header_line = ''  # TODO
         html_map['header_line'] = header_line

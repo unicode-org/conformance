@@ -147,8 +147,8 @@ public class NumberFormatterTester implements ITestType {
 
     // Check unsupport options in skeleton
     if (input.skeleton != null) {
-      Pattern check_unnessary = Pattern.compile("rounding-mode-(unnecessary|half-odd)");
-      Matcher matcher1 = check_unnessary.matcher(input.skeleton);
+      Pattern check_half_odd = Pattern.compile("rounding-mode-(half-odd)");
+      Matcher matcher1 = check_half_odd.matcher(input.skeleton);
       if (matcher1.find()) {
         output.error_type = "unsupported";
         output.unsupported = "skeleton option";
@@ -161,7 +161,7 @@ public class NumberFormatterTester implements ITestType {
       output.result = getFormattedNumber(input);
     } catch (Exception e) {
       output.error = e.getMessage();
-      output.error_message = e.getMessage();
+      output.error_type = "formatting number";
       return output;
     }
 
@@ -435,10 +435,12 @@ public class NumberFormatterTester implements ITestType {
           break;
         case halfEven:
           roundingMode = RoundingMode.HALF_EVEN;
-        case NONE: // default = halfEven
-        default:
           break;
         case unnecessary:
+          roundingMode = RoundingMode.UNNECESSARY;
+          break;
+        case NONE: // default = halfEven
+        default:
           break;
       }
       if (roundingMode != null) {

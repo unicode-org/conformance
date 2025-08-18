@@ -2,6 +2,8 @@ package org.unicode.conformance.numberformatter.icu74;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterOutputJson;
@@ -58,11 +60,13 @@ public class NumberFormatterTest {
     NumberFormatterOutputJson output =
         (NumberFormatterOutputJson) NumberFormatterTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
-    assertEquals("rounding-mode-unnecessary", output.error_detail);
+    Pattern check_error = Pattern.compile("Rounding is required");
+    Matcher matcher_error = check_error.matcher(output.error);
+    assertEquals(matcher_error.find(), true);
   }
 
   @Test
-  public void testRoundingHalfdOdd() {
+  public void testRoundingHalfOdd() {
     String testInput =
 "{\"test_type\": \"number_fmt\", \"label\":\"5927\",\"op\":\"format\",\"pattern\":\"0.00\",\"skeleton\":\".00 rounding-mode-half-odd\",\"input\":\"1.235\",\"options\":{\"roundingMode\":\"halfOdd\",\"minimumIntegerDigits\":1,\"minimumFractionDigits\":2,\"maximumFractionDigits\":2,\"useGrouping\":false},\"hexhash\":\"0f81db6894d53d8bb8973e658acc50726ae11295\"}";
 

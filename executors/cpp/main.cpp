@@ -110,6 +110,7 @@ auto main(int argc, const char** argv) -> int {
 
       struct json_object *json_input;
       json_input = json_tokener_parse(line.c_str());
+
       json_object *test_type_obj =
           json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);

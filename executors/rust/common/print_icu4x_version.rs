@@ -3,7 +3,7 @@ pub fn print(package: &cargo_metadata::Package) {
         "cargo:rustc-env=CONFORMANCE_ICU4X_VERSION={}",
         package.version
     );
-    println!("cargo::rustc-check-cfg=cfg(ver, values(\"1.3\", \"1.4\", \"1.5\", \"2.0-beta1\"))");
+    println!("cargo::rustc-check-cfg=cfg(ver, values(\"1.3\", \"1.4\", \"1.5\", \"2.0-beta1\", \"2.0-beta2\", \"2.0\"))");
     if !package.version.pre.is_empty() {
         println!(
             "cargo:rustc-cfg=ver=\"{}.{}-{}\"",
