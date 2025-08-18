@@ -82,7 +82,7 @@ void printVersion() {
   final dartVersion = version.substring(0, version.indexOf(' '));
   final versionInfo = {
     'platform': 'Dart Native',
-    'icuVersion': '73', //TODO: get from ICU4X somehow
+    'icuVersion': '77', //TODO: get from ICU4X somehow
     'platformVersion': dartVersion,
     'intlVersion': intl4xVersion,
   };
