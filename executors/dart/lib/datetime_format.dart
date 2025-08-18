@@ -54,9 +54,19 @@ String testDateTimeFmt(String jsonEncoded) {
 
   // ignore: unused_local_variable - to be used with the timezoneformatter
   String? timezone;
-  if (testOptionsJson.containsKey('time_zone')) {
+  int? offset;
+  String? timeZoneStyle;
+  if (testOptionsJson.containsKey('time_zone') &&
+      testOptionsJson.containsKey('tz_offset_secs') &&
+      testOptionsJson.containsKey('timeStyle')) {
     timezone = testOptionsJson['time_zone'] as String;
+    offset = testOptionsJson['tz_offset_secs'] as int;
+    timeZoneStyle = testOptionsJson['timeStyle'] as String;
   }
+
+  final dateStyle = testOptionsJson['dateStyle'] as String?;
+  final timeStyle = testOptionsJson['timeStyle'] as String?;
+  final yearStyle = testOptionsJson['yearStyle'] as String?;
 
   DateTime? testDate;
   if (json['input_string'] != null) {
@@ -87,19 +97,71 @@ String testDateTimeFmt(String jsonEncoded) {
     locale: locale,
   ).dateTimeFormat(dateTimeFormatOptions);
 
-  try {} catch (error) {
-    returnJson['error'] = 'DateTimeFormat Constructor: ${error.toString()}';
-    returnJson['options'] = testOptionsJson;
-    return jsonEncode(returnJson);
-  }
-
   try {
-    final formattedDt = dtFormatter.ymd(testDate);
+    final formatter = switch ((dateStyle, timeStyle, yearStyle)) {
+      ('medium', null, _) => dtFormatter.ymd(dateStyle: DateFormatStyle.medium),
+      (null, 'short', _) => dtFormatter.t(style: TimeFormatStyle.short),
+      ('full', 'short', null) => dtFormatter.ymdt(
+        dateStyle: DateFormatStyle.full,
+        timeStyle: TimeFormatStyle.short,
+      ),
+      ('short', 'full', null) => dtFormatter.ymdt(
+        dateStyle: DateFormatStyle.short,
+        timeStyle: TimeFormatStyle.full,
+      ),
+      (_, _, 'with_era') => dtFormatter.ymde(),
+      ('short', 'full', _) => dtFormatter.ymdet(
+        dateStyle: DateFormatStyle.short,
+        timeStyle: TimeFormatStyle.full,
+      ),
+      (_, _, _) => throw UnimplementedError(
+        'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
+      ),
+    };
+    String formattedDt;
+    if (timezone != null) {
+      final timeZone = TimeZone(
+        name: timezone,
+        offset: Duration(seconds: offset!),
+      );
+      final zonedFormatter = switch (timeZoneStyle!) {
+        'short' => formatter.withTimeZoneShort(timeZone),
+        'long' => formatter.withTimeZoneLong(timeZone),
+        'full' => formatter.withTimeZoneLongGeneric(timeZone),
+        String() => throw UnimplementedError(
+          'Unknown time zone style `$timeZoneStyle`',
+        ),
+      };
+      formattedDt = zonedFormatter.format(testDate);
+    } else {
+      formattedDt = formatter.format(testDate);
+    }
     returnJson['result'] = formattedDt;
-    returnJson['actual_options'] = dateTimeFormatOptions.toString();
+    returnJson['actual_options'] = dateTimeFormatOptions.humanReadable;
+    returnJson['options'] = testOptionsJson;
   } catch (error) {
-    returnJson['unsupported'] = ': ${error.toString()}';
+    returnJson['error'] = ': ${error.toString()}';
   }
 
   return jsonEncode(returnJson);
+}
+
+extension on DateTimeFormatOptions {
+  String get humanReadable {
+    final fields = <String, dynamic>{
+      if (calendar != null) 'calendar': calendar,
+      if (dayPeriod != null) 'dayPeriod': dayPeriod,
+      if (numberingSystem != null) 'numberingSystem': numberingSystem,
+      if (clockstyle != null) 'clockstyle': clockstyle,
+      if (era != null) 'era': era,
+      if (timestyle != null) 'timestyle': timestyle,
+      if (fractionalSecondDigits != null)
+        'fractionalSecondDigits': fractionalSecondDigits,
+      'formatMatcher': formatMatcher,
+    };
+    final entries = fields.entries
+        .map((e) => '${e.key}: ${e.value}')
+        .join(', ');
+    return 'DateTimeFormatOptions($entries)';
+  }
 }

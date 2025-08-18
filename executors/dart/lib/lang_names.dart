@@ -26,6 +26,14 @@ String testLangNames(String jsonEncoded) {
   }
 
   final languageLabel = json['language_label'] as String;
+  if (languageLabel.contains('u-kr')) {
+    outputLine.addAll({
+      'unsupported': 'u-kr extension not supported',
+      'error_retry': false, // Do not repeat
+    });
+    return jsonEncode(outputLine);
+  }
+
   Locale languageLabelLocale;
   try {
     languageLabelLocale = Locale.parse(languageLabel);
@@ -49,7 +57,6 @@ String testLangNames(String jsonEncoded) {
     outputLine['result'] = resultLangName;
   } catch (error) {
     outputLine.addAll({
-      'error_type': 'unsupported',
       'error_detail': error.toString(),
       'actual_options': options.toJson(),
       'error_retry': false, // Do not repeat

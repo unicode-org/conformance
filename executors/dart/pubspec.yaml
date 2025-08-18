@@ -19,3 +19,8 @@ dev_dependencies:
 hook:
   intl4x:
     buildMode: fetch
+
+
+dependency_overrides:
+  intl4x:
+    path: ../../../i18n/pkgs/intl4x/
