@@ -34,6 +34,7 @@
       "exec": "cpp",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
@@ -187,6 +188,7 @@
       "exec": "node",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "list_fmt",
         "number_fmt",
         "lang_names",
@@ -245,6 +247,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -497,6 +500,7 @@
       "exec": "rust",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "likely_subtags",
@@ -629,6 +633,7 @@
       "exec": "icu4j",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "lang_names",
         "likely_subtags",
         "list_fmt",
