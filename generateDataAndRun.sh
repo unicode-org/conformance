@@ -48,8 +48,9 @@ mkdir -p $TEMP_DIR/testData
 # Generates all new test data
 source_file=${1:-'run_config.json'}
 pushd testgen
+all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
-python3 testdata_gen.py  --icu_versions $all_icu_versions
+python3 testdata_gen.py  --icu_versions $all_icu_versions --test_types $all_test_types
 # And copy results to subdirectories.
 cp -r icu* ../$TEMP_DIR/testData
 popd
@@ -145,7 +146,6 @@ popd
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
 
-all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
 
 # Specifies the arrangement of the columns in the summary dashboard
