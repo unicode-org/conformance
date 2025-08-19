@@ -17,6 +17,8 @@ String testDateTimeFmt(String jsonEncoded) {
     localeString = 'und'; // Default to 'und' if locale is null or empty
   }
 
+  final returnJson = <String, dynamic>{'label': label};
+
   // Parse Locale string
   Locale locale;
   try {
@@ -32,6 +34,12 @@ String testDateTimeFmt(String jsonEncoded) {
   var testOptionsJson = <String, dynamic>{};
   if (json['options'] != null) {
     testOptionsJson = json['options'] as Map<String, dynamic>;
+  }
+
+  if (testOptionsJson['dateTimeFormatType'] == 'atTime') {
+    returnJson['error_type'] = 'unsupported';
+    returnJson['unsupported'] = '`at` not supported';
+    return jsonEncode(returnJson);
   }
 
   // Initialize DateTimeFormatOptions
@@ -94,7 +102,6 @@ String testDateTimeFmt(String jsonEncoded) {
     testDate = DateTime.now();
   }
 
-  final returnJson = <String, dynamic>{'label': label};
   final dtFormatter = Intl(
     locale: locale,
   ).dateTimeFormat(dateTimeFormatOptions);
@@ -149,11 +156,11 @@ FormatterWithTimeZones getFormatterForSkeleton(
   };
   return switch (semanticSkeleton) {
     'D' || 'DT' || 'DTZ' => dtFormatter.d(),
-    'MD' || 'MDT' || 'MDTZ' => dtFormatter.md(),
+    'MD' => dtFormatter.md(),
+    'MDT' || 'MDTZ' => dtFormatter.mdt(dateStyle: semanticDateStyle),
     'YMD' || 'YMDT' || 'YMDTZ' => dtFormatter.ymd(dateStyle: semanticDateStyle),
-    'YMDE' ||
-    'YMDET' ||
-    'YMDETZ' => dtFormatter.ymde(dateStyle: semanticDateStyle),
+    'YMDE' => dtFormatter.ymde(dateStyle: semanticDateStyle),
+    'YMDET' || 'YMDETZ' => dtFormatter.ymdet(dateStyle: semanticDateStyle),
     'M' => dtFormatter.m(),
     'Y' => dtFormatter.y(),
     'T' || 'Z' || 'TZ' => dtFormatter.t(),
@@ -184,11 +191,11 @@ FormatterWithTimeZones getFormatterForStyle(
   final formatter = switch ((dateStyle, timeStyle, yearStyle)) {
     ('medium', null, _) => dtFormatter.ymd(dateStyle: DateFormatStyle.medium),
     (null, 'short', _) => dtFormatter.t(style: TimeFormatStyle.short),
-    ('full', 'short', null) => dtFormatter.ymdt(
+    ('full', 'short', null) => dtFormatter.ymdet(
       dateStyle: DateFormatStyle.full,
       timeStyle: TimeFormatStyle.short,
     ),
-    ('full', 'full', null) => dtFormatter.ymdt(
+    ('full', 'full', null) => dtFormatter.ymdet(
       dateStyle: DateFormatStyle.full,
       timeStyle: TimeFormatStyle.full,
     ),
