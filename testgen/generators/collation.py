@@ -4,7 +4,7 @@ import re
 import logging
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
+reblankline = re.compile(r"^\s*$")
 
 class ParseResults(Enum):
     NO_RESULT = 0
@@ -13,20 +13,20 @@ class ParseResults(Enum):
 class CollationGenerator(DataGenerator):
 
     def set_patterns(self):
-        self.root_locale = re.compile("@ root")
-        self.locale_string = re.compile("@ locale (\S+)")
+        self.root_locale = re.compile(r"@ root")
+        self.locale_string = re.compile(r"@ locale (\S+)")
 
-        self.test_line = re.compile("^\*\* test:(.*)")
-        self.rule_header_pattern = re.compile("^@ rules")
-        self.compare_pattern = re.compile("^\* compare(.*)")
+        self.test_line = re.compile(r"^\*\* test:(.*)")
+        self.rule_header_pattern = re.compile(r"^@ rules")
+        self.compare_pattern = re.compile(r"^\* compare(.*)")
 
         # A comparison line begins with the type of compare function.
-        self.comparison_line = re.compile("^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
+        self.comparison_line = re.compile(r"^([<=]\S*)(\s*)(\S*)(\s*)#?(.*)")
 
-        self.input_pattern_with_comment = re.compile("^([^#]+)#?(.*)")
+        self.input_pattern_with_comment = re.compile(r"^([^#]+)#?(.*)")
 
-        self.attribute_test = re.compile("^% (\S+)\s*=\s*(.+)")
-        self.reorder_test = re.compile("^% (reorder)\s+(.+)")
+        self.attribute_test = re.compile(r"^% (\S+)\s*=\s*(.+)")
+        self.reorder_test = re.compile(r"^% (reorder)\s+(.+)")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
@@ -238,7 +238,7 @@ class CollationGenerator(DataGenerator):
         max_digits = 1 + self.computeMaxDigitsForCount(
             len(raw_testdata_list)
         )  # Approximate
-        recommentline = re.compile("^[\ufeff\s]*#(.*)")
+        recommentline = re.compile(r"^[\ufeff\s]*#(.*)")
 
         rules = None
 
@@ -398,7 +398,7 @@ class CollationGenerator(DataGenerator):
 
         # Handles lines of strings to be compared with collation.
         # Adds field for ignoring punctuation as needed.
-        recommentline = re.compile("^\s*#")
+        recommentline = re.compile(r"^\s*#")
 
         max_digits = 1 + self.computeMaxDigitsForCount(
             len(raw_testdata_list)

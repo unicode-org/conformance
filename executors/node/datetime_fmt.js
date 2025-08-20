@@ -4,10 +4,8 @@
 
 const debug = 0;
 
-// Skeleton to options
-const all_skeleton_chars = 'GyYuYrQqMLlwWdDFgEecabBhHKkjJCmsSAzZovVxX';
-
-let skeleton_to_options_map = new Map(
+// Converting skeleton to options
+const skeleton_to_options_map = new Map(
     [
       ['G', {era: 'short'} ],
       ['GG', {era: 'short'} ],
@@ -48,16 +46,16 @@ let skeleton_to_options_map = new Map(
       ['h', {'hourCycle': 'h12', 'hour': 'numeric'} ],
       ['hh', {'hourCycle': 'h12', 'hour': '2-digit'} ],
       ['H', {'hourCycle': 'h24', 'hour': 'numeric'} ],
-      ['HH', {'hourCycle': 'h24', 'hour': '2-digits'} ],
+      ['HH', {'hourCycle': 'h24', 'hour': '2-digit'} ],
 
       ['j', {'dayPeriod': 'short', 'hour': 'numeric'} ],
       ['jj', {'dayPeriod': 'long', 'hour': '2-digit'} ],
 
       ['m', {'minute': 'numeric'} ],
-      ['mm', {'minute': '2-digits'} ],
+      ['mm', {'minute': '2-digit'} ],
 
       ['s', {'second': 'numeric'} ],
-      ['ss', {'second': '2-digits'} ],
+      ['ss', {'second': '2-digit'} ],
 
       ['z', {'timeZoneName': 'shortGeneric'} ],
       ['zz', {'timeZoneName': 'shortGeneric'} ],
@@ -71,7 +69,7 @@ let skeleton_to_options_map = new Map(
       ['v', {'timeZoneName': 'shortGeneric'} ],
       ['vvvv', {'timeZoneName': 'longGeneric'} ],
 
-      ['V', {'timeZoneName': 'short'} ],
+      ['V', {'timeZoneName': 'shortGeneric'} ],
       ['VV', {'timeZoneName': 'long'} ],
       ['VVV', {'timeZoneName': 'shortGeneric'} ],
       ['VVVV', {'timeZoneName': 'longGeneric'} ],
@@ -80,7 +78,8 @@ let skeleton_to_options_map = new Map(
 
 // E.g., "yyDEEEE" --> ["yy", "D", "EEEE"]
 function split_skeleton_into_fields(skeleton) {
-  // TODO!
+  if (skeleton === undefined) return null;
+
   let skeleton_parts = [];
   const all_chars = skeleton.split("");
   if (all_chars.length == 0) {
@@ -107,7 +106,7 @@ function split_skeleton_into_fields(skeleton) {
 
 function fill_options_from_skeleton_parts(skeleton_parts) {
   let skeleton_options = {};
-  for (part of skeleton_parts) {
+  for (const part of skeleton_parts) {
     if (skeleton_to_options_map.has(part)) {
       let options = skeleton_to_options_map.get(part);
       Object.assign(skeleton_options, options);
