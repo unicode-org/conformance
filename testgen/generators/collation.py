@@ -452,7 +452,7 @@ class CollationGenerator(DataGenerator):
 
     def parseCollTestData(self, testdata):
         testdata = testdata.encode().decode("unicode_escape")
-        recodepoint = re.compile("[0-9a-fA-F]{4,6}")
+        recodepoint = re.compile(r"[0-9a-fA-F]{4,6}")
 
         return_list = []
         codepoints = recodepoint.findall(testdata)

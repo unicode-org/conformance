@@ -166,7 +166,7 @@ class NumberFmtGenerator(DataGenerator):
     # Source data: https://github.com/unicode-org/icu/blob/main/icu4c/source/test/testdata/dcfmtest.txt
     def generateDcmlFmtTestDataObjects(self, rawtestdata, count=0):
         original_count = count
-        recommentline = re.compile(r"^\s*#")
+        recommentline = re.compile("^\s*#")
         test_list = rawtestdata.splitlines()
 
         all_tests_list = []
