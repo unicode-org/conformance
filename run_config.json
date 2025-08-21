@@ -17,7 +17,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -40,7 +41,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -151,7 +153,31 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 24.0.0, icu77.1",
+      "version": "24.0.0",
+      "command": "nvm install 24.0.0;nvm use 24.0.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "node",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "list_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "rdt_fmt",
+        "plural_rules",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -173,7 +199,8 @@
         "lang_names",
         "likely_subtags",
         "rdt_fmt",
-        "plural_rules"
+        "plural_rules",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -194,22 +221,24 @@
         "number_fmt",
         "lang_names",
         "likely_subtags",
+        "plural_rules",
         "rdt_fmt",
-        "plural_rules"
+        "segmenter"
       ],
       "per_execution": 10000
     }
   },
   {
     "run": {
+      "icu_version": "icu74",
       "exec": "dart_native",
-      "icu_version": "icu76",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "decimal_fmt",
-        "likely_subtags"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -225,9 +254,11 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -243,9 +274,11 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -261,9 +294,11 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -279,9 +314,11 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
-        "likely_subtags"
+        "plural_rules",
+        "list_fmt"
       ],
       "per_execution": 10000
     }
@@ -508,7 +545,31 @@
         "likely_subtags",
         "list_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "rust2.0",
+      "version": "2.0",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/2.0/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "rust",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -575,7 +636,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -598,7 +660,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }
@@ -621,7 +684,8 @@
         "message_fmt2",
         "number_fmt",
         "plural_rules",
-        "rdt_fmt"
+        "rdt_fmt",
+        "segmenter"
       ],
       "per_execution": 10000
     }

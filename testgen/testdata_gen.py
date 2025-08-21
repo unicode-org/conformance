@@ -16,8 +16,7 @@ from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
 from generators.plurals import PluralGenerator
 from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
-
-reblankline = re.compile("^\s*$")
+from generators.segmenter import SegmenterGenerator
 
 
 def setupArgs():
@@ -114,6 +113,12 @@ def generate_versioned_data(version_info):
         # This is slow
         generator = PluralGenerator(icu_version, args.run_limit)
         generator.process_test_data()
+
+    if TestType.SEGMENTER in args.test_types:
+        # This is slow
+        generator = SegmenterGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
     logging.info("++++ Data generation for %s is complete.", icu_version)
 
 

@@ -8,11 +8,56 @@ use icu::datetime::input::ZonedDateTime;
 use icu::datetime::options::*;
 use icu::datetime::DateTimeFormatter;
 use icu::datetime::DateTimeFormatterPreferences;
-use icu::time::zone::UtcOffsetCalculator;
 
 use icu::locale::extensions::unicode;
 use icu::locale::preferences::extensions::unicode::keywords::CalendarAlgorithm;
+use icu::locale::preferences::extensions::unicode::keywords::HourCycle;
 use icu::locale::Locale;
+
+#[cfg(ver = "2.0-beta2")]
+fn parse_iso_zdt(
+    rfc_9557_str: &str,
+) -> Result<
+    icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::Full>>,
+    icu::time::ParseError,
+> {
+    use icu::time::zone::UtcOffsetCalculator;
+    let intermediate = ZonedDateTime::try_loose_from_str(rfc_9557_str, Iso, Default::default())?;
+    Ok(ZonedDateTime {
+        date: intermediate.date,
+        time: intermediate.time,
+        zone: intermediate
+            .zone
+            .infer_zone_variant(&UtcOffsetCalculator::new()),
+    })
+}
+#[cfg(ver = "2.0")]
+fn parse_iso_zdt(
+    rfc_9557_str: &str,
+) -> Result<
+    icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::Full>>,
+    icu::time::ParseError,
+> {
+    use icu::time::zone::VariantOffsetsCalculator;
+    let intermediate = ZonedDateTime::try_lenient_from_str(rfc_9557_str, Iso, Default::default())?;
+    Ok(ZonedDateTime {
+        date: intermediate.date,
+        time: intermediate.time,
+        zone: intermediate
+            .zone
+            .infer_variant(VariantOffsetsCalculator::new()),
+    })
+}
+// Note: this code will start working in 2.1
+// #[cfg(not(ver = "2.0-beta2", ver = "2.0"))]
+// fn parse_iso_zdt(
+//     rfc_9557_str: &str,
+// ) -> Result<
+//     icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::AtTime>>,
+//     icu::time::ParseError,
+// > {
+//     ZonedDateTime::try_lenient_from_str(rfc_9557_str, Iso, Default::default())
+// }
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -25,6 +70,7 @@ struct DateTimeFormatOptions {
     numbering_system: Option<String>,
     time_style: Option<String>,
     time_zone: Option<String>,
+    hour_cycle: Option<String>,
 
     era: Option<String>,
     year: Option<String>,
@@ -39,6 +85,8 @@ struct DateTimeFormatOptions {
 
     semantic_skeleton: Option<String>,
     semantic_skeleton_length: Option<String>,
+    year_style: Option<String>,
+    zone_style: Option<String>,
 }
 
 pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
@@ -50,8 +98,12 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
 
     let option_struct: DateTimeFormatOptions = serde_json::from_str(&options.to_string()).unwrap();
 
-    let skeleton_str = json_obj["semanticSkeleton"].as_str();
-    let skeleton_length = json_obj["semanticSkeletonLength"].as_str();
+    let hour_cycle = option_struct.hour_cycle.as_ref().map(|hour_cycle_str| {
+        HourCycle::try_from(&unicode::Value::try_from_str(hour_cycle_str).unwrap()).unwrap()
+    });
+
+    let skeleton_str = option_struct.semantic_skeleton.as_deref();
+    let skeleton_length = option_struct.semantic_skeleton_length.as_deref();
 
     let calendar_algorithm = option_struct.calendar.as_ref().map(|calendar_str| {
         CalendarAlgorithm::try_from(&unicode::Value::try_from_str(calendar_str).unwrap()).unwrap()
@@ -64,6 +116,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         .unwrap();
     let mut preferences = DateTimeFormatterPreferences::from(&locale);
     preferences.calendar_algorithm = calendar_algorithm;
+    preferences.hour_cycle = hour_cycle;
 
     let mut builder = FieldSetBuilder::default();
     builder.length = match option_struct.date_style.as_deref() {
@@ -152,7 +205,7 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
         }
     };
     builder.zone_style = match option_struct.time_style.as_deref() {
-        Some("full") => Some(ZoneStyle::SpecificShort),
+        Some("full") => Some(ZoneStyle::SpecificLong),
         Some("long") => Some(ZoneStyle::SpecificShort),
         Some("medium") => None,
         Some("short") => None,
@@ -163,18 +216,41 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
                 "error_type": format!("Unknown time style"),
             }))
         }
-        None => {
-            if let Some(skeleton_str) = skeleton_str {
-                if skeleton_str.contains("Z") {
-                    // TODO: The input should contain ZoneStyle but it doesn't
-                    Some(ZoneStyle::SpecificShort)
-                } else {
-                    None
-                }
-            } else {
-                None
+        None => match (
+            option_struct.zone_style.as_deref(),
+            skeleton_str == Some("Z"),
+        ) {
+            // Standalone uses long length ?
+            (Some("specific"), true) => Some(ZoneStyle::SpecificLong),
+            (Some("specific"), false) => Some(ZoneStyle::SpecificShort),
+            (Some("offset"), true) => Some(ZoneStyle::LocalizedOffsetLong),
+            (Some("offset"), false) => Some(ZoneStyle::LocalizedOffsetShort),
+            (Some("generic"), true) => Some(ZoneStyle::GenericLong),
+            (Some("generic"), false) => Some(ZoneStyle::GenericShort),
+            (Some("location"), _) => Some(ZoneStyle::Location),
+            // Some("exemplar_city") => Some(ZoneStyle::ExemplarCity),
+            (Some(other), _) => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": format!("Unknown zone style: {other}"),
+                    "error_type": format!("Unknown zone style"),
+                }))
             }
+            (None, _) => None,
+        },
+    };
+    builder.year_style = match option_struct.year_style.as_deref() {
+        Some("with_era") => Some(YearStyle::WithEra),
+        Some("full") => Some(YearStyle::Full),
+        Some("auto") => Some(YearStyle::Auto),
+        Some(other) => {
+            return Ok(json!({
+                "label": label,
+                "error_detail": format!("Unknown year style: {other}"),
+                "error_type": format!("Unknown year style"),
+            }))
         }
+        None => None,
     };
     if skeleton_str == Some("Z") {
         // workaround
@@ -198,18 +274,9 @@ pub fn run_datetimeformat_test(json_obj: &Value) -> Result<Value, String> {
     let input_iso = input_iso.replace("Z[", "+00:00[");
 
     // Extract all the information we need from the string
-    let parsed_zdt = super::try_or_return_error!(label, locale, {
-        ZonedDateTime::try_loose_from_str(&input_iso, Iso, Default::default())
-            .map_err(|e| format!("{e:?}"))
+    let input_zoned_date_time = super::try_or_return_error!(label, locale, {
+        parse_iso_zdt(&input_iso).map_err(|e| format!("{e:?}"))
     });
-
-    let input_zoned_date_time = ZonedDateTime {
-        date: parsed_zdt.date,
-        time: parsed_zdt.time,
-        zone: parsed_zdt
-            .zone
-            .infer_zone_variant(&UtcOffsetCalculator::new()),
-    };
 
     // The constructor is called with the given options
     // The default parameter is time zone formatter options. Not used yet.

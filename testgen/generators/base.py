@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
+import codecs
 import copy
 import hashlib
 import json
@@ -82,9 +83,10 @@ class DataGenerator(ABC):
                               filename)
 
         output_path = os.path.join(self.icu_version, filename)
-        output_file = open(output_path, "w", encoding="utf-8")
-        json.dump(data, output_file, indent=indent)
-        output_file.close()
+        # output_file = open(output_path, "w", encoding="utf8")
+
+        with open(output_path, "w", encoding="utf8") as output_file:
+            json.dump(data, output_file, indent=indent)
 
     def getTestDataFromGitHub(self, datafile_name, version):
         # Path for fetching test data from ICU repository
@@ -132,7 +134,7 @@ class DataGenerator(ABC):
         if version:
             path = os.path.join(version, filename)
         try:
-            with open(path, "r", encoding="utf-8") as testdata:
+            with codecs.open(path, "r", encoding="utf-8") as testdata:
                 return json.load(testdata) if filetype == "json" else testdata.read()
         except BaseException as err:
             logging.warning("** readFile: %s", err)

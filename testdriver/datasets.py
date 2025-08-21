@@ -115,7 +115,8 @@ class testType(Enum):
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
   plural_rules = 'plural_rules'
-  
+  segmenter = 'segmenter'
+
 # Returns default value for a key not defined.
 def def_value():
   return "Not present"
@@ -195,6 +196,12 @@ testDatasets[testName] = DataSet(testType.rdt_fmt.value,
                                  'plural_rules_verify.json',
                                  CLDRVersion.CLDR44, ICUVersion.ICU74)
 
+testName = 'segmenter'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'segmenter_test.json',
+                                 'segmenter_verify.json',
+                                 CLDRVersion.CLDR47, ICUVersion.ICU77)
+
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".
 class ExecutorLang(Enum):
@@ -209,7 +216,7 @@ class ExecutorLang(Enum):
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
     "dart_web" : "node ../executors/dart/out/executor.js",
-    "dart_native" : "../executors/dart/bin/executor/executor.exe",
+    "dart_native" : "../executors/dart/build/bundle/bin/executor",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
     "icu4j" : "java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar"
@@ -221,6 +228,7 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
+  Node24 = "24.0.0"
   Node23 = "23.3.0"
   Node22 = "22.9.0"
   Node21 = "21.6.0"
@@ -252,8 +260,8 @@ class ICU4XVersion(Enum):
 # TODO: combine the version info
 IcuVersionToExecutorMap = {
     'node': {
-        '77': ["23.10.0"],  # NOT YET AVAILABLE
-        '76': ["23.3.0"],
+        '77': ["24.0.0"],
+        '76': ["23.11.0"],
         '75': ["22.9.0"],
         '74': ["21.6.0"],
         '73': ["20.1.0"],
@@ -278,8 +286,8 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    '23.10.0': '77.1',  # NOT YET!!
-    '23.3.0': '76.1',
+    '24.0.0': '77.1',
+    '23.11.0': '76.1',
     '22.9.0': '75.1',
     '21.6.0': '74.1',
     '20.1.0': '73.1',
@@ -358,6 +366,10 @@ class ExecutorInfo():
 allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODE.value
+allExecutors.addSystem(system, NodeVersion.Node24,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR47, versionICU=ICUVersion.ICU77)
+
 allExecutors.addSystem(system, NodeVersion.Node21,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
@@ -460,7 +472,7 @@ allExecutors.addSystem(system, NodeVersion.Node18_7,
 
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
-                       '../executors/dart/bin/executor/executor.exe',
+                       '../executors/dart/build/bundle/bin/executor',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 # TESTING
