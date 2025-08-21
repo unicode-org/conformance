@@ -211,9 +211,9 @@
       "exec": "node",
       "test_type": [
         "collation",
+        "lang_names",
         "list_fmt",
         "number_fmt",
-        "lang_names",
         "likely_subtags",
         "plural_rules",
         "rdt_fmt",
