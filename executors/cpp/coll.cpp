@@ -165,7 +165,6 @@ auto TestCollator(json_object *json_in) -> string {
   json_object *str1 = json_object_object_get(json_in, "s1");
   json_object *str2 = json_object_object_get(json_in, "s2");
 
-  // Unescape the input strings?
   // We need to handle null characters, so get the length and the bytes.
   int str1_len = json_object_get_string_len(str1);
   string_view string1(json_object_get_string(str1), str1_len);
@@ -173,8 +172,8 @@ auto TestCollator(json_object *json_in) -> string {
   string_view string2(json_object_get_string(str2), str2_len);
 
   // Does this conversion preserve the data?
-  UnicodeString us1 = UnicodeString::fromUTF8(string1).unescape();
-  UnicodeString us2 = UnicodeString::fromUTF8(string2).unescape();
+  UnicodeString us1 = UnicodeString::fromUTF8(string1);
+  UnicodeString us2 = UnicodeString::fromUTF8(string2);
 
   string test_result;
   int uni_result_utf8;
