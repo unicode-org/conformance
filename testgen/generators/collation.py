@@ -59,9 +59,9 @@ class CollationGenerator(DataGenerator):
         ]
 
         # For detecting and converting \x, \u, and \U coded values
-        self.xcoding = re.compile("\\\\x([0-9A-Fa-f]{2})")
-        self.escaped_ucoding = re.compile("\\\\u([0-9A-Fa-f]{4})")
-        self.escaped_bigU_coding = re.compile("\\\\U([0-9A-Fa-f]{8})")
+        self.xcoding = re.compile(r"\\\\x([0-9A-Fa-f]{2})")
+        self.escaped_ucoding = re.compile(r"\\\\u([0-9A-Fa-f]{4})")
+        self.escaped_bigU_coding = re.compile(r"\\\\U([0-9A-Fa-f]{8})")
 
     def process_test_data(self):
         # Get each kind of collation tests and create a unified data set
