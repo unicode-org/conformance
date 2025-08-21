@@ -146,23 +146,14 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
         new_val = actual[diff[3]:diff[4]]
         if tag == 'replace':
             # expected[i1:i2] was replaced by actual[j1:j2]
-            if old_val.isdigit() and new_val.isdigit() and len(old_va) == len(new_val):
+            if old_val.isdigit() and new_val.isdigit() and len(old_val) == len(new_val):
                 # If the same value, then its a numbering system difference
                 for digit_old, digit_new in zip(old_val, new_val):
                     if unicodedata.numeric(digit_old) == unicodedata.numeric(digit_new):
                         different_number_systems = True
-                    else:
-                        # Both were digits but different numeric values
-                        different_digit = True
-            else:
-                # a digit was replaced with a non-digit
-                non_digit_replace = True
 
     if different_number_systems:
         return knownIssueType.known_issue_different_number_system
-    # Only true if the only changes were replacing digits
-    if different_digit:
-        return knownIssueType.known_issue_replaced_numerals
     else:
         return None
 
