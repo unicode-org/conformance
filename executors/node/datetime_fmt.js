@@ -75,34 +75,14 @@ const skeleton_to_options_map = new Map(
 
 // E.g., "yyDEEEE" --> ["yy", "D", "EEEE"]
 function split_skeleton_into_fields(skeleton) {
-  if (skeleton === undefined) return null;
-
-  let skeleton_parts = [];
-  const all_chars = skeleton.split("");
-  if (all_chars.length == 0) {
-    return null;
-  }
-  let index = 0;
-  let current_char = all_chars[index];
-  let current_string = "" + current_char;
-  index += 1;
-  while (index < all_chars.length) {
-    if (all_chars[index] == current_char) {
-      current_string += current_char;
-    } else {
-      // Found something new
-      skeleton_parts.push(current_string);
-      current_char = all_chars[index];
-      current_string = "" + current_char;
-    }
-    index += 1;
-  }
-  skeleton_parts.push(current_string);
-  return skeleton_parts;
+  return skeleton.match(/(.)\1*/g) || [];
 }
 
 function fill_options_from_skeleton_parts(skeleton_parts) {
   let skeleton_options = {};
+  if (skeleton_parts === undefined || skeleton_parts == null) {
+    return skeleton_options;
+  }
   for (const part of skeleton_parts) {
     if (skeleton_to_options_map.has(part)) {
       let options = skeleton_to_options_map.get(part);
