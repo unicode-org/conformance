@@ -15,8 +15,8 @@ const skeleton_to_options_map = new Map(
 
       ['y', {'year': 'numeric'} ],
       ['yy', {'year': '2-digit'} ],
-      ['yyy', {'year': '2-digit'} ],
-      ['yyyy', {'year': '2-digit'} ],
+      ['yyy', {'year': 'numeric'} ],
+      ['yyyy', {'year': 'numeric'} ],
 
       // Quarter not supported
 
@@ -41,15 +41,15 @@ const skeleton_to_options_map = new Map(
       ['EE', {'weekday': 'short'} ],
       ['EEE', {'weekday': 'short'} ],
       ['EEEE', {'weekday': 'long'} ],
-      ['EEEEE', {'weekday': 'short'} ],
+      ['EEEEE', {'weekday': 'narrow'} ],
 
       ['h', {'hourCycle': 'h12', 'hour': 'numeric'} ],
       ['hh', {'hourCycle': 'h12', 'hour': '2-digit'} ],
       ['H', {'hourCycle': 'h24', 'hour': 'numeric'} ],
       ['HH', {'hourCycle': 'h24', 'hour': '2-digit'} ],
 
-      ['j', {'dayPeriod': 'short', 'hour': 'numeric'} ],
-      ['jj', {'dayPeriod': 'long', 'hour': '2-digit'} ],
+      ['j', {'hour': 'numeric'} ],
+      ['jj', {'hour': '2-digit'} ],
 
       ['m', {'minute': 'numeric'} ],
       ['mm', {'minute': '2-digit'} ],
@@ -57,12 +57,9 @@ const skeleton_to_options_map = new Map(
       ['s', {'second': 'numeric'} ],
       ['ss', {'second': '2-digit'} ],
 
-      ['z', {'timeZoneName': 'shortGeneric'} ],
-      ['zz', {'timeZoneName': 'shortGeneric'} ],
-      ['zzz', {'timeZoneName': 'shortGeneric'} ],
-      ['zzzz', {'timeZoneName': 'longGeneric'} ],
+      ['z', {'timeZoneName': 'short'} ],
+      ['zzzz', {'timeZoneName': 'long'} ],
 
-      ['ZZZZ', {'timeZoneName': 'longOffset'} ],
       ['O', {'timeZoneName': 'shortOffset'} ],
       ['OOOO', {'timeZoneName': 'longOffset'} ],
 
@@ -70,7 +67,7 @@ const skeleton_to_options_map = new Map(
       ['vvvv', {'timeZoneName': 'longGeneric'} ],
 
       ['V', {'timeZoneName': 'shortGeneric'} ],
-      ['VV', {'timeZoneName': 'long'} ],
+      ['VV', {'timeZoneName': 'shortGeneric'} ],
       ['VVV', {'timeZoneName': 'shortGeneric'} ],
       ['VVVV', {'timeZoneName': 'longGeneric'} ],
     ]
