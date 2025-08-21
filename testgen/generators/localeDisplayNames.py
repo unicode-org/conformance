@@ -5,7 +5,7 @@ import re
 import logging
 from generators.base import DataGenerator
 
-reblankline = re.compile(r"^\s*$")
+reblankline = re.compile("^\s*$")
 
 
 class LocaleNamesGenerator(DataGenerator):

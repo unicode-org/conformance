@@ -5,7 +5,7 @@ import logging
 import re
 from generators.base import DataGenerator
 
-reblankline = re.compile(r"^\s*$")
+reblankline = re.compile("^\s*$")
 
 # Global constants
 # Values to be formatted in number format tests
