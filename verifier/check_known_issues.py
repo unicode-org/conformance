@@ -60,6 +60,9 @@ class knownIssueType(Enum):
     datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
     datetime_unexpected_comma = 'Unexpected comma'
 
+    datetime_semantic_Z = 'NodeJS always includes date or time'
+
+
     # Likely Subtags
     likely_subtags_sr_latn = "sr_latin becoming en"
 
@@ -209,6 +212,8 @@ def check_datetime_known_issues(test):
     try:
         result = test['result']
         expected = test['expected']
+        input_data = test.get('input_data')
+
         is_ki = diff_nbsp_vs_ascii_space(result, expected)
         if is_ki:
             # Mark the test with this issue
@@ -223,7 +228,7 @@ def check_datetime_known_issues(test):
 
         is_ki = numerals_replaced_by_another_numbering_system(result, expected)
         if is_ki:
-            test['known_issue_id'] = ki.value
+            test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
         is_ki = dt_check_for_alternate_long_form(test, result, expected)
@@ -239,6 +244,12 @@ def check_datetime_known_issues(test):
         is_ki = dt_unexpected_comma(test, result, expected)
         if is_ki:
             test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
+        # Check if the semantic skeleton has "Z"
+        if input_data and 'semanticSkeleton' in input_data['options'] and \
+                input_data['options']['semanticSkeleton'] == 'Z':
+            test['known_issud_id'] = knownIssueType.datetime_semantic_Z.value
             remove_this_one = True
 
     except BaseException as err:
