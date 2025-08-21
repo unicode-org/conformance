@@ -9,7 +9,6 @@ import math
 import subprocess
 from generators.base import DataGenerator
 
-reblankline = re.compile(r"^\s*$")
 
 class DateTimeFmtGenerator(DataGenerator):
     json_test = {"test_type": "datetime_fmt"}
