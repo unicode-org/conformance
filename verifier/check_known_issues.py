@@ -12,7 +12,6 @@ from difflib import SequenceMatcher
 
 from datetime import datetime
 
-import copy
 import glob
 import json
 import logging
@@ -96,7 +95,7 @@ def diff_nbsp_vs_ascii_space(actual, expected_value):
 
     # If replacing all the NBSP characdters in expected gives the actual result,
     # then the only differences were with this type of space in formatted output.
-    copy_expected = copy.copy(expected_value)
+    copy_expected = expected_value
     if copy_expected.replace(NBSP, SP) == actual:
         return knownIssueType.known_issue_nbsp_sp
     else:
@@ -111,7 +110,7 @@ def diff_ascii_space_vs_nbsp(actual, expected_value):
 
     # If replacing all the NBSP characdters in expected gives the actual result,
     # then the only differences were with this type of space in formatted output.
-    copy_expected = copy.copy(expected_value)
+    copy_expected = expected_value
     if copy_expected.replace(SP, NBSP) == actual:
         return knownIssueType.known_issue_sp_nbsp
     else:
@@ -147,8 +146,7 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
         new_val = actual[diff[3]:diff[4]]
         if tag == 'replace':
             # expected[i1:i2] was replaced by actual[j1:j2]
-            if old_val.isdigit() and new_val.isdigit():
-                # TODO!! : check the value of the numeral
+            if old_val.isdigit() and new_val.isdigit() and len(old_va) == len(new_val):
                 # If the same value, then its a numbering system difference
                 for digit_old, digit_new in zip(old_val, new_val):
                     if unicodedata.numeric(digit_old) == unicodedata.numeric(digit_new):
