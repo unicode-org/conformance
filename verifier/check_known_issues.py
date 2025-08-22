@@ -58,6 +58,7 @@ class knownIssueType(Enum):
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
     datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
     datetime_unexpected_comma = 'Unexpected comma'
+    datetime_inserted_comma = 'inserted comma'
 
     datetime_semantic_Z = 'NodeJS always includes date or time'
 
@@ -109,7 +110,7 @@ def diff_ascii_space_vs_nbsp(actual, expected_value):
 
     # If replacing all the NBSP characdters in expected gives the actual result,
     # then the only differences were with this type of space in formatted output.
-    if expected_value.replace(SP, NBSP) == actual:
+    if expected_value.replace(NBSP, SP) == actual:
         return knownIssueType.known_issue_sp_nbsp
     else:
         return None
@@ -169,13 +170,19 @@ def dt_check_for_alternate_long_form(test, actual, expected):
         return None
     if actual.replace(' at', ',') == expected:
         return knownIssueType.datetime_fmt_at_inserted
+
     # Thai language difference with "time" inserted
-    if actual.replace(' เวลา', '') == expected:
+    if actual.replace('เวลา ', '') == expected:
         return knownIssueType.datetime_fmt_at_inserted
     # Arabic
     if actual.replace(' في', '،') == expected:
         return knownIssueType.datetime_fmt_at_inserted
-
+    # Vietnamese
+    if actual.replace('lúc ', '') == expected:
+        return knownIssueType.datetime_fmt_at_inserted
+    # Bengali
+    if actual.replace('এ ', '') == expected:
+        return knownIssueType.datetime_fmt_at_inserted
     return None
 
 
@@ -185,11 +192,23 @@ def dt_check_arabic_comma(test, actual, expected):
     return None
 
 
-def dt_unexpected_comma(test, actual,  expected):
+def dt_unexpected_comma(test, actual, expected):
     if actual.replace('\u002c', '') == expected:
         return knownIssueType.datetime_unexpected_comma
     else:
         return None
+
+def dt_inserted_comma(test, actual, expected):
+    sm = SequenceMatcher(None, expected, actual)
+    sm_opcodes = sm.get_opcodes()
+    # Look for one additional comma
+    for opcode in sm_opcodes:
+        if opcode[0] == 'insert':
+            j1 = opcode[3]
+            j2 = opcode[4]
+            if actual[j1:j2] == ',':
+                return knownIssueType.datetime_inserted_comma
+    return None
 
 
 def check_datetime_known_issues(test):
@@ -197,7 +216,11 @@ def check_datetime_known_issues(test):
     # Returns known issues identified for this test in this category
     remove_this_one = False
     try:
-        result = test['result']
+        try:
+            result = test['result']
+        except KeyError as error:
+            # This lack of a result may be expected.
+            return False
         expected = test['expected']
         input_data = test.get('input_data')
 
@@ -233,10 +256,9 @@ def check_datetime_known_issues(test):
             test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
-        # Check if the semantic skeleton has "Z"
-        if input_data and 'semanticSkeleton' in input_data['options'] and \
-                input_data['options']['semanticSkeleton'] == 'Z':
-            test['known_issud_id'] = knownIssueType.datetime_semantic_Z.value
+        is_ki = dt_inserted_comma(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
     except BaseException as err:
