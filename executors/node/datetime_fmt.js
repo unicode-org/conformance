@@ -169,6 +169,16 @@ module.exports = {
       test_options['dateStyle'] = input_options['dateStyle'];
     }
 
+    if ('semanticSkeleton' in input_options) {
+      // Check for known issue when format output should give only the time zone.
+      if (input_options['semanticSkeleton'] == 'Z') {
+        return_json['error'] = 'unsupported';
+        return_json['error_detail'] = 'Requested timezone without date or time';
+        return_json['unsupported'] = 'timezone only';
+        return return_json;
+      }
+    }
+
     let calendar;
     try {
       calendar = input_options['calendar'];
