@@ -8,7 +8,8 @@ ALL_TEST_TYPES = ['collation',
                   'message_fmt2',
                   'number_format',
                   'plural_rules',
-                  'rdt_fmt'
+                  'rdt_fmt',
+                  'segmenter'
                   ]
 
 TEST_FILE_TO_TEST_TYPE_MAP = {
@@ -25,7 +26,8 @@ TEST_FILE_TO_TEST_TYPE_MAP = {
     'plural_rules_test_file': 'plural_rules',
     'plural_rules_test': 'plural_rules',
     'rdt_fmt_test_file': 'rdt_fmt',
-    'rdt_fmt_test': 'rdt_fmt'
+    'rdt_fmt_test': 'rdt_fmt',
+    'segmenter_test': 'segmenter'
 }
 
 SCHEMA_FILE_MAP = {
@@ -106,6 +108,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": "lang_names_test_file.json"
         }
     },
+
     "likely_subtags": {
         "test_data": {
             "schema_file": "likely_subtags/test_schema.json",
@@ -120,6 +123,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": "likely_subtags_test.json"
         }
     },
+
     "list_fmt": {
         "test_data": {
             "schema_file": "list_fmt/test_schema.json",
@@ -134,6 +138,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": "list_fmt_test.json"
         }
     },
+
     "plural_rules": {
         "test_data": {
             "schema_file": "plural_rules/test_schema.json",
@@ -148,6 +153,7 @@ SCHEMA_FILE_MAP = {
             "prod_file": "plural_rules_test.json"
         }
     },
+
     "message_fmt2": {
         "test_data": {
             "schema_file": "message_fmt2/test_schema.json",
@@ -162,6 +168,7 @@ SCHEMA_FILE_MAP = {
             'prod_file': 'message_fmt2_test.json'
         }
     },
+
     "rdt_fmt": {
         "test_data": {
             "schema_file": "rdt_fmt/test_schema.json",
@@ -174,6 +181,21 @@ SCHEMA_FILE_MAP = {
         "result_data": {
             "schema_file": "rdt_fmt/result_schema.json",
             "prod_file": "rdt_fmt_test.json"
+        }
+    },
+
+    "segmenter": {
+        "test_data": {
+            "schema_file": "segmenter/test_schema.json",
+            'prod_file': 'segmenter_test.json'
+        },
+        "verify_data": {
+            "schema_file": "segmenter/verify_schema.json",
+            'prod_file': 'segmenter2_verify.json'
+        },
+        "result_data": {
+            "schema_file": "segmenter/result_schema.json",
+            "prod_file": "segmenter_test.json"
         }
     },
     # Additional tests

@@ -61,6 +61,8 @@ public class DateTimeFormatterTester implements ITestType {
 
     result.calendar_string = (String) inputOptions.get("calendar");
 
+    result.dateTimeFormatType = (String) inputOptions.get("dateTimeFormatType");
+
     result.locale_with_calendar = new Builder().setLanguageTag(result.locale_string)
         .setUnicodeLocaleKeyword("ca", result.calendar_string)
         .build();
@@ -84,6 +86,14 @@ public class DateTimeFormatterTester implements ITestType {
     } catch (Exception e) {
       output.error = e.getMessage();
       output.error_message = e.getMessage();
+      return output;
+    }
+
+    if (input.dateTimeFormatType != null && input.dateTimeFormatType.equals("standard")) {
+      output.error_message = input.dateTimeFormatType;
+      output.error_detail = "not atTime";
+      output.error_type = "unsupported";
+      output.unsupported = "format type";
       return output;
     }
 

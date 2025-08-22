@@ -63,8 +63,17 @@ class VerifyPlan:
         try:
             with open(self.verify_path,
                       encoding='utf-8', mode='r') as verify_data_file:
-                self.verifyData = json.loads(verify_data_file.read())
-                self.verifyExpected = self.verifyData['verifications']
+                try:
+                    self.verifyData = json.loads(verify_data_file.read())
+                except BaseException as error:
+                    logging.error('!!! Problem loading data %s', self.verify_path)
+                    return None
+                try:
+                    self.verifyExpected = self.verifyData['verifications']
+                except BaseException as error:
+                    logging.error('!!! Problem with verifyData for %s, verifyData =',
+                                  self.verify_path, self.verifyData)
+                    return None
         except KeyError as err:
             logging.error('Cannot load %s verify data: %s',
                           self.verify_path, err)
@@ -168,7 +177,10 @@ class VerifyPlan:
 
             # Get the result
             try:
-                actual_result = test['result']
+                if 'result' in test:
+                    actual_result = test['result']
+                else:
+                    actual_result = None
 
                 verification_data = self.find_expected_with_label(test_label)
 

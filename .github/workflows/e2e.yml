@@ -32,10 +32,12 @@ jobs:
 
       - name: Setup version of Dart
         uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
+        with:
+          sdk: 3.10.0-37.0.dev
       - name: Set version of Rust
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: 1.73
+            toolchain: 1.82
       - name: Run End-to-end script
         run: bash generateDataAndRun.sh
       - name: Setup Pages

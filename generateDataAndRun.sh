@@ -91,7 +91,7 @@ then
     pushd executors/dart/
     dart pub get
     dart bin/set_version.dart
-    dart --enable-experiment=native-assets,record-use build bin/executor.dart
+    dart build cli --target bin/executor.dart -o build/
     popd
 fi
 
@@ -147,7 +147,10 @@ pushd verifier
 
 all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
-python3 verifier.py --file_base ../$TEMP_DIR --exec $all_execs --test_type $all_test_types
+
+# Specifies the arrangement of the columns in the summary dashboard
+platform_order='ICU4C ICU4J ICU4X NodeJS Dart_Web Dart_Native'
+python3 verifier.py --file_base ../$TEMP_DIR --exec $all_execs --test_type $all_test_types --platform_order $platform_order
 
 popd
 

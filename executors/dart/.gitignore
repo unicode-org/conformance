@@ -5,3 +5,4 @@ out/*Dart.js
 out/*Dart.js.deps
 out/*Dart.js.map
 pubspec.lock
+build/
