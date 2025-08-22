@@ -45,7 +45,11 @@ floating_point_has_trailing_zero = re.compile(r"\.[^1-9]+")
 # Global KnownIssue Info types and strings
 class knownIssueType(Enum):
     known_issue_nbsp_sp = 'ASCII Space instead of NBSP'
+    known_issue_sp_nbsp = 'NBSP instead of ASCII Space'
+
     known_issue_replaced_numerals = 'Not creating non-ASCII numerals'
+
+    known_issue_different_number_system = 'Different number systems'
 
     # Relative Date Time Format
     known_issue_unsupported_unit = 'Unsupported unit'  # https://github.com/unicode-org/conformance/issues/274
@@ -54,6 +58,10 @@ class knownIssueType(Enum):
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
     datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
     datetime_unexpected_comma = 'Unexpected comma'
+    datetime_inserted_comma = 'inserted comma'
+
+    datetime_semantic_Z = 'NodeJS always includes date or time'
+
 
     # Likely Subtags
     likely_subtags_sr_latn = "sr_latin becoming en"
@@ -93,6 +101,19 @@ def diff_nbsp_vs_ascii_space(actual, expected_value):
     else:
         return None
 
+def diff_ascii_space_vs_nbsp(actual, expected_value):
+    # Returns the ID of this if the only difference in the two strings
+    # is Narrow Non-breaking Space (NBSP) in expected vs. ASCII space in the actual result.
+    # Found in datetime testing.
+    if not expected_value or not actual:
+        return None
+
+    # If replacing all the NBSP characdters in expected gives the actual result,
+    # then the only differences were with this type of space in formatted output.
+    if expected_value.replace(NBSP, SP) == actual:
+        return knownIssueType.known_issue_sp_nbsp
+    else:
+        return None
 
 def numerals_replaced_by_another_numbering_system(expected, actual):
     # If the only difference are one type of digit
@@ -114,6 +135,9 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
     # Tag indicates the type of change.
     # i1:i2 is the range of the substring in expected
     # j1:j2 is the range of the substring in actual
+    different_number_systems = False
+    different_digit = False
+
 
     for diff in sm_opcodes:
         tag = diff[0]  # 'replace', 'delete', 'insert', or 'equal'
@@ -121,21 +145,14 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
         new_val = actual[diff[3]:diff[4]]
         if tag == 'replace':
             # expected[i1:i2] was replaced by actual[j1:j2]
-            if old_val.isdigit() and new_val.isdigit():
-                # TODO!! : check the value of the numeral
+            if old_val.isdigit() and new_val.isdigit() and len(old_val) == len(new_val):
                 # If the same value, then its a numbering system difference
-                if unicodedata.numeric(old_val) == unicodedata.numeric(new_val):
-                    digit_replace = True
-                else:
-                    # Both were digits but different numeric values
-                    non_digit_replacement = True
-            else:
-                # a digit was replaced with a non-digit
-                non_digit_replacement = True
+                for digit_old, digit_new in zip(old_val, new_val):
+                    if unicodedata.numeric(digit_old) == unicodedata.numeric(digit_new):
+                        different_number_systems = True
 
-    # Only true if the only changes were replacing digits
-    if digit_replace and not non_digit_replace:
-        return knownIssueType.known_issue_replaced_numerals
+    if different_number_systems:
+        return knownIssueType.known_issue_different_number_system
     else:
         return None
 
@@ -153,21 +170,45 @@ def dt_check_for_alternate_long_form(test, actual, expected):
         return None
     if actual.replace(' at', ',') == expected:
         return knownIssueType.datetime_fmt_at_inserted
+
+    # Thai language difference with "time" inserted
+    if actual.replace('เวลา ', '') == expected:
+        return knownIssueType.datetime_fmt_at_inserted
+    # Arabic
+    if actual.replace(' في', '،') == expected:
+        return knownIssueType.datetime_fmt_at_inserted
+    # Vietnamese
+    if actual.replace('lúc ', '') == expected:
+        return knownIssueType.datetime_fmt_at_inserted
+    # Bengali
+    if actual.replace('এ ', '') == expected:
+        return knownIssueType.datetime_fmt_at_inserted
     return None
 
 
 def dt_check_arabic_comma(test, actual, expected):
     if expected.replace('\u002c', '\u060c') == actual:
         return knownIssueType.datetime_fmt_arabic_comma
-    else:
-         return None
+    return None
 
 
-def dt_unexpected_comma(test, actual,  expected):
+def dt_unexpected_comma(test, actual, expected):
     if actual.replace('\u002c', '') == expected:
         return knownIssueType.datetime_unexpected_comma
     else:
         return None
+
+def dt_inserted_comma(test, actual, expected):
+    sm = SequenceMatcher(None, expected, actual)
+    sm_opcodes = sm.get_opcodes()
+    # Look for one additional comma
+    for opcode in sm_opcodes:
+        if opcode[0] == 'insert':
+            j1 = opcode[3]
+            j2 = opcode[4]
+            if actual[j1:j2] == ',':
+                return knownIssueType.datetime_inserted_comma
+    return None
 
 
 def check_datetime_known_issues(test):
@@ -175,17 +216,29 @@ def check_datetime_known_issues(test):
     # Returns known issues identified for this test in this category
     remove_this_one = False
     try:
-        result = test['result']
+        try:
+            result = test['result']
+        except KeyError as error:
+            # This lack of a result may be expected.
+            return False
         expected = test['expected']
+        input_data = test.get('input_data')
+
         is_ki = diff_nbsp_vs_ascii_space(result, expected)
         if is_ki:
             # Mark the test with this issue
-            test['known_issue'] = knownIssueType.known_issue_nbsp_sp.value
+            test['known_issue'] = is_ki.value
+            remove_this_one = True
+
+        is_ki = diff_ascii_space_vs_nbsp(result, expected)
+        if is_ki:
+            # Mark the test with this issue
+            test['known_issue'] = is_ki.value
             remove_this_one = True
 
         is_ki = numerals_replaced_by_another_numbering_system(result, expected)
         if is_ki:
-            test['known_issue_id'] = knownIssueType.known_issue_replaced_numerals.value
+            test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
         is_ki = dt_check_for_alternate_long_form(test, result, expected)
@@ -198,7 +251,12 @@ def check_datetime_known_issues(test):
             test['known_issue_id'] = is_ki.value
             remove_this_one = True
 
-        is_ki = dt_unexpectedcomma(test, result, expected)
+        is_ki = dt_unexpected_comma(test, result, expected)
+        if is_ki:
+            test['known_issue_id'] = is_ki.value
+            remove_this_one = True
+
+        is_ki = dt_inserted_comma(test, result, expected)
         if is_ki:
             test['known_issue_id'] = is_ki.value
             remove_this_one = True

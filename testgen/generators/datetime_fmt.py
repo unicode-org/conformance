@@ -76,6 +76,9 @@ class DateTimeFmtGenerator(DataGenerator):
                     options['dateStyle'] = test_item['dateLength']
                 if 'timeLength' in test_item:
                     options['timeStyle'] = test_item['timeLength']
+                # Specifies if the expected output includes "at"
+                if 'dateTimeFormatType' in test_item:
+                    options['dateTimeFormatType'] = test_item['dateTimeFormatType']
 
                 if 'calendar' in test_item:
                     options['calendar'] = test_item['calendar']
@@ -92,14 +95,13 @@ class DateTimeFmtGenerator(DataGenerator):
                 input_string = u_time.isoformat().replace('+00:00', 'Z')
                 tz_offset_secs = raw_time.utcoffset().total_seconds()
 
-                if 'dateTimeFormatType' in test_item:
-                    options['dateTimeFormatType'] = test_item['dateTimeFormatType']
                 if 'classicalSkeleton' in test_item:
                     options['skeleton'] = test_item['classicalSkeleton']
                 if 'semanticSkeleton' in test_item:
                     options['semanticSkeleton'] = test_item['semanticSkeleton']
                 if 'semanticSkeletonLength' in test_item:
                     options['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
+
                 if 'hourCycle' in test_item:
                     options['hourCycle'] = test_item['hourCycle'].lower()
 
