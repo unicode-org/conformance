@@ -172,7 +172,8 @@ module.exports = {
     if ('dateTimeFormatType' in input_options &&
         input_options['dateTimeFormatType'] == 'standard') {
       return_json['error_type'] = 'unsupported';
-      return_json['error_detail'] = input_options['dateTimeFormatType'];
+      return_json['error_detail'] = 'dateTimeFormatType: ' +
+          input_options['dateTimeFormatType'];
         return_json['unsupported'] = 'format type';
         return return_json;
     }
