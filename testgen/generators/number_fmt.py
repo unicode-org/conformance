@@ -5,7 +5,7 @@ import logging
 import re
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
+reblankline = re.compile(r"^\s*$")
 
 # Global constants
 # Values to be formatted in number format tests
@@ -166,7 +166,7 @@ class NumberFmtGenerator(DataGenerator):
     # Source data: https://github.com/unicode-org/icu/blob/main/icu4c/source/test/testdata/dcfmtest.txt
     def generateDcmlFmtTestDataObjects(self, rawtestdata, count=0):
         original_count = count
-        recommentline = re.compile("^\s*#")
+        recommentline = re.compile(r"^\s*#")
         test_list = rawtestdata.splitlines()
 
         all_tests_list = []

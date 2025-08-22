@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
+reblankline = re.compile(r"^\s*$")
 
 class PluralGenerator(DataGenerator):
     def plurals_descriptor(self):
