@@ -6,16 +6,22 @@ import 'package:intl4x/collation.dart';
 import 'package:intl4x/intl4x.dart';
 
 String testCollation(String jsonEncoded) {
-  final json =
-      jsonDecode(jsonEncoded)
-          as Map<
-            String,
-            dynamic
-          >; // For the moment, use strings for easier interop
+  final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
   // Global default locale
-  final testLocale = json['locale'] as String? ?? 'en';
   final outputLine = <String, dynamic>{'label': json['label']};
-
+  if (json.containsKey('rules')) {
+    outputLine['error_type'] = 'unsupported';
+    outputLine['unsupported'] = 'unsupported_options';
+    outputLine['error_message'] = 'Rules are not supported';
+    return jsonEncode(outputLine);
+  }
+  final localeString = json['locale'] as String? ?? 'en';
+  if (localeString == 'root') {
+    outputLine['error_type'] = 'unsupported';
+    outputLine['unsupported'] = 'unsupported_options';
+    outputLine['error_message'] = 'Locale `root` is unsupported';
+    return jsonEncode(outputLine);
+  }
   // Set up collator object with optional locale and testOptions.
   final s1 = json['s1'];
   final s2 = json['s2'];
@@ -36,6 +42,7 @@ String testCollation(String jsonEncoded) {
           .where((value) => value.jsName == json['case_first'])
           .firstOrNull ??
       CaseFirst.localeDependent;
+  final compareType = json['compare_type'] as String?;
 
   if (s1 == null || s2 == null) {
     outputLine.addAll({
@@ -45,7 +52,7 @@ String testCollation(String jsonEncoded) {
     });
   } else {
     try {
-      final coll = Intl(locale: Locale.parse(testLocale));
+      final coll = Intl(locale: Locale.parse(localeString));
 
       final collationOptions = CollationOptions(
         ignorePunctuation: ignorePunctuation,
@@ -55,7 +62,17 @@ String testCollation(String jsonEncoded) {
       );
 
       final compared = coll.collation(collationOptions).compare(s1, s2);
-      final result = compared <= 0;
+
+      bool result;
+      if (compareType == '=') {
+        // Check for strict equality comparison
+        result = compared == 0;
+      } else if (compareType != null && compareType.startsWith('<')) {
+        // Check results with different compare types
+        result = compared < 0;
+      } else {
+        result = compared <= 0;
+      }
       outputLine['result'] = result;
 
       if (result != true) {

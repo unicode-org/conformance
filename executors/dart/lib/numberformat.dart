@@ -280,7 +280,8 @@ NumberFormatOptions _decimalPatternToOptions(
     );
     return numberFormatOptions.copyWith(roundingMode: roundingMode);
   } else {
-    return numberFormatOptions;
+    //TODO: remove this halfEven default override, as soon as it is always passed in the numberformat args.
+    return numberFormatOptions.copyWith(roundingMode: RoundingMode.halfEven);
   }
 }
 
@@ -323,9 +324,6 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   ].where((element) => element.name == options['notation']).firstOrNull;
   final signDisplay = SignDisplay.values
       .where((element) => element.name == options['signDisplay'])
-      .firstOrNull;
-  final localeMatcher = LocaleMatcher.values
-      .where((element) => element.jsName == options['localeMatcher'])
       .firstOrNull;
   final useGrouping = Grouping.values
       .where((element) => element.jsName == options['useGrouping'])
@@ -374,7 +372,6 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   return NumberFormatOptions.custom().copyWith(
     style: style,
     currency: currency,
-    localeMatcher: localeMatcher,
     signDisplay: signDisplay,
     notation: notation,
     useGrouping: useGrouping,
@@ -391,11 +388,10 @@ extension on NumberFormatOptions {
     return {
       'style': style.name,
       'currency': currency,
-      'localeMatcher': localeMatcher.jsName,
       'signDisplay': signDisplay.name,
       'notation': notation.name,
       'useGrouping': useGrouping.jsName,
-      'numberingSystem': numberingSystem?.toString(),
+      'numberingSystem': numberingSystem,
       'roundingMode': roundingMode.name,
       'trailingZeroDisplay': trailingZeroDisplay.name,
       'minimumIntegerDigits': minimumIntegerDigits,
