@@ -110,7 +110,7 @@ def diff_ascii_space_vs_nbsp(actual, expected_value):
 
     # If replacing all the NBSP characdters in expected gives the actual result,
     # then the only differences were with this type of space in formatted output.
-    if expected_value.replace(SP, NBSP) == actual:
+    if expected_value.replace(NBSP, SP) == actual:
         return knownIssueType.known_issue_sp_nbsp
     else:
         return None
@@ -193,7 +193,7 @@ def dt_check_arabic_comma(test, actual, expected):
 
 
 def dt_unexpected_comma(test, actual, expected):
-    if actual.replace('\u002c', '') == expected :
+    if actual.replace('\u002c', '') == expected:
         return knownIssueType.datetime_unexpected_comma
     else:
         return None
@@ -218,7 +218,7 @@ def check_datetime_known_issues(test):
     try:
         try:
             result = test['result']
-        except BaseException as error:
+        except KeyError as error:
             # This lack of a result may be expected.
             return False
         expected = test['expected']
