@@ -31,7 +31,6 @@ class CollationGenerator(DataGenerator):
         self.compare_pattern = re.compile(r"^\* compare(.*)")
 
         # A comparison line begins with the type of compare function.
-
         self.comparison_line = re.compile(r"^([<=]\S*)(\s*)([^#]*)#?(.*)")
 
         self.input_pattern_with_comment = re.compile(r"^([^#]+)#?(.*)")
