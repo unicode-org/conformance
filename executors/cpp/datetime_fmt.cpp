@@ -154,7 +154,6 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
       // Check if this is not supported?
       if ((dateTimeFormatType_str == "atTime" && !supports_atTime) ||
           (dateTimeFormatType_str != "atTime" && supports_atTime)) {
-        const char* error_name = u_errorName(status);
         // Inexact result is unsupported.
         json_object_object_add(
             return_json,
