@@ -58,9 +58,11 @@ class knownIssueType(Enum):
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
     datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
     datetime_unexpected_comma = 'Unexpected comma'
+    datetime_inserted_comma = 'inserted comma'
 
     datetime_semantic_Z = 'NodeJS always includes date or time'
 
+    datetime_GMT_UTC = 'UTC instead of GMT'
 
     # Likely Subtags
     likely_subtags_sr_latn = "sr_latin becoming en"
@@ -110,8 +112,7 @@ def diff_ascii_space_vs_nbsp(actual, expected_value):
 
     # If replacing all the NBSP characdters in expected gives the actual result,
     # then the only differences were with this type of space in formatted output.
-    copy_expected = expected_value
-    if copy_expected.replace(SP, NBSP) == actual:
+    if expected_value.replace(SP, NBSP) == actual:
         return knownIssueType.known_issue_sp_nbsp
     else:
         return None
@@ -146,23 +147,14 @@ def numerals_replaced_by_another_numbering_system(expected, actual):
         new_val = actual[diff[3]:diff[4]]
         if tag == 'replace':
             # expected[i1:i2] was replaced by actual[j1:j2]
-            if old_val.isdigit() and new_val.isdigit() and len(old_va) == len(new_val):
+            if old_val.isdigit() and new_val.isdigit() and len(old_val) == len(new_val):
                 # If the same value, then its a numbering system difference
                 for digit_old, digit_new in zip(old_val, new_val):
                     if unicodedata.numeric(digit_old) == unicodedata.numeric(digit_new):
                         different_number_systems = True
-                    else:
-                        # Both were digits but different numeric values
-                        different_digit = True
-            else:
-                # a digit was replaced with a non-digit
-                non_digit_replace = True
 
     if different_number_systems:
         return knownIssueType.known_issue_different_number_system
-    # Only true if the only changes were replacing digits
-    if different_digit:
-        return knownIssueType.known_issue_replaced_numerals
     else:
         return None
 
@@ -174,81 +166,98 @@ def unsupported_unit_quarter(test):
     return None
 
 
-def dt_check_for_alternate_long_form(test, actual, expected):
+def dt_check_for_alternate_long_form(actual, expected):
     # For datetime_fmt, is the format type "standard"?
     if actual == expected:
         return None
-    if actual.replace(' at', ',') == expected:
-        return knownIssueType.datetime_fmt_at_inserted
-    # Thai language difference with "time" inserted
-    if actual.replace(' เวลา', '') == expected:
-        return knownIssueType.datetime_fmt_at_inserted
-    # Arabic
-    if actual.replace(' في', '،') == expected:
-        return knownIssueType.datetime_fmt_at_inserted
+    new_expected = expected.replace(NBSP, SP)
+    new_actual = actual.replace(NBSP, SP)
 
+    # TODO: Make this an array of replacements
+    replacements_to_try = [
+        (' at', ','),  # English
+        ('เวลา ', ''),  # Thai
+        (' في', '،'),  # Arabic
+        ('lúc ', ''),  # Vietnamese
+        ('এ ', ''),  # Bengali
+    ]
+
+    for replacement in replacements_to_try:
+        if new_actual.replace(replacement[0], replacement[1]) == new_expected:
+            return knownIssueType.datetime_fmt_at_inserted
     return None
 
 
-def dt_check_arabic_comma(test, actual, expected):
+def dt_check_arabic_comma(actual, expected):
     if expected.replace('\u002c', '\u060c') == actual:
         return knownIssueType.datetime_fmt_arabic_comma
     return None
 
 
-def dt_unexpected_comma(test, actual,  expected):
+def dt_unexpected_comma(actual, expected):
     if actual.replace('\u002c', '') == expected:
         return knownIssueType.datetime_unexpected_comma
     else:
         return None
 
+def dt_inserted_comma(actual, expected):
+    sm = SequenceMatcher(None, expected, actual)
+    sm_opcodes = sm.get_opcodes()
+    # Look for one additional comma
+    for opcode in sm_opcodes:
+        if opcode[0] == 'insert':
+            j1 = opcode[3]
+            j2 = opcode[4]
+            if actual[j1:j2] == ',':
+                return knownIssueType.datetime_inserted_comma
+    return None
 
-def check_datetime_known_issues(test):
+
+def dt_gmt_utc(actual, expected):
+    # The difference may also include NBSP vs ASCII space
+    new_expected = expected.replace(NBSP, SP)
+    new_actual = actual.replace(NBSP, SP)
+
+    if new_actual.replace('UTC', 'GMT') == new_expected or \
+            new_actual.replace('Coordinated Universal', 'Greenwich Mean') == new_expected:
+        return knownIssueType.datetime_GMT_UTC
+
+def check_datetime_known_issues(test, platform_info):
     # Examine a single test for date/time isses
     # Returns known issues identified for this test in this category
     remove_this_one = False
+
+    all_matching_issues = []
+
     try:
-        result = test['result']
+        try:
+            result = test['result']
+        except KeyError as error:
+            # This lack of a result may be expected.
+            return False
         expected = test['expected']
         input_data = test.get('input_data')
 
-        is_ki = diff_nbsp_vs_ascii_space(result, expected)
-        if is_ki:
-            # Mark the test with this issue
-            test['known_issue'] = is_ki.value
-            remove_this_one = True
+        # Perform each test, computing matches with known issues by means of the functions in this list
+        check_fns = [dt_gmt_utc, diff_nbsp_vs_ascii_space, diff_ascii_space_vs_nbsp, numerals_replaced_by_another_numbering_system,
+                  dt_check_arabic_comma, dt_inserted_comma, dt_check_for_alternate_long_form]
+        for check_fn in check_fns:
+            is_ki = check_fn(result, expected)
+            if is_ki:
+                test['known_issue'] = is_ki.value
+                remove_this_one = True
+                all_matching_issues.append(is_ki.value)
 
-        is_ki = diff_ascii_space_vs_nbsp(result, expected)
-        if is_ki:
-            # Mark the test with this issue
-            test['known_issue'] = is_ki.value
-            remove_this_one = True
-
-        is_ki = numerals_replaced_by_another_numbering_system(result, expected)
-        if is_ki:
-            test['known_issue_id'] = is_ki.value
-            remove_this_one = True
-
-        is_ki = dt_check_for_alternate_long_form(test, result, expected)
-        if is_ki:
-            test['known_issue_id'] = is_ki.value
-            remove_this_one = True
-
-        is_ki = dt_check_arabic_comma(test, result, expected)
-        if is_ki:
-            test['known_issue_id'] = is_ki.value
-            remove_this_one = True
-
-        is_ki = dt_unexpected_comma(test, result, expected)
-        if is_ki:
-            test['known_issue_id'] = is_ki.value
-            remove_this_one = True
 
         # Check if the semantic skeleton has "Z"
-        if input_data and 'semanticSkeleton' in input_data['options'] and \
-                input_data['options']['semanticSkeleton'] == 'Z':
-            test['known_issud_id'] = knownIssueType.datetime_semantic_Z.value
-            remove_this_one = True
+        # TODO: check platform - only for NodeJS
+        if platform_info['platform'] == 'NodeJS' and result:
+            if input_data and 'semanticSkeleton' in input_data['options'] and \
+               input_data['options']['semanticSkeleton'] == 'Z':
+                test['known_issue_id'] = knownIssueType.datetime_semantic_Z.value
+                remove_this_one = True
+                all_matching_issues.append(knownIssueType.datetime_semantic_Z.value)
+
 
     except BaseException as err:
         # Can't get the info
@@ -256,7 +265,7 @@ def check_datetime_known_issues(test):
 
     return remove_this_one
 
-def check_rdt_known_issues(test):
+def check_rdt_known_issues(test, platform_info=None):
     # ??? Do wwe need platform ID and/or icu version?
     remove_this_one = False
     try:
@@ -281,7 +290,7 @@ def check_rdt_known_issues(test):
     return remove_this_one
 
 
-def check_likely_subtags_issues(test):
+def check_likely_subtags_issues(test, platform_info=None):
     remove_this_one = False
     try:
         result = test['result']
@@ -304,7 +313,7 @@ def sr_latin_likely_subtag(test):
         return None
 
 # Language names
-def check_langnames_issues(test):
+def check_langnames_issues(test, platform_info=None):
     remove_this_one = False
     try:
         result = test['result']
@@ -380,7 +389,7 @@ def check_number_fmt_issues(test, platform_info):
     return None
 
 
-def check_plural_rules_issues(test):
+def check_plural_rules_issues(test, platform_info=None):
     try:
         input_data = test['input_data']
         sample_string = input_data['sample']
@@ -395,7 +404,7 @@ def check_plural_rules_issues(test):
         return None
 
 
-def check_collation_issues(test):
+def check_collation_issues(test, platform_info=None):
     input_data = test.get('input_data', {})
 
     # Check for jsonc bug with surrogates
@@ -425,19 +434,19 @@ def compute_known_issues_for_single_test(test_type, test, platform_info):
     # Returns True if this single test is an example of one or more known issues,
     known_issue_found = False
     if test_type == ddt_data.testType.collation.value:
-        known_issue_found = check_collation_issues(test)
+        known_issue_found = check_collation_issues(test, platform_info)
     if test_type == ddt_data.testType.datetime_fmt.value:
-        known_issue_found = check_datetime_known_issues(test)
+        known_issue_found = check_datetime_known_issues(test, platform_info)
     elif test_type == ddt_data.testType.rdt_fmt.value:
-        known_issue_found = check_rdt_known_issues(test)
+        known_issue_found = check_rdt_known_issues(test, platform_info)
     elif test_type == ddt_data.testType.likely_subtags.value:
-        known_issue_found = check_likely_subtags_issues(test)
+        known_issue_found = check_likely_subtags_issues(test, platform_info)
     elif test_type == ddt_data.testType.lang_names.value:
-        known_issue_found = check_langnames_issues(test)
+        known_issue_found = check_langnames_issues(test, platform_info)
     elif test_type == ddt_data.testType.number_fmt.value:
         known_issue_found = check_number_fmt_issues(test, platform_info)
     elif test_type == ddt_data.testType.plural_rules.value:
-        known_issue_found = check_plural_rules_issues(test)
+        known_issue_found = check_plural_rules_issues(test, platform_info)
 
     # TODO: Add checks here for known issues in other test types
 

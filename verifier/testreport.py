@@ -185,6 +185,7 @@ class TestReport:
         self.differ = Differ()
 
         # Pattern for finding AM/PM in date time formatted output
+        # ??self.am_pm_pattern = re.compile(r'[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
         self.am_pm_pattern = re.compile(r'\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
@@ -386,7 +387,8 @@ class TestReport:
             self.test_type,
             # Don't look at tests labeled as "unsupported"
             [self.failing_tests, self.test_errors],
-            self.platform_info)
+            self.platform_info
+        )
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -402,14 +404,14 @@ class TestReport:
             except KeyError:
                 self.platform_info['icuVersion'] = 'Unknown'
 
-        platform_data = '%s %s - ICU %s' % (
+        platform_info = '%s %s - ICU %s' % (
             self.platform_info['platform'], self.platform_info['platformVersion'],
             self.platform_info['icuVersion'])
         html_map = {'test_type': self.test_type,
                     'exec': self.exec,
                     # TODO: Change to 'icu4x' instead of rust
                     'library_name': self.library_name,
-                    'platform_info': platform_data,
+                    'platform_info': platform_info,
                     'test_environment': dict_to_html(self.test_environment),
                     'timestamp': self.timestamp,
                     'total_tests': self.number_tests,
@@ -425,27 +427,27 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            if 'result' in fail:
-                fail_result = fail['result']
-                # if len(fail_result) > max_fail_length:
-                #     max_fail_length = len(fail_result)
+            fail_result = str(fail['result'])
+            if len(fail_result) > max_fail_length:
+                max_fail_length = len(fail_result)
 
-                # if len(fail_result) > 30:
-                #     # Make the actual text shorter so it doesn't distort the table column
-                #     fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
-                if fail_result is str:
-                    line = self.fail_line_template.safe_substitute(fail_result)
-                    fail_lines.append(line)
+            if len(fail_result) > 30:
+                # Make the actual text shorter so it doesn't distort the table column
+                fail['result'] = fail_result[0:15] + ' ... ' + fail_result[-14:]
+            line = self.fail_line_template.safe_substitute(fail)
+            fail_lines.append(line)
 
         # Call functions to identify known issues, moving things from fail, error, and unsupported
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
             [self.failing_tests, self.test_errors, self.unsupported_cases],
-            self.platform_info)
+            self.platform_info
+        )
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
+
 
         # Characterize successes, too.
         pass_characterized = self.characterize_results_by_options(self.passing_tests, 'pass')
@@ -468,11 +470,9 @@ class TestReport:
         # TODO: Should we compute top 3-5 overlaps for each set?
         # Flatten and combine the dictionary values
         fail_characterized = self.characterize_results_by_options(self.failing_tests, 'fail')
-        fail_simple_diffs = self.check_text_diffs(self.failing_tests, 'fail')
-        flat_combined_dict = self.flatten_and_combine(fail_characterized, fail_simple_diffs)
-
-        flat_combined_dict = self.flatten_and_combine(fail_characterized, fail_simple_diffs)
-        # TODO Add list differences to results
+        fail_simple_diffs = self.check_simple_text_diffs(self.failing_tests, 'fail')
+        flat_combined_dict = self.flatten_and_combine(fail_characterized,
+                                                      fail_simple_diffs)
         self.save_characterized_file(flat_combined_dict, "fail")
 
         failure_labels = []
@@ -769,6 +769,7 @@ class TestReport:
                expected = test['expected']
             else:
                 expected = 'NO EXPECTED VALUE'
+
             if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
@@ -810,39 +811,32 @@ class TestReport:
                 except:
                     pass
 
-    def check_text_diffs(self, test_list, category):
+    def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
-                      'comma_type', 'unexpected_comma', 'result_type_difference', 'boolean_difference',
-                      'error_in_key', 'other_list_difference']
-        list_differences = defaultdict(set)
+                      'comma_type', 'unexpected_comma']
+
         for check in all_checks:
             results[check] = set()
 
         for fail in test_list:
             label = fail['label']
             actual = fail.get('result', None)
-            expected = fail['expected']
-            if type(actual) != type(expected):
-                # This is a type mismatch. Note this and skip the string-specific characterizations.
-                results['result_type_difference'].add(label)
-                continue
+            expected = fail.get('expected', None)
             if (actual is None) or (expected is None):
                 continue
-            if  isinstance(actual, list) and isinstance(expected, list):
-                list_differences = self.check_list_differences(fail, list_differences)
-                # Merge these into the results
-                continue
-            # Special cases for boolean difference.
+            # Special case for differing by a single character.
             # Look for white space difference
+
             if isinstance(actual, bool) and isinstance(expected, bool):
-                results['boolean_difference'].add(label)
-                continue
+                # TODO: record boolean difference
+                return
 
             # The following checks work on strings
             try:
+                # Try
                 try:
                     # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
@@ -928,38 +922,9 @@ class TestReport:
                         results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
-                results['error_in_key'].add(label);
                 continue
 
-        results.update(list_differences)
         return dict(results)
-
-    def check_list_differences(self, test, results):
-        # Look at data where expected and actual are lists of strings
-        # Update results with new instances
-        # results = defaultdict(list)
-        # all_checks = ['different lengths', 'different_content', 'other list difference',
-        #               'type_difference']
-        # for check in all_checks:
-        #     results[check] = set()
-
-        label = test['label']
-        actual = test.get('result', None)
-        expected = test.get('expected', None)
-
-        if len(actual) != len(expected):
-            results['different_lengths'].add(label)
-        else:
-            results['other_list_difference'].add(label)
-
-            # Same length. Check how many items are different
-            diff_count = 0
-            for item1, item2 in zip(expected, actual):
-                if item1 != item2:
-                    diff_count += 1
-            results['%d diffs' % diff_count].add(label)
-
-        return results
 
     def save_characterized_file(self, characterized_data, characterized_type):
         try:
@@ -1165,9 +1130,6 @@ class SummaryReport:
 
         self.templates = reportTemplate()
 
-        # Order left-to-right of platforms in summary dashboard
-        self.platform_order = []
-
         if self.debug > 1:
             logging.info('SUMMARY REPORT base = %s', self.file_base)
 
@@ -1293,19 +1255,12 @@ class SummaryReport:
     def create_summary_html(self):
         # Generate HTML page containing this information
         # Create the template
-
-        platform_string_for_template = None
-        if any(self.platform_order):
-            platform_string_for_template = '", "'.join(self.platform_order)
-
         html_map = {
             'all_platforms': ', '.join(list(self.exec_summary.keys())),
             'all_icu_versions': None,  # TEMP!!!
             'all_tests': ', '.join(list(self.type_summary.keys())),
             'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'platform_order': platform_string_for_template
         }
-
         # Create header for each executor
         header_line = ''  # TODO
         html_map['header_line'] = header_line
