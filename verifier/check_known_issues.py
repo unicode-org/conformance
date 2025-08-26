@@ -57,7 +57,6 @@ class knownIssueType(Enum):
     # Datetime format
     datetime_fmt_at_inserted = 'Alternate formatting with "at" between time and date'
     datetime_fmt_arabic_comma = 'Arabic comma vs. ASCII comma'
-    datetime_unexpected_comma = 'Unexpected comma'
     datetime_inserted_comma = 'inserted comma'
 
     datetime_semantic_Z = 'NodeJS always includes date or time'
@@ -193,12 +192,6 @@ def dt_check_arabic_comma(actual, expected):
         return knownIssueType.datetime_fmt_arabic_comma
     return None
 
-
-def dt_unexpected_comma(actual, expected):
-    if actual.replace('\u002c', '') == expected:
-        return knownIssueType.datetime_unexpected_comma
-    else:
-        return None
 
 def dt_inserted_comma(actual, expected):
     sm = SequenceMatcher(None, expected, actual)
