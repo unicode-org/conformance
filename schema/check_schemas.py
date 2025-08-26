@@ -129,7 +129,7 @@ def main(args):
         # We need to clobber the process
         sys.exit(1)
     else:
-logging.info("All %d schema are valid in file %s", schema_count, output_filename)
+        logging.info("All %d schema are valid in file %s", schema_count, output_filename)
         exit(0)
 
 
