@@ -62,7 +62,7 @@ class ValidateSchema:
 
 def parallel_validate_schema(validator, file_names):
     num_processors = multiprocessing.cpu_count()
-    logging.info('check_schemas: Schema validation: %s processors for %s schema validations', num_processors, len(file_names))
+    logging.info('Schema validation: %s processors for %s schema validations', num_processors, len(file_names))
 
     processor_pool = multiprocessing.Pool(num_processors)
     # How to get all the results
@@ -77,7 +77,7 @@ def parallel_validate_schema(validator, file_names):
 def main(args):
     logger = logging.Logger("TEST SCHEMAS LOGGER")
     logger.setLevel(logging.INFO)
-    logger.info('+++ check_schemas: Test JSON Schema files')
+    logger.info('+++ Test JSON Schema files')
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
@@ -129,7 +129,7 @@ def main(args):
         # We need to clobber the process
         sys.exit(1)
     else:
-        logging.info("check_schemas: All %d schema are valid in file %s", schema_count, output_filename)
+logging.info("All %d schema are valid in file %s", schema_count, output_filename)
         exit(0)
 
 
