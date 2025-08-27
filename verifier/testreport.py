@@ -816,7 +816,7 @@ class TestReport:
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
-                      'comma_type', 'unexpected_comma']
+                      'comma_type', 'unexpected_comma', 'boolean_diff']
 
         for check in all_checks:
             results[check] = set()
@@ -827,18 +827,14 @@ class TestReport:
             expected = fail.get('expected', None)
             if (actual is None) or (expected is None):
                 continue
-            # Special case for differing by a single character.
-            # Look for white space difference
 
-            if isinstance(actual, bool) and isinstance(expected, bool):
-                # TODO: record boolean difference
-                return
+            if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
+                results['boolean_diff'].add(label)
 
             # The following checks work on strings
             try:
-                # Try
+                # Get the sequence of differences for processing
                 try:
-                    # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
                     sm_opcodes = sm.get_opcodes()
                 except TypeError as err:

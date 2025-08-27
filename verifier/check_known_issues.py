@@ -213,6 +213,7 @@ def dt_gmt_utc(actual, expected):
     if new_actual.replace('UTC', 'GMT') == new_expected or \
             new_actual.replace('Coordinated Universal', 'Greenwich Mean') == new_expected:
         return knownIssueType.datetime_GMT_UTC
+    return None
 
 def check_datetime_known_issues(test, platform_info):
     # Examine a single test for date/time isses
@@ -236,13 +237,11 @@ def check_datetime_known_issues(test, platform_info):
         for check_fn in check_fns:
             is_ki = check_fn(result, expected)
             if is_ki:
-                test['known_issue'] = is_ki.value
+                test['known_issue_id'] = is_ki.value
                 remove_this_one = True
                 all_matching_issues.append(is_ki.value)
 
-
-        # Check if the semantic skeleton has "Z"
-        # TODO: check platform - only for NodeJS
+        # Check if the semantic skeleton has "Z" for NodeJS
         if platform_info['platform'] == 'NodeJS' and result:
             if input_data and 'semanticSkeleton' in input_data['options'] and \
                input_data['options']['semanticSkeleton'] == 'Z':
