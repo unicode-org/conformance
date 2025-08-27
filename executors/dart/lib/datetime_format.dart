@@ -62,11 +62,11 @@ String testDateTimeFmt(String jsonEncoded) {
   }
 
   // ignore: unused_local_variable - to be used with the timezoneformatter
-  String? timezone;
+  String? timeZoneName;
   int? offsetSeconds;
   if (testOptionsJson.containsKey('timeZone') &&
       json.containsKey('tz_offset_secs')) {
-    timezone = testOptionsJson['timeZone'] as String;
+    timeZoneName = testOptionsJson['timeZone'] as String;
     offsetSeconds = (json['tz_offset_secs'] as num).toInt();
   }
 
@@ -115,16 +115,12 @@ String testDateTimeFmt(String jsonEncoded) {
           )
         : getFormatterForStyle(dateStyle, timeStyle, yearStyle, dtFormatter);
     String formattedDt;
-    if (timeStyle == 'full' && timezone != null) {
+    if (timeStyle == 'full' && timeZoneName != null) {
       final offset = Duration(seconds: offsetSeconds!);
-      final timeZone = TimeZone(name: timezone, offset: offset);
+      final timeZone = TimeZone(name: timeZoneName, offset: offset);
       final timeZoneStyle = 'long';
-      final zonedFormatter = getZonedFormatter(
-        timeZoneStyle,
-        formatter,
-        timeZone,
-      );
-      formattedDt = zonedFormatter.format(testDate.add(offset));
+      final zonedFormatter = getZonedFormatter(timeZoneStyle, formatter);
+      formattedDt = zonedFormatter.format(testDate.add(offset), timeZone);
     } else {
       formattedDt = formatter.format(testDate);
     }
@@ -139,7 +135,7 @@ String testDateTimeFmt(String jsonEncoded) {
   return jsonEncode(returnJson);
 }
 
-FormatterWithTimeZones getFormatterForSkeleton(
+DateTimeFormatter getFormatterForSkeleton(
   String semanticSkeleton,
   String? semanticSkeletonLength,
   DateTimeFormatBuilder dtFormatter,
@@ -168,21 +164,20 @@ FormatterWithTimeZones getFormatterForSkeleton(
   };
 }
 
-ZonedFormatter getZonedFormatter(
+ZonedDateTimeFormatter getZonedFormatter(
   String timeZoneStyle,
-  FormatterWithTimeZones formatter,
-  TimeZone timeZone,
+  DateTimeFormatter formatter,
 ) {
   final zonedFormatter = switch (timeZoneStyle) {
-    'short' => formatter.withTimeZoneShort(timeZone),
-    'long' => formatter.withTimeZoneLong(timeZone),
-    'full' => formatter.withTimeZoneLongGeneric(timeZone),
+    'short' => formatter.withTimeZoneShort(),
+    'long' => formatter.withTimeZoneLong(),
+    'full' => formatter.withTimeZoneLongGeneric(),
     String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
   };
   return zonedFormatter;
 }
 
-FormatterWithTimeZones getFormatterForStyle(
+DateTimeFormatter getFormatterForStyle(
   String? dateStyle,
   String? timeStyle,
   String? yearStyle,
