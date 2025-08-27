@@ -6,7 +6,7 @@ environment:
 
 dependencies:
   collection: ^1.19.1
-  intl4x: 0.12.2
+  intl4x: 0.13.0
   node_preamble: ^2.0.2
   pubspec_lock_parse: ^2.2.0
 
@@ -19,8 +19,3 @@ dev_dependencies:
 hook:
   intl4x:
     buildMode: fetch
-
-
-dependency_overrides:
-  intl4x:
-    path: ../../../i18n/pkgs/intl4x/

@@ -153,13 +153,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  icu4x:
+    dependency: transitive
+    description:
+      name: icu4x
+      sha256: "9e89a363c410608de336e1a15c599ecc49245cc6f9d7d719b4b1ced57151c92c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0-dev.0"
   intl4x:
     dependency: "direct main"
     description:
-      path: "../../../i18n/pkgs/intl4x"
-      relative: true
-    source: path
-    version: "0.13.0-wip"
+      name: intl4x
+      sha256: "17ca4511e95d036954897ca192d771598b3744c07bd43de72a35af795f244228"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
   io:
     dependency: transitive
     description:
@@ -420,10 +429,10 @@ packages:
     dependency: transitive
     description:
       name: watcher
-      sha256: "0b7fd4a0bbc4b92641dbf20adfd7e3fd1398fe17102d94b674234563e110088a"
+      sha256: "5bf046f41320ac97a469d506261797f35254fa61c641741ef32dacda98b7d39c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.1.3"
   web:
     dependency: transitive
     description:
