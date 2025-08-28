@@ -63,6 +63,8 @@ class knownIssueType(Enum):
 
     datetime_GMT_UTC = 'UTC instead of GMT'
 
+    datetime_TZ_name = 'Using different names of timezone'
+
     # Likely Subtags
     likely_subtags_sr_latn = "sr_latin becoming en"
 
@@ -210,6 +212,14 @@ def dt_gmt_utc(actual, expected):
     new_expected = expected.replace(NBSP, SP)
     new_actual = actual.replace(NBSP, SP)
 
+    # Variant followed by standard
+    variations = [
+        ('UTC', 'GMT'),
+        ('توقيت غرينتش', 'التوقيت العالمي المنسق'),  # Arabic
+        ('เวลาสากลเชิงพิกัด', 'เวลามาตรฐานกรีนิช'),  # Thai
+        ('協定世界時', 'グリニッジ標準時'),  # Japanese
+    ]
+    # !!! FINISH
     if new_actual.replace('UTC', 'GMT') == new_expected or \
             new_actual.replace('Coordinated Universal', 'Greenwich Mean') == new_expected:
         return knownIssueType.datetime_GMT_UTC
