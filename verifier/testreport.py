@@ -427,7 +427,7 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            fail_result = str(fail['result'])
+            fail_result = str(fail.get('result', ''))
             if len(fail_result) > max_fail_length:
                 max_fail_length = len(fail_result)
 
