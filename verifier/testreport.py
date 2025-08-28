@@ -830,9 +830,13 @@ class TestReport:
 
             if isinstance(actual, list) and isinstance(expected, list):
                 list_differences = self.check_list_differences(fail, list_differences)
+                continue
 
             if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
                 results['boolean_diff'].add(label)
+
+            if isinstance(actual, list) or isinstance(expected, list):
+                continue
 
             # The following checks work on strings
             try:
@@ -849,6 +853,8 @@ class TestReport:
                     kind = diff[0]
                     old_val = expected[diff[1]:diff[2]]
                     new_val = actual[diff[1]:diff[2]]
+                    if old_val == [] or new_val == [] or isinstance(old_val, list) or isinstance(new_val, list):
+                        continue
                     if kind == 'replace':
                         if old_val.isdigit() and new_val.isdigit():
                             results['replace_digit'].add(label)

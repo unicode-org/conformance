@@ -108,9 +108,9 @@ def diff_ascii_space_vs_nbsp(actual, expected_value):
     if not expected_value or not actual:
         return None
 
-    # If replacing all the NBSP characdters in expected gives the actual result,
-    # then the only differences were with this type of space in formatted output.
-    if expected_value.replace(SP, NBSP) == actual:
+    # Normalizing all NBSP spaces to ASCII in both to check if the type of space
+    # is the only difference in formatted output.
+    if actual.replace(NBSP, SP) == expected_value.replace(NBSP, SP):
         return knownIssueType.known_issue_sp_nbsp
     else:
         return None
