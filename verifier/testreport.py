@@ -185,7 +185,6 @@ class TestReport:
         self.differ = Differ()
 
         # Pattern for finding AM/PM in date time formatted output
-        # ??self.am_pm_pattern = re.compile(r'[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
         self.am_pm_pattern = re.compile(r'\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
