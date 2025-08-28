@@ -209,20 +209,21 @@ def dt_inserted_comma(actual, expected):
 
 def dt_gmt_utc(actual, expected):
     # The difference may also include NBSP vs ASCII space
-    new_expected = expected.replace(NBSP, SP)
-    new_actual = actual.replace(NBSP, SP)
+    new_expected = expected.replace(NBSP, SP).replace(',', '')
+    new_actual = actual.replace(NBSP, SP).replace(' at', '').replace(',', '')
 
     # Variant followed by standard
     variations = [
         ('UTC', 'GMT'),
+        ('Coordinated Universal Time', 'Greenwich Mean Time'),
         ('توقيت غرينتش', 'التوقيت العالمي المنسق'),  # Arabic
         ('เวลาสากลเชิงพิกัด', 'เวลามาตรฐานกรีนิช'),  # Thai
         ('協定世界時', 'グリニッジ標準時'),  # Japanese
     ]
-    # !!! FINISH
-    if new_actual.replace('UTC', 'GMT') == new_expected or \
-            new_actual.replace('Coordinated Universal', 'Greenwich Mean') == new_expected:
-        return knownIssueType.datetime_GMT_UTC
+
+    for variation in variations:
+        if new_actual.find(variation[0]) >= 0 and new_actual.replace(variation[0], variation[1]) == new_expected:
+            return knownIssueType.datetime_GMT_UTC
     return None
 
 def check_datetime_known_issues(test, platform_info):
@@ -242,8 +243,9 @@ def check_datetime_known_issues(test, platform_info):
         input_data = test.get('input_data')
 
         # Perform each test, computing matches with known issues by means of the functions in this list
-        check_fns = [dt_gmt_utc, diff_nbsp_vs_ascii_space, diff_ascii_space_vs_nbsp, numerals_replaced_by_another_numbering_system,
-                  dt_check_arabic_comma, dt_inserted_comma, dt_check_for_alternate_long_form]
+        check_fns = [dt_gmt_utc, diff_nbsp_vs_ascii_space, diff_ascii_space_vs_nbsp,
+                     numerals_replaced_by_another_numbering_system,
+                     dt_check_arabic_comma, dt_inserted_comma, dt_check_for_alternate_long_form]
         for check_fn in check_fns:
             is_ki = check_fn(result, expected)
             if is_ki:
