@@ -816,8 +816,8 @@ class TestReport:
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
                       'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
-                      'comma_type', 'unexpected_comma', 'boolean_diff']
-
+                      'comma_type', 'unexpected_comma', 'boolean_diff', 'error_in_key', 'other_list_difference']
+        list_differences = defaultdict(set)
         for check in all_checks:
             results[check] = set()
 
@@ -827,6 +827,9 @@ class TestReport:
             expected = fail.get('expected', None)
             if (actual is None) or (expected is None):
                 continue
+
+            if isinstance(actual, list) and isinstance(expected, list):
+                list_differences = self.check_list_differences(fail, list_differences)
 
             if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
                 results['boolean_diff'].add(label)
@@ -918,9 +921,38 @@ class TestReport:
                         results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
+                results['error_in_key'].add(label);
                 continue
 
+        results.update(list_differences)
         return dict(results)
+
+    def check_list_differences(self, test, results):
+        # Look at data where expected and actual are lists of strings
+        # Update results with new instances
+        # results = defaultdict(list)
+        # all_checks = ['different lengths', 'different_content', 'other list difference',
+        #               'type_difference']
+        # for check in all_checks:
+        #     results[check] = set()
+
+        label = test['label']
+        actual = test.get('result', None)
+        expected = test.get('expected', None)
+
+        if len(actual) != len(expected):
+            results['different_lengths'].add(label)
+        else:
+            results['other_list_difference'].add(label)
+
+            # Same length. Check how many items are different
+            diff_count = 0
+            for item1, item2 in zip(expected, actual):
+                if item1 != item2:
+                    diff_count += 1
+            results['%d diffs' % diff_count].add(label)
+
+        return results
 
     def save_characterized_file(self, characterized_data, characterized_type):
         try:
