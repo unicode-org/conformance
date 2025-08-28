@@ -35,12 +35,9 @@ using std::string;
 
 auto StringToEStyle(string style_string) -> icu::DateFormat::EStyle {
   if (style_string == "full") { return icu::DateFormat::kFull;
-  }
-  if (style_string == "long") { return icu::DateFormat::kLong;
-  }
-  if (style_string == "medium") { return icu::DateFormat::kMedium;
-  }
-  if (style_string == "short") { return icu::DateFormat::kShort;
+  } else if (style_string == "long") { return icu::DateFormat::kLong;
+  } else if (style_string == "medium") { return icu::DateFormat::kMedium;
+  } else if (style_string == "short") { return icu::DateFormat::kShort;
   }
   return icu::DateFormat::kNone;
 }

@@ -122,11 +122,8 @@ module.exports = {
       }
 
       test_options = fill_options_from_skeleton_parts(split);
-      // ??? Use other options, e.g., "hourCycle"
-      if (debug > 0) {
-        console.log('# TEST_OPTIONS: %s', split, test_options);
-      }
 
+      // This may be specified explicitly in options.
       if ('hourCycle' in input_options) {
         test_options['hourCycle'] = input_options['hourCycle'];
       }
