@@ -35,13 +35,10 @@ using std::string;
 
 auto StringToEStyle(string style_string) -> icu::DateFormat::EStyle {
   if (style_string == "full") { return icu::DateFormat::kFull;
-}
-  if (style_string == "long") { return icu::DateFormat::kLong;
-}
-  if (style_string == "medium") { return icu::DateFormat::kMedium;
-}
-  if (style_string == "short") { return icu::DateFormat::kShort;
-}
+  } else if (style_string == "long") { return icu::DateFormat::kLong;
+  } else if (style_string == "medium") { return icu::DateFormat::kMedium;
+  } else if (style_string == "short") { return icu::DateFormat::kShort;
+  }
   return icu::DateFormat::kNone;
 }
 
@@ -224,7 +221,7 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
   // Use ISO string form of the date/time.
   json_object *input_string_obj =
       json_object_object_get(json_in, "input_string");
-  // Prefer ISO input as input.
+  // Use ISO input in milliseconds if available.
   json_object *input_millis = json_object_object_get(json_in, "input_millis");
 
   UDate test_date_time;
@@ -233,26 +230,10 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
 
     string input_date_string = json_object_get_string(input_string_obj);
 
-    // SimpleDateFormat can't parse options or timezone offset
-    // First, remove options starting with "["
-    std::size_t pos = input_date_string.find("[");
-    if (pos >= 0) {
-      input_date_string = input_date_string.substr(0, pos);
-    }
-    // Now remove the explicit offset
-    pos = input_date_string.find("+");
-    if (pos >= 0) {
-      input_date_string = input_date_string.substr(0, pos);
-    }
-    pos = input_date_string.rfind("-");
-    if (pos >= 10) {
-      // DOn't clip in the date fields
-      input_date_string = input_date_string.substr(0, pos);
-    }
     UnicodeString date_ustring(input_date_string.c_str());
 
-    // TODO:  handles the offset +/-
-    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:sZ", und_locale, status);
+    // Input string is in 24 hour time!
+    SimpleDateFormat iso_date_fmt(u"y-M-d'T'H:m:sZ", und_locale, status);
     if (U_FAILURE(status) != 0) {
       string error_name = u_errorName(status);
       string error_message =
