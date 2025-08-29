@@ -426,7 +426,7 @@ def compute_known_issues_for_single_test(test_type, test, platform_info):
     known_issue_found = False
     if test_type == ddt_data.testType.collation.value:
         known_issue_found = check_collation_issues(test, platform_info)
-    if test_type == ddt_data.testType.datetime_fmt.value:
+    elif test_type == ddt_data.testType.datetime_fmt.value:
         known_issue_found = check_datetime_known_issues(test, platform_info)
     elif test_type == ddt_data.testType.rdt_fmt.value:
         known_issue_found = check_rdt_known_issues(test, platform_info)
