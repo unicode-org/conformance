@@ -830,9 +830,11 @@ class TestReport:
 
             if isinstance(actual, list) and isinstance(expected, list):
                 list_differences = self.check_list_differences(fail, list_differences)
-
+                continue
+                
             if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
                 results['boolean_diff'].add(label)
+                continue
 
             # The following checks work on strings
             try:
