@@ -62,7 +62,6 @@ class knownIssueType(Enum):
     datetime_semantic_Z = 'NodeJS always includes date or time'
 
     datetime_GMT_UTC = 'UTC instead of GMT'
-
     datetime_TZ_name = 'Using different names of timezone'
 
     # Likely Subtags
@@ -110,9 +109,10 @@ def diff_ascii_space_vs_nbsp(actual, expected_value):
     if not expected_value or not actual:
         return None
 
-    # If replacing all the NBSP characdters in expected gives the actual result,
-    # then the only differences were with this type of space in formatted output.
-    if expected_value.replace(SP, NBSP) == actual:
+
+    # Normalizing all NBSP spaces to ASCII in both to check if the type of space
+    # is the only difference in formatted output.
+    if actual.replace(NBSP, SP) == expected_value.replace(NBSP, SP):
         return knownIssueType.known_issue_sp_nbsp
     else:
         return None
@@ -224,6 +224,12 @@ def dt_gmt_utc(actual, expected):
     for variation in variations:
         if new_actual.find(variation[0]) >= 0 and new_actual.replace(variation[0], variation[1]) == new_expected:
             return knownIssueType.datetime_GMT_UTC
+    new_expected = expected.replace(NBSP, SP)
+    new_actual = actual.replace(NBSP, SP)
+
+    if new_actual.replace('UTC', 'GMT') == new_expected or \
+            new_actual.replace('Coordinated Universal', 'Greenwich Mean') == new_expected:
+        return knownIssueType.datetime_GMT_UTC
     return None
 
 def check_datetime_known_issues(test, platform_info):
@@ -246,6 +252,7 @@ def check_datetime_known_issues(test, platform_info):
         check_fns = [dt_gmt_utc, diff_nbsp_vs_ascii_space, diff_ascii_space_vs_nbsp,
                      numerals_replaced_by_another_numbering_system,
                      dt_check_arabic_comma, dt_inserted_comma, dt_check_for_alternate_long_form]
+
         for check_fn in check_fns:
             is_ki = check_fn(result, expected)
             if is_ki:
