@@ -834,7 +834,8 @@ class TestReport:
 
             if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
                 results['boolean_diff'].add(label)
-
+                continue
+                
             if isinstance(actual, list) or isinstance(expected, list):
                 continue
 
