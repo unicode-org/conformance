@@ -12,16 +12,18 @@ import logging.config
 import os.path
 import sys
 
-# To get commandline arguments
-sys.path.append('../testdriver')
-from ddtargs import schemaArgs
-
 import schema_validator
 from schema_files import ALL_TEST_TYPES
+
+# To get commandline arguments
+sys.path.append('../testdriver')
+from ddtargs import SchemaArgs
 
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
+
+    schema_options = SchemaArgs(args).getOptions()
 
     if len(args) <= 1:
         logging.error('Please specify the path to test data directory')

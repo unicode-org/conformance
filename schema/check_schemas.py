@@ -15,9 +15,10 @@ import sys
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
+
 # To get commanlin arguments
 sys.path.append('../testdriver')
-from ddtargs import schemaArgs
+from ddtargs import SchemaArgs
 
 
 class ValidateSchema:

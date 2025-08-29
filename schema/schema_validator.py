@@ -17,6 +17,10 @@ import sys
 import schema_files
 from schema_files import SCHEMA_FILE_MAP
 
+sys.path.append('../testdriver')
+import datasets as ddt_data
+from ddtargs import SchemaArgs
+
 # ?? Move to the initialization
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)

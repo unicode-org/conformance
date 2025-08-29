@@ -16,17 +16,19 @@ from schema_files import ALL_TEST_TYPES
 
 # To get commanlin arguments
 sys.path.append('../testdriver')
-from ddtargs import schemaArgs
+from ddtargs import SchemaArgs
 
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
-    if len(args) <= 1:
-        logging.error('Please specify the path to the test output directory')
-        sys.exit(1)
-    else:
-        test_output_path = args[1]
+    schema_options = SchemaArgs(args).getOptions()
+
+    # file_base + output_path
+    test_output_path = schema_options.test_output_path + schema_options.output_path
+
+    # TODO: Use this
+    run_serial = schema_options.run_serial
 
     logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
@@ -47,6 +49,7 @@ def main(args):
                 executor_set.add(os.path.basename(path))
 
         icu_path = os.path.join(test_output_path, '*', 'icu*')
+
         icu_dirs = glob.glob(icu_path)
 
         test_output_json_path = os.path.join(test_output_path, '*', 'icu*', '*.json')

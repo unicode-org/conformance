@@ -59,10 +59,6 @@ class DdtArgs():
     self.parser.add_argument('--noverify', default=None)  #
     self.parser.add_argument('--custom_verifier', default=None)  #
 
-    self.parser.add_argument(
-        '--run_serial', default=None,
-        help='Set if execution should be done serially. Parallel is the default.')
-
     self.options = self.parser.parse_args(args)
 
   def parse(self):
@@ -93,9 +89,6 @@ class VerifyArgs():
     self.parser.add_argument('--test_verifier',
                              help='Flag to run in test mode', default=None)
 
-    self.parser.add_argument('--run_serial', default=None,
-                             help='Set if execution should be done serially. Parallel is the default.')
-
     self.options = self.parser.parse_args(args)
     return
 
@@ -103,16 +96,17 @@ class VerifyArgs():
     return self.options
 
 
-class schemaArgs():
+class SchemaArgs():
   def __init__(self, args):
     self.parser = argparse.ArgumentParser(
         description='Schema check arguments')
 
-    self.parser.add_argument('--run_serial', default=None,
-                             help='Set if execution should be done serially. Parallel is the default.')
+    set.parser.add_argment('--schema_base',
+                           help='Where the schemas are based'
+                           )
+    setCommonArgs(self.parser)
+
     self.options = self.parser.parse_args(args)
-
-
 
   def getOptions(self):
     return self.options
@@ -168,6 +162,11 @@ def setCommonArgs(parser):
 
   parser.add_argument('--ignore', default=None)
 
+  parser.add_argument(
+      '--run_serial', default=None,
+      help='Set if processing should be done serially. Parallel is the default.')
+
+
 def argsTestData():
   tests = [
       ['--test_type', 'collation'],
@@ -192,6 +191,7 @@ def argsTestData():
        'testData/customtest3.json'],
   ]
   return tests
+
 
 def main(args):
 
