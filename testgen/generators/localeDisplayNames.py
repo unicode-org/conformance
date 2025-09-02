@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import common
-
 import os
 import json
 import re
 import logging
 from generators.base import DataGenerator
+
+reblankline = re.compile("^\s*$")
+
 
 class LocaleNamesGenerator(DataGenerator):
     json_test = {"test_type": "lang_names"}
@@ -58,6 +59,8 @@ class LocaleNamesGenerator(DataGenerator):
 
     def generateLanguageNameTestDataObjects(self, rawtestdata):
         # Get the JSON data for tests and verification for language names
+        recommentline = re.compile("^\s*#")
+
         set_locale = re.compile(r"@locale=(\w+)")
         set_languageDisplay = re.compile(r"@languageDisplay=(\w+)")
 
@@ -75,7 +78,7 @@ class LocaleNamesGenerator(DataGenerator):
         language_display = 'standard'
 
         for item in test_lines:
-            if not (common.RE_COMMENT_LINE.match(item) or common.RE_BLANK_LINE.match(item)):
+            if not (recommentline.match(item) or reblankline.match(item)):
 
                 locale_match = set_locale.match(item)
                 if locale_match:
