@@ -26,15 +26,15 @@ class LocaleNamesGenerator(DataGenerator):
         # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(raw_locale_display_names_testdata)
         self.generateTestHashValues(self.json_test)
-        output_path = os.path.join(self.icu_version, "lang_name_test_file.json")
-        lang_name_test_file = open(output_path, "w", encoding="UTF-8")
-        json.dump(self.json_test, lang_name_test_file, indent=1)
-        lang_name_test_file.close()
+        output_path = os.path.join(self.icu_version, "lang_names_test_file.json")
+        lang_names_test_file = open(output_path, "w", encoding="UTF-8")
+        json.dump(self.json_test, lang_names_test_file, indent=1)
+        lang_names_test_file.close()
 
-        output_path = os.path.join(self.icu_version, "lang_name_verify_file.json")
-        lang_name_verify_file = open(output_path, "w", encoding="UTF-8")
-        json.dump(self.json_verify, lang_name_verify_file, indent=1)
-        lang_name_verify_file.close()
+        output_path = os.path.join(self.icu_version, "lang_names_verify_file.json")
+        lang_names_verify_file = open(output_path, "w", encoding="UTF-8")
+        json.dump(self.json_verify, lang_names_verify_file, indent=1)
+        lang_names_verify_file.close()
 
         return True
 
