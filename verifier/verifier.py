@@ -129,6 +129,7 @@ class Verifier:
             # Generates exec and test lists from the existing files in
             # testResults directories
             summary_report = SummaryReport(self.file_base)
+
             summary_report.summarize_reports()
             executor_list = summary_report.exec_summary.keys()
             test_list = summary_report.type_summary.keys()
@@ -231,8 +232,12 @@ class Verifier:
 
             processor_pool = mp.Pool(num_processors)
             with processor_pool as p:
-                result = p.map(self.verify_one_plan, verify_plans)
-            return result
+                try:
+                    result = p.map(self.verify_one_plan, verify_plans)
+                except BaseException as err:
+                    logging.error('%s: Problem with verify_data for %s',
+                                  err, verify_plans)
+                    return result
         else:
             logging.info('Running serially!')
             for vplan in self.verify_plans:
@@ -302,6 +307,11 @@ class Verifier:
         # The following gets information from all the tests
         summary_report = SummaryReport(self.file_base)
         summary_report.setup_all_test_results()
+
+
+        if self.options.platform_order:
+            # Set the order of the platforms in the summary dashboard
+            summary_report.platform_order = self.options.platform_order
 
         # Get schema summary data to the testReport head
         schema_validation_list = self.schema_results()

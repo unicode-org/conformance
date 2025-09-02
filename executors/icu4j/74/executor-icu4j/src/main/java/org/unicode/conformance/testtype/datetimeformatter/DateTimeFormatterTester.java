@@ -30,13 +30,14 @@ public class DateTimeFormatterTester implements ITestType {
 
     result.label = (String) inputMapData.get("label", null);
     result.locale_string = (String) inputMapData.get("locale", null);
-    result.skeleton = (String) inputMapData.get("skeleton", null);
 
     // The instant in UTC time.
     result.inputString = (String) inputMapData.get("input_string", null);
 
     java.util.Map<String, Object> inputOptions =
         (java.util.Map<String, Object>) inputMapData.get("options", null);
+
+    result.skeleton = (String) inputOptions.get("skeleton");
 
     result.timeZoneName = (String) inputOptions.get("timeZone");
     if (result.timeZoneName == null) {
@@ -59,6 +60,8 @@ public class DateTimeFormatterTester implements ITestType {
     );
 
     result.calendar_string = (String) inputOptions.get("calendar");
+
+    result.dateTimeFormatType = (String) inputOptions.get("dateTimeFormatType");
 
     result.locale_with_calendar = new Builder().setLanguageTag(result.locale_string)
         .setUnicodeLocaleKeyword("ca", result.calendar_string)
@@ -83,6 +86,14 @@ public class DateTimeFormatterTester implements ITestType {
     } catch (Exception e) {
       output.error = e.getMessage();
       output.error_message = e.getMessage();
+      return output;
+    }
+
+    if (input.dateTimeFormatType != null && input.dateTimeFormatType.equals("standard")) {
+      output.error_message = input.dateTimeFormatType;
+      output.error_detail = "not atTime";
+      output.error_type = "unsupported";
+      output.unsupported = "format type";
       return output;
     }
 

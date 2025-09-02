@@ -84,8 +84,19 @@
            "type": "string"
          },
          "actual_options": {
+           "type": ["object", "string"],
+           "additionalProperties": true,
            "description": "Options used by collation as a string",
-           "type": "string"
+           "properties": {
+             "s1_actual": {
+               "type": "string",
+               "description": "actual input string1"
+             },
+             "s2_actual": {
+               "type": "string",
+               "description": "actual input string1"
+             }
+           }
          },
          "input_data": {
            "type": "string",

@@ -9,7 +9,6 @@ import math
 import subprocess
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
 
 class DateTimeFmtGenerator(DataGenerator):
     json_test = {"test_type": "datetime_fmt"}
@@ -77,25 +76,45 @@ class DateTimeFmtGenerator(DataGenerator):
                     options['dateStyle'] = test_item['dateLength']
                 if 'timeLength' in test_item:
                     options['timeStyle'] = test_item['timeLength']
+                # Specifies if the expected output includes "at"
+                if 'dateTimeFormatType' in test_item:
+                    options['dateTimeFormatType'] = test_item['dateTimeFormatType']
 
                 if 'calendar' in test_item:
                     options['calendar'] = test_item['calendar']
                     if options['calendar'] == 'gregorian':
                         options['calendar'] = 'gregory'
 
+                if 'yearStyle' in test_item:
+                    options['yearStyle'] = test_item['yearStyle']
+                if 'zoneStyle' in test_item:
+                    options['zoneStyle'] = test_item['zoneStyle']
+
                 # Generate UTC time equivalent and get the offset in seconds
                 u_time = raw_time.astimezone(timezone.utc)
                 input_string = u_time.isoformat().replace('+00:00', 'Z')
                 tz_offset_secs = raw_time.utcoffset().total_seconds()
 
-                new_test = {"locale": test_item['locale'], "input_string": input_string, "options": options,
-                            'tz_offset_secs': tz_offset_secs, 'label': label_str,
-                            'original_input': raw_input}
-                if 'dateTimeFormatType' in test_item:
-                    new_test['dateTimeFormatType'] = test_item['dateTimeFormatType']
+                if 'classicalSkeleton' in test_item:
+                    options['skeleton'] = test_item['classicalSkeleton']
+                if 'semanticSkeleton' in test_item:
+                    options['semanticSkeleton'] = test_item['semanticSkeleton']
+                if 'semanticSkeletonLength' in test_item:
+                    options['semanticSkeletonLength'] = test_item['semanticSkeletonLength']
 
-                new_verify = {"label": label_str,
-                              "verify": test_item['expected']
+                if 'hourCycle' in test_item:
+                    options['hourCycle'] = test_item['hourCycle'].lower()
+
+                new_test = {
+                    'label': label_str,
+                    'locale': test_item['locale'],
+                    'input_string': input_string,
+                    'options': options,
+                    'tz_offset_secs': tz_offset_secs,
+                    'original_input': raw_input}
+
+                new_verify = {'label': label_str,
+                              'verify': test_item['expected']
                 }
                 test_cases.append(new_test)
                 verify_cases.append(new_verify)
@@ -122,7 +141,8 @@ class DateTimeFmtGenerator(DataGenerator):
     def process_test_data(self):
         # Use NOde JS to create the .json files
         icu_nvm_versions = {
-            'icu76': '23.3.0',
+            'icu77': '24.0.0',
+            'icu76': '23.11.0',
             'icu75': '22.9.0',
             'icu74': '21.6.0',
             'icu73': '20.1.0',

@@ -826,33 +826,32 @@ as the result from each test. As an example, collation test results from the
 `testOutput/node` file are shown here:
 
 ```json
-{
-  "platform": {
-    "platform": "NodeJS",
-    "platformVersion": "v18.7.0",
-    "icuVersion": "71.1"
+{"platform": {
+  "platform": "NodeJS",
+  "platformVersion": "v22.9.0",
+  "icuVersion": "75.1",
+  "cldrVersion": "45.0"
   },
   "test_environment": {
-    "test_language": "nodejs",
-    "executor": "/usr/bin/nodejs ../executors/nodejs/executor.js",
+    "test_language": "node",
+    "executor": "node ../executors/node/executor.js",
     "test_type": "collation",
-    "datetime": "10/07/2022, 16:19:00",
-    "timestamp": "1665184740.2130146",
-    "inputfile": "/usr/local/google/home/ccornelius/DDT_DATA/testData/icu73/collation_testt.json",
-    "resultfile": "/usr/local/google/home/ccornelius/DDT_DATA/testOutputs/node/icu73/collation_test.json",
-    "icu_version": "ICUVersion.ICU71",
-    "cldr_version": "CLDRVersion.CLDR41",
-    "test_count": "192707"
-  },
-  "tests": [
-    {
-      "label": "0000000",
-      "result": "True"
+    "datetime": "04/09/2025, 13:14:40",
+    "timestamp": 1744229680.638771,
+    "input_file": "../TEMP_DATA_100/testData/icu75/collation_test.json",
+    "icu_version": "75.1",
+    "cldr_version": "45.0",
+    "test_count": 101
     },
-    {
-      "label": "0000001",
-      "result": "True"
-    },
+    "test_type": "collation",
+    "tests": [
+      {"label": "00000",
+       "unsupported": "Collator rules not available",
+       "error_detail": "Rules not supported"
+       },
+       {"label": "0003744", 
+        "result": true, 
+        "compare_result": 0},
     ...
   ]
 }

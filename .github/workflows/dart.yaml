@@ -1,0 +1,53 @@
+name: package:dart_executor
+permissions: read-all
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/dart.yaml"
+      - "executors/dart**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/dart.yaml"
+      - "executors/dart**"
+  schedule:
+    - cron: "0 0 * * 0" # weekly
+
+jobs:
+  build_and_test:
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        working-directory: executors/dart
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+
+      - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c
+        with:
+          sdk: 3.10.0-37.0.dev
+
+      - run: dart pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+        if: always()
+
+      - name: Analyze code
+        run: dart analyze --fatal-infos
+        if: always()
+
+      - run: dart test
+
+      - run: dart test -p chrome
+
+      - name: Check if version is set correctly
+        run: |
+          dart bin/set_version.dart
+          dart bin/make_runnable_by_node.dart
+          git diff --exit-code
