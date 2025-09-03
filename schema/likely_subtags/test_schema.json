@@ -84,9 +84,7 @@
          },
          "option": {
            "description": "Type of processing requested",
-           "enum": ["maximize", "minimize",
-                    "minimizeFavorScript",
-                    "minimizeFavorRegion"]
+           "enum": ["maximize", "minimize", "minimizeFavorScript", "minimizeFavorRegion"]
          }
        }
      },
