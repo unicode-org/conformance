@@ -50,10 +50,12 @@ class TestPlan:
         self.platformVersion = ''  # Records the executor version
         self.icu_version = None  # Requested by the test driver.
         self.run_limit = None  # Set to positive integer to activate
-        self.debug = 1
+        self.debug = False
 
         self.iteration = 0
-        self.progress_interval = 1000
+
+        # Set to an integer > 0 if details on test progress is needed
+        self.progress_interval = None
 
         self.verifier = None
 
@@ -84,7 +86,6 @@ class TestPlan:
             pass
 
         # Check for option to set version of executor
-        # TODO
 
         # If icu_version is "latest" or not set, get the highest numbered
         # version of the test data
@@ -99,7 +100,7 @@ class TestPlan:
             # TODO: Consider sorting with possible dotted versions, e.g., 73.1.3
             newest_version = sorted(icu_test_dirs, reverse=True)[0]
             logging.warning('** Replacing proposed icu version of %s with version %s',
-                         self.icu_version, newest_version)
+                                self.icu_version, newest_version)
             self.icu_version = newest_version
 
         if self.test_lang == 'node' and 'node_version' in self.options:
@@ -130,10 +131,12 @@ class TestPlan:
 
         if self.options.run_limit:
             self.run_limit = int(self.options.run_limit)
-            logging.debug('!!! RUN LIMIT SET: %d', self.run_limit)
+            if self.debug:
+                logging.info('!!! RUN LIMIT SET: %d', self.run_limit)
 
-        logging.debug('Running plan %s on data %s',
-                      self.exec_command, self.inputFilePath)
+        if self.debug:
+            logging.debug('Running plan %s on data %s',
+                          self.exec_command, self.inputFilePath)
 
         if self.options.exec_mode == 'one_test':
             self.run_one_test_mode()
@@ -153,7 +156,8 @@ class TestPlan:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
         else:
-            logging.debug('EXECUTOR INFO = %s', result)
+            if self.debug > 1:
+                logging.info('EXECUTOR INFO = %s', result)
 
             try:
                 self.jsonOutput["platform"] = json.loads(result)
@@ -198,7 +202,8 @@ class TestPlan:
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
         else:
-            logging.debug('TERMINATION INFO = %s', result)
+            if self.debug:
+                logging.debug('TERMINATION INFO = %s', result)
             self.jsonOutput["platform"] = json.loads(result)
 
     def generate_header(self):
@@ -236,8 +241,9 @@ class TestPlan:
             self.resultsFile.close()
 
     def run_one_test_mode(self):
-        logging.debug('  Running OneTestMode %s on data %s',
-                      self.exec_command, self.inputFilePath)
+        if self.debug:
+            logging.info('  Running OneTestMode %s on data %s',
+                         self.exec_command, self.inputFilePath)
 
         # Set up calls for version data --> results
 
@@ -250,20 +256,22 @@ class TestPlan:
             # The test data was not found. Skip this test.
             return None
 
-        logging.debug('@@@ %d tests found', len(tests))
+        if self.debug:
+            logging.info('@@@ %d tests found', len(tests))
 
         # Initialize JSON output headers --> results
 
         self.exec_list = self.exec_command.split()
         # TODO: get other things about the exec
-        logging.debug('EXEC info: exec_command %s, exec_list >%s<',
-                     self.exec_command,
-                     self.exec_list)
+        if self.debug:
+            logging.debug('EXEC info: exec_command %s, exec_list >%s<',
+                          self.exec_command,
+                          self.exec_list)
 
         # Start the JSON output
         # Set up calls for version data --> results
         if not self.request_executor_info():
-            # TODO: Report problem with executor (somehow).
+            logging.error('Cannot get executor info');
             return None
 
         # Use for directory of the output results
@@ -278,11 +286,12 @@ class TestPlan:
 
         # Create results file
         try:
-            logging.debug('++++++ Results file path = %s', self.outputFilePath)
+            if self.debug:
+                logging.info('++++++ Results file path = %s', self.outputFilePath)
             self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
         except BaseException as error:
             logging.error('*** Cannot open results file at %s. Err = %s',
-                  self.outputFilePath, error)
+                              self.outputFilePath, error)
             self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
 
         # Store information the test run
@@ -303,6 +312,7 @@ class TestPlan:
             per_execution = int(self.options.per_execution)
         except TypeError:
             per_execution = 1
+
         num_errors = self.run_all_single_tests(per_execution)
 
         env_dict = {}
@@ -317,7 +327,7 @@ class TestPlan:
             self.exec_env = env_dict
         except (AttributeError, KeyError):
             env_dict = None
-        # TODO: Use env_dict for environment information.
+            # TODO: Use env_dict for environment information.
 
         # Complete outputFile
         self.complete_output_file(num_errors)
@@ -343,10 +353,10 @@ class TestPlan:
         for test in self.tests:
             test.update({"test_type": self.test_type})
 
-            if self.progress_interval and test_num % self.progress_interval == 0:
+            if self.debug and self.progress_interval and test_num % self.progress_interval == 0:
                 formatted_num = '{:,}'.format(test_num)
-                logging.debug('Testing %s / %s. %s of %s', 
-                    self.exec_list[0], self.testScenario, formatted_num, formatted_count)
+                logging.info('Testing %s / %s. %s of %s',
+                                  self.exec_list[0], self.testScenario, formatted_num, formatted_count)
 
             # Accumulate tests_per_execution items into a single outline
             if lines_in_batch < tests_per_execution:
@@ -367,7 +377,7 @@ class TestPlan:
                 test_lines = []
 
             test_num += 1
-            if self.run_limit and test_num > self.run_limit:
+            if self.run_limit and test_num > self.run_limit and self.debug:
                 logging.debug('** Stopped after %d tests', (test_num - 1))
                 break
 
@@ -386,7 +396,7 @@ class TestPlan:
             return []
 
         if self.debug > 2:
-            logging.debug('PROCESSING %d tests', len(tests_to_send))
+            logging.info('PROCESSING %d tests', len(tests_to_send))
 
         # Ask process to exit when finished.
         out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT\n'
@@ -401,7 +411,7 @@ class TestPlan:
         if not result:
             num_errors += 1
             logging.warning('!!!!!! process_batch_of_tests: "platform error": "%s"\n',
-                            self.run_error_message)
+                                self.run_error_message)
             return None
 
         if self.debug > 2:
@@ -439,15 +449,14 @@ class TestPlan:
                 except BaseException as error:
                     if self.debug > 1:
                         logging.warning('   && Item %s. Error in= %s. Received (%d): >%s<',
-                                        index, error, len(item), item)
-                    index += 1
+                                            index, error, len(item), item)
+                        index += 1
 
         return batch_out
 
     def run_multitest_mode(self):
-        # TODO Implement this
         logging.info('!!! Running MultiTestMode %s on data %s',
-                     self.exec_command, self.inputFilePath)
+                         self.exec_command, self.inputFilePath)
         logging.warning('  ** UNIMPLEMENTED **')
         # Open the input file and get tests
         # Open results file
@@ -479,7 +488,7 @@ class TestPlan:
                 logging.error('CANNOT parse JSON from file %s: %s', self.inputFilePath, error)
                 return None
         except FileNotFoundError as err:
-            logging.debug('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
+            logging.error('*** Cannot open file %s. Err = %s', self.inputFilePath, err)
             return None
 
         try:

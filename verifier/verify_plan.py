@@ -32,6 +32,8 @@ class VerifyPlan:
         self.exec = None
         self.test_type = None
 
+        self.debug = 0
+
         # Is this actually useful?
         self.verifier_obj = None
 
@@ -163,7 +165,7 @@ class VerifyPlan:
             if not test:
                 logging.debug('@@@@@ no test string: %s of %s', test, ltotal_results)
 
-            if index % 10000 == 0:
+            if self.debug > 0 and index % 10000 == 0:
                 logging.debug('  progress = %d / %s', index, total_results)
 
             # The input to the test
