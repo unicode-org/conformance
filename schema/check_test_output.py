@@ -20,7 +20,7 @@ def main(args):
 
     if len(args) <= 1:
         logging.error('Please specify the path to the test output directory')
-        exit(1)
+        sys.exit(1)
     else:
         test_output_path = args[1]
 
@@ -87,7 +87,7 @@ def main(args):
         if json_file not in test_paths:
             logger.fatal('JSON file %s was not verified against a schema', json_file)
             # Bail out right away!
-            exit(1)
+            sys.exit(1)
 
     failed_validations = []
     passed_validations = []
@@ -110,15 +110,15 @@ def main(args):
             }
         }
     except BaseException as error:
-        logger.fatal('Cannot create summary_json %s', error)
-        exit(1)
+        logging.fatal('Cannot create summary_json %s', error)
+>>>>>>> upstream/main
 
     # Create outputs from these results.
     try:
         summary_data = json.dumps(summary_json)
     except TypeError as err:
-        logger.fatal('Error: %s\n  Cannot dump JSON for %s', err, summary_json)
-        exit(1)
+        logging.fatal('Error: %s\n  Cannot dump JSON for %s', err, summary_json)
+        sys.exit(1)
 
     output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
     try:
@@ -128,7 +128,7 @@ def main(args):
     except BaseException as error:
         logger.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
         # Don't continue after this problem.
-        exit(1)
+        sys.exit(1)
 
     logger.info("All %d test output files match with schema", schema_count)
     return
@@ -136,5 +136,3 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv)
-
-# TODO: Implement this!

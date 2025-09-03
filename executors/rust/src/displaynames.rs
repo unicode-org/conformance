@@ -5,10 +5,10 @@ use serde_json::{json, Value};
 #[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::displaynames::*;
 
-#[cfg(any(ver = "1.5", ver = "2.0-beta1"))]
+#[cfg(not(any(ver = "1.3", ver = "1.4")))]
 use icu::experimental::displaynames::*;
 
-use super::compat::{pref, Locale};
+use super::compat::{langid_und, pref, Locale};
 
 // Function runs comparison using displaynames
 pub fn _todo(json_obj: &Value) -> Result<Value, String> {
@@ -20,7 +20,7 @@ pub fn _todo(json_obj: &Value) -> Result<Value, String> {
     let langid: Locale = json_obj
         .get("locale")
         .map(|locale_name| locale_name.as_str().unwrap().parse().unwrap())
-        .unwrap_or_default();
+        .unwrap_or_else(|| langid_und().into());
 
     let displaynames =
         LocaleDisplayNamesFormatter::try_new(pref!(langid), Default::default()).unwrap();

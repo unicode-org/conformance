@@ -44,6 +44,7 @@ extern auto TestDatetimeFmt(json_object *json_in) -> const string;
 extern auto TestLocaleDisplayNames(json_object *json_in) -> const string;
 extern auto TestLikelySubtags(json_object *json_in) -> const string;
 extern auto TestListFmt(json_object *json_in) -> const string;
+extern auto TestSegmenter(json_object *json_in) -> const string;
 
 // This API was added in ICU75.1
 #if U_ICU_VERSION_MAJOR_NUM >= 75
@@ -71,7 +72,8 @@ auto main(int argc, const char** argv) -> int {
     "lang_names",
     "number_fmt",
     "plural_rules",
-    "rdt_fmt"
+    "rdt_fmt",
+    "segmenter"
   };
 
   for (std::string line; std::getline(cin, line);) {
@@ -108,6 +110,7 @@ auto main(int argc, const char** argv) -> int {
 
       struct json_object *json_input;
       json_input = json_tokener_parse(line.c_str());
+
       json_object *test_type_obj =
           json_object_object_get(json_input, "test_type");
       std::string test_type = json_object_get_string(test_type_obj);
@@ -132,6 +135,8 @@ auto main(int argc, const char** argv) -> int {
         outputLine = TestPluralRules(json_input);
       } else if (test_type == "rdt_fmt") {
         outputLine = TestRelativeDateTimeFmt(json_input);
+      } else if (test_type == "segmenter") {
+        outputLine = TestSegmenter(json_input);
       } else {
         outputLine =  "# BAD TEST " + test_type;
       }

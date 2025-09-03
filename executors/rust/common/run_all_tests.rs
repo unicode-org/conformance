@@ -12,6 +12,7 @@
 // 9. DONE Modularize into separate files for each type of test
 // 10. Fix test_type and switch statement
 // 11. DONE Add language names --> locale names
+// 12. How to add new component in certain versions?
 
 // References for ICU4X:
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
@@ -34,6 +35,7 @@ pub struct ExecutorFns {
     pub run_numberformat_test: ExecutorFn,
     pub run_plural_rules_test: ExecutorFn,
     pub run_relativedatetimeformat_test: ExecutorFn,
+    pub run_segmenter_test: ExecutorFn,
 }
 
 pub fn main() -> io::Result<()> {
@@ -47,6 +49,10 @@ pub fn main() -> io::Result<()> {
         run_plural_rules_test: executors::pluralrules::run_plural_rules_test,
         run_relativedatetimeformat_test:
             executors::relativedatetime_fmt::run_relativedatetimeformat_test,
+        #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+        run_segmenter_test: executors::segmenter::run_segmenter_test,
+        #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
+        run_segmenter_test: |_| Err("segmenter not supported".to_string()),
     };
     run_all_tests(executor_fns)
 }
@@ -126,6 +132,8 @@ pub fn run_all_tests(fns: ExecutorFns) -> io::Result<()> {
                 (fns.run_plural_rules_test)(&json_info)
             } else if test_type == "rdt_fmt" {
                 (fns.run_relativedatetimeformat_test)(&json_info)
+            } else if test_type == "segmenter" {
+                (fns.run_segmenter_test)(&json_info)
             } else {
                 Err(test_type.to_string())
             };

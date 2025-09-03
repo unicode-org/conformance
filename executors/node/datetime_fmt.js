@@ -2,6 +2,100 @@
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat
 
+const debug = 0;
+
+// Converting skeleton to options
+const skeleton_to_options_map = new Map(
+    [
+      ['G', {era: 'short'} ],
+      ['GG', {era: 'short'} ],
+      ['GGG', {era: 'short'} ],
+      ['GGGG', {era: 'long'} ],
+      ['GGGGG', {era: 'narrow'} ],
+
+      ['y', {'year': 'numeric'} ],
+      ['yy', {'year': '2-digit'} ],
+      ['yyy', {'year': 'numeric'} ],
+      ['yyyy', {'year': 'numeric'} ],
+
+      // Quarter not supported
+
+      ['M', {'month': 'numeric'} ],
+      ['MM', {'month': '2-digit'} ],
+      ['MMM', {'month': 'short'} ],
+      ['MMMM', {'month': 'long'} ],
+      ['MMMMM', {'month': 'narrow'} ],
+
+      ['L', {'month': 'numeric'} ],
+      ['LL', {'month': '2-digit'} ],
+      ['LLL', {'month': 'short'} ],
+      ['LLLL', {'month': 'long'} ],
+      ['LLLLL', {'month': 'narrow'} ],
+
+      // Week not supported
+
+      ['d', {'day': 'numeric'} ],
+      ['dd', {'day': '2-digit'} ],
+
+      ['E', {'weekday': 'short'} ],
+      ['EE', {'weekday': 'short'} ],
+      ['EEE', {'weekday': 'short'} ],
+      ['EEEE', {'weekday': 'long'} ],
+      ['EEEEE', {'weekday': 'narrow'} ],
+
+      ['h', {'hourCycle': 'h12', 'hour': 'numeric'} ],
+      ['hh', {'hourCycle': 'h12', 'hour': '2-digit'} ],
+      ['H', {'hourCycle': 'h23', 'hour': 'numeric'} ],
+      ['HH', {'hourCycle': 'h23', 'hour': '2-digit'} ],
+
+      ['j', {'hour': 'numeric'} ],
+      ['jj', {'hour': '2-digit'} ],
+
+      ['m', {'minute': 'numeric'} ],
+      ['mm', {'minute': '2-digit'} ],
+
+      ['s', {'second': 'numeric'} ],
+      ['ss', {'second': '2-digit'} ],
+
+      ['z', {'timeZoneName': 'short'} ],
+      ['zzzz', {'timeZoneName': 'long'} ],
+
+      ['O', {'timeZoneName': 'shortOffset'} ],
+      ['OOOO', {'timeZoneName': 'longOffset'} ],
+
+      ['v', {'timeZoneName': 'shortGeneric'} ],
+      ['vvvv', {'timeZoneName': 'longGeneric'} ],
+
+      ['V', {'timeZoneName': 'shortGeneric'} ],
+      ['VV', {'timeZoneName': 'shortGeneric'} ],
+      ['VVV', {'timeZoneName': 'shortGeneric'} ],
+      ['VVVV', {'timeZoneName': 'longGeneric'} ],
+    ]
+);
+
+// E.g., "yyDEEEE" --> ["yy", "D", "EEEE"]
+function split_skeleton_into_fields(skeleton) {
+  return skeleton.match(/(.)\1*/g) || [];
+}
+
+function fill_options_from_skeleton_parts(skeleton_parts) {
+  let skeleton_options = {};
+  if (skeleton_parts === undefined || skeleton_parts == null) {
+    return skeleton_options;
+  }
+  for (const part of skeleton_parts) {
+    if (skeleton_to_options_map.has(part)) {
+      let options = skeleton_to_options_map.get(part);
+      Object.assign(skeleton_options, options);
+    } else {
+      console.log(
+          '# NodeJS: DateTimeFormat: UNKNOWN MAPPING FOR PART = %s',
+          part);
+    }
+  }
+  return skeleton_options;
+}
+
 
 module.exports = {
   testDateTimeFmt: function (json) {
@@ -12,25 +106,40 @@ module.exports = {
       locale = 'und';
     }
 
+    let input_options = {};
     let test_options = {};
+
     if (json['options']) {
-      test_options = json['options'];
+      input_options = json['options'];
     }
 
-    let calendar;
-    try {
-      calendar = test_options['calendar'];
-    } catch {
-      calendar = null;
+    // Handle skeleton specification.
+    if (input_options && 'skeleton' in input_options) {
+      let skeleton = input_options['skeleton'];
+      let split = split_skeleton_into_fields(skeleton);
+      if (debug > 0) {
+        console.log('# skeleton: %s, options %s', skeleton, split);
+      }
+
+      test_options = fill_options_from_skeleton_parts(split);
+
+      // This may be specified explicitly in options.
+      if ('hourCycle' in input_options) {
+        test_options['hourCycle'] = input_options['hourCycle'];
+      }
     }
+
     let return_json = {'label': label};
 
     let timezone;
-    try {
-       timezone = test_options['time_zone'];
-    } catch {
-      timezone = options['timeZone'] = 'UTC';
+    if ('timeZone' in input_options) {
+      test_options['timeZone'] = input_options['timeZone'];
     }
+
+    if ('zoneStyle' in input_options) {
+      test_options['zoneStyle'] = input_options['zoneStyle'];
+    }
+
     // Get the date from input milliseconds.
     // Prefer milliseconds
     let iso_date;
@@ -48,10 +157,46 @@ module.exports = {
       } else {
         test_date_string = iso_date;
       }
-      console.log('test_date_string %s', test_date_string);
       test_date = new Date(test_date_string);
     }
 
+    // Get date and time styles
+    let dateStyle;
+    let timeStyle;
+
+    if ('timeStyle' in input_options) {
+      test_options['timeStyle'] = input_options['timeStyle'];
+    }
+    if ('dateStyle' in input_options) {
+      test_options['dateStyle'] = input_options['dateStyle'];
+    }
+
+    if ('dateTimeFormatType' in input_options &&
+        input_options['dateTimeFormatType'] == 'standard') {
+      return_json['error_type'] = 'unsupported';
+      return_json['error_detail'] = 'dateTimeFormatType: ' +
+          input_options['dateTimeFormatType'];
+        return_json['unsupported'] = 'format type';
+        return return_json;
+    }
+
+    if ('semanticSkeleton' in input_options) {
+      // Check for known issue when format output should give only the time zone.
+      if (input_options['semanticSkeleton'] == 'Z') {
+        return_json['error'] = 'unsupported';
+        return_json['error_detail'] = 'Requested timezone without date or time';
+        return_json['unsupported'] = 'timezone only';
+        return return_json;
+      }
+    }
+
+    let calendar;
+    try {
+      calendar = input_options['calendar'];
+      test_options['calendar'] = calendar;
+    } catch {
+      calendar = null;
+    }
     try {
       if (calendar) {
         const supported_calendars = intl_locale.calendars;

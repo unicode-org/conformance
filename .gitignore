@@ -1,15 +1,18 @@
 #*#
 *~
 *#
+*.#
 .vscode
 
+*Minibuf-*
+    
 .pylintrc
 .idea
 .devcontainer
 
 executors/rust/target/
 executors/cpp/executor
-executors/dart_native/bin/executor/
+executors/dart/bin/executor/
 
 gh-cache/
 
@@ -50,6 +53,3 @@ logrotate.state
 
 # Maven
 dependency-reduced-pom.xml
-
-# Dart
-executors/dart/.dart_tool/

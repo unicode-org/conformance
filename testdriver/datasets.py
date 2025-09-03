@@ -51,6 +51,7 @@ class ICUVersion(Enum):
   ICU74 = "74"
   ICU75 = "75"
   ICU76 = "76"
+  ICU77 = "77"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
@@ -76,6 +77,7 @@ class CLDRVersion(Enum):
   CLDR44 = "44"
   CLDR45 = "45"
   CLDR46 = "46"
+  CLDR47 = "47"
 
 def latestCldrVersion():
   return CLDRVersion.CLDR43  # TODO: Fix this
@@ -96,6 +98,7 @@ cldr_icu_map = {
     CLDRVersion.CLDR44: [ICUVersion.ICU74],
     CLDRVersion.CLDR45: [ICUVersion.ICU75],
     CLDRVersion.CLDR46: [ICUVersion.ICU76],
+    CLDRVersion.CLDR47: [ICUVersion.ICU77],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -112,7 +115,8 @@ class testType(Enum):
   number_fmt = 'number_fmt'
   rdt_fmt = 'rdt_fmt'
   plural_rules = 'plural_rules'
-  
+  segmenter = 'segmenter'
+
 # Returns default value for a key not defined.
 def def_value():
   return "Not present"
@@ -140,14 +144,14 @@ testDatasets[testName] = DataSet(testType.decimal_fmt.value,
 
 testName = 'display_names'
 testDatasets[testName] = DataSet(testType.display_names.value,
-                                 'lang_name_test_file.json',
-                                 'lang_name_verify_file.json',
+                                 'lang_names_test_file.json',
+                                 'lang_names_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'lang_names'
 testDatasets[testName] = DataSet(testType.lang_names.value,
-                                 'lang_name_test_file.json',
-                                 'lang_name_verify_file.json',
+                                 'lang_names_test_file.json',
+                                 'lang_names_verify_file.json',
                                  CLDRVersion.CLDR41, ICUVersion.ICU71)
 
 testName = 'likely_subtags'
@@ -192,6 +196,12 @@ testDatasets[testName] = DataSet(testType.rdt_fmt.value,
                                  'plural_rules_verify.json',
                                  CLDRVersion.CLDR44, ICUVersion.ICU74)
 
+testName = 'segmenter'
+testDatasets[testName] = DataSet(testType.rdt_fmt.value,
+                                 'segmenter_test.json',
+                                 'segmenter_verify.json',
+                                 CLDRVersion.CLDR47, ICUVersion.ICU77)
+
 # Standard executor languages. Note that the ExecutorInfo
 # class below can take any string as a "system".
 class ExecutorLang(Enum):
@@ -205,8 +215,8 @@ class ExecutorLang(Enum):
 # Actual commmands to run the executors.
 ExecutorCommands = {
     "node" : "node ../executors/node/executor.js",
-    "dart_web" : "node ../executors/dart_web/out/executor.js",
-    "dart_native" : "../executors/dart_native/bin/executor/executor.exe",
+    "dart_web" : "node ../executors/dart/out/executor.js",
+    "dart_native" : "../executors/dart/build/bundle/bin/executor",
     "rust" : "../executors/rust/target/release/executor",
     "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
     "icu4j" : "java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar"
@@ -218,6 +228,7 @@ class ParallelMode(Enum):
   ParallelByLang = 2
 
 class NodeVersion(Enum):
+  Node24 = "24.0.0"
   Node23 = "23.3.0"
   Node22 = "22.9.0"
   Node21 = "21.6.0"
@@ -249,7 +260,8 @@ class ICU4XVersion(Enum):
 # TODO: combine the version info
 IcuVersionToExecutorMap = {
     'node': {
-        '76': ["23.3.0"],
+        '77': ["24.0.0"],
+        '76': ["23.11.0"],
         '75': ["22.9.0"],
         '74': ["21.6.0"],
         '73': ["20.1.0"],
@@ -274,7 +286,8 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
-    '23.3.0': '76.1',
+    '24.0.0': '77.1',
+    '23.11.0': '76.1',
     '22.9.0': '75.1',
     '21.6.0': '74.1',
     '20.1.0': '73.1',
@@ -353,6 +366,10 @@ class ExecutorInfo():
 allExecutors = ExecutorInfo()
 
 system = ExecutorLang.NODE.value
+allExecutors.addSystem(system, NodeVersion.Node24,
+                       'node ../executors/node/executor.js',
+                       CLDRVersion.CLDR47, versionICU=ICUVersion.ICU77)
+
 allExecutors.addSystem(system, NodeVersion.Node21,
                        'node ../executors/node/executor.js',
                        CLDRVersion.CLDR43, versionICU=ICUVersion.ICU73)
@@ -414,6 +431,12 @@ allExecutors.addSystem(
     CLDRVersion.CLDR46, versionICU=ICUVersion.ICU76,
     env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu76/bin'})
 
+allExecutors.addSystem(
+    system, CppVersion.Cpp,
+    '../executors/cpp/executor',
+    CLDRVersion.CLDR47, versionICU=ICUVersion.ICU77,
+    env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu77/bin'})
+
 system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',
                        '/bin/newExecutor',
@@ -434,18 +457,22 @@ allExecutors.addSystem(system, '76',
                        'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
                        CLDRVersion.CLDR46, versionICU=ICUVersion.ICU76)
 
+allExecutors.addSystem(system, '77',
+                       'java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar',
+                       CLDRVersion.CLDR47, versionICU=ICUVersion.ICU77)
+
 system = ExecutorLang.DARTWEB.value
 allExecutors.addSystem(system,  NodeVersion.Node19,
-                       'node ../executors/dart_web/out/executor.js',
+                       'node ../executors/dart/out/executor.js',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 allExecutors.addSystem(system, NodeVersion.Node18_7,
-                       'node ../executors/dart_web/out/executor.js',
+                       'node ../executors/dart/out/executor.js',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
 
 system = ExecutorLang.DARTNATIVE.value
 allExecutors.addSystem(system, DartVersion.Dart3,
-                       '../executors/dart_native/bin/executor/executor.exe',
+                       '../executors/dart/build/bundle/bin/executor',
                        CLDRVersion.CLDR42, versionICU=ICUVersion.ICU71)
 
 # TESTING

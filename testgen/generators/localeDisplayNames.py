@@ -5,8 +5,8 @@ import re
 import logging
 from generators.base import DataGenerator
 
-reblankline = re.compile("^\s*$")
-
+RE_BLANK_LINE = re.compile(r"^\s*$")
+RE_COMMENT_LINE = re.compile(r"^\s*#")
 
 class LocaleNamesGenerator(DataGenerator):
     json_test = {"test_type": "lang_names"}
@@ -26,15 +26,15 @@ class LocaleNamesGenerator(DataGenerator):
         # TODO: add standard vs. dialect vs. alternate names
         self.generateLanguageNameTestDataObjects(raw_locale_display_names_testdata)
         self.generateTestHashValues(self.json_test)
-        output_path = os.path.join(self.icu_version, "lang_name_test_file.json")
-        lang_name_test_file = open(output_path, "w", encoding="UTF-8")
-        json.dump(self.json_test, lang_name_test_file, indent=1)
-        lang_name_test_file.close()
+        output_path = os.path.join(self.icu_version, "lang_names_test_file.json")
+        lang_names_test_file = open(output_path, "w", encoding="UTF-8")
+        json.dump(self.json_test, lang_names_test_file, indent=1)
+        lang_names_test_file.close()
 
-        output_path = os.path.join(self.icu_version, "lang_name_verify_file.json")
-        lang_name_verify_file = open(output_path, "w", encoding="UTF-8")
-        json.dump(self.json_verify, lang_name_verify_file, indent=1)
-        lang_name_verify_file.close()
+        output_path = os.path.join(self.icu_version, "lang_names_verify_file.json")
+        lang_names_verify_file = open(output_path, "w", encoding="UTF-8")
+        json.dump(self.json_verify, lang_names_verify_file, indent=1)
+        lang_names_verify_file.close()
 
         return True
 
@@ -59,8 +59,6 @@ class LocaleNamesGenerator(DataGenerator):
 
     def generateLanguageNameTestDataObjects(self, rawtestdata):
         # Get the JSON data for tests and verification for language names
-        recommentline = re.compile("^\s*#")
-
         set_locale = re.compile(r"@locale=(\w+)")
         set_languageDisplay = re.compile(r"@languageDisplay=(\w+)")
 
@@ -78,7 +76,7 @@ class LocaleNamesGenerator(DataGenerator):
         language_display = 'standard'
 
         for item in test_lines:
-            if not (recommentline.match(item) or reblankline.match(item)):
+            if not (RE_COMMENT_LINE.match(item) or RE_BLANK_LINE.match(item)):
 
                 locale_match = set_locale.match(item)
                 if locale_match:

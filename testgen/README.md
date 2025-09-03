@@ -40,7 +40,7 @@ the following steps can be employed for a specific version of CLDR:
 
 1. checkout snapshot of old CLDR version
     ```
-    git co release-43 -b release-43-ddt-datagen
+    git co release-43 -b release-43-localedisplay-datagen
     ```
 2. pull backwards the current desired version of the test data generator
     ```
@@ -55,5 +55,30 @@ the following steps can be employed for a specific version of CLDR:
 4. copy the generated test data file to the Conformance repo
     ```
     cp ./common/testData/localeIdentifiers/localeDisplayName.txt ~/oss/conformance/testgen/icu73
+    ```
+
+### DateTime (aka datetime_fmt)
+
+
+In order to retroactively apply the test generator code to older versions of CLDR,
+the following steps can be employed for a specific version of CLDR:
+
+1. checkout snapshot of old CLDR version
+    ```
+    git co release-46 -b release-46-datetime-datagen
+    ```
+2. pull backwards the current desired version of the test data generator
+    ```
+    git checkout main -- tools/cldr-code/src/main/java/org/unicode/cldr/tool/GenerateLocaleIDTestData.java
+    ```
+3. compile and run the generator from the right spot
+    ```
+    pushd tools/cldr-code
+    mvn compile exec:java -DCLDR_DIR=/usr/local/google/home/elango/oss/cldr/mine/src -Dexec.mainClass=org.unicode.cldr.tool.enerateDateTimeTestData
+    popd
+    ```
+4. copy the generated test data file to the Conformance repo
+    ```
+    cp ./common/testData/datetime/datetime.json ~/oss/conformance/testgen/icu76
     ```
 

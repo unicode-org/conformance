@@ -479,10 +479,9 @@ class TestPlan:
     def open_json_test_data(self):
         # Read JSON file with results.
         try:
-            input_file = open(self.inputFilePath,
-                              encoding='utf-8', mode='r')
-            file_raw = input_file.read()
-            input_file.close()
+            with open(self.inputFilePath,
+                      encoding='utf-8', mode='r') as input_file:
+                file_raw = input_file.read()
             try:
                 self.jsonData = json.loads(file_raw)
             except json.JSONDecodeError as error:
@@ -528,7 +527,7 @@ class TestPlan:
                                 }
                 return json.dumps(error_result)
         except BaseException as err:
-            logging.error('!!! send_one_line fails: input => %s<. Err = %s', input_line, err)
+            logging.error('Err = %s', err)
             input = json.loads(input_line.replace('#EXIT', '').strip())
             error_result = {'label': input['label'],
                             'input_data': input,

@@ -19,6 +19,7 @@ import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 import org.unicode.conformance.testtype.pluralrules.PluralRulesTester;
 import org.unicode.conformance.testtype.relativedatetimeformat.RelativeDateTimeFormatTester;
+import org.unicode.conformance.testtype.segmenter.SegmenterTester;
 
 /**
  * Hello world!
@@ -140,6 +141,8 @@ public class Icu4jExecutor {
                 testType = PluralRulesTester.INSTANCE;
             } else if (testTypeStr.equals("rdt_fmt")) {
                 testType = RelativeDateTimeFormatTester.INSTANCE;
+            } else if (testTypeStr.equals("segmenter")) {
+                testType = SegmenterTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap

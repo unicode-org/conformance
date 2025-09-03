@@ -1,0 +1,21 @@
+name: dart_executor
+publish_to: none
+
+environment:
+  sdk: ^3.10.0-37.0.dev
+
+dependencies:
+  collection: ^1.19.1
+  intl4x: 0.12.2
+  node_preamble: ^2.0.2
+  pubspec_lock_parse: ^2.2.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  meta: ^1.16.0
+  test: ^1.25.2
+
+
+hook:
+  intl4x:
+    buildMode: fetch
