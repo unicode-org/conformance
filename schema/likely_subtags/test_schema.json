@@ -87,10 +87,6 @@
            "enum": ["maximize", "minimize",
                     "minimizeFavorScript",
                     "minimizeFavorRegion"]
-         },
-         "hash_id": {
-           "description": "Has value of the JSON string omtting label value",
-           "type": "integer"
          }
        }
      },
