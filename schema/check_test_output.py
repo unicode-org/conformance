@@ -111,7 +111,6 @@ def main(args):
         }
     except BaseException as error:
         logging.fatal('Cannot create summary_json %s', error)
->>>>>>> upstream/main
 
     # Create outputs from these results.
     try:
