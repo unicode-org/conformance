@@ -8,7 +8,6 @@ import re
 from test_type import TestType, test_types
 from generators.collation import CollationGenerator
 from generators.datetime_fmt import DateTimeFmtGenerator
-from generators.lang_names import LangNamesGenerator
 from generators.localeDisplayNames import LocaleNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
 from generators.message_fmt2 import MessageFmt2Generator
@@ -84,11 +83,7 @@ def generate_versioned_data(version_info):
         # First try with the new source of data. If not found, then use the older
         # lang names generator.
         generator = LocaleNamesGenerator(icu_version, args.run_limit)
-        if not generator:
-            logging.info('lang generated from old LangNames data in %s', icu_version)
-            generator = LangNamesGenerator(icu_version, args.run_limit)
-        else:
-            logging.info('lang generated from new LocaleNames data in %s', icu_version)
+        logging.info('lang generated from new LocaleNames data in %s', icu_version)
         if generator:
             generator.process_test_data()
 
