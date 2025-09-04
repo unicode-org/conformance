@@ -72,10 +72,9 @@ def main(args):
     logging.debug('test types = %s', ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
-    # Todo: use setters to initialize validator
-    if schema_options.run_serial:
-        validator.run_serial = True
 
+    # TODO: use setters to initialize validator
+    validator.run_serial = schema_options.run_serial
     validator.schema_base = '.'
     validator.test_output_base = test_output_path
     validator.test_data_base = None

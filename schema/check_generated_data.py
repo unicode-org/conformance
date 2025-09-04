@@ -53,8 +53,7 @@ def main(args):
 
     validator = schema_validator.ConformanceSchemaValidator()
 
-    if schema_options.run_serial:
-        validator.run_serial = True
+    validator.run_serial = schema_options.run_serial
 
     # Todo: use setters to initialize validator
     validator.schema_base = '.'

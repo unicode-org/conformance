@@ -167,7 +167,6 @@ def setCommonArgs(parser):
       default=None)
 
 
-
 def argsTestData():
   tests = [
       ['--test_type', 'collation'],

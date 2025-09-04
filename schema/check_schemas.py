@@ -95,16 +95,12 @@ def main(args):
         '--run_serial', action='store_true',
         help='Set to process serially. Parallel is the default.')
 
-    print('ALL ARGS: %s' % args)
-    # ???arg_parser.parse_args(args[2:])
-
     validator = schema_validator.ConformanceSchemaValidator()
-    # Todo: use setters to initialize validator
-    validator.schema_base = '.'
 
+    # Todo: use setters to initialize validator
     validator.options = arg_parser.parse_args(args[2:])
 
-    schema_base = validator.schema_base
+    schema_base = validator.options.schema_base
 
     schema_errors = []
     schema_count = 0
