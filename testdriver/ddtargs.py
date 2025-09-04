@@ -35,7 +35,15 @@ class DdtOptions():
 type_options = ['collation', 'datetime_fmt',
                 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt',
-                'message_fmt2', 'rdt_fmt', 'plural_rules', 'ALL']
+                'message_fmt2', 'rdt_fmt', 'plural_rules', 'segmenter',
+                'ALL']
+
+# Executor ids refering to ordering platforms in the dashboard.
+# Note that spaces in an executor name are replaced by '_' here.
+# component_count is an option to sort by number of test types present in test output, with largest cout at the left
+# TODO: when a new platform is added, put it in this option list.
+platform_order_options = ['alphabetic', 'component_count', 'ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
+
 
 class DdtArgs():
   def __init__(self, args):
@@ -96,22 +104,6 @@ class VerifyArgs():
     return self.options
 
 
-class SchemaArgs():
-  def __init__(self, args):
-    self.parser = argparse.ArgumentParser(
-        description='Schema check arguments')
-
-    set.parser.add_argment('--schema_base',
-                           help='Where the schemas are based'
-                           )
-    setCommonArgs(self.parser)
-
-    self.options = self.parser.parse_args(args)
-
-  def getOptions(self):
-    return self.options
-
-
 # Set up arguments common to both testDriver and verifier
 def setCommonArgs(parser):
 
@@ -163,8 +155,17 @@ def setCommonArgs(parser):
   parser.add_argument('--ignore', default=None)
 
   parser.add_argument(
-      '--run_serial', default=None,
-      help='Set if processing should be done serially. Parallel is the default.')
+      '--run_serial', action='store_true',
+      help='Set to process serially. Default is parallel.')
+
+  # Order the output columns
+  parser.add_argument(
+      '--platform_order',
+      action='extend', nargs='*',
+      choices=platform_order_options,
+      help='The order of the platforms in the Summary dashboard, e.g., NodeJS ICU4X Dart_Web',
+      default=None)
+
 
 
 def argsTestData():

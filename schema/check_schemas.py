@@ -1,6 +1,7 @@
 # Schema checker for the schemas in Conformance Testing
 # For ICU Conformance project, Data Driven Testing
 
+import argparse
 from datetime import datetime
 import glob
 import json
@@ -14,11 +15,6 @@ import sys
 
 import schema_validator
 from schema_files import ALL_TEST_TYPES
-
-
-# To get commanlin arguments
-sys.path.append('../testdriver')
-from ddtargs import SchemaArgs
 
 
 class ValidateSchema:
@@ -65,10 +61,10 @@ class ValidateSchema:
         return output_filename
 
 
-def parallel_validate_schema(validator, file_names):
+def validate_all_schema(validator, file_names):
     if not validator.options.run_serial:
         num_processors = multiprocessing.cpu_count()
-        logging.info('Schema validation: %s processors for %s schema validations',
+        logging.info('Schema parallel validation: %s processors for %s schema validations',
                      num_processors, len(file_names))
 
         processor_pool = multiprocessing.Pool(num_processors)
@@ -81,8 +77,8 @@ def parallel_validate_schema(validator, file_names):
         return result
     else:
         results = []
-        logging.info('check_schemas running serially on %s files!',
-                     len(filenames))
+        logging.info('Schema serial validation of %s files!',
+                     len(file_names))
         for file_name in file_names:
             results.append(validator.validate_schema_file(file_name))
         return results
@@ -93,20 +89,27 @@ def main(args):
     logger.setLevel(logging.INFO)
     logger.info('+++ Test JSON Schema files')
 
+    arg_parser = argparse.ArgumentParser(description='Schema check arguments')
+    arg_parser.add_argument('schema_base', help='Where to find the files to validate')
+    arg_parser.add_argument(
+        '--run_serial', action='store_true',
+        help='Set to process serially. Parallel is the default.')
+
+    print('ALL ARGS: %s' % args)
+    # ???arg_parser.parse_args(args[2:])
+
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
     validator.schema_base = '.'
 
-    validator.options = SchemaArgs(args).getOptions()
+    validator.options = arg_parser.parse_args(args[2:])
 
-    if len(args) > 1:
-        schema_base = args[1]
-    else:
-        schema_base = '.'
+    schema_base = validator.schema_base
+
     schema_errors = []
     schema_count = 0
 
-    val_schema = ValidateSchema(schema_base)
+    val_schema = ValidateSchema(validator.options.schema_base)
 
     # An array of information to be reported on the main DDT page
     validation_status = []
@@ -117,7 +120,7 @@ def main(args):
         schema_file_names = glob.glob(schema_test_json_files)
         schema_file_paths.extend(schema_file_names)
 
-    results = parallel_validate_schema(validator, schema_file_paths)
+    results = validate_all_schema(validator, schema_file_paths)
     if not results:
         # This should stop the whole thing!
         exit(1)

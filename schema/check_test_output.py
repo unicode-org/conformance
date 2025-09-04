@@ -5,6 +5,7 @@ from datetime import datetime
 import glob
 import json
 
+import argparse
 import logging
 import logging.config
 import os.path
@@ -14,21 +15,21 @@ import schema_validator
 import schema_files
 from schema_files import ALL_TEST_TYPES
 
-# To get commanlin arguments
-sys.path.append('../testdriver')
-from ddtargs import SchemaArgs
-
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
-    schema_options = SchemaArgs(args).getOptions()
+    arg_parser = argparse.ArgumentParser(description='Schema check arguments')
+    arg_parser.add_argument('schema_base', help='Where to find the files to validate')
+    arg_parser.add_argument(
+        '--run_serial', action='store_true',
+        help='Set to process serially. Parallel is the default.')
+
+    schema_options = arg_parser.parse_args(args[2:])
 
     # file_base + output_path
-    test_output_path = schema_options.test_output_path + schema_options.output_path
-
-    # TODO: Use this
-    run_serial = schema_options.run_serial
+    test_output_path = schema_options.schema_base
+    print('!!! TEST OUTPUT PATH %s' % (test_output_path))
 
     logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
@@ -72,6 +73,9 @@ def main(args):
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
+    if schema_options.run_serial:
+        validator.run_serial = True
+
     validator.schema_base = '.'
     validator.test_output_base = test_output_path
     validator.test_data_base = None

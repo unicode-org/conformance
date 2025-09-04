@@ -7,6 +7,7 @@ import json
 
 from jsonschema import Draft7Validator, ValidationError
 
+import argparse
 import logging
 import logging.config
 import os.path
@@ -15,21 +16,23 @@ import sys
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
-# To get commandline arguments
-sys.path.append('../testdriver')
-from ddtargs import SchemaArgs
-
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
-    schema_options = SchemaArgs(args).getOptions()
+    arg_parser = argparse.ArgumentParser(description='Schema check arguments')
+    arg_parser.add_argument('schema_base', help='Where to find the files to validate')
+    arg_parser.add_argument(
+        '--run_serial', action='store_true',
+        help='Set to process serially. Parallel is the default.')
+
+    schema_options = arg_parser.parse_args(args[2:])
 
     if len(args) <= 1:
         logging.error('Please specify the path to test data directory')
         return
     else:
-        test_data_path = args[1]
+        test_data_path = schema_options.schema_base
 
     logging.debug('TEST DATA PATH = %s', test_data_path)
 
@@ -49,6 +52,9 @@ def main(args):
     logging.debug('test types = %s', ALL_TEST_TYPES)
 
     validator = schema_validator.ConformanceSchemaValidator()
+
+    if schema_options.run_serial:
+        validator.run_serial = True
 
     # Todo: use setters to initialize validator
     validator.schema_base = '.'
