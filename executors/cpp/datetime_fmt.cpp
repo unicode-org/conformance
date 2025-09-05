@@ -170,7 +170,6 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
     }
   }
 
-
   json_object *date_skeleton_item =
       json_object_object_get(options_obj, "skeleton");
   string skeleton_string;
