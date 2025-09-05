@@ -10,12 +10,6 @@ import subprocess
 from generators.base import DataGenerator
 
 
-# New in ICU77 data
-skeleton_types = [
-    'semanticSkeleton',
-    'semanticSkeletonLength',
-    ]
-
 class DateTimeFmtGenerator(DataGenerator):
     json_test = {"test_type": "datetime_fmt"}
     json_verify = {"test_type": "datetime_fmt"}
@@ -86,16 +80,9 @@ class DateTimeFmtGenerator(DataGenerator):
                 if 'dateTimeFormatType' in test_item:
                     options['dateTimeFormatType'] = test_item['dateTimeFormatType']
 
-                # Handle skeleton data
-                for skel in skeleton_types:
-                    if skel in test_item:
-                        options[skel] = test_item[skel]
-
-                # Backward compatibility until semantic skeletons are supported by executors
                 if 'calendar' in test_item:
                     options['calendar'] = test_item['calendar']
                     if options['calendar'] == 'gregorian':
-
                         options['calendar'] = 'gregory'
 
                 if 'yearStyle' in test_item:
