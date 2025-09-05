@@ -60,7 +60,7 @@ def main(args):
     validator.test_data_base = test_data_path
     validator.icu_versions = sorted(icu_versions)
     validator.test_types = ALL_TEST_TYPES
-    validator.debug = 1
+    validator.debug = None
 
     all_results = validator.validate_test_data_with_schema()
     logging.info('  %d results for generated test data', len(all_results))

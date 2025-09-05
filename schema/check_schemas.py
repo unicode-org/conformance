@@ -16,7 +16,6 @@ import sys
 import schema_validator
 from schema_files import ALL_TEST_TYPES
 
-
 class ValidateSchema:
     def __init__(self, schema_base='.'):
         self.schema_base = schema_base
@@ -101,7 +100,6 @@ def main(args):
     validator.options = arg_parser.parse_args(args[2:])
 
     schema_base = validator.options.schema_base
-
     schema_errors = []
     schema_count = 0
 

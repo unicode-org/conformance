@@ -35,6 +35,7 @@ class ConformanceSchemaValidator:
         self.executors = []
         self.icu_versions = []
         self.debug_leve = 0
+        self.schema_type = None
 
         self.run_serial = False
 
@@ -58,7 +59,8 @@ class ConformanceSchemaValidator:
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
-            logging.fatal('  Cannot open schema file %s.\n   Err = %s', schema_file_path, err)
+            logging.fatal('%s  Cannot open schema file %s.\n   Err = %s',
+                          self.schema_type, schema_file_path, err)
             result_data['result'] = False
             result_data['error'] = err
             exit(1)
@@ -66,7 +68,8 @@ class ConformanceSchemaValidator:
         try:
             data_file = open(data_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
-            logging.fatal('  Cannot open data file %s.\n   Err = %s', data_file_path, err)
+            logging.fatal('%s  Cannot open data file %s.\n   Err = %s',
+                          self.schema_type, data_file_path, err)
             result_data['result'] = False
             result_data['error'] = err
             exit(1)
@@ -77,7 +80,8 @@ class ConformanceSchemaValidator:
         except json.decoder.JSONDecodeError as err:
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('Bad JSON schema: %s', schema_file_path)
+            logging.error('%s: Bad JSON schema: %s',
+                          self.schema_type, schema_file_path)
             logging.fatal('  Error is %s', err)
             exit(1)
 
@@ -87,7 +91,8 @@ class ConformanceSchemaValidator:
             # Cannot get the file
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('Bad JSON data: %s', data_file_path)
+            logging.error('%s: Bad JSON data: %s',
+                          self.schema_type, data_file_path)
             logging.fatal('  Error is %s', err)
             exit(1)
 
@@ -99,15 +104,17 @@ class ConformanceSchemaValidator:
         except exceptions.ValidationError as err:
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('ValidationError for test output %s and schema %s',
-                          data_file_path, schema_file_path)
+            logging.error('%s: ValidationError for test output %s and schema %s',
+                          self.schema_type, data_file_path, schema_file_path)
             logging.fatal('  Error = %s', err)
             exit(1)
         except exceptions.SchemaError as err:
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('SchemaError: Cannot validate with test output %s and schema %s. ',
-                          data_file_path, schema_file_path)
+            logging.error(
+                '%s SchemaError: Cannot validate with test output %s and schema %s. ',
+                self.schema_type,
+                data_file_path, schema_file_path)
             logging.fatal('Another failure: %s', err)
             exit(1)
 
@@ -120,8 +127,13 @@ class ConformanceSchemaValidator:
 
         # Check for all the possible files
         json_file_pattern = os.path.join(self.test_data_base, '*', '*.json')
+        logging.info('JSON FILE_PATTERN: %s', json_file_pattern);
+
         verify_pattern = os.path.join(self.test_data_base, '*', '*verify.json')
+        logging.info('VERIFY_PATTERN: %s', verify_pattern);
+
         json_verify_files_list = glob.glob(verify_pattern)
+
         json_files_list = glob.glob(json_file_pattern)
         json_test_list = []
         for file in json_files_list:
@@ -132,11 +144,14 @@ class ConformanceSchemaValidator:
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
                 file_path_pair = self.get_schema_data_info(icu_version, test_type)
+                logging.info(' FILE PATH PAIR: %s', file_path_pair);
                 if file_path_pair:
                     schema_test_info.append(file_path_pair)
                 else:
                     test_data_files_not_found.append([icu_version, test_type])
-                    logging.debug('No data test file  %s for %s, %s', file_path_pair, test_type, icu_version)
+                    logging.debug('%s: No data test file  %s for %s, %s',
+                                  self.schema_type,
+                                  file_path_pair, test_type, icu_version)
                     pass
 
         if test_data_files_not_found:
@@ -215,7 +230,8 @@ class ConformanceSchemaValidator:
 
     def check_test_data_schema(self, icu_version, test_type):
         # Check the generated test data for structure against the schema
-        logging.debug('Validating %s with %s', test_type, icu_version)
+        logging.debug('Validating %s %s with %s',
+                      self.schema_type, test_type, icu_version)
 
         # Check test output vs. the test data schema
         schema_verify_file = os.path.join(self.schema_base, test_type, 'test_schema.json')
@@ -328,7 +344,8 @@ class ConformanceSchemaValidator:
             test_type = test_type_property['const']
         except KeyError as err:
             test_type = None
-            logging.fatal('%s for %s. Cannot get test_type value', err, schema_file_path, test_type)
+            logging.fatal('%s for %s. Cannot get test_type value',
+                          err, schema_file_path, test_type)
             return [False, err, schema_file_path, test_type]
 
         try:
@@ -336,7 +353,8 @@ class ConformanceSchemaValidator:
             # However Validator.check_schema doesn't fail as expected.
             validate(None, schema)
         except jsonschema.exceptions.SchemaError as err:
-            logging.fatal('Cannot validate schema %s', schema_file_path)
+            logging.fatal('%s" Cannot validate schema %s',
+                          self.schema_type, schema_file_path)
             return [False, err, schema_file_path, test_type]
         except jsonschema.exceptions.ValidationError:
             # This is not an error because this is just validating a schema.

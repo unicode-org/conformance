@@ -71,6 +71,7 @@ def main(args):
     logging.debug('ICU directories = %s', icu_versions)
     logging.debug('test types = %s', ALL_TEST_TYPES)
 
+
     validator = schema_validator.ConformanceSchemaValidator()
 
     # TODO: use setters to initialize validator

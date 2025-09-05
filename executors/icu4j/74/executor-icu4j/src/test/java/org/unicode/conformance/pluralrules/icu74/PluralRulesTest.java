@@ -110,6 +110,7 @@ public class PluralRulesTest {
   @Ignore
   @Test
   public void testFloating4_1Sample() {
+    // Known issue:ICU-23093
     String testInput =
         "{\"test_type\": \"plural_rules\", \"locale\":\"mk\",\"label\":\"3073\",\"type\":\"cardinal\",\"plural_type\":\"cardinal\",\"sample\":\"4.1\",\"hexhash\":\"da3b0ef6f4fa7630ff1ef134d8976ff6f80dcbbc\"}";
 
