@@ -61,7 +61,12 @@ class ValidateSchema:
 
 
 def validate_all_schema(validator, file_names):
-    if not validator.options.run_serial:
+    if validator.options.run_serial:
+        results = []
+        logging.info('Schema serial validation of %s files!',
+                     len(file_names))
+        return [validator.validate_schema_file(file) for file in file_names]
+    else:
         num_processors = multiprocessing.cpu_count()
         logging.info('Schema parallel validation: %s processors for %s schema validations',
                      num_processors, len(file_names))
@@ -74,13 +79,7 @@ def validate_all_schema(validator, file_names):
         except multiprocessing.pool.MaybeEncodingError as error:
             pass
         return result
-    else:
-        results = []
-        logging.info('Schema serial validation of %s files!',
-                     len(file_names))
-        for file_name in file_names:
-            results.append(validator.validate_schema_file(file_name))
-        return results
+
 
 
 def main(args):

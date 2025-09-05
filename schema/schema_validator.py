@@ -127,10 +127,10 @@ class ConformanceSchemaValidator:
 
         # Check for all the possible files
         json_file_pattern = os.path.join(self.test_data_base, '*', '*.json')
-        logging.info('JSON FILE_PATTERN: %s', json_file_pattern);
+        logging.debug('JSON FILE_PATTERN: %s', json_file_pattern);
 
         verify_pattern = os.path.join(self.test_data_base, '*', '*verify.json')
-        logging.info('VERIFY_PATTERN: %s', verify_pattern);
+        logging.debug('VERIFY_PATTERN: %s', verify_pattern);
 
         json_verify_files_list = glob.glob(verify_pattern)
 
@@ -144,7 +144,7 @@ class ConformanceSchemaValidator:
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
                 file_path_pair = self.get_schema_data_info(icu_version, test_type)
-                logging.info(' FILE PATH PAIR: %s', file_path_pair);
+                logging.debug(' FILE PATH PAIR: %s', file_path_pair);
                 if file_path_pair:
                     schema_test_info.append(file_path_pair)
                 else:
@@ -155,7 +155,7 @@ class ConformanceSchemaValidator:
                     pass
 
         if test_data_files_not_found:
-            logging.info('Note: %d potential test data sets were not found.', len(test_data_files_not_found))
+            logging.debug('Note: %d potential test data sets were not found.', len(test_data_files_not_found))
 
         results = self.check_all_test_data_schema(schema_test_info)
 
@@ -172,7 +172,10 @@ class ConformanceSchemaValidator:
         return all_results
 
     def check_all_test_data_schema(self, schema_test_data):
-        if not self.run_serial:
+        if self.run_serial:
+            logging.info('test data running serially on %s files!', len(schema_test_data))
+            return [self.check_test_data_against_schema(test_data) for test_data in schema_test_data]
+        else:            
             num_processors = mp.cpu_count()
             logging.info('test data parallel validation: %s processors for %s schema/test data pairs',
                          num_processors,
@@ -183,12 +186,7 @@ class ConformanceSchemaValidator:
             with processor_pool as p:
                 result = p.map(self.check_test_data_against_schema, schema_test_data)
             return result
-        else:
-            results = []
-            logging.info('test data running serially on %s files!', len(schema_test_data))
-            for test_data in schema_test_data:
-                results.append(self.check_test_data_against_schema(test_data))
-            return results
+
 
     def get_schema_data_info(self, icu_version, test_type):
         # Gets pairs of schema and file names for test_type
@@ -386,7 +384,10 @@ class ConformanceSchemaValidator:
 
     def validate_all_test_output(self):
         test_validation_plans = self.get_test_validation_plans()
-        if not self.run_serial:
+        if self.run_serial:
+            logging.info('JSON test output serially validation on %s files!', len(test_validation_plans))
+            return [self.validate_json_file(test_data) for test_data in test_validation_plans]
+        else:
             num_processors = mp.cpu_count()
             logging.info('JSON test output parallel validation: %s processors for %s plans', num_processors,
                          len(test_validation_plans))
@@ -397,11 +398,6 @@ class ConformanceSchemaValidator:
                 results = p.map(self.validate_json_file, test_validation_plans)
 
             return results, test_validation_plans
-        else:
-            logging.info('JSON test output serially validation on %s files!', len(test_validation_plans))
-            for test_data in test_validation_plans:
-                results.append(self.validate_json_file(test_data))
-            return results
 
     def get_test_validation_plans(self):
         test_validation_plans = []

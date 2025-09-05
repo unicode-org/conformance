@@ -29,8 +29,6 @@ def main(args):
 
     # file_base + output_path
     test_output_path = schema_options.schema_base
-    print('!!! TEST OUTPUT PATH %s' % (test_output_path))
-
     logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
