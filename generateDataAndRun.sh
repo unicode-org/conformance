@@ -56,7 +56,7 @@ popd
 
 # Verify that schema files are valid
 pushd schema
-python3 check_schemas.py --schema_base $pwd
+python3 check_schemas.py --schema_base $PWD
 # And check generated data against schemas.
 python3 check_generated_data.py --schema_base ../$TEMP_DIR/testData
 popd
