@@ -241,6 +241,7 @@ auto TestCollator(json_object *json_in) -> string {
   // Check for rule-based collation
   json_object *rules_obj = json_object_object_get(json_in, "rules");
   int rules_len = json_object_get_string_len(rules_obj);
+
   string_view rules_string(json_object_get_string(rules_obj), rules_len);
   UnicodeString uni_rules = UnicodeString::fromUTF8(rules_string).unescape();
   string actual_rules = "";
