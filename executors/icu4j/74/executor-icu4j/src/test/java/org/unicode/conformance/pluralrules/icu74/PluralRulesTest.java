@@ -2,6 +2,7 @@ package org.unicode.conformance.pluralrules.icu74;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.unicode.conformance.testtype.pluralrules.PluralRulesOutputJson;
 import org.unicode.conformance.testtype.pluralrules.PluralRulesTester;
@@ -104,5 +105,17 @@ public class PluralRulesTest {
         (PluralRulesOutputJson) PluralRulesTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
 
     assertEquals("unsupported", output.error);
+  }
+
+  @Ignore
+  @Test
+  public void testFloating4_1Sample() {
+    String testInput =
+        "{\"test_type\": \"plural_rules\", \"locale\":\"mk\",\"label\":\"3073\",\"type\":\"cardinal\",\"plural_type\":\"cardinal\",\"sample\":\"4.1\",\"hexhash\":\"da3b0ef6f4fa7630ff1ef134d8976ff6f80dcbbc\"}";
+
+    PluralRulesOutputJson output =
+        (PluralRulesOutputJson) PluralRulesTester.INSTANCE.getStructuredOutputFromInputStr(testInput);
+
+    assertEquals("one", output.error);
   }
 }

@@ -19,6 +19,7 @@ import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 import org.unicode.conformance.testtype.pluralrules.PluralRulesTester;
 import org.unicode.conformance.testtype.relativedatetimeformat.RelativeDateTimeFormatTester;
+import org.unicode.conformance.testtype.segmenter.SegmenterTester;
 
 /**
  * Hello world!
@@ -122,7 +123,7 @@ public class Icu4jExecutor {
         } else {
             String testTypeStr = (String) testTypeOpt.get();
             ITestType testType;
-            if (testTypeStr.equals("collation_short")) {
+            if (testTypeStr.equals("collation")) {
                 testType = CollatorTester.INSTANCE;
             } else if (testTypeStr.equals("datetime_fmt")) {
                 testType = DateTimeFormatterTester.INSTANCE;
@@ -140,6 +141,8 @@ public class Icu4jExecutor {
                 testType = PluralRulesTester.INSTANCE;
             } else if (testTypeStr.equals("rdt_fmt")) {
                 testType = RelativeDateTimeFormatTester.INSTANCE;
+            } else if (testTypeStr.equals("segmenter")) {
+                testType = SegmenterTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap
@@ -151,13 +154,13 @@ public class Icu4jExecutor {
 
             try {
                 return testType.getFinalOutputFromInput(parsedInputPersistentMap);
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 ITestTypeOutputJson defaultOutput = testType.getDefaultOutputJson();
                 return ExecutorUtils.formatAsJson(
                     testType.convertOutputToMap(defaultOutput)
                         .put("label", parsedInputPersistentMap.get("label", null))
-                        .put("error", "Error in input" + e.getMessage())
-                        .put("error_message", "Error in handling test case: " + e.getMessage())
+                        .put("error", "Error in input" + t.getMessage())
+                        .put("error_message", "Error in handling test case: " + t.getMessage())
                 );
             }
         }

@@ -12,6 +12,7 @@
 // 9. DONE Modularize into separate files for each type of test
 // 10. Fix test_type and switch statement
 // 11. DONE Add language names --> locale names
+// 12. How to add new component in certain versions?
 
 // References for ICU4X:
 // https://unicode-org.github.io/icu4x-docs/doc/icu_collator/index.html
@@ -19,6 +20,9 @@
 use serde_json::{json, Value};
 use std::env;
 use std::io;
+
+#[path = "../src/mod.rs"]
+mod executors;
 
 pub type ExecutorFn = fn(&Value) -> Result<Value, String>;
 
@@ -31,10 +35,30 @@ pub struct ExecutorFns {
     pub run_numberformat_test: ExecutorFn,
     pub run_plural_rules_test: ExecutorFn,
     pub run_relativedatetimeformat_test: ExecutorFn,
+    pub run_segmenter_test: ExecutorFn,
+}
+
+pub fn main() -> io::Result<()> {
+    let executor_fns = ExecutorFns {
+        run_collation_test: executors::collator::run_collation_test,
+        run_datetimeformat_test: executors::datetimefmt::run_datetimeformat_test,
+        run_likelysubtags_test: executors::likelysubtags::run_likelysubtags_test,
+        run_list_fmt_test: executors::listfmt::run_list_fmt_test,
+        run_locale_name_test: executors::localenames::run_locale_name_test,
+        run_numberformat_test: executors::numberfmt::run_numberformat_test,
+        run_plural_rules_test: executors::pluralrules::run_plural_rules_test,
+        run_relativedatetimeformat_test:
+            executors::relativedatetime_fmt::run_relativedatetimeformat_test,
+        #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+        run_segmenter_test: executors::segmenter::run_segmenter_test,
+        #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
+        run_segmenter_test: |_| Err("segmenter not supported".to_string()),
+    };
+    run_all_tests(executor_fns)
 }
 
 // Read from stdin, call functions to get json, output the result.
-pub fn main(fns: ExecutorFns) -> io::Result<()> {
+pub fn run_all_tests(fns: ExecutorFns) -> io::Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
     log::info!("Welcome to the ICU4X Conformance Executor");
@@ -59,7 +83,7 @@ pub fn main(fns: ExecutorFns) -> io::Result<()> {
             // TODO: let mut test_vec : Vec<&str> = supported_test_map.into_keys().collect();
             let json_result = json!(
                 { "supported_tests": [
-                    "collation_short",
+                    "collation",
                     "number_fmt",
                     "decimal_fmt",
                     "likelysubtags",
@@ -89,7 +113,7 @@ pub fn main(fns: ExecutorFns) -> io::Result<()> {
             let label: &str = json_info["label"].as_str().unwrap();
 
             // TODO!!! : supported_test_map to call the functions.
-            let json_result = if test_type == "collation_short" {
+            let json_result = if test_type == "collation" {
                 (fns.run_collation_test)(&json_info)
             } else if (test_type == "decimal_fmt") || (test_type == "number_fmt") {
                 (fns.run_numberformat_test)(&json_info)
@@ -108,6 +132,8 @@ pub fn main(fns: ExecutorFns) -> io::Result<()> {
                 (fns.run_plural_rules_test)(&json_info)
             } else if test_type == "rdt_fmt" {
                 (fns.run_relativedatetimeformat_test)(&json_info)
+            } else if test_type == "segmenter" {
+                (fns.run_segmenter_test)(&json_info)
             } else {
                 Err(test_type.to_string())
             };

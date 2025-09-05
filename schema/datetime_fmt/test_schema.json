@@ -35,10 +35,6 @@
            "description": "Offset in timezone from UTC",
            "type": "number"
          },
-         "datetime_skeleton": {
-           "description": "Skeleton for date/time format: https://unicode-org.github.io/icu/userguide/format_parse/datetime/",
-           "type": "string"
-         },
          "options": {
            "description": "Formatting paramters for date / time, similar to ECMAScript Intl's options bag",
            "type": "object",
@@ -58,7 +54,7 @@
              "hourCycle": {
                "type": "string",
                "description": "The hour cycle to use",
-               "enum": ["h11", "h12", "h23", "h24"]
+               "enum": ["h11", "h12", "h23"]
              },
              "timeZone": {
                "type": "string",
@@ -123,7 +119,34 @@
                "type": "string",
                "description": "shortcut for the time style",
                "enum": ["full", "long", "medium", "short"]
-             }
+             },
+             "yearStyle": {
+               "type": "string",
+               "description": "CLDR data for year style",
+               "enum": ["with_era"]
+             },
+             "zoneStyle": {
+               "type": "string",
+               "description": "CLDR data for zone style",
+               "enum": ["generic", "specific", "location", "offset"]
+             },
+             "datetime_skeleton": {
+               "description": "Skeleton for date/time format: https://unicode-org.github.io/icu/userguide/format_parse/datetime/",
+               "type": "string"
+             },
+             "semanticSkeleton": {
+               "description": "Semantic skeleton for date/time format",
+               "type": "string"
+             },
+             "semanticSkeletonLength": {
+               "description": "Size of semantic skeleton for date/time format",
+               "type": "string"
+             },
+             "dateTimeFormatType": {
+               "description": "Indicates if the 'at' should be used, e.g., 'July 1 at 10:00",
+               "type": "string",
+               "enum": ["standard", "atTime"]
+             }             
            }
          }
        },

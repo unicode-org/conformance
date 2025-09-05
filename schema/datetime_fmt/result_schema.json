@@ -35,6 +35,11 @@
              "and_more": {
                "description": "a placeholder for now",
                "type": "string"
+             },
+             "dateTimeFormatType": {
+               "description": "Indicates if the 'at' should be used, e.g., 'July 1 at 10:00",
+               "type": "string",
+               "enum": ["standard", "atTime"]
              }
            }
          },

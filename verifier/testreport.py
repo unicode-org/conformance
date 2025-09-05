@@ -19,6 +19,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -182,6 +183,10 @@ class TestReport:
         self.diff_summary = DiffSummary()
 
         self.differ = Differ()
+
+        # Pattern for finding AM/PM in date time formatted output
+        # ??self.am_pm_pattern = re.compile(r'[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
+        self.am_pm_pattern = re.compile(r'\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
 
@@ -380,7 +385,10 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            # Don't look at tests labeled as "unsupported"
+            [self.failing_tests, self.test_errors],
+            self.platform_info
+        )
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -419,7 +427,7 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            fail_result = str(fail['result'])
+            fail_result = str(fail.get('result', ''))
             if len(fail_result) > max_fail_length:
                 max_fail_length = len(fail_result)
 
@@ -433,7 +441,9 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            [self.failing_tests, self.test_errors, self.unsupported_cases],
+            self.platform_info
+        )
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -585,13 +595,17 @@ class TestReport:
     def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
+        if not test_list:
+            # no test --> no characterizations
+            return results
+
         results['locale'] = {}  # Dictionary of labels for each locale
 
         # Look at particular test types
-        if self.test_type == 'plural_rules' and test_list:
+        if self.test_type == 'plural_rules':
             self.characterize_plural_rules_tests(test_list, results)
 
-        if self.test_type == 'datetime_fmt' and test_list:
+        if self.test_type == 'datetime_fmt':
             self.characterize_datetime_tests(test_list, results)
 
         for test in test_list:
@@ -689,6 +703,7 @@ class TestReport:
                 'locale_label',
                 'locale',
                 'options',
+                'option',
                 'rules',
                 'test_description',
                 'unsupported_options',
@@ -742,16 +757,32 @@ class TestReport:
             results.setdefault(sample_type, []).append(label)
         return
 
-
     def characterize_datetime_tests(self, test_list, results):
         # look for consistencies with datetime_fmt test
         for test in test_list:
             label = test['label']
-            if 'skeleton' in  test['input_data']:
+            if 'result' in test:
+                output = test['result']
+            else:
+                output = 'NO RESULT'
+            if 'expected' in test:
+               expected = test['expected']
+            else:
+                expected = 'NO EXPECTED VALUE'
+
+            if 'input_data' in test and 'skeleton' in test['input_data']:
                 skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
                 results.setdefault(skeleton_str, []).append(label)
             if 'dateTimeFormatType' in test:
                 results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], []).append(label)
+            # Check for AM/PM difference
+            if output != expected:
+                result_ampm = self.am_pm_pattern.search(output)
+                expected_ampm = self.am_pm_pattern.search(expected)
+                if ((result_ampm and not expected_ampm) or
+                        (not result_ampm and expected_ampm) or
+                        (result_ampm and expected_ampm and (result_ampm.group(1) != expected_ampm.group(1)))):
+                    results.setdefault('AM/PM', []).append(label)
         return
 
     # TODO: Use the following function to update lists.
@@ -779,12 +810,14 @@ class TestReport:
                             pass
                 except:
                     pass
-                
+
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
                       'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
-                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()']
+                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
+                      'comma_type', 'unexpected_comma', 'boolean_diff', 'error_in_key', 'other_list_difference']
+        list_differences = defaultdict(set)
         for check in all_checks:
             results[check] = set()
 
@@ -794,18 +827,22 @@ class TestReport:
             expected = fail.get('expected', None)
             if (actual is None) or (expected is None):
                 continue
-            # Special case for differing by a single character.
-            # Look for white space difference
 
-            if isinstance(actual, bool) and isinstance(expected, bool):
-                # TODO: record boolean difference
-                return
+            if isinstance(actual, list) and isinstance(expected, list):
+                list_differences = self.check_list_differences(fail, list_differences)
+                continue
+
+            if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
+                results['boolean_diff'].add(label)
+                continue
+                
+            if isinstance(actual, list) or isinstance(expected, list):
+                continue
 
             # The following checks work on strings
             try:
-                # Try
+                # Get the sequence of differences for processing
                 try:
-                    # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
                     sm_opcodes = sm.get_opcodes()
                 except TypeError as err:
@@ -817,6 +854,8 @@ class TestReport:
                     kind = diff[0]
                     old_val = expected[diff[1]:diff[2]]
                     new_val = actual[diff[1]:diff[2]]
+                    if old_val == [] or new_val == [] or isinstance(old_val, list) or isinstance(new_val, list):
+                        continue
                     if kind == 'replace':
                         if old_val.isdigit() and new_val.isdigit():
                             results['replace_digit'].add(label)
@@ -870,6 +909,14 @@ class TestReport:
                                 if x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
 
+                # Comma stuff
+                # ASCII vs. Arabic
+                if expected.replace('\u002c', '\u060c') == actual:
+                    results['comma_type'].add(label);
+                # Check for extra comma
+                if actual.replace('\u002c', '') == expected:
+                    results['unexpected_comma'].add(label);
+
                 # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
@@ -881,9 +928,38 @@ class TestReport:
                         results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
+                results['error_in_key'].add(label);
                 continue
 
+        results.update(list_differences)
         return dict(results)
+
+    def check_list_differences(self, test, results):
+        # Look at data where expected and actual are lists of strings
+        # Update results with new instances
+        # results = defaultdict(list)
+        # all_checks = ['different lengths', 'different_content', 'other list difference',
+        #               'type_difference']
+        # for check in all_checks:
+        #     results[check] = set()
+
+        label = test['label']
+        actual = test.get('result', None)
+        expected = test.get('expected', None)
+
+        if len(actual) != len(expected):
+            results['different_lengths'].add(label)
+        else:
+            results['other_list_difference'].add(label)
+
+            # Same length. Check how many items are different
+            diff_count = 0
+            for item1, item2 in zip(expected, actual):
+                if item1 != item2:
+                    diff_count += 1
+            results['%d diffs' % diff_count].add(label)
+
+        return results
 
     def save_characterized_file(self, characterized_data, characterized_type):
         try:
@@ -963,7 +1039,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.collation_short.value:
+        if self.test_type == testType.collation.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

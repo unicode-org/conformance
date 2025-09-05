@@ -91,10 +91,6 @@ auto TestLikelySubtags(json_object *json_in) -> string {
     bool favorScript = true;
     json_object_object_add(
         return_json,
-        "error",
-        json_object_new_string("unsupported option"));
-    json_object_object_add(
-        return_json,
         "error_type",
         json_object_new_string("unsupported"));
     json_object_object_add(
@@ -105,9 +101,9 @@ auto TestLikelySubtags(json_object *json_in) -> string {
         return_json,
         "error_detail",
         json_object_new_string("This ICU4C API is protected"));
-
     // This is a protected API in ICU4C.
     // displayLocale.minimizeSubtags(favorScript, status);
+    return json_object_to_json_string(return_json);
   } else {
     // An error in the call.
     json_object_object_add(

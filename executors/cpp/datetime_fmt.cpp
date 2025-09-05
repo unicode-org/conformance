@@ -35,13 +35,10 @@ using std::string;
 
 auto StringToEStyle(string style_string) -> icu::DateFormat::EStyle {
   if (style_string == "full") { return icu::DateFormat::kFull;
-}
-  if (style_string == "long") { return icu::DateFormat::kLong;
-}
-  if (style_string == "medium") { return icu::DateFormat::kMedium;
-}
-  if (style_string == "short") { return icu::DateFormat::kShort;
-}
+  } else if (style_string == "long") { return icu::DateFormat::kLong;
+  } else if (style_string == "medium") { return icu::DateFormat::kMedium;
+  } else if (style_string == "short") { return icu::DateFormat::kShort;
+  }
   return icu::DateFormat::kNone;
 }
 
@@ -129,6 +126,11 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
   // skeleton or date_style.
   string default_skeleton_string = "M/d/yyyy";
 
+  // Indicates if the library outputs date and time with the "at", as in "July 1 at 10:00"
+  bool supports_atTime = true;
+
+  string dateTimeFormatType_str = "";
+
   if (options_obj != nullptr) {
     json_object* option_item = json_object_object_get(options_obj, "dateStyle");
     if (option_item != nullptr) {
@@ -141,18 +143,44 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
       timeStyle_str = json_object_get_string(option_item);
       time_style = StringToEStyle(timeStyle_str);
     }
+
+    option_item = json_object_object_get(options_obj, "dateTimeFormatType");
+    if (option_item != nullptr) {
+      // What this data item expects.
+      dateTimeFormatType_str = json_object_get_string(option_item);
+      // Check if this is not supported?
+      if ((dateTimeFormatType_str == "atTime" && !supports_atTime) ||
+          (dateTimeFormatType_str != "atTime" && supports_atTime)) {
+        // Inexact result is unsupported.
+        json_object_object_add(
+            return_json,
+            "error_type",
+            json_object_new_string("unsupported"));
+        json_object_object_add(
+            return_json,
+            "unsupported",
+            json_object_new_string("format type"));
+        string detail_str = "formatType: " + dateTimeFormatType_str;
+        json_object_object_add(
+            return_json,
+            "error_detail",
+            json_object_new_string(detail_str.c_str()));
+        return json_object_to_json_string(return_json);
+      }
+    }
   }
 
-  json_object *date_skeleton_obj =
-      json_object_object_get(json_in, "skeleton");
+
+  json_object *date_skeleton_item =
+      json_object_object_get(options_obj, "skeleton");
   string skeleton_string;
   if (date_style == icu::DateFormat::EStyle::kNone &&
       time_style == icu::DateFormat::EStyle::kNone) {
     skeleton_string = default_skeleton_string;
   }
-  if (date_skeleton_obj != nullptr) {
+  if (date_skeleton_item != nullptr) {
     // Data specifies a date time skeleton. Make a formatter based on this.
-    skeleton_string = json_object_get_string(date_skeleton_obj);
+    skeleton_string = json_object_get_string(date_skeleton_item);
   }
   if (!skeleton_string.empty()) {
     UnicodeString u_skeleton(skeleton_string.c_str());
@@ -194,7 +222,7 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
   // Use ISO string form of the date/time.
   json_object *input_string_obj =
       json_object_object_get(json_in, "input_string");
-  // Prefer ISO input as input.
+  // Use ISO input in milliseconds if available.
   json_object *input_millis = json_object_object_get(json_in, "input_millis");
 
   UDate test_date_time;
@@ -203,26 +231,10 @@ auto TestDatetimeFmt(json_object *json_in) -> string {
 
     string input_date_string = json_object_get_string(input_string_obj);
 
-    // SimpleDateFormat can't parse options or timezone offset
-    // First, remove options starting with "["
-    std::size_t pos = input_date_string.find("[");
-    if (pos >= 0) {
-      input_date_string = input_date_string.substr(0, pos);
-    }
-    // Now remove the explicit offset
-    pos = input_date_string.find("+");
-    if (pos >= 0) {
-      input_date_string = input_date_string.substr(0, pos);
-    }
-    pos = input_date_string.rfind("-");
-    if (pos >= 10) {
-      // DOn't clip in the date fields
-      input_date_string = input_date_string.substr(0, pos);
-    }
     UnicodeString date_ustring(input_date_string.c_str());
 
-    // TODO:  handles the offset +/-
-    SimpleDateFormat iso_date_fmt(u"y-M-d'T'h:m:sZ", und_locale, status);
+    // Input string is in 24 hour time!
+    SimpleDateFormat iso_date_fmt(u"y-M-d'T'H:m:sZ", und_locale, status);
     if (U_FAILURE(status) != 0) {
       string error_name = u_errorName(status);
       string error_message =

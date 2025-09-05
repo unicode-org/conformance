@@ -34,6 +34,8 @@ let plural_rules = require('./plural_rules.js');
 
 let rdt_fmt = require('./relativedatetime_fmt.js');
 
+let segmenter = require('./segmenter.js');
+
 /**
  * TODOs:
  * 1. Handle other types of test cases.
@@ -54,7 +56,7 @@ let doLogOutput = 0;
 
 // Test type support. Add new items as they are implemented
 const testTypes = {
-  TestCollationShort : Symbol("collation_short"),
+  TestCollationShort : Symbol("collation"),
   TestCollShiftShort : Symbol("coll_shift_short"),
   TestCollNonignorableShort : Symbol("coll_nonignorable_short"),
   TestDecimalFormat : Symbol("decimal_fmt"),
@@ -64,11 +66,12 @@ const testTypes = {
   TestDisplayNames : Symbol("display_names"),
   TestListFmt : Symbol("list_fmt"),
   TestLocaleDisplayNames : Symbol("language_display_name"),
-  TestRelativeDateTimeFormat : Symbol("rdt_fmt")
+  TestRelativeDateTimeFormat : Symbol("rdt_fmt"),
+  TestSegmenter : Symbol("segmenter")
 };
 
 const supported_test_types = [
-  Symbol("collation_short"),
+  Symbol("collation"),
   Symbol("coll_shift_short"),
   Symbol("coll_nonignorable_short"),
   Symbol("decimal_fmt"),
@@ -79,13 +82,14 @@ const supported_test_types = [
   Symbol("local_info"),
   Symbol("datetime_fmt"),
   Symbol("list_fmt"),
+  Symbol("plural_rules"),
   Symbol("rdt_fmt"),
-  Symbol("plural_rules")
+  Symbol("segmenter")
 ];
 
 const supported_tests_json = {
   "supported_tests": [
-    "collation_short",
+    "collation",
     "coll_shift_short",
     "decimal_fmt",
     "number_fmt",
@@ -93,8 +97,9 @@ const supported_tests_json = {
     "lang_names",
     "language_display_name",
     "list_fmt",
+    "plural_rules",
     "rdt_fmt",
-    "plural_rules"
+    "segmenter"
   ]};
 
 // Test line-by-line input, with output as string.
@@ -115,10 +120,10 @@ let rl = readline.createInterface({
 function parseJsonForTestId(parsed) {
   let testId = parsed["test_type"];
 
-  if (testId == "coll_shift_short" || testId == "collation_short") {
+  if (testId == "coll_shift_short" || testId == "collation") {
     return testTypes.TestCollationShort;
   }
-  if (testId == "collation_short") {
+  if (testId == "collation") {
     return testTypes.TestCollationShort;
   }
   if (testId == "coll_shift_short") {
@@ -166,7 +171,6 @@ function parseJsonForTestId(parsed) {
 let lineId = 0;
 rl.on('line', function(line) {
 
-  // if logging input.
   if (doLogInput > 0) {
     console.log("## NODE RECEIVED " + lineId + ' ' + line + ' !!!!!');
   }
@@ -221,7 +225,7 @@ rl.on('line', function(line) {
 
     // Handle the string directly to  call the correct function.
     const test_type = parsedJson["test_type"];
-    if (test_type == "coll_shift_short" || test_type == "collation_short") {
+    if (test_type == "coll_shift_short" || test_type == "collation") {
       outputLine = collator.testCollationShort(parsedJson);
     } else
     if (test_type == "decimal_fmt" || test_type == "number_fmt") {
@@ -247,6 +251,9 @@ rl.on('line', function(line) {
     } else
     if (test_type == "plural_rules") {
       outputLine = plural_rules.testPluralRules(parsedJson);
+    } else
+    if (test_type == "segmenter") {
+      outputLine = segmenter.testSegmenter(parsedJson);
     } else {
       outputLine = {'error': 'unknown test type',
                     'test_type': test_type,

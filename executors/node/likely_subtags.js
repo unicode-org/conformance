@@ -26,13 +26,21 @@ module.exports = {
       let result_locale;
       if (test_option === 'maximize') {
         result_locale = intl_locale.maximize().baseName;
-      } else if (test_option === 'minimizeFavorScript' ||
+      } else if (test_option === 'minimizeFavorRegion' ||
                  test_option === 'minimize') {
         result_locale = intl_locale.minimize().baseName;
-      } else if (test_option === 'minimizeFavorRegion') {
-        result_locale = intl_locale.minimizeFavorRegion().baseName;
+        // Unlikely subtags: lang is "und", result is same as input, and favor region
+        if (result_locale == locale && locale.split('-')[0] == 'und' &&
+           test_option == 'minimizeFavorRegion') {
+          // TODO: set unsupported as function taking test option and unsupported field.
+          return_json['error_detail'] = test_option;
+          return_json['error_type'] = 'unsupported';
+          return_json['unsupported'] = 'UND not supported with these options';
+        }
       } else {
-        return_json['error'] = 'Unknown test option = ' + test_option;
+        return_json['error_detail'] = test_option;
+        return_json['error_type'] = 'unsupported';
+        return_json['unsupported'] = 'Unknown test option';
       }
       return_json['result'] = result_locale;
     } catch (error) {
@@ -40,4 +48,5 @@ module.exports = {
     }
     return return_json;
   }
+
 }

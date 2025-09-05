@@ -31,6 +31,8 @@ public class DateTimeFormatterInputJson implements ITestTypeInputJson {
 
   public DateTimeFormatterTimeStyle timeStyle;
 
+  public String dateTimeFormatType;
+
   // TODO!!!
   public String calendar_string;
   // Set calendar from calendar_string!
