@@ -386,7 +386,8 @@ class ConformanceSchemaValidator:
         test_validation_plans = self.get_test_validation_plans()
         if self.run_serial:
             logging.info('JSON test output serially validation on %s files!', len(test_validation_plans))
-            return [self.validate_json_file(test_data) for test_data in test_validation_plans]
+            return [self.validate_json_file(test_data) for test_data in test_validation_plans], \
+                test_validation_plans
         else:
             num_processors = mp.cpu_count()
             logging.info('JSON test output parallel validation: %s processors for %s plans', num_processors,
