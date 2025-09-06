@@ -7,6 +7,7 @@ import json
 
 from jsonschema import Draft7Validator, ValidationError
 
+import argparse
 import logging
 import logging.config
 import os.path
@@ -19,11 +20,19 @@ from schema_files import ALL_TEST_TYPES
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
+    arg_parser = argparse.ArgumentParser(description='Schema check arguments')
+    arg_parser.add_argument('schema_base', help='Where to find the files to validate')
+    arg_parser.add_argument(
+        '--run_serial', action='store_true',
+        help='Set to process serially. Parallel is the default.')
+
+    schema_options = arg_parser.parse_args(args[2:])
+
     if len(args) <= 1:
         logging.error('Please specify the path to test data directory')
         return
     else:
-        test_data_path = args[1]
+        test_data_path = schema_options.schema_base
 
     logging.debug('TEST DATA PATH = %s', test_data_path)
 
@@ -44,12 +53,14 @@ def main(args):
 
     validator = schema_validator.ConformanceSchemaValidator()
 
+    validator.run_serial = schema_options.run_serial
+
     # Todo: use setters to initialize validator
     validator.schema_base = '.'
     validator.test_data_base = test_data_path
     validator.icu_versions = sorted(icu_versions)
     validator.test_types = ALL_TEST_TYPES
-    validator.debug = 1
+    validator.debug = None
 
     all_results = validator.validate_test_data_with_schema()
     logging.info('  %d results for generated test data', len(all_results))
@@ -99,7 +110,6 @@ def main(args):
         sys.exit(1)
     else:
         logging.info("All %d generated test data files match with schema", schema_count)
-
 
 
 if __name__ == "__main__":
