@@ -512,9 +512,11 @@ class TestPlan:
                 logging.error(' !!!!!! %s' % self.run_error_message)
 
                 # Handle problems with decoding errors and other unknowns.
-                error_result = {'label': 'UNKNOWN',
+                error_result = {'label': input['label'],
                                 'input_data': input_line,
-                                'error': self.run_error_message
+                                'error': self.run_error_message,
+                                'error_detail': 'severe error from subprocess ' +
+                                    result.returncode,
                                 }
                 return json.dumps(error_result)
         except BaseException as err:

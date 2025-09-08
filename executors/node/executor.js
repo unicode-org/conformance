@@ -255,7 +255,10 @@ rl.on('line', function(line) {
     if (test_type == "segmenter") {
       outputLine = segmenter.testSegmenter(parsedJson);
     } else {
-      outputLine = {'error': 'unknown test type',
+      // UNSUPPORTED TEST TYPE!
+      outputLine = {'label': 'UNKNOWN',
+                    'error': 'unknown test type',
+                    'error_detail': 'Requested unsupported test type'
                     'test_type': test_type,
                     'unsupported_test': test_type};
     }
