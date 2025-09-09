@@ -43,7 +43,7 @@ class MessageFmt2Generator(DataGenerator):
         for test_file_path in src_file_paths:
             src_data = self.readFile(test_file_path, filetype="json")
             if src_data is None:
-                logging.error("Problem reading JSON. Omitting file %s", test_file_path)
+                logging.error("testgen/generators/message_fmt2.py: Problem reading JSON. Omitting file %s", test_file_path)
                 continue
 
             defaults = src_data.get("defaultTestProperties")
@@ -55,9 +55,8 @@ class MessageFmt2Generator(DataGenerator):
             try:
                 validate(src_data, json_schema)
             except ValidationError as err:
-                logging.error("Problem validating JSON: %s against schema",
-                              test_file_path, json_schema_path)
-                logging.error(err)
+                logging.error("testgen/generators/message_fmt2.py: JSON %s not validated against schem a %s. Error = %s",
+                              test_file_path, json_schema_path, error)
 
             for src_test in src_data["tests"]:
                 test_count += 1
@@ -99,8 +98,8 @@ class MessageFmt2Generator(DataGenerator):
                         skipped_test_count += 1
                         continue
                 except KeyError as err:
-                    logging.error("Missing value for %s in %s", err, test_file_path)
-                    logging.error("Omitting test %s", test["label"])
+                    logging.error("testgen/generators/message_fmt2.py: Missing value for %s in %s", err, test_file_path)
+                    logging.error("testgen/generators/message_fmt2.py: Omitting test %s", test["label"])
 
         json_test["tests"] = self.sample_tests(test_list)
         json_verify["verifications"] = self.sample_tests(verify_list)
@@ -108,9 +107,10 @@ class MessageFmt2Generator(DataGenerator):
         self.saveJsonFile(f"{TestType.MESSAGE_FMT2.value}_test.json", json_test, 2)
         self.saveJsonFile(f"{TestType.MESSAGE_FMT2.value}_verify.json", json_verify, 2)
 
-        logging.info(
-            "MessageFormat2 Test (%s): %d tests processed (of which %d were skipped)",
-             self.icu_version,
-             test_count,
-             skipped_test_count
-        )
+        if test_count > 0:
+            logging.info(
+                "testgen/generators: MessageFormat2 Test (%s): %d tests processed (of which %d were skipped)",
+                self.icu_version,
+                test_count,
+                skipped_test_count
+            )

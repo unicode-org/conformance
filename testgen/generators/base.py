@@ -137,7 +137,7 @@ class DataGenerator(ABC):
             with codecs.open(path, "r", encoding="utf-8") as testdata:
                 return json.load(testdata) if filetype == "json" else testdata.read()
         except BaseException as err:
-            logging.warning("** readFile: %s", err)
+            logging.warning("testgen/generators: %s", err)
             return None
 
     def computeMaxDigitsForCount(self, count):

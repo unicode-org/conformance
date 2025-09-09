@@ -54,7 +54,7 @@ class NumberFmtGenerator(DataGenerator):
             num_fmt_verify_file.close()
 
             logging.info(
-                "NumberFormat Test (%s): %s tests created", self.icu_version, count
+                "testgen/generators/number_fmt.py: NumberFormat Test (%s): %s tests created", self.icu_version, count
             )
         return
 
@@ -131,14 +131,14 @@ class NumberFmtGenerator(DataGenerator):
                         )
                     except KeyError as error:
                         logging.warning(
-                            "Looking up Skeletons: %s [0-2] = %s, %s %s",
+                            "testgen/generators/number_fmt.py: Looking up Skeletons: %s [0-2] = %s, %s %s",
                             error,
                             test_options[0],
                             test_options[1],
                             test_options[2],
                         )
                     if not options_dict:
-                        logging.warning("$$$ OPTIONS not found for %s", label)
+                        logging.warning("testgen/generators/number_fmt.py: $$$ OPTIONS not found for %s", label)
                     # TODO: Look at the items in the options_dict to resolve conflicts and set up things better.
                     resolved_options_dict = self.resolveOptions(
                         options_dict, test_options
@@ -148,8 +148,8 @@ class NumberFmtGenerator(DataGenerator):
 
                     all_tests_list.append(entry)  # All the tests in JSON form
                     count += 1
-        logging.info(
-            "  generateNumberFmtTestDataObjects gives %d tests",
+        logging.debug(
+            "testgen/generators/number_fmt.py: generateNumberFmtTestDataObjects gives %d tests",
             (count - original_count),
         )
         return all_tests_list, verify_list, count
@@ -222,7 +222,7 @@ class NumberFmtGenerator(DataGenerator):
                     if round_mode:
                         skeleton += ' ' + self.mapRoundingToSkeleton(round_mode)
                 else:
-                    logging.error('Pattern %s not converted to skelection', pattern)
+                    logging.error('testgen/generators/number_fmt.py: Pattern %s not converted to skelection', pattern)
                     skeleton = None
 
                 if skeleton:
@@ -266,7 +266,7 @@ class NumberFmtGenerator(DataGenerator):
                 count += 1
 
         logging.info(
-            "  generateDcmlFmtTestDataObjects gives %d tests", (count - original_count)
+            "testgen/generators/number_fmt.py: generateDcmlFmtTestDataObjects gives %d tests", (count - original_count)
         )
         return all_tests_list, verify_list, count
 
@@ -278,9 +278,9 @@ class NumberFmtGenerator(DataGenerator):
         try:
             test_match = reformat.search(rawtestdata)
         except AttributeError as error:
-            logging.warning("** parseDcmlFmtTestData: %s", error)
+            logging.warning("testgen/generators/number_fmt.py: ** parseDcmlFmtTestData: %s", error)
         if not test_match:
-            logging.warning("No test match with rawtestdata = %s", rawtestdata)
+            logging.warning("testgen/generators/number_fmt.py: No test match with rawtestdata = %s", rawtestdata)
             return None, None, None, None
         return (
             test_match.group(1),

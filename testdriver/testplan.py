@@ -64,7 +64,7 @@ class TestPlan:
         try:
             self.icu_version = options.icu_version
         except KeyError:
-            logging.warning('NO ICU VERSION SET')
+            logging.warning('testdriver/testplan.py: NO ICU VERSION SET')
 
         if options.ignore and not options.ignore == "null":
             self.ignore = True
@@ -98,7 +98,7 @@ class TestPlan:
             # Test data versions are given as "icu" + primary number, e.g., "73"
             # TODO: Consider sorting with possible dotted versions, e.g., 73.1.3
             newest_version = sorted(icu_test_dirs, reverse=True)[0]
-            logging.warning('** Replacing proposed icu version of %s with version %s',
+            logging.warning('testdriver/testplan.py: ** Replacing proposed icu version of %s with version %s',
                          self.icu_version, newest_version)
             self.icu_version = newest_version
 
@@ -130,9 +130,9 @@ class TestPlan:
 
         if self.options.run_limit:
             self.run_limit = int(self.options.run_limit)
-            logging.debug('!!! RUN LIMIT SET: %d', self.run_limit)
+            logging.debug('testdriver/testplan.py: !!! RUN LIMIT SET: %d', self.run_limit)
 
-        logging.debug('Running plan %s on data %s',
+        logging.debug('testdriver/testplan.py: Running plan %s on data %s',
                       self.exec_command, self.inputFilePath)
 
         if self.options.exec_mode == 'one_test':
@@ -153,14 +153,14 @@ class TestPlan:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
         else:
-            logging.debug('EXECUTOR INFO = %s', result)
+            logging.debug('testdriver/testplan.py: EXECUTOR INFO = %s', result)
 
             try:
                 self.jsonOutput["platform"] = json.loads(result)
             except json.JSONDecodeError as error:
-                logging.error("Encountered error in parsing executor result string as JSON: %s", error)
-                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
-                logging.error("Result string received from executor: [%s]", result)
+                logging.error("testdriver/testplan.py: Encountered error in parsing executor result string as JSON: %s", error)
+                logging.error("testdriver/testplan.py: DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
+                logging.error("testdriver/testplan.py: Result string received from executor: [%s]", result)
                 return None
 
             try:
@@ -182,8 +182,8 @@ class TestPlan:
                                                    # self.platformVersion,
                                                    self.testData.testDataFilename)
             except (KeyError, IndexError) as error:
-                logging.error("Encountered error processing executor JSON values: %s", error)
-                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
+                logging.error("testdriver/testplan.py: Encountered error processing executor JSON values: %s", error)
+                logging.error("testdriver/testplan.py: DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 return None
         return True
 
@@ -198,7 +198,7 @@ class TestPlan:
         if not result:
             self.jsonOutput["platform error"] = self.run_error_message
         else:
-            logging.debug('TERMINATION INFO = %s', result)
+            logging.debug('testdriver/testplan.py: TERMINATION INFO = %s', result)
             self.jsonOutput["platform"] = json.loads(result)
 
     def generate_header(self):
@@ -236,7 +236,7 @@ class TestPlan:
             self.resultsFile.close()
 
     def run_one_test_mode(self):
-        logging.debug('  Running OneTestMode %s on data %s',
+        logging.debug('testdriver/testplan.py: Running OneTestMode %s on data %s',
                       self.exec_command, self.inputFilePath)
 
         # Set up calls for version data --> results
@@ -250,13 +250,13 @@ class TestPlan:
             # The test data was not found. Skip this test.
             return None
 
-        logging.debug('@@@ %d tests found', len(tests))
+        logging.debug('testdriver/testplan.py: @@@ %d tests found', len(tests))
 
         # Initialize JSON output headers --> results
 
         self.exec_list = self.exec_command.split()
         # TODO: get other things about the exec
-        logging.debug('EXEC info: exec_command %s, exec_list >%s<',
+        logging.debug('testdriver/testplan.py: EXEC info: exec_command %s, exec_list >%s<',
                      self.exec_command,
                      self.exec_list)
 
@@ -274,14 +274,14 @@ class TestPlan:
             if not os.path.isdir(result_dir):
                 os.makedirs(result_dir, exist_ok=True)
         except BaseException as error:
-            logging.error('testplay.py: %s for %s / %s', error, result_dir, self.outputFilePath)
+            logging.error('testdriver/testplan.py: %s for %s / %s', error, result_dir, self.outputFilePath)
 
         # Create results file
         try:
-            logging.debug('++++++ Results file path = %s', self.outputFilePath)
+            logging.debug('testdriver/testplan.py: ++++++ Results file path = %s', self.outputFilePath)
             self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
         except BaseException as error:
-            logging.error('*** Cannot open results file at %s. Err = %s',
+            logging.error('testdriver/testplan.py: *** Cannot open results file at %s. Err = %s',
                   self.outputFilePath, error)
             self.resultsFile = open(self.outputFilePath, encoding='utf-8', mode='w')
 
@@ -345,7 +345,7 @@ class TestPlan:
 
             if self.progress_interval and test_num % self.progress_interval == 0:
                 formatted_num = '{:,}'.format(test_num)
-                logging.debug('Testing %s / %s. %s of %s', 
+                logging.debug('testdriver/testplan.py: Testing %s / %s. %s of %s', 
                     self.exec_list[0], self.testScenario, formatted_num, formatted_count)
 
             # Accumulate tests_per_execution items into a single outline
@@ -359,8 +359,8 @@ class TestPlan:
                     all_test_results.extend(result)
                 else:
                     num_errors += 1
-                    logging.error("!!!!!! platform error: %s", self.run_error_message)
-                    logging.error('  %s %s %s %s', self.test_type, self.test_lang, self.icu_version, self.platformVersion)
+                    logging.error("testdriver/testplan.py: !!!!!! platform error: %s", self.run_error_message)
+                    logging.error('testdriver/testplan.py: %s %s %s %s', self.test_type, self.test_lang, self.icu_version, self.platformVersion)
 
                 # Reset the batch
                 lines_in_batch = 0
@@ -368,7 +368,7 @@ class TestPlan:
 
             test_num += 1
             if self.run_limit and test_num > self.run_limit:
-                logging.debug('** Stopped after %d tests', (test_num - 1))
+                logging.debug('testdriver/testplan.py: ** Stopped after %d tests', (test_num - 1))
                 break
 
         # PROCESS THE LAST BATCH, if any
@@ -386,13 +386,13 @@ class TestPlan:
             return []
 
         if self.debug > 2:
-            logging.debug('PROCESSING %d tests', len(tests_to_send))
+            logging.debug('testdriver/testplan.py: PROCESSING %d tests', len(tests_to_send))
 
         # Ask process to exit when finished.
         out_and_exit = '\n'.join(tests_to_send) + '\n#EXIT\n'
 
         if self.debug > 2:
-            logging.info('+++ Test LINE TO EXECUTOR = %s', out_and_exit)
+            logging.info('testdriver/testplan.py: +++ Test LINE TO EXECUTOR = %s', out_and_exit)
 
         result = self.send_one_line(out_and_exit)
 
@@ -400,18 +400,18 @@ class TestPlan:
         # don't sent more of that type.
         if not result:
             num_errors += 1
-            logging.warning('!!!!!! process_batch_of_tests: "platform error": "%s"\n',
+            logging.warning('testdriver/testplan.py: !!!!!! process_batch_of_tests: "platform error": "%s"\n',
                             self.run_error_message)
             return None
 
         if self.debug > 2:
-            logging.info('+++ Line from EXECUTOR = %s', result)
+            logging.info('testdriver/testplan.py: +++ Line from EXECUTOR = %s', result)
 
         index = 0
         batch_out = []
         for item in result.split('\n'):
             if self.debug > 1:
-                logging.info(' RESULT %d = (%d)  >%s<', index, len(item), item)
+                logging.info('testdriver/testplan.py: RESULT %d = (%d)  >%s<', index, len(item), item)
             if not item or len(item) <= 0:
                 # Check for special results returned from the executor,
                 # indicated by '#' in the first column of the line returned.
@@ -419,26 +419,26 @@ class TestPlan:
                 # TODO: Document these, perhaps in the project's JSON schema.
                 continue
             if item[0] == "#":
-                logging.debug('#### DEBUG OUTPUT = %s', item)
+                logging.debug('testdriver/testplan.py: #### DEBUG OUTPUT = %s', item)
 
             # Process some types of errors
             if item[1:3] == "!!" and self.debug > 1:
-                logging.warning(" !!!!!!!!!!!!!!!!! ERROR: %s", item)
+                logging.warning("testdriver/testplan.py:  !!!!!!!!!!!!!!!!! ERROR: %s", item)
                 # Extract the message and check if we continue or not.
                 json_start = item.index('{')
                 json_text = item[json_start:]
-                logging.debug('JSON TEXT = %s', json_text)
+                logging.debug('testdriver/testplan.py: JSON TEXT = %s', json_text)
                 json_out = json.loads(json_text)
                 if 'error_retry' in json_out and json_out['error_retry']:
                     should_retry = json_out['error_retry']
-                    logging.warning('!!! SHOULD RETRY = %s', should_retry)
+                    logging.warning('testdriver/testplan.py: !!! SHOULD RETRY = %s', should_retry)
             elif not(item is None) and item != "":
                 try:
                     json_out = json.loads(item)
                     batch_out.append(json_out)
                 except BaseException as error:
                     if self.debug > 1:
-                        logging.warning('   && Item %s. Error in= %s. Received (%d): >%s<',
+                        logging.warning('testdriver/testplan.py:  && Item %s. Error in= %s. Received (%d): >%s<',
                                         index, error, len(item), item)
                     index += 1
 
@@ -446,9 +446,9 @@ class TestPlan:
 
     def run_multitest_mode(self):
         # TODO Implement this
-        logging.info('!!! Running MultiTestMode %s on data %s',
+        logging.info('testdriver/testplan.py: !!! Running MultiTestMode %s on data %s',
                      self.exec_command, self.inputFilePath)
-        logging.warning('  ** UNIMPLEMENTED **')
+        logging.warning('testdriver/testplan.py:   ** UNIMPLEMENTED **')
         # Open the input file and get tests
         # Open results file
 
@@ -492,7 +492,7 @@ class TestPlan:
 
     # Send a single line of data or command to Stdout, capturing the output
     def send_one_line(self, input_line):
-        self.run_error_message = None
+        self.runer_ror_message = None
         try:
             result = subprocess.run(self.exec_command,
                                     input=input_line,  # Usually a JSON string.
@@ -503,13 +503,13 @@ class TestPlan:
             if not result.returncode:
                 return result.stdout
             else:
-                logging.debug('$$$$$$$$$$$$$$$$ ---> return code: %s', result.returncode)
-                logging.debug('    ----> INPUT LINE= >%s<', input_line)
-                logging.debug('    ----> STDOUT= >%s<', result.stdout)
+                logging.debug('testdriver/testplan.py: $$$$$$$$$$$$$$$$ ---> return code: %s', result.returncode)
+                logging.debug('testdriver/testplan.py:     ----> INPUT LINE= >%s<', input_line)
+                logging.debug('testdriver/testplan.py:     ----> STDOUT= >%s<', result.stdout)
                 self.run_error_message = '!!!! ERROR IN EXECUTION: %s. STDERR = %s' % (
                     result.returncode, result.stderr)
-                logging.error(' !!!!!! exec_list = %s\n  input_line = %s' % (self.exec_list, input_line))
-                logging.error(' !!!!!! %s' % self.run_error_message)
+                logging.error('testdriver/testplan.py:  !!!!!! exec_list = %s\n  input_line = %s' % (self.exec_list, input_line))
+                logging.error('testdriver/testplan.py:  !!!!!! %s' % self.run_error_message)
 
                 # Handle problems with decoding errors and other unknowns.
                 error_result = {'label': 'UNKNOWN',
@@ -518,7 +518,7 @@ class TestPlan:
                                 }
                 return json.dumps(error_result)
         except BaseException as err:
-            logging.error('Err = %s', err)
+            logging.error('testdriver/testplan.py: Err = %s', err)
             input = json.loads(input_line.replace('#EXIT', '').strip())
             error_result = {'label': input['label'],
                             'input_data': input,

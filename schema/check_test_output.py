@@ -24,11 +24,9 @@ def main(args):
     else:
         test_output_path = args[1]
 
-    logging.debug('TEST OUTPUT PATH = %s', test_output_path)
-
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
     logger.setLevel(logging.INFO)
-    logger.info('+++ Test Generated test data vs. schemas  files')
+    logger.info('+++ schema/check_test_output')
 
     # TODO: get ICU versions
     executor_set = set()
@@ -74,7 +72,7 @@ def main(args):
     validator.debug = 1
 
     all_results, test_validation_plans = validator.validate_test_output_with_schema()
-    logging.info('  %d results for test output', len(all_results))
+    logging.info('schema/check_test_output: %d results for test output', len(all_results))
 
     # Check if any files in the expected list were not validated.
     test_paths = set()
@@ -83,7 +81,7 @@ def main(args):
 
     for json_file in json_files:
         if json_file not in test_paths:
-            logging.fatal('JSON file %s was not verified against a schema', json_file)
+            logging.fatal('schema/check_test_output: JSON file %s was not verified against a schema', json_file)
             # Bail out right away!
             sys.exit(1)
 
@@ -128,7 +126,7 @@ def main(args):
         # Don't continue after this problem.
         sys.exit(1)
 
-    logging.info("All %d test output files match with schema", schema_count)
+    logging.info("schema/check_test_output: All %d test output files match with schema", schema_count)
     return
 
 

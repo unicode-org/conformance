@@ -78,12 +78,7 @@ def generate_versioned_data(version_info):
         generator.process_test_data()
 
     if TestType.LANG_NAMES in args.test_types:
-        # This is slow
-
-        # First try with the new source of data. If not found, then use the older
-        # lang names generator.
         generator = LocaleNamesGenerator(icu_version, args.run_limit)
-        logging.info('lang generated from new LocaleNames data in %s', icu_version)
         if generator:
             generator.process_test_data()
 

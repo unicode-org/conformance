@@ -14,6 +14,8 @@ logrotate -s logrotate.state logrotate.conf
 
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
+# To clear warnings
+npm install --package-lock-only
 
 #
 # Setup

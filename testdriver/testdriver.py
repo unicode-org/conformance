@@ -46,12 +46,12 @@ class TestDriver:
         for test_type in arg_options.test_type:
 
             if test_type not in ddt_data.testDatasets:
-                logging.warning('**** WARNING: test_type %s not in testDatasets', test_type)
+                logging.warning('testdriver.py **** WARNING: test_type %s not in testDatasets', test_type)
             else:
                 # Create a test plan based on data and options
                 test_data_info = ddt_data.testDatasets[test_type]
                 if self.debug:
-                    logging.debug('$$$$$ test_type = %s test_data_info = %s',
+                    logging.debug('testdriver.py $$$$$ test_type = %s test_data_info = %s',
                                  test_type, test_data_info.testDataFilename)
 
                 for executor in arg_options.exec:
@@ -59,7 +59,7 @@ class TestDriver:
                         # Run a non-specified executor. Compatibility of versions
                         # between test data and the executor should be done the text executor
                         # program itself.
-                        logging.error('No executable command configured for executor platform: %s', executor)
+                        logging.error('testdriver.py: No executable command configured for executor platform: %s', executor)
                         exec_command = {'path': executor}
                     else:
                         # Set details for execution from ExecutorInfo
@@ -76,7 +76,7 @@ class TestDriver:
                         test_data = ddt_data.testDatasets[test_type]
                         new_plan.set_test_data(test_data)
                     except KeyError as err:
-                        logging.warning('!!! %s: No test data filename for %s', err, test_type)
+                        logging.warning('testdriver.py !!! %s: No test data filename for %s', err, test_type)
 
                     if not new_plan.ignore:
                         self.test_plans.append(new_plan)
@@ -91,30 +91,30 @@ class TestDriver:
 
         # Get all the arguments
         argparse = ddtargs.DdtArgs(args)
-        logging.debug('TestDriver OPTIONS: %s', argparse.getOptions())
+        logging.debug('testdriver.py TestDriver OPTIONS: %s', argparse.getOptions())
 
         # Now use the argparse.options to set the values in the driver
         self.set_args(argparse.getOptions())
         return
 
-    def run_plans(self):
+    def run_plans(self, logger):
         # For each of the plans, run with the appropriate type of parallelism
-        # Debugging output
+        logger.info('testdriver.py: running %s plans serially', len(self.test_plans))
         for plan in self.test_plans:
             plan.run_plan()
 
     def run_one(self, plan):
-        logging.debug("Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
+        logging.debug("testdriver.py Parallel of %s %s %s" % (plan.test_lang, plan.test_type, plan.icu_version))
         plan.run_plan()
 
-    def run_plans_parallel(self):
+    def run_plans_parallel(self, logger):
         # Testing 15-Jan-2024
         if not self.test_plans or len(self.test_plans) == 0:
             return
         num_processors = mp.cpu_count()
 
         plan_info = '%s, %s' % (self.test_plans[0].test_type, self.test_plans[0].exec_command)
-        logging.info('TestDriver: %s processors for %s plans. %s' %
+        logger.info('testdriver.py TestDriver: %s processors for %s plans. %s' %
                      (num_processors, len(self.test_plans), plan_info))
 
         processor_pool = mp.Pool(num_processors)
@@ -133,16 +133,9 @@ def main(args):
     logger.setLevel(logging.INFO)
 
     if driver.run_serial:
-        driver.run_plans()
+        driver.run_plans(logger)
     else:
-        driver.run_plans_parallel()
-
-    #               if len(args)> 2:
-    # Set limit on number to run
-    #   numberToRun = int(args[2])
-    #   driver.runLimit = numberToRun
-
-    # driver.initExecutor()
+        driver.run_plans_parallel(logger)
 
 
 if __name__ == "__main__":
