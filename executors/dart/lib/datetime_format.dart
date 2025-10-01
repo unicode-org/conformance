@@ -11,24 +11,21 @@ import 'package:intl4x/intl4x.dart';
 String testDateTimeFmt(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
 
-  final label = json['label'];
   var localeString = json['locale'] as String?; // locale can be null from JSON
   if (localeString == null || localeString.isEmpty) {
     localeString = 'und'; // Default to 'und' if locale is null or empty
   }
 
-  final returnJson = <String, dynamic>{'label': label};
+  final returnJson = <String, dynamic>{'label': json['label']};
 
   // Parse Locale string
   Locale locale;
   try {
     locale = Locale.parse(localeString.replaceAll('_', '-'));
   } catch (e) {
-    return jsonEncode({
-      'label': label,
-      'error': 'Invalid locale format: ${e.toString()}',
-      'locale': localeString,
-    });
+    returnJson['error'] = 'Invalid locale format: ${e.toString()}';
+    returnJson['locale'] = localeString;
+    return jsonEncode(returnJson);
   }
 
   var testOptionsJson = <String, dynamic>{};
@@ -92,11 +89,9 @@ String testDateTimeFmt(String jsonEncoded) {
     try {
       testDate = DateTime.parse(testDateString);
     } catch (e) {
-      return jsonEncode({
-        'label': label,
-        'error': 'Invalid input_string date format: ${e.toString()}',
-        'input_string': isoDateString,
-      });
+      returnJson['error'] = 'Invalid input_string date format: ${e.toString()}';
+      returnJson['input_string'] = isoDateString;
+      return jsonEncode(returnJson);
     }
   } else {
     testDate = DateTime.now();
@@ -128,6 +123,7 @@ String testDateTimeFmt(String jsonEncoded) {
   } on Exception catch (e) {
     returnJson['error_type'] = 'unsupported';
     returnJson['unsupported'] = ': ${e.toString()}';
+    return jsonEncode(returnJson);
   }
   returnJson['actual_options'] = dateTimeFormatOptions.humanReadable;
   returnJson['options'] = testOptionsJson;
@@ -167,48 +163,42 @@ DateTimeFormatter getFormatterForSkeleton(
 ZonedDateTimeFormatter getZonedFormatter(
   String timeZoneStyle,
   DateTimeFormatter formatter,
-) {
-  final zonedFormatter = switch (timeZoneStyle) {
-    'short' => formatter.withTimeZoneShort(),
-    'long' => formatter.withTimeZoneLong(),
-    'full' => formatter.withTimeZoneLongGeneric(),
-    String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
-  };
-  return zonedFormatter;
-}
+) => switch (timeZoneStyle) {
+  'short' => formatter.withTimeZoneShort(),
+  'long' => formatter.withTimeZoneLong(),
+  'full' => formatter.withTimeZoneLongGeneric(),
+  String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
+};
 
 DateTimeFormatter getFormatterForStyle(
   String? dateStyle,
   String? timeStyle,
   String? yearStyle,
   DateTimeFormatBuilder dtFormatter,
-) {
-  final formatter = switch ((dateStyle, timeStyle, yearStyle)) {
-    ('medium', null, _) => dtFormatter.ymd(dateStyle: DateFormatStyle.medium),
-    (null, 'short', _) => dtFormatter.t(style: TimeFormatStyle.short),
-    ('full', 'short', null) => dtFormatter.ymdet(
-      dateStyle: DateFormatStyle.full,
-      timeStyle: TimeFormatStyle.short,
-    ),
-    ('full', 'full', null) => dtFormatter.ymdet(
-      dateStyle: DateFormatStyle.full,
-      timeStyle: TimeFormatStyle.full,
-    ),
-    ('short', 'full', null) => dtFormatter.ymdt(
-      dateStyle: DateFormatStyle.short,
-      timeStyle: TimeFormatStyle.full,
-    ),
-    ('short', 'full', 'with_era') => dtFormatter.ymdet(
-      dateStyle: DateFormatStyle.short,
-      timeStyle: TimeFormatStyle.full,
-    ),
-    (_, _, 'with_era') => dtFormatter.ymde(),
-    (_, _, _) => throw Exception(
-      'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
-    ),
-  };
-  return formatter;
-}
+) => switch ((dateStyle, timeStyle, yearStyle)) {
+  ('medium', null, _) => dtFormatter.ymd(dateStyle: DateFormatStyle.medium),
+  (null, 'short', _) => dtFormatter.t(style: TimeFormatStyle.short),
+  ('full', 'short', null) => dtFormatter.ymdet(
+    dateStyle: DateFormatStyle.full,
+    timeStyle: TimeFormatStyle.short,
+  ),
+  ('full', 'full', null) => dtFormatter.ymdet(
+    dateStyle: DateFormatStyle.full,
+    timeStyle: TimeFormatStyle.full,
+  ),
+  ('short', 'full', null) => dtFormatter.ymdt(
+    dateStyle: DateFormatStyle.short,
+    timeStyle: TimeFormatStyle.full,
+  ),
+  ('short', 'full', 'with_era') => dtFormatter.ymdet(
+    dateStyle: DateFormatStyle.short,
+    timeStyle: TimeFormatStyle.full,
+  ),
+  (_, _, 'with_era') => dtFormatter.ymde(),
+  (_, _, _) => throw Exception(
+    'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
+  ),
+};
 
 extension on DateTimeFormatOptions {
   String get humanReadable {
