@@ -500,9 +500,12 @@ class TestPlan:
                                     capture_output=True,
                                     env=self.exec_env,
                                     shell=True)
-            if not result.returncode:
+            if result.returncode == 0:
+                # Command worked!
                 return result.stdout
             else:
+                input = json.loads(input_line.replace('#EXIT', '').strip())
+                # non-zero return code indicates some kind of problem
                 logging.debug('$$$$$$$$$$$$$$$$ ---> return code: %s', result.returncode)
                 logging.debug('    ----> INPUT LINE= >%s<', input_line)
                 logging.debug('    ----> STDOUT= >%s<', result.stdout)
@@ -513,20 +516,22 @@ class TestPlan:
 
                 # Handle problems with decoding errors and other unknowns.
                 error_result = {'label': input['label'],
-                                'input_data': input_line,
+                                'input_data': input,
                                 'error': self.run_error_message,
                                 'error_detail': 'severe error from subprocess ' +
-                                    result.returncode,
+                                    str(result.returncode)
                                 }
                 return json.dumps(error_result)
         except BaseException as err:
-            logging.error('Err = %s', err)
-            input = json.loads(input_line.replace('#EXIT', '').strip())
-            error_result = {'label': input['label'],
-                            'input_data': input,
-                            'error': err
-                            }
-            return json.dumps(error_result)
-
+            try:
+                input = json.loads(input_line.replace('#EXIT', '').strip())
+                logging.error('Err = %s', err)
+                error_result = {'label': input['label'],
+                                'input_data': input,
+                                'error': err
+                                }
+                return json.dumps(error_result)
+            except BaseException as error:
+                logging.error('testplan.py: Error = %s. input_line = <%s>', err, input_line)
 
         return None
