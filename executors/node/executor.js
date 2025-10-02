@@ -258,7 +258,7 @@ rl.on('line', function(line) {
       // UNSUPPORTED TEST TYPE!
       outputLine = {'label': 'UNKNOWN',
                     'error': 'unknown test type',
-                    'error_detail': 'Requested unsupported test type'
+                    'error_detail': 'Requested unsupported test type',
                     'test_type': test_type,
                     'unsupported_test': test_type};
     }
