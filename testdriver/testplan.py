@@ -64,7 +64,7 @@ class TestPlan:
         try:
             self.icu_version = options.icu_version
         except KeyError:
-            logging.warning('testdriver/testplan.py: NO ICU VERSION SET')
+            logging.warning('%s: NO ICU VERSION SET', __file__)
 
         if options.ignore and not options.ignore == "null":
             self.ignore = True
@@ -98,8 +98,11 @@ class TestPlan:
             # Test data versions are given as "icu" + primary number, e.g., "73"
             # TODO: Consider sorting with possible dotted versions, e.g., 73.1.3
             newest_version = sorted(icu_test_dirs, reverse=True)[0]
-            logging.warning('testdriver/testplan.py: ** Replacing proposed icu version of %s with version %s',
-                         self.icu_version, newest_version)
+            logging.warning(
+                '%s: ** Replacing proposed icu version of %s with version %s',
+                __file__,
+                self.icu_version,
+                newest_version)
             self.icu_version = newest_version
 
         if self.test_lang == 'node' and 'node_version' in self.options:
@@ -130,9 +133,10 @@ class TestPlan:
 
         if self.options.run_limit:
             self.run_limit = int(self.options.run_limit)
-            logging.debug('testdriver/testplan.py: !!! RUN LIMIT SET: %d', self.run_limit)
+            logging.debug('%s: !!! RUN LIMIT SET: %d', __file__, self.run_limit)
 
-        logging.debug('testdriver/testplan.py: Running plan %s on data %s',
+        logging.debug('%s: Running plan %s on data %s',
+                      __file__,
                       self.exec_command, self.inputFilePath)
 
         if self.options.exec_mode == 'one_test':
@@ -153,7 +157,7 @@ class TestPlan:
             self.jsonOutput["platform error"] = self.run_error_message
             return None
         else:
-            logging.debug('testdriver/testplan.py: EXECUTOR INFO = %s', result)
+            logging.debug('%s: EXECUTOR INFO = %s', __file__, result)
 
             try:
                 self.jsonOutput["platform"] = json.loads(result)
@@ -492,7 +496,7 @@ class TestPlan:
 
     # Send a single line of data or command to Stdout, capturing the output
     def send_one_line(self, input_line):
-        self.runer_ror_message = None
+        self.run_error_message = None
         try:
             result = subprocess.run(self.exec_command,
                                     input=input_line,  # Usually a JSON string.

@@ -46,7 +46,10 @@ class TestDriver:
         for test_type in arg_options.test_type:
 
             if test_type not in ddt_data.testDatasets:
-                logging.warning('testdriver.py **** WARNING: test_type %s not in testDatasets', test_type)
+                logging.warning(
+                    '%s **** WARNING: test_type %s not in testDatasets',
+                    __file__,
+                    test_type)
             else:
                 # Create a test plan based on data and options
                 test_data_info = ddt_data.testDatasets[test_type]

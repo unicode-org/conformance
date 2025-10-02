@@ -45,7 +45,8 @@ class ValidateSchema:
         try:
             summary_data = json.dumps(summary_json)
         except BaseException as err:
-            logging.error('schema/check_schemas: %s: Cannot create JSON summary: %s', err, summary_json)
+            logging.error('%s: %s: Cannot create JSON summary: %s',
+                          __file__, err, summary_json)
             return None
 
         output_filename = os.path.join(self.schema_base, 'schema_validation_summary.json')
@@ -54,7 +55,8 @@ class ValidateSchema:
             file_out.write(summary_data)
             file_out.close()
         except BaseException as error:
-            logging.warning('schema/check_schemas: Error: %s. Cannot save validation summary in file %s', error, output_filename)
+            logging.warning('%s: Error: %s. Cannot save validation summary in file %s',
+                            __file__, error, output_filename)
             return None
 
         return output_filename
@@ -62,7 +64,8 @@ class ValidateSchema:
 
 def parallel_validate_schema(validator, file_names):
     num_processors = multiprocessing.cpu_count()
-    logging.info('schema/check_schemas: Schema validation: %s processors for %s schema validations', num_processors, len(file_names))
+    logging.info('%s: Schema validation: %s processors for %s schema validations',
+                 __file__, num_processors, len(file_names))
 
     processor_pool = multiprocessing.Pool(num_processors)
     # How to get all the results
@@ -77,7 +80,7 @@ def parallel_validate_schema(validator, file_names):
 def main(args):
     logger = logging.Logger("TEST SCHEMAS LOGGER")
     logger.setLevel(logging.INFO)
-    logger.info('schema/check_schemas: JSON Schema files')
+    logger.info('%s: JSON Schema files', __file__)
 
     validator = schema_validator.ConformanceSchemaValidator()
     # Todo: use setters to initialize validator
@@ -116,20 +119,21 @@ def main(args):
                                   })
         if not result:
             schema_errors.append([schema_file, result, err, file_path])
-            logging.error('schema/check_schemas: Bad Schema at %s', schema_file)
+            logging.error('%s: Bad Schema at %s', __file__, schema_file)
         schema_count += 1
 
     output_filename = val_schema.save_schema_validation_summary(validation_status)
 
     if schema_errors:
-        logging.error('schema/check_schemas: SCHEMA: %d fail out of %d:', 
-                      len(schema_errors), schema_count)
+        logging.error('%s: SCHEMA: %d fail out of %d:',
+                      __file__, len(schema_errors), schema_count)
         for failure in schema_errors:
-            logging.error('schema/check_schemas: %s', failure)
+            logging.error('%s: %s', __file__, failure)
         # We need to clobber the process
         sys.exit(1)
     else:
-        logging.info("schema/check_schemas: All %d schema are valid in file %s", schema_count, output_filename)
+        logging.info("%s: All %d schema are valid in file %s",
+                     __file__, schema_count, output_filename)
         exit(0)
 
 
