@@ -177,7 +177,7 @@
           // If platform/exec order is specified, use that.
           let executed_platforms = [];
           // exec_set includes all those that are represented in the data
-          const platform_order = ["$platform_order"];
+          const platform_order = $platform_order;
           if (platform_order.length <= 0 || platform_order[0] == 'alphabetic'
              || platform_order[0] == "None") {
               // Default is alphabetic sort
