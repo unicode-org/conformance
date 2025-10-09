@@ -49,7 +49,7 @@ class DataGenerator(ABC):
 
         try:
             all_tests =  testdata['tests']
-        except BaseException as error:
+        except Exception as error:
             logging.error('# generateTestHashValues: %s does not have "tests": %s',
                           error, testdata.keys())
             return None
@@ -57,7 +57,7 @@ class DataGenerator(ABC):
         for test in all_tests:
             try:
                 test_no_label = test.copy()
-            except BaseException as error:
+            except Exception as error:
                 logging.error('error: %s, Item with no label found here: %s, %s' ,
                               error, testdata['test_type'], test)
                 continue
@@ -107,7 +107,7 @@ class DataGenerator(ABC):
                 )
                 return None
             return r.text
-        except BaseException as err:
+        except Exception as err:
             logging.warning(
                 "Warning: cannot load data %s for version %s. Error = %s",
                 datafile_name,
