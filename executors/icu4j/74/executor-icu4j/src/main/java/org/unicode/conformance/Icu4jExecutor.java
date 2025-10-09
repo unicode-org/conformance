@@ -1,5 +1,7 @@
 package org.unicode.conformance;
 
+import com.ibm.icu.util.LocaleData;
+import com.ibm.icu.util.VersionInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,6 +19,7 @@ import org.unicode.conformance.testtype.messageformat2.MessageFormatTester;
 import org.unicode.conformance.testtype.numberformatter.NumberFormatterTester;
 import org.unicode.conformance.testtype.pluralrules.PluralRulesTester;
 import org.unicode.conformance.testtype.relativedatetimeformat.RelativeDateTimeFormatTester;
+import org.unicode.conformance.testtype.segmenter.SegmenterTester;
 
 /**
  * Hello world!
@@ -25,10 +28,13 @@ import org.unicode.conformance.testtype.relativedatetimeformat.RelativeDateTimeF
 public class Icu4jExecutor {
 
     public static final String PLATFORM = "ICU4J";
-    public static final String PLATFORM_VERSION = "74.2";
-    public static final String ICU_VERSION = "74";
 
-    public static final String CLDR_VERSION = "44";
+    private static final VersionInfo latestIcuVersion = VersionInfo.ICU_VERSION;
+
+    public static final String PLATFORM_VERSION = latestIcuVersion.getMajor() + "." + latestIcuVersion.getMinor();
+
+    public static final String ICU_VERSION = String.valueOf(latestIcuVersion.getMajor());
+    public static final String CLDR_VERSION = String.valueOf(LocaleData.getCLDRVersion().getMajor());
 
     /**
      * Entry point for the executor.
@@ -117,7 +123,7 @@ public class Icu4jExecutor {
         } else {
             String testTypeStr = (String) testTypeOpt.get();
             ITestType testType;
-            if (testTypeStr.equals("collation_short")) {
+            if (testTypeStr.equals("collation")) {
                 testType = CollatorTester.INSTANCE;
             } else if (testTypeStr.equals("datetime_fmt")) {
                 testType = DateTimeFormatterTester.INSTANCE;
@@ -135,6 +141,8 @@ public class Icu4jExecutor {
                 testType = PluralRulesTester.INSTANCE;
             } else if (testTypeStr.equals("rdt_fmt")) {
                 testType = RelativeDateTimeFormatTester.INSTANCE;
+            } else if (testTypeStr.equals("segmenter")) {
+                testType = SegmenterTester.INSTANCE;
             } else {
                 io.lacuna.bifurcan.IMap<String,Object> response =
                     parsedInputPersistentMap
@@ -146,13 +154,13 @@ public class Icu4jExecutor {
 
             try {
                 return testType.getFinalOutputFromInput(parsedInputPersistentMap);
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 ITestTypeOutputJson defaultOutput = testType.getDefaultOutputJson();
                 return ExecutorUtils.formatAsJson(
                     testType.convertOutputToMap(defaultOutput)
                         .put("label", parsedInputPersistentMap.get("label", null))
-                        .put("error", "Error in input" + e.getMessage())
-                        .put("error_message", "Error in handling test case: " + e.getMessage())
+                        .put("error", "Error in input" + t.getMessage())
+                        .put("error_message", "Error in handling test case: " + t.getMessage())
                 );
             }
         }

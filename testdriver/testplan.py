@@ -159,6 +159,7 @@ class TestPlan:
                 self.jsonOutput["platform"] = json.loads(result)
             except json.JSONDecodeError as error:
                 logging.error("Encountered error in parsing executor result string as JSON: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 logging.error("Result string received from executor: [%s]", result)
                 return None
 
@@ -182,6 +183,7 @@ class TestPlan:
                                                    self.testData.testDataFilename)
             except (KeyError, IndexError) as error:
                 logging.error("Encountered error processing executor JSON values: %s", error)
+                logging.error("DETAILS: testplan info = %s, %s, %s", self.exec_command, self.icuVersion, self.test_type)
                 return None
         return True
 
@@ -217,6 +219,7 @@ class TestPlan:
             "test_count": len(self.tests)
         }
         self.jsonOutput['test_environment'] = test_environment
+        self.jsonOutput['test_type'] = self.test_type
         return test_environment
 
     def complete_output_file(self, error_info):
@@ -269,11 +272,9 @@ class TestPlan:
         try:
             result_dir = os.path.dirname(self.outputFilePath)
             if not os.path.isdir(result_dir):
-                os.makedirs(result_dir)
+                os.makedirs(result_dir, exist_ok=True)
         except BaseException as error:
-            sys.stderr.write('!!!%s:  Cannot create directory %sfor report file %s' %
-                             (error, result_dir, self.outputFilePath))
-            return None
+            logging.error('testplay.py: %s for %s / %s', error, result_dir, self.outputFilePath)
 
         # Create results file
         try:
@@ -469,10 +470,9 @@ class TestPlan:
     def open_json_test_data(self):
         # Read JSON file with results.
         try:
-            input_file = open(self.inputFilePath,
-                              encoding='utf-8', mode='r')
-            file_raw = input_file.read()
-            input_file.close()
+            with open(self.inputFilePath,
+                      encoding='utf-8', mode='r') as input_file:
+                file_raw = input_file.read()
             try:
                 self.jsonData = json.loads(file_raw)
             except json.JSONDecodeError as error:
@@ -518,7 +518,7 @@ class TestPlan:
                                 }
                 return json.dumps(error_result)
         except BaseException as err:
-            logging.error('!!! send_one_line fails: input => %s<. Err = %s', input_line, err)
+            logging.error('Err = %s', err)
             input = json.loads(input_line.replace('#EXIT', '').strip())
             error_result = {'label': input['label'],
                             'input_data': input,

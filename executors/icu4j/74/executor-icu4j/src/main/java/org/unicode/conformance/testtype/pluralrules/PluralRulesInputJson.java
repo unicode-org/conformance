@@ -11,5 +11,7 @@ public class PluralRulesInputJson  implements ITestTypeInputJson {
 
   public PluralRulesType pluralType;
 
+  public String sampleString;
+
   public double sample;
 }

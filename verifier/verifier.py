@@ -71,7 +71,7 @@ class Verifier:
             vplan.result_time_stamp = datetime.datetime.fromtimestamp(file_time).strftime('%Y-%m-%d %H:%M')
             vplan.report.timestamp = vplan.result_time_stamp
         except BaseException as err:
-            logging.error('    *** Cannot open results file %s:\n        %s', vplan.result_path, err)
+            logging.error('    *** CANNOT OPEN RESULTS FILE %s:\n        %s', vplan.result_path, err)
             return None
 
         try:
@@ -84,12 +84,8 @@ class Verifier:
         report_dir = os.path.dirname(vplan.report_path)
         try:
             if not os.path.isdir(report_dir):
-                os.makedirs(report_dir)
+                os.makedirs(report_dir, exist_ok=True)
         except BaseException as err:
-            sys.stderr.write('    !!! Cannot create directory %s for report file %s' %
-                             (report_dir, vplan.report_path))
-            sys.stderr.write('   !!! Error = %s' % err)
-
             logging.error('    !!! Cannot create directory %s for report file %s',
                              report_dir, vplan.report_path)
             logging.error('   !!! Error = %s', err)
@@ -133,6 +129,7 @@ class Verifier:
             # Generates exec and test lists from the existing files in
             # testResults directories
             summary_report = SummaryReport(self.file_base)
+
             summary_report.summarize_reports()
             executor_list = summary_report.exec_summary.keys()
             test_list = summary_report.type_summary.keys()
@@ -235,8 +232,12 @@ class Verifier:
 
             processor_pool = mp.Pool(num_processors)
             with processor_pool as p:
-                result = p.map(self.verify_one_plan, verify_plans)
-            return result
+                try:
+                    result = p.map(self.verify_one_plan, verify_plans)
+                except BaseException as err:
+                    logging.error('%s: Problem with verify_data for %s',
+                                  err, verify_plans)
+                    return result
         else:
             logging.info('Running serially!')
             for vplan in self.verify_plans:
@@ -307,6 +308,11 @@ class Verifier:
         summary_report = SummaryReport(self.file_base)
         summary_report.setup_all_test_results()
 
+
+        if self.options.platform_order:
+            # Set the order of the platforms in the summary dashboard
+            summary_report.platform_order = self.options.platform_order
+
         # Get schema summary data to the testReport head
         schema_validation_list = self.schema_results()
 
@@ -343,7 +349,6 @@ class Verifier:
         test_output_validation_name = 'test_output_validation_summary.json'
         test_output_validation = os.path.join(self.file_base, 'testOutput', test_output_validation_name)
         if os.path.exists(test_output_validation):
-            # Copy to report path
             # Copy to report path
             validation_copy = os.path.join(self.file_base, self.report_file_name, test_output_validation_name)
             try:
@@ -389,8 +394,8 @@ class Tester:
 
     def collation_exec(self, executor):
         # Set up paths and run verify
-        self.title = executor.upper() + ' COLLATION_SHORT'
-        self.test_type = 'collation_short'
+        self.title = executor.upper() + ' COLLATION'
+        self.test_type = 'collation'
         self.setup_paths_and_run(
             executor, 'coll_test_shift.json', 'collation_verify.json')
 
@@ -425,6 +430,7 @@ def run_verifier_tests():
 
         tester_display_names = Tester()
         tester_display_names.display_names_exec(executor)
+
 
 # For running verifications of test output vs. expected values.
 def main(args):

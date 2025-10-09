@@ -27,6 +27,10 @@
           "type": "string",
           "description": "Identifier for the test."
         },
+        "description": {
+          "type": "string",
+          "description": "Tell about this test"
+        },
         "hexhash": {
           "description": "A hexadecimal hash code for the test without the label",
           "type": "string"
@@ -39,6 +43,9 @@
           "type": "string"
         },
         "src": {
+          "type": ["string", "array"]
+        },
+        "expCleanSrc": {
           "type": "string"
         },
         "params": {

@@ -19,8 +19,19 @@ then
 fi
 
 # Enable seting the version of NodeJS
-export NVM_DIR=$HOME/.nvm;
-source $NVM_DIR/nvm.sh;
+# Install NVM if it is not install in CI
+
+export NVM_DIR=$HOME/.nvm
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+if [[ $CI == "true" ]] && ! [ -x "$(command -v nvm)" ]
+then
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    export NVM_DIR="$HOME/.config/nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
 
 ##########
 # Regenerate test data and verify against schema
@@ -77,18 +88,18 @@ all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 
 if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
-    pushd executors/dart_native/
+    pushd executors/dart/
     dart pub get
-    dart --enable-experiment=native-assets run bin/set_version.dart
-    dart --enable-experiment=native-assets build bin/executor.dart
+    dart bin/set_version.dart
+    dart build cli --target bin/executor.dart -o build/
     popd
 fi
 
 if jq -e 'index("dart_web")' <<< $all_execs_json > /dev/null
 then
-    pushd executors/dart_web/
+    pushd executors/dart/
     dart pub get
-    dart run bin/make_runnable_by_node.dart
+    dart bin/make_runnable_by_node.dart
     popd
 fi
 
@@ -101,9 +112,6 @@ mkdir -p $TEMP_DIR/testOutput
 
 # Change to directory of `testdriver` (which will be used to invoke each platform executor)
 pushd testdriver
-
-# Set to use NVM
-source "$HOME/.nvm/nvm.sh"
 
 # Invoke all tests
 jq -c '.[]' ../$source_file | while read i; do
@@ -139,7 +147,10 @@ pushd verifier
 
 all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
-python3 verifier.py --file_base ../$TEMP_DIR --exec $all_execs --test_type $all_test_types
+
+# Specifies the arrangement of the columns in the summary dashboard
+platform_order='ICU4C ICU4J ICU4X NodeJS Dart_Web Dart_Native'
+python3 verifier.py --file_base ../$TEMP_DIR --exec $all_execs --test_type $all_test_types --platform_order $platform_order
 
 popd
 

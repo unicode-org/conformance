@@ -111,6 +111,66 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>icu76</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>76.1</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu75/*Test.java</include>  <!-- latest MF2 version: ICU 75 -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>icu77</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+          <version>77.1</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- see: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html -->
+                <include>**/collator/icu74/*Test.java</include>
+                <include>**/langnames/icu74/*Test.java</include>
+                <include>**/likelysubtags/icu74/*Test.java</include>
+                <include>**/listformatter/icu74/*Test.java</include>
+                <include>**/messageformat2/icu75/*Test.java</include>  <!-- latest MF2 version: ICU 75 -->
+                <include>**/numberformatter/icu74/*Test.java</include>
+                <include>**/pluralrules/icu74/*Test.java</include>
+                <include>**/relativedatetimeformat/icu74/*Test.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <dependencies>

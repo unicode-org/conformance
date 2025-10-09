@@ -19,6 +19,7 @@ import json
 import logging
 import logging.config
 import os
+import re
 from string import Template
 import sys
 
@@ -182,6 +183,10 @@ class TestReport:
         self.diff_summary = DiffSummary()
 
         self.differ = Differ()
+
+        # Pattern for finding AM/PM in date time formatted output
+        # ??self.am_pm_pattern = re.compile(r'[\s,\u202F\b]([apAP][mM])[\s\b^]')  # AM/PM as separate item
+        self.am_pm_pattern = re.compile(r'\s([apAP][mM])')  # AM/PM as separate item
 
         logging.config.fileConfig("../logging.conf")
 
@@ -380,7 +385,10 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            # Don't look at tests labeled as "unsupported"
+            [self.failing_tests, self.test_errors],
+            self.platform_info
+        )
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -419,7 +427,7 @@ class TestReport:
         fail_lines = []
         max_fail_length = 0
         for fail in self.failing_tests:
-            fail_result = str(fail['result'])
+            fail_result = str(fail.get('result', ''))
             if len(fail_result) > max_fail_length:
                 max_fail_length = len(fail_result)
 
@@ -433,7 +441,9 @@ class TestReport:
         # to known_issues as needed
         new_known_issues = check_issues(
             self.test_type,
-            [self.failing_tests, self.test_errors, self.unsupported_cases])
+            [self.failing_tests, self.test_errors, self.unsupported_cases],
+            self.platform_info
+        )
 
         if new_known_issues:
             self.known_issues.extend(new_known_issues)
@@ -585,7 +595,19 @@ class TestReport:
     def characterize_results_by_options(self, test_list, category):
         # User self.failing_tests, looking at options
         results = defaultdict(lambda : defaultdict(list))
+        if not test_list:
+            # no test --> no characterizations
+            return results
+
         results['locale'] = {}  # Dictionary of labels for each locale
+
+        # Look at particular test types
+        if self.test_type == 'plural_rules':
+            self.characterize_plural_rules_tests(test_list, results)
+
+        if self.test_type == 'datetime_fmt':
+            self.characterize_datetime_tests(test_list, results)
+
         for test in test_list:
             # Get input_data, if available
             input_data = test.get('input_data', None)
@@ -631,18 +653,34 @@ class TestReport:
                         'type', 'input_list',
                         # date/time format
                         'skeleton',
-                        'language_label', 'locale_label',  # in lang_names
+                        # locale names as described in various languages
+                        'language_label',  # the locale being described, e.g. es-MX for Mexican Spanish
+                        'locale_label',  # the language in which this locale should be given, e.g., German words for "Mexican Spanish"
                         'option', 'locale',  # in likely_subtags
-                        'language_label', 'ignorePunctuation', 'compare_result', 'compare_type', 'test_description'
+                        'language_label',
+                        # Some items for collation testing
+                        'compare_result', 'compare_type',
+                        'ignorePunctuation',
+                        'test_description',
+                        'strength', 'caseFirst', 'backwards',
+                        'reorder', 'maxVariable',
+                        'source_file'
+                        # TODO!!! Characterize by actual_options keys & values
                         ]
             for key in key_list:
                 if test.get(key, None):  # For collation results
                     value = test[key]
+                    if not isinstance(value, str):
+                        # Make this a string for comparison
+                        value = str(value)
                     if key not in results:
                         results[key] = {}
-                    if value not in results[key]:
-                        results[key][value] = set()
-                    results[key][value].add(label)
+                    try:
+                        if value not in results[key]:
+                            results[key][value] = set()
+                        results[key][value].add(label)
+                    except:
+                        pass
 
             ki_key_list = ['known_issue', 'known_issue_id']
             for key in ki_key_list:
@@ -657,27 +695,31 @@ class TestReport:
             # Look at the input_data part of the test result
             # TODO: Check the error_detail and error parts, too.
             key_list = [
-                        'compare_type',
-                        'error_detail',
-                        'ignorePunctuation',
-                        'language_label',
-                        'languageDisplay',
-                        'locale_label',
-                        'locale',
-                        'options',
-                        'rules',
-                        'test_description',
-                        'unsupported_options',
-                        'style',
-                        'type',
-                        'dateStyle',
-                        'timeStyle,'
-                        'calendar',
-                        'unit',
-                        'count'
-                        ]
+                'compare_type',
+                'error_detail',
+                'ignorePunctuation',
+                'language_label',
+                'languageDisplay',
+                'locale_label',
+                'locale',
+                'options',
+                'option',
+                'rules',
+                'test_description',
+                'unsupported_options',
+                'style',
+                'type',
+                'dateStyle',
+                'timeStyle,'
+                'calendar',
+                'unit',
+                'count',
+                'source_file'
+            ]
 
             self.add_to_results_by_key(label, results, input_data, test, key_list)
+            if 'actual_options' in test:
+                self.add_to_results_by_key(label, results, test['actual_options'], test, key_list)
 
             # Special case for input_data / options.
             special_key = 'options'
@@ -699,33 +741,83 @@ class TestReport:
 
         return results
 
+
+    def characterize_plural_rules_tests(self, test_list, results):
+        # look for consistencies with plural rules test
+        for test in test_list:
+            label = test['label']
+            sample = test['input_data']['sample']
+            sample_type = 'integer sample'
+            if sample.find('c') >= 0:
+                sample_type = 'compact sample'
+            elif sample.find('.') >= 0:
+                sample_type = 'float sample'
+            elif sample.find('e') >= 0:
+                sample_type = 'exponential sample'
+            results.setdefault(sample_type, []).append(label)
+        return
+
+    def characterize_datetime_tests(self, test_list, results):
+        # look for consistencies with datetime_fmt test
+        for test in test_list:
+            label = test['label']
+            if 'result' in test:
+                output = test['result']
+            else:
+                output = 'NO RESULT'
+            if 'expected' in test:
+               expected = test['expected']
+            else:
+                expected = 'NO EXPECTED VALUE'
+
+            if 'input_data' in test and 'skeleton' in test['input_data']:
+                skeleton_str = 'skeleton: ' + test['input_data']['skeleton']
+                results.setdefault(skeleton_str, []).append(label)
+            if 'dateTimeFormatType' in test:
+                results.setdefault('dateTimeFormatType: ' + test['dateTimeFormatType'], []).append(label)
+            # Check for AM/PM difference
+            if output != expected:
+                result_ampm = self.am_pm_pattern.search(output)
+                expected_ampm = self.am_pm_pattern.search(expected)
+                if ((result_ampm and not expected_ampm) or
+                        (not result_ampm and expected_ampm) or
+                        (result_ampm and expected_ampm and (result_ampm.group(1) != expected_ampm.group(1)))):
+                    results.setdefault('AM/PM', []).append(label)
+        return
+
     # TODO: Use the following function to update lists.
     def add_to_results_by_key(self, label, results, input_data, test, key_list):
         if input_data:
             for key in key_list:
-                if input_data.get(key, None):  # For collation results
-                    value = input_data.get(key, None)
-                    if key == 'input_list':
-                        if 'input_size' not in results:
-                            results['input_size'] = {}
-                        else:
-                            results['input_size'].add(len(value))
-                    if key == 'rules':
-                        value = 'RULE'  # A special case to avoid over-characterization
-                    if key not in results:
-                        results[key] = {}
-                    try:
-                        if not results[key].get(value, None):
-                            results[key][value] = set()
-                        results[key][value].add(label)
-                    except TypeError as err:
-                        # value may not be hashable. This should be skipped
-                        pass
+                try:
+                    if input_data.get(key, None):  # For collation results
+                        value = input_data.get(key, None)
+                        if key == 'input_list':
+                            if 'input_size' not in results:
+                                results['input_size'] = {}
+                            else:
+                                results['input_size'].add(len(value))
+                        if key == 'rules':
+                            value = 'RULE'  # A special case to avoid over-characterization
+                        if key not in results:
+                            results[key] = {}
+                        try:
+                            if not results[key].get(value, None):
+                                results[key][value] = set()
+                            results[key][value].add(label)
+                        except TypeError as err:
+                            # value may not be hashable. This should be skipped
+                            pass
+                except:
+                    pass
+
     def check_simple_text_diffs(self, test_list, category):
         results = defaultdict(list)
         all_checks = ['insert', 'delete', 'insert_digit', 'insert_space', 'delete_digit',
-                      'delete_space', 'replace_digit', 'replace_dff', 'whitespace_diff',
-                      'replace', 'parens']
+                      'delete_space', 'replace_digit', 'replace_dff', 'replace_diff', 'whitespace_diff',
+                      'replace', 'diff_in_()', 'parens', '() --> []', '[] --> ()',
+                      'comma_type', 'unexpected_comma', 'boolean_diff', 'error_in_key', 'other_list_difference']
+        list_differences = defaultdict(set)
         for check in all_checks:
             results[check] = set()
 
@@ -735,18 +827,22 @@ class TestReport:
             expected = fail.get('expected', None)
             if (actual is None) or (expected is None):
                 continue
-            # Special case for differing by a single character.
-            # Look for white space difference
 
-            if isinstance(actual, bool) and isinstance(expected, bool):
-                # TODO: record boolean difference
-                return
+            if isinstance(actual, list) and isinstance(expected, list):
+                list_differences = self.check_list_differences(fail, list_differences)
+                continue
+
+            if isinstance(actual, bool) and isinstance(expected, bool) and actual != expected:
+                results['boolean_diff'].add(label)
+                continue
+                
+            if isinstance(actual, list) or isinstance(expected, list):
+                continue
 
             # The following checks work on strings
             try:
-                # Try
+                # Get the sequence of differences for processing
                 try:
-                    # Not junk!
                     sm = SequenceMatcher(None, expected, actual)
                     sm_opcodes = sm.get_opcodes()
                 except TypeError as err:
@@ -758,6 +854,8 @@ class TestReport:
                     kind = diff[0]
                     old_val = expected[diff[1]:diff[2]]
                     new_val = actual[diff[1]:diff[2]]
+                    if old_val == [] or new_val == [] or isinstance(old_val, list) or isinstance(new_val, list):
+                        continue
                     if kind == 'replace':
                         if old_val.isdigit() and new_val.isdigit():
                             results['replace_digit'].add(label)
@@ -765,7 +863,7 @@ class TestReport:
                             # Difference is in type of white space
                             results['whitespace_diff'].add(label)
                         else:
-                            results['replace_dff'].add(label)
+                            results['replace_diff'].add(label)
 
                     elif kind == "delete":
                         if old_val.isdigit():
@@ -804,26 +902,64 @@ class TestReport:
 
                                 elif x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
+                                    # Check if replacement is entirely within parentheses
                                 else:
                                     results['insert'].add(label)
                             if x[0] == '-':
                                 if x[2] in ['+', '0', '+0']:
                                     results['replace_dff'].add(label)
 
+                # Comma stuff
+                # ASCII vs. Arabic
+                if expected.replace('\u002c', '\u060c') == actual:
+                    results['comma_type'].add(label);
+                # Check for extra comma
+                if actual.replace('\u002c', '') == expected:
+                    results['unexpected_comma'].add(label);
+
                 # Check for substituted types of parentheses, brackets, braces
                 if '[' in expected and '(' in actual:
                     actual_parens = actual.replace('(', '[').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].add(label)
+                        results['() --> []'].add(label)
                 elif '(' in expected and '[' in actual:
                     actual_parens = actual.replace('[', '(').replace(')', ']')
                     if actual_parens == expected:
-                        results['parens'].add(label)
+                        results['[] --> ()'].add(label)
             except KeyError:
                 # a non-string result
+                results['error_in_key'].add(label);
                 continue
 
+        results.update(list_differences)
         return dict(results)
+
+    def check_list_differences(self, test, results):
+        # Look at data where expected and actual are lists of strings
+        # Update results with new instances
+        # results = defaultdict(list)
+        # all_checks = ['different lengths', 'different_content', 'other list difference',
+        #               'type_difference']
+        # for check in all_checks:
+        #     results[check] = set()
+
+        label = test['label']
+        actual = test.get('result', None)
+        expected = test.get('expected', None)
+
+        if len(actual) != len(expected):
+            results['different_lengths'].add(label)
+        else:
+            results['other_list_difference'].add(label)
+
+            # Same length. Check how many items are different
+            diff_count = 0
+            for item1, item2 in zip(expected, actual):
+                if item1 != item2:
+                    diff_count += 1
+            results['%d diffs' % diff_count].add(label)
+
+        return results
 
     def save_characterized_file(self, characterized_data, characterized_type):
         try:
@@ -903,7 +1039,7 @@ class TestReport:
 
     def analyze_simple(self, test):
         # This depends on test_type
-        if self.test_type == testType.collation_short.value:
+        if self.test_type == testType.collation.value:
             return
         if 'result' not in test or 'expected' not in test:
             return

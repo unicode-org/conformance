@@ -22,6 +22,7 @@
   p {
       margin: 5px 0;
   }
+
 </style>
 <!-- <script src="validation.js"</script> -->
     <script type="text/javascript">
@@ -29,6 +30,9 @@
       let schema_validation_summary
       let generated_test_validation_summary;
       let test_output_validation_summary;
+
+      // By default, only show failing schema checks.
+      let show_passing_validations = false;
 
       // Get schema validataion summary for display.
       let p1 = fetch('./schema_validation_summary.json');
@@ -68,20 +72,22 @@
           let num_failed = validations['failed'].length;
           let num_passed = validations['passed'].length;
 
-          valid_lines.push('<p>Passing validations:</p>')
-          if (num_passed > 0) {
-              valid_lines.push('<ul>')
-              for (let v of validations['passed']) {
-                  let line_text = v['test_type'];
-                  if ('icu_version' in v) {
-                      line_text += ', ' + v['icu_version'];
+          if (show_passing_validations) {
+              valid_lines.push('<p>Passing validations:</p>')
+              if (num_passed > 0) {
+                  valid_lines.push('<ul>')
+                  for (let v of validations['passed']) {
+                      let line_text = v['test_type'];
+                      if ('icu_version' in v) {
+                          line_text += ', ' + v['icu_version'];
+                      }
+                      if ('executor' in v) {
+                          line_text += ', ' + v['executor'];
+                      }
+                      valid_lines.push('<li>' + line_text + '</li>');
                   }
-                  if ('executor' in v) {
-                      line_text += ', ' + v['executor'];
-                  }
-                  valid_lines.push('<li>' + line_text + '</li>');
+                  valid_lines.push('</ul>')
               }
-              valid_lines.push('</ul>')
           }
 
           if (num_failed > 0) {
@@ -106,10 +112,11 @@
           let status = document.getElementById(status_item);
           let status_output = '';
           if (validations['failed'].length == 0) {
-              status_output = '<h4>All tests pass</h4>'
+              status_output = 'All ' + num_passed + ' tests pass. No failures!'
+          } else {
+              status_output +=
+                  'Number passed: ' + num_passed + '.  Number failed: ' + num_failed + '.';
           }
-          status_output +=
-              'Number passed: ' + num_passed + '<br />Number failed: ' + num_failed;
           status.innerHTML = status_output;
       }
     </script>
@@ -147,51 +154,109 @@
           // Sort output in alpha order by executor and by test_type
           const test_types = Object.keys(exec_summary_json);
           test_types.sort()
-          /* Get all the execs */
+          /* Get all the executed_platforms */
           let tests_by_type_and_exec = {};
 
           // Find all the kinds of executors
           let exec_set = new Set();
+          // And find how many tests are under each platform
+          let exec_test_counts = {};
           for (const test_type of test_types) {
               const tests = exec_summary_json[test_type];
               for (const node_version of tests) {
-                    exec_set.add(node_version['version']['platform'])
+                  let this_exec = node_version['version']['platform'];
+                  exec_set.add(this_exec);
+                  if (this_exec in exec_test_counts) {
+                      exec_test_counts[this_exec] += 1;
+                  } else {
+                      exec_test_counts[this_exec] = 1;
+                  }
               }
           }
 
-          const execs = Array.from(exec_set).sort();
-          let th = table.insertRow();
-          let td = th.insertCell();
-          td.innerHTML = "Test Type";
-
-          for (const exec of execs) {
-              td = th.insertCell();
-              td.innerHTML = exec;
-              td.style.textAlign = 'center';
-              td = th.insertCell();
-              td.innerHTML = "Details";
+          // If platform/exec order is specified, use that.
+          let executed_platforms = [];
+          // exec_set includes all those that are represented in the data
+          const platform_order = ["$platform_order"];
+          if (platform_order.length <= 0 || platform_order[0] == 'alphabetic'
+             || platform_order[0] == "None") {
+              // Default is alphabetic sort
+              executed_platforms = Array.from(exec_set).sort();
+          } else {
+              // Provided by the test report
+              // Remove those that are not in the exec_set.
+              if (platform_order[0] == 'component_count') {
+                  // Use to set the order
+                  const entries = Object.entries(exec_test_counts);
+                  // Sort with largest first
+                  entries.sort((a, b) => b[1] - a[1]);
+                  for (const [key, value] of entries) {
+                      executed_platforms.push(key);
+                  }
+              } else {
+                  // Check for "alphabetic", "component_count", and other options.
+                  // Does this preserve order?
+                  // It should not exclude things that are in test results,
+                  // nor include things that are not there.
+                  let execs_missing_set =
+                      new Set(Array.from(exec_set));
+                  for (let platform of platform_order) {
+                      // remove the underscores, too.
+                      const pl2 = platform.replaceAll('_', ' ');
+                      if (exec_set.has(pl2)) {
+                          executed_platforms.push(pl2);
+                          execs_missing_set.delete(pl2);
+                      }
+                  }
+                  // Make sure all the items from exec set are there, too.
+                  execs_missing_set.forEach(platform => executed_platforms.push(platform));
+              }
           }
 
-          let tr;
-          td;
+          // header row
+
+          let tr_header = table.insertRow();
+          let th = document.createElement("th");
+          th.className += ' headclass';
+          tr_header.appendChild(th);
+          th.innerHTML = "Test Type";
+
+          for (const exec of executed_platforms) {
+              let th = document.createElement("th");
+              th.className += ' headclass';
+              tr_header.appendChild(th);
+              th.innerHTML = exec;
+              th.style.textAlign = 'center';
+
+              let th_details = document.createElement("th");
+              th_details.className += ' headclass';
+              tr_header.appendChild(th_details);
+              th_details.innerHTML = "Details";
+          }
+
+          // other rows after header
+
+          let background_color;
           for (const test_type of test_types) {
               tr = table.insertRow();
               td = tr.insertCell();
               td.innerHTML = test_type
 
               const tests = exec_summary_json[test_type];
-              for (const exec of execs) {
+              for (const exec of executed_platforms) {
                   // Get all the report info for this test and this exec
                   let reports = [];
                   let data = [data_groups];
                   let details = [];
                   for (const report of tests) {
+                      background_color = null;
                       if (report['version']['platform'] == exec) {
                           reports.push(report);
                           // Add data for this report.
-                          const version_label = report['version']['platformVersion'] +
-                              '\n' +
-                              report['version']['icuVersion'];
+                          let version_label = report['version']['platformVersion'];
+                          if (!version_label.includes(report['version']['icuVersion'])) {
+                              version_label += '\n' + report['version']['icuVersion'];
+                          }
                           const report_data = [
                               version_label,
                               report['pass_count'],
@@ -202,12 +267,44 @@
                               ''
                           ];
                           data.push(report_data);
-                          let link = '<a href="' +
+                          // Set the link background color based on status.
+                          // Check if everything is passing to make a visual note
+                          let hover_msg = 'Some fail / error';  // Show meaning of color
+                          if (report['fail_count'] == 0 && report['error_count'] == 0) {
+                            // No failures or errors
+                            if (report['known_issue_count'] == 0) {
+                              if (report['unsupported_count'] == 0) {
+                                  // Only passing!
+                                  hover_msg = 'All pass';
+                                  background_color = '#00ee88';
+                              } else {
+                                  // No failures, but have unsupported items
+                                  hover_msg = 'Pass or unsupported';
+                                  background_color = '#aaaaaa';
+                              }
+                            } else if (report['unsupported_count'] == 0) {
+                                // Only known issues are present
+                                hover_msg = 'Pass or known issues';
+                                background_color = '#ffa400';
+                            } else {
+                                // Only pass, known issue, or unsupported
+                                hover_msg = 'No fails or errors';
+                                background_color = '#aa8400';
+                            }
+                         }
+                       // Insert the background color to the link if needed.
+                       let color_part = '';
+                       if (background_color) {
+                           color_part = 'style="background-color:' + background_color + '" ';
+                       }
+                       let href_part = 'href="' +
                               report['html_file_name'] + '"' +
                               ' target="_blank">' +
                               report['icu_version'] +
                               '</a><br />';
-                          details.push(link);
+                        let title_part = 'title="' + hover_msg + '" ';
+                        let link = '<a ' + color_part + title_part + href_part;
+                        details.push(link);
                       }
                   }
                   td = tr.insertCell();
@@ -236,6 +333,14 @@
                           td.innerHTML = "%s not tested in %s" % (test_type, exec);
                           td.style.textAlign = "center";
                       }
+
+                      // Unset position style to not conflict with the position: sticky style of the header row
+                      first_div_child = td.getElementsByTagName("div")[0];
+                      first_div_child.style.position = "";
+                      first_div_grandchild = first_div_child.getElementsByTagName("div")[0];
+                      first_div_grandchild.style.position = "";
+                      first_div_grand_grandchild = first_div_grandchild.getElementsByTagName("div")[0];
+                      first_div_grand_grandchild.style.position = "";
                   }
                   td = tr.insertCell();
                   td.innerHTML = details.join('');
@@ -269,6 +374,10 @@ h1, h2, h3, p {
 th {
     font-weight: bold;
     text-align: center;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    box-shadow: 5px 5px white, -5px 5px white, -5px -5px white, 5px -5px white;
 }
 
 #exec_test_table th {
@@ -302,15 +411,15 @@ th {
     </table>
 
     <h2>Schema validation results</h2>
-    <h3>Checks for schema correctness</h3>
+    <h3>Schema structure</h3>
     <p id="schema_validation_status"> </p>
     <p id="schema_validation_detail">
     </div>
-    <h3>Checks for generated test data correctness</h3>
+    <h3>Test data format</h3>
     <p id="generated_validation_status"> </p>
     <p id="generated_validation_detail">
     </div>
-    <h3>Checks for test output correctness</h3>
+    <h3>Test output validity</h3>
     <p id="output_validation_status"> </p>
     <p id="output_validation_detail">
     </div>

@@ -7,8 +7,7 @@
    "additionalProperties": false,
    "test_type": {
      "description": "The name of the test",
-     "type": "string",
-     "enum": ["number_fmt"]
+     "const": "number_fmt"
    },
    "tests": {
      "type": "array",
@@ -123,7 +122,7 @@
                "description": "rounding mode to be used",
                "enum": ["ceil", "floor", "expand", "trunc",
                         "halfCeil", "halfFloor", "halfExpand",
-                        "halfTrunc", "halfEven",
+                        "halfTrunc", "halfEven", "halfOdd",
                         "unnecessary"],
                "default": "halfEven"
              },
@@ -217,5 +216,6 @@
        "label"
      ]       
    }
- }
+ },
+  "required": ["tests", "test_type"]
 }

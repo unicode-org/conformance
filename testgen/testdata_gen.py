@@ -6,9 +6,8 @@ import multiprocessing as mp
 import re
 
 from test_type import TestType, test_types
-from generators.collation_short import CollationShortGenerator
+from generators.collation import CollationGenerator
 from generators.datetime_fmt import DateTimeFmtGenerator
-from generators.lang_names import LangNamesGenerator
 from generators.localeDisplayNames import LocaleNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
 from generators.message_fmt2 import MessageFmt2Generator
@@ -16,8 +15,7 @@ from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
 from generators.plurals import PluralGenerator
 from generators.relativedatetime_fmt import RelativeDateTimeFmtGenerator
-
-reblankline = re.compile("^\s*$")
+from generators.segmenter import SegmenterGenerator
 
 
 def setupArgs():
@@ -63,9 +61,9 @@ def generate_versioned_data(version_info):
     if len(args.test_types) < len(TestType):
         logging.info("(Only generating %s)", ", ".join(args.test_types))
 
-    if TestType.COLLATION_SHORT in args.test_types:
+    if TestType.COLLATION in args.test_types:
         # This is slow
-        generator = CollationShortGenerator(icu_version, args.run_limit)
+        generator = CollationGenerator(icu_version, args.run_limit)
         generator.process_test_data()
 
     ## DISABLED FOR NOW. Use new .js generator with Node version
@@ -85,11 +83,7 @@ def generate_versioned_data(version_info):
         # First try with the new source of data. If not found, then use the older
         # lang names generator.
         generator = LocaleNamesGenerator(icu_version, args.run_limit)
-        if not generator:
-            logging.info('lang generated from old LangNames data in %s', icu_version)
-            generator = LangNamesGenerator(icu_version, args.run_limit)
-        else:
-            logging.info('lang generated from new LocaleNames data in %s', icu_version)
+        logging.info('lang generated from new LocaleNames data in %s', icu_version)
         if generator:
             generator.process_test_data()
 
@@ -114,6 +108,12 @@ def generate_versioned_data(version_info):
         # This is slow
         generator = PluralGenerator(icu_version, args.run_limit)
         generator.process_test_data()
+
+    if TestType.SEGMENTER in args.test_types:
+        # This is slow
+        generator = SegmenterGenerator(icu_version, args.run_limit)
+        generator.process_test_data()
+
     logging.info("++++ Data generation for %s is complete.", icu_version)
 
 

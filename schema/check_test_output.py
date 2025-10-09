@@ -1,11 +1,9 @@
 # Run schema validation on all test outputs for all tests.
 
 # For ICU Conformance project, Data Driven Testing
-import argparse
 from datetime import datetime
 import glob
 import json
-
 
 import logging
 import logging.config
@@ -14,15 +12,15 @@ import sys
 
 import schema_validator
 import schema_files
-from schema_files import SCHEMA_FILE_MAP
 from schema_files import ALL_TEST_TYPES
+
 
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
     if len(args) <= 1:
         logging.error('Please specify the path to the test output directory')
-        exit(1)
+        sys.exit(1)
     else:
         test_output_path = args[1]
 
@@ -36,6 +34,7 @@ def main(args):
     executor_set = set()
     icu_version_set = set()
     test_type_set = set()
+    json_files = []
     if os.path.exists(test_output_path):
         executor_path = os.path.join(test_output_path, '*')
         executor_paths = glob.glob(executor_path)
@@ -50,15 +49,15 @@ def main(args):
         json_files = glob.glob(test_output_json_path)
 
         for file in json_files:
+            test_file_prefix = os.path.splitext(os.path.basename(file))[0]
             try:
-                test_file_prefix = os.path.splitext(os.path.basename(file))[0]
                 test_type = schema_files.TEST_FILE_TO_TEST_TYPE_MAP[test_file_prefix]
                 test_type_set.add(test_type)
             except BaseException as err:
                 logging.debug('No file (%s) during schema check output: %s', file, err
                               )
-        for dir in icu_dirs:
-            icu_version_set.add(os.path.basename(dir))
+        for dir_nane in icu_dirs:
+            icu_version_set.add(os.path.basename(dir_nane))
 
     icu_versions = sorted(list(icu_version_set))
     logging.debug('ICU directories = %s', icu_versions)
@@ -73,19 +72,25 @@ def main(args):
     validator.test_types = list(test_type_set)
     validator.executors = list(executor_set)
     validator.debug = 1
-    schema_base = '.'
-    schema_data_results = []
-    schema_count = 0
 
-    all_results = validator.validate_test_output_with_schema()
+    all_results, test_validation_plans = validator.validate_test_output_with_schema()
     logging.info('  %d results for test output', len(all_results))
 
-    schema_errors = 0
+    # Check if any files in the expected list were not validated.
+    test_paths = set()
+    for plan in test_validation_plans:
+        test_paths.add(plan['test_result_file'])
+
+    for json_file in json_files:
+        if json_file not in test_paths:
+            logging.fatal('JSON file %s was not verified against a schema', json_file)
+            # Bail out right away!
+            sys.exit(1)
+
     failed_validations = []
     passed_validations = []
     schema_count = len(all_results)
     for result in all_results:
-        logging.debug(result)
         if result['result']:
             passed_validations.append(result)
         else:
@@ -103,34 +108,29 @@ def main(args):
             }
         }
     except BaseException as error:
-        summary_json = {}
+        logging.fatal('Cannot create summary_json %s', error)
+        sys.exit(1)
 
     # Create outputs from these results.
     try:
         summary_data = json.dumps(summary_json)
-    except TypeError as err :
-        logging.error('Error: %s\n  Cannot dump JSON for %s: ',
-                      err, summary_json)
+    except TypeError as err:
+        logging.fatal('Error: %s\n  Cannot dump JSON for %s', err, summary_json)
+        sys.exit(1)
+
+    output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
     try:
-        output_filename = os.path.join(test_output_path, 'test_output_validation_summary.json')
         file_out = open(output_filename, mode='w', encoding='utf-8')
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.warning('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        logging.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        # Don't continue after this problem.
+        sys.exit(1)
 
+    logging.info("All %d test output files match with schema", schema_count)
+    return
 
-    if schema_errors:
-        logging.error('Test data file files: %d fail out of %d:', 
-            len(schema_errors, schema_count))
-        for failure in schema_errors:
-            logging.error('  %s', failure)
-        exit(1)
-    else:
-        logging.info("All %d test output files match with schema", schema_count)
-        exit(0)
 
 if __name__ == "__main__":
     main(sys.argv)
-
-# TODO: Implement this!
