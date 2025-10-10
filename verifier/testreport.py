@@ -112,6 +112,8 @@ class TestReport:
         self.report_html_path = report_html_path
         self.number_tests = 0
 
+        # Set by the caller
+
         self.failing_tests = []
         self.passing_tests = []
         self.test_errors = []
@@ -1162,10 +1164,6 @@ class TestReport:
             html_map[summary_name] = ''
 
 
-def take_second(elem):
-    return elem[1]
-
-
 class SummaryReport:
     # TODO: use a templating language for creating these reports
     def __init__(self, file_base):
@@ -1183,9 +1181,6 @@ class SummaryReport:
         self.report_filename = 'verifier_test_report.json'
 
         self.templates = reportTemplate()
-
-        if self.debug > 1:
-            logging.info('SUMMARY REPORT base = %s', self.file_base)
 
         self.summary_html_path = None
 
@@ -1212,8 +1207,7 @@ class SummaryReport:
         raw_reports = glob.glob(json_raw_join)
         self.raw_reports = raw_reports
         self.raw_reports.sort()
-        if self.debug > 1:
-            logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
+
         return self.raw_reports
 
     def setup_all_test_results(self):
@@ -1393,9 +1387,6 @@ class SummaryReport:
 
         html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
-        if self.debug > 1:
-            logging.debug('HTML OUTPUT =\n%s', html_output)
-            logging.debug('HTML OUTPUT FILEPATH =%s', self.summary_html_path)
         file.write(html_output)
         file.close()
 
