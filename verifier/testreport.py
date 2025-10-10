@@ -2,6 +2,7 @@
 
 # TODO: get templates from this module instead of local class
 from report_template import reportTemplate
+from compare_template import compareTemplate
 
 # For identifying test cases that are known problems
 from check_known_issues import check_issues
@@ -111,11 +112,31 @@ class TestReport:
         self.report_html_path = report_html_path
         self.number_tests = 0
 
+        # Set by the caller
+
         self.failing_tests = []
         self.passing_tests = []
         self.test_errors = []
         self.unsupported_cases = []
         self.known_issues = []
+
+        # Find directories for comparison options
+        # Same component in other platforms, same ICU version
+        # Same component, same platform, other versions
+        # Get top level with testOutput, platforms, and test type
+        dir_name = os.path.dirname(report_path)
+        icu_version = os.path.basename(os.path.dirname(dir_name))
+        platform_path = os.path.dirname(os.path.dirname(dir_name))
+        platform_name = os.path.basename(platform_path)
+        top_dir_name = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(dir_name))))
+        test_type = os.path.basename(dir_name)
+
+        # Get same in
+        path_all_platforms_same_icu = os.path.join(top_dir_name, 'testOutput', '*', icu_version, test_type + '_test_file.json')
+        other_platforms_same_icu = glob.glob(path_all_platforms_same_icu)
+        path_platform_all_icu = os.path.join(platform_path, '*', test_type)
+        same_platform_all_icu = glob.glob(path_platform_all_icu)
+        # Next, store these paths, subsituting 'testReport' for 'testData'
 
         self.templates = templates = reportTemplate()
 
@@ -1143,10 +1164,6 @@ class TestReport:
             html_map[summary_name] = ''
 
 
-def take_second(elem):
-    return elem[1]
-
-
 class SummaryReport:
     # TODO: use a templating language for creating these reports
     def __init__(self, file_base):
@@ -1196,8 +1213,7 @@ class SummaryReport:
         raw_reports = glob.glob(json_raw_join)
         self.raw_reports = raw_reports
         self.raw_reports.sort()
-        if self.debug > 1:
-            logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
+
         return self.raw_reports
 
     def setup_all_test_results(self):
@@ -1255,6 +1271,7 @@ class SummaryReport:
                     'unsupported_count': len(test_json['unsupported']),
                     'known_issue_count': int(test_json['known_issue_count']),
                     'missing_verify_count': len(test_json['missing_verify_data']),
+                    'result_dir_path': dir_path,
                     'json_file_name': filename,
                     'html_file_name': relative_html_path,  # Relative to the report base
                     'version': platform,
@@ -1381,9 +1398,6 @@ class SummaryReport:
 
         html_output = self.templates.summary_html_template.safe_substitute(html_map)
 
-        if self.debug > 1:
-            logging.debug('HTML OUTPUT =\n%s', html_output)
-            logging.debug('HTML OUTPUT FILEPATH =%s', self.summary_html_path)
         file.write(html_output)
         file.close()
 
@@ -1406,3 +1420,84 @@ class SummaryReport:
         # Update summary HTML page with data on latest verification
         # TODO: keep history of changes
         return
+
+
+class CompareReport():
+    # Set up page for comparing results for a given test type,
+    # across different platforms, platform versions, and icu data versions
+    def __init__(self, file_base, test_type):
+        self.file_base = file_base
+        self.test_type = test_type
+        self.report_dir_name = 'testReports'
+        self.output_name = 'compare_%s.html' % test_type
+
+        self.compare_html_path = os.path.join(file_base,
+                                              self.report_dir_name,
+                                              self.output_name)
+
+        self.templates = compareTemplate()
+        self.html_map = {
+            'test_type': test_type
+        }
+
+        # More standard items for an instance
+
+    def get_json_files(self):
+        # For each executor directory in testReports,
+        #  Get each json report file
+        report_dir_base = os.path.join(self.file_base, self.report_dir_name)
+        version_join = os.path.join(report_dir_base, '*', '*')
+        self.version_directories = glob.glob(version_join)
+
+        test_type_raw_join = os.path.join(version_join, self.test_type)
+        raw_reports = glob.glob(test_type_raw_join)
+        self.raw_reports = raw_reports
+        self.raw_reports.sort()
+
+        logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
+
+        # TODO: Get the values for these to add to template
+        try:
+            common_path = os.path.commonpath(self.raw_reports)
+        except:
+            logging.error('testreport.py: No raw reports for test type %s in this join: %s',
+                      self.test_type, test_type_raw_join)
+            return None
+
+        data_dirs = [x.replace(common_path, '.') for x in self.raw_reports]
+        self.html_map['data_dirs'] = data_dirs
+
+        # for each, get the platform, version, and icu_version
+        test_names = []
+        # Include the names parts [3] .. [-3]
+        for dir in self.raw_reports:
+          parts = dir.split('/')
+          test_id = ' '.join(parts[3:-1])
+          test_names.append(test_id)
+        self.html_map['test_names'] = test_names
+
+        # Classes of test results
+        self.status_list = ['pass', 'fail', 'error', 'unsupported']
+
+        return self.raw_reports
+
+    def create_report(self):
+        # Get the template & instantiate for the test type
+        html_template = self.templates.reportOutline()
+
+        # Fill in with the test info and set check boxes
+        html_output = html_template.safe_substitute(self.html_map)
+
+        # write the html file
+        try:
+            file = open(self.compare_html_path, mode='w', encoding='utf-8')
+            file.write(html_output)
+            file.close()
+
+        except BaseException as err:
+            sys.stderr.write(
+                '!!!!!!! CANNOT WRITE SUMMARY_HTML REPORT at %s\n    Error = %s' % (
+                    self.compare_html_path, err))
+            return None
+
+        return True
