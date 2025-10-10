@@ -239,19 +239,8 @@
           let background_color;
           for (const test_type of test_types) {
               tr = table.insertRow();
-
-              test_type_td = tr.insertCell();
-
-              // Create a link to the page to compare
-              const a_ref = document.createElement('a');
-              const link = document.createTextNode('Compare ' + test_type);
-              a_ref.title = "Compare " + test_type;
-              test_type.innerHTML = test_type;
-              // Assemble the data for the instances
-      let compare_list = [];
-      let test_names = [];
-      
-              <!-- put link to comparison selection for the test type -->
+              td = tr.insertCell();
+              td.innerHTML = test_type
 
               const tests = exec_summary_json[test_type];
               for (const exec of executed_platforms) {
@@ -318,7 +307,6 @@
                         details.push(link);
                       }
                   }
-
                   td = tr.insertCell();
                   if (reports.length > 0) {
                       // Create the data for the reports
@@ -356,13 +344,7 @@
                   }
                   td = tr.insertCell();
                   td.innerHTML = details.join('');
-                }
-                // Set the compare link for this test type.
-                const compare_link_text =  "compare_" + test_type + ".html";
-                test_type_td.innerHTML = "<a href=\'" + compare_link_text + "'" +
-                    " target='_blank'>" + test_type + "</a>";
-                                                
-        
+              }
               }
           }
   </script>
