@@ -1166,8 +1166,7 @@ class SummaryReport:
         self.templates = reportTemplate()
 
         # Default
-        self.platform_order = \
-            ['ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
+        self.platform_order = ['ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
 
         if self.debug > 1:
             logging.info('SUMMARY REPORT base = %s', self.file_base)
@@ -1296,7 +1295,7 @@ class SummaryReport:
         # Create the template
 
         # Make a string that looks like a JS list.
-        order_of_platforms = '[' + "".join([f"\'{item}\', " for item in self.platform_order]) + ']'
+        order_of_platforms = json.dumps(self.platform_order)
 
         html_map = {
             'all_platforms': ', '.join(list(self.exec_summary.keys())),
