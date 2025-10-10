@@ -49,7 +49,6 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
         generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; %s' %\
                            (nvm_version, nvm_version, ' '.join(exec_list))
 
-        logging.debug('Running this command: %s', generate_command)
         result = subprocess.run(generate_command, shell=True)
 
         # Move results to the right directory

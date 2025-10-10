@@ -32,7 +32,10 @@ def main(args):
     logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
+
+    logger.debug('TEST OUTPUT PATH = %s', test_output_path)
+
     logger.info('+++ Test Generated test data vs. schemas  files')
 
     # TODO: get ICU versions
@@ -60,14 +63,14 @@ def main(args):
                 test_type = schema_files.TEST_FILE_TO_TEST_TYPE_MAP[test_file_prefix]
                 test_type_set.add(test_type)
             except BaseException as err:
-                logging.debug('No file (%s) during schema check output: %s', file, err
+                logger.debug('No file (%s) during schema check output: %s', file, err
                               )
         for dir_nane in icu_dirs:
             icu_version_set.add(os.path.basename(dir_nane))
 
     icu_versions = sorted(list(icu_version_set))
-    logging.debug('ICU directories = %s', icu_versions)
-    logging.debug('test types = %s', ALL_TEST_TYPES)
+    logger.debug('ICU directories = %s', icu_versions)
+    logger.debug('test types = %s', ALL_TEST_TYPES)
 
 
     validator = schema_validator.ConformanceSchemaValidator()
@@ -83,7 +86,7 @@ def main(args):
     validator.debug = 1
 
     all_results, test_validation_plans = validator.validate_test_output_with_schema()
-    logging.info('  %d results for test output', len(all_results))
+    logger.info('  %d results for test output', len(all_results))
 
     # Check if any files in the expected list were not validated.
     test_paths = set()
@@ -92,7 +95,7 @@ def main(args):
 
     for json_file in json_files:
         if json_file not in test_paths:
-            logging.fatal('JSON file %s was not verified against a schema', json_file)
+            logger.fatal('JSON file %s was not verified against a schema', json_file)
             # Bail out right away!
             sys.exit(1)
 
@@ -118,7 +121,6 @@ def main(args):
         }
     except BaseException as error:
         logging.fatal('Cannot create summary_json %s', error)
-        sys.exit(1)
 
     # Create outputs from these results.
     try:
@@ -133,11 +135,11 @@ def main(args):
         file_out.write(summary_data)
         file_out.close()
     except BaseException as error:
-        logging.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
+        logger.fatal('Error: %s. Cannot save validation summary in file %s', error, output_filename)
         # Don't continue after this problem.
         sys.exit(1)
 
-    logging.info("All %d test output files match with schema", schema_count)
+    logger.info("All %d test output files match with schema", schema_count)
     return
 
 

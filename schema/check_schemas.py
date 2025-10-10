@@ -84,7 +84,7 @@ def validate_all_schema(validator, file_names):
 
 def main(args):
     logger = logging.Logger("TEST SCHEMAS LOGGER")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
     logger.info('+++ Test JSON Schema files')
 
     arg_parser = argparse.ArgumentParser(description='Schema check arguments')

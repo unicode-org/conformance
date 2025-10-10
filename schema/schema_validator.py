@@ -20,7 +20,7 @@ from schema_files import SCHEMA_FILE_MAP
 
 # ?? Move to the initialization
 ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
+ch.setLevel(logging.WARNING)
 
 
 # Given a directory, validate JSON files against expected schema
@@ -36,10 +36,7 @@ class ConformanceSchemaValidator:
         self.icu_versions = []
         self.debug_leve = 0
         self.schema_type = None
-
         self.run_serial = False
-
-        logging.config.fileConfig("../logging.conf")
 
     def validate_json_file(self, schema_and_data_paths):
         schema_file_path = schema_and_data_paths['schema_verify_file']
@@ -167,7 +164,8 @@ class ConformanceSchemaValidator:
                 logging.warning('FAIL: Test data %s, %s. MSG=%s',
                                 result_data['test_type'], result_data['icu_version'], result_data['err_info'])
             else:
-                logging.debug('Test data validated: %s %s', result_data['test_type'], result_data['icu_version'])
+                pass
+
             all_results.append(result_data)
         return all_results
 
@@ -259,7 +257,7 @@ class ConformanceSchemaValidator:
 
         results['result'] = result
         if result:
-            logging.debug('Test data %s validated successfully, with ICU %s', test_type, icu_version)
+            logging.info('Test data %s validated with ICU %s', test_type, icu_version)
         else:
             logging.error('Test data %s FAILED with ICU %s: %s', test_type, icu_version, err_info)
 
@@ -290,7 +288,7 @@ class ConformanceSchemaValidator:
 
     def check_test_output_schema(self, icu_version, test_type, executor):
         # Check the output of the tests for structure against the schema
-        logging.debug('Validating test output: %s %s %s', executor, test_type, icu_version)
+        logging.info('Validating test output: %s %s %s', executor, test_type, icu_version)
 
         # Check test output vs. the schema
         schema_file_name = SCHEMA_FILE_MAP[test_type]['result_data']['schema_file']
@@ -467,7 +465,7 @@ def main(args):
     base_folders, test_types, result_folders = process_args(args)
 
     logger = logging.Logger("TEST_GENERATE LOGGER")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
     logger.info('+++ Running JSON Schema tests')
 
     schema_validator = ConformanceSchemaValidator()
@@ -479,20 +477,20 @@ def main(args):
                                      'icu76']
     schema_validator.executors = ['node', 'rust', 'dart_web', 'dart_native', 'icu4j']
 
-    logging.info('Checking test outputs')
+    logger.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
 
     # Check all schema files for correctness.
     schema_errors = schema_validator.check_schema_files()
     if schema_errors:
-        logging.error('INVALID SCHEMA: %s', schema_errors)
+        logger.error('INVALID SCHEMA: %s', schema_errors)
     else:
-        logging.info('All schemas are valid: %s', schema_errors)
+        logger.info('All schemas are valid: %s', schema_errors)
 
-    logging.info('Checking generated data')
+    logger.info('Checking generated data')
     all_test_data_results = schema_validator.validate_test_data_with_schema()
 
-    logging.info('Checking test outputs')
+    logger.info('Checking test outputs')
     all_test_out_results = schema_validator.validate_test_output_with_schema()
 
     return

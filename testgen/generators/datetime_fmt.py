@@ -156,15 +156,8 @@ class DateTimeFmtGenerator(DataGenerator):
             result = self.generate_datetime_data_from_cldr(dt_json_path, self.run_limit)
             return result
 
-        # OK, there's no CLDR-based JSON data available.
-        run_list = [
-                ['source ~/.nvm/nvm.sh; nvm install 21.6.0; nvm use 21.6.0 --silent'],
-                ['node generators/datetime_gen.js'],
-                ['mv datetime_fmt*.json icu74']
-            ]
-
         if self.icu_version not in icu_nvm_versions:
-            logging.warning('Generating datetime data not configured for icu version %s', self.icu_version)
+            logging.debug('Generating datetime data not configured for icu version %s', self.icu_version)
             return False
 
         # Set up Node version and call the generator
@@ -173,7 +166,6 @@ class DateTimeFmtGenerator(DataGenerator):
         generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; npm ci; node generators/datetime_gen.js %s %s' % (
             nvm_version, nvm_version, '-run_limit', self.run_limit)
 
-        logging.debug('Running this command: %s', generate_command)
         result = subprocess.run(generate_command, shell=True)
 
         # Move results to the right directory
