@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dart_executor/collator.dart';
+import 'package:dart_executor/datetime_format.dart';
 import 'package:dart_executor/lang_names.dart';
 import 'package:dart_executor/numberformat.dart';
+import 'package:intl4x/datetime_format.dart';
+import 'package:intl4x/intl4x.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
@@ -57,6 +60,58 @@ void main() {
     final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
     expect(decoded['result'], 'Spanish');
   });
+
+  testWithFormatting('decimal format compact', () {
+    final input = {
+      'label': '0730',
+      'locale': 'es-MX',
+      'skeleton': 'compact-short unit-width-narrow @@',
+      'input': '91827.3645',
+      'options': {
+        'notation': 'compact',
+        'compactDisplay': 'short',
+        'unitDisplay': 'narrow',
+        'currencyDisplay': 'narrowSymbol',
+        'maximumSignificantDigits': 2,
+        'minimumSignificantDigits': 2,
+      },
+      'hexhash': '95514d4fd3ab3f2a24c86bb0e0f21c8f7ec57142',
+    };
+    final outputLine = testDecimalFormatWrapped(jsonEncode(input));
+    final output = jsonDecode(outputLine) as Map<String, dynamic>;
+    expect(output['result'], '92 k');
+  }, skip: 'Failing for now');
+
+  testWithFormatting('datetime format short', () {
+    final input = {
+      'label': '048',
+      'locale': 'en',
+      'input_string': '2000-01-01T00:00:00Z',
+      'options': {
+        'timeZone': 'Etc/GMT',
+        'calendar': 'gregory',
+        'zoneStyle': 'location',
+        'skeleton': 'MdjmsVVVV',
+        'semanticSkeleton': 'MDTZ',
+        'semanticSkeletonLength': 'short',
+      },
+      'tz_offset_secs': 0,
+      'original_input': '2000-01-01T00:00Z[Etc/GMT]',
+      'hexhash': '3b045161836e839e3d19eefc37c1d6923ba63615',
+    };
+    final outputLine = testDateTimeFmt(jsonEncode(input));
+    final output = jsonDecode(outputLine) as Map<String, dynamic>;
+    print(
+      Intl(locale: Locale.parse(input['locale'] as String))
+          .dateTimeFormat(DateTimeFormatOptions())
+          .ymdt(
+            dateStyle: DateFormatStyle.short,
+            timeStyle: TimeFormatStyle.short,
+          )
+          .format(DateTime.parse(input['input_string'] as String)),
+    );
+    expect(output['result'], '1/1, 12:00:00 AM GMT');
+  }, skip: 'Failing for now');
 }
 
 @isTest
