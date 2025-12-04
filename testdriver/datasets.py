@@ -52,6 +52,7 @@ class ICUVersion(Enum):
   ICU75 = "75"
   ICU76 = "76"
   ICU77 = "77"
+  ICU78 = "78"
 
 # TODO: Consider adding a trunk version for testing ICU / CLDR before
 # a complete release.
@@ -99,6 +100,7 @@ cldr_icu_map = {
     CLDRVersion.CLDR45: [ICUVersion.ICU75],
     CLDRVersion.CLDR46: [ICUVersion.ICU76],
     CLDRVersion.CLDR47: [ICUVersion.ICU77],
+    CLDRVersion.CLDR48: [ICUVersion.ICU78],
 }
 
 # TODO: Can this be added to a configuration file?
@@ -436,6 +438,12 @@ allExecutors.addSystem(
     '../executors/cpp/executor',
     CLDRVersion.CLDR47, versionICU=ICUVersion.ICU77,
     env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu77/bin'})
+
+allExecutors.addSystem(
+    system, CppVersion.Cpp,
+    '../executors/cpp/executor',
+    CLDRVersion.CLDR48, versionICU=ICUVersion.ICU78,
+    env={'LD_LIBRARY_PATH': '/tmp/icu/icu/usr/local/lib', 'PATH': '/tmp/icu78/bin'})
 
 system = 'newLanguage'
 allExecutors.addSystem(system, '0.1.0',
