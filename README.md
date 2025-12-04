@@ -532,31 +532,40 @@ These are usually the first changes to be made because ICU4C includes updates to
 locale data, and test data for many components.
 
 1. Test Driver:
-* Add new ICU version data in several places in testdriver/datasets.py
-
-2. testgen:
-* Add a new directory for the icu version under testgen, e.g., icu76
-
-* In this directory, copy test data from sources including icu4c/source. These
-  files include collation tests, number format data, and others.
-
-!!! TODO: Add details on the sources.
-
-* Add new CLDR test data generated from CLDR sources (!!! details !!!)
-
-3. schema: Add any new parameters in test data sources to test schema files.
-
-4. Add a function in setup.sh to download the new ICU4C release.
-
-5. Update run_config.json to reference new versions of executors and tests to run
-
-### NodeJS and some data updates
-
-NodeJS is usually updated several weeks after an ICU public release. Check on
-the site [Node.js Releases](https://nodejs.org/en/about/previous-releases) for
-the latest versions of NodeJS. Under each entry, the "changelog" will indicate
-any updates to icu, e.g., [Version 23.3.0 on 2024-11-20]
-(https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V23.md#23.3.0) which includes ICU76.1.
+    * Add new ICU version data in several places in testdriver/datasets.py
+1. testgen:
+    * Add a new directory for the icu version under testgen, e.g., icu76
+    * In this directory, copy test data from sources including icu4c/source. These
+files include collation tests, number format data, and others.
+        * `test/testdata/CollationTest_NON_IGNORABLE_SHORT.txt`
+        * `test/testdata/CollationTest_SHIFTED_SHORT.txt`
+        * `test/testdata/collationtest.txt`
+        * `test/testdata/dcfmtest.txt`
+        * `test/testdata/numberformattestspecification.txt`
+        * `test/testdata/numberpermutationtest.txt`
+    * Add new CLDR test data generated from CLDR sources
+        * `common/testData/localeIdentifiers/likelySubtags.txt`
+        * `common/testData/localeIdentifiers/localeDisplayName.txt`
+        * `common/supplemental/ordinals.xml`
+        * `common/supplemental/pluralRanges.xml`
+        * `common/supplemental/plurals.xml`
+        * `common/testData/datetime/datetime.json`
+    * Create `message_fmt2` test files
+        * Create subdir `message_fmt2`
+        * Copy the Readme file from `icu76/README.md` (or modify)
+        * Copy the test files from the MessageFormat 2 repo as described by the Readme into a subdirectory within `message_fmt2` called `message-format-wg-tests`
+1. schema: Add any new parameters in test data sources to test schema files.
+1. Add a function in setup.sh to download the new ICU4C release.
+1. Update run_config.json to reference new versions of executors and tests to run
+1. NodeJS and some data updates
+    * Ex: edit in `relativedatetime_fmt.py` the variable (potentially local to some function) called `icu_nvm_versions` that defines the version of NodeJS being used for the ICU version (version of data).
+    The exact version of NodeJS that has been released with the version of ICU can be found on the [NodeJS version pages](https://nodejs.org/en/about/previous-releases). \
+    \
+    NodeJS is usually updated several weeks after an ICU public release. Check on
+    the site [NodeJS Releases](https://nodejs.org/en/about/previous-releases) for
+    the latest versions of NodeJS. Under each entry, the "changelog" will indicate
+    any updates to icu, e.g., [Version 23.3.0 on 2024-11-20]
+    (https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V23.md#23.3.0) which includes ICU76.1.
 
 #### Add references in testdriver/datasets.py
 

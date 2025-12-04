@@ -456,7 +456,9 @@ def main(args):
     schema_validator.test_data_base = os.path.split(base_folders[0])[0]
     schema_validator.test_output_base = os.path.split(os.path.split(result_folders[0])[0])[0]
     schema_validator.icu_versions = ['icu71', 'icu72', 'icu73', 'icu74', 'icu75',
-                                     'icu76', 'icu77', 'icu78']
+                                     'icu76', 
+                                     'icu77', 'icu78'
+                                     ]
     schema_validator.executors = ['node', 'rust', 'dart_web', 'dart_native', 'icu4j']
 
     logger.info('Checking test outputs')

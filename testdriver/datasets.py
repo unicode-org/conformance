@@ -79,6 +79,7 @@ class CLDRVersion(Enum):
   CLDR45 = "45"
   CLDR46 = "46"
   CLDR47 = "47"
+  CLDR48 = "48"
 
 def latestCldrVersion():
   return CLDRVersion.CLDR43  # TODO: Fix this
