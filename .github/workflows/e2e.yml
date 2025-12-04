@@ -19,6 +19,10 @@ jobs:
     name: End-to-end
     runs-on: ubuntu-latest
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          remove-dotnet: 'true'
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Cache ICU4C binary versions
