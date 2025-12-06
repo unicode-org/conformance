@@ -33,6 +33,10 @@ jobs:
           echo
       - name: Checkout repo
         uses: actions/checkout@v2
+      - name: Print available disk space
+        run: |
+          echo "Available disk space:"
+          sudo df -h
       - name: Cache ICU4C binary versions
         id: icu4c-binaries
         uses: actions/cache@v3
@@ -50,8 +54,16 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
             toolchain: 1.82
+      - name: Print available disk space
+        run: |
+          echo "Available disk space:"
+          sudo df -h
       - name: Run End-to-end script
         run: bash generateDataAndRun.sh
+      - name: Print available disk space
+        run: |
+          echo "Available disk space:"
+          sudo df -h
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
