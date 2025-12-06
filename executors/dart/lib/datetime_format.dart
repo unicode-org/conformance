@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:intl4x/datetime_format.dart';
 import 'package:intl4x/intl4x.dart';
@@ -10,27 +11,32 @@ import 'package:intl4x/intl4x.dart';
 String testDateTimeFmt(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
 
-  final label = json['label'];
   var localeString = json['locale'] as String?; // locale can be null from JSON
   if (localeString == null || localeString.isEmpty) {
     localeString = 'und'; // Default to 'und' if locale is null or empty
   }
+
+  final returnJson = <String, dynamic>{'label': json['label']};
 
   // Parse Locale string
   Locale locale;
   try {
     locale = Locale.parse(localeString.replaceAll('_', '-'));
   } catch (e) {
-    return jsonEncode({
-      'label': label,
-      'error': 'Invalid locale format: ${e.toString()}',
-      'locale': localeString,
-    });
+    returnJson['error'] = 'Invalid locale format: ${e.toString()}';
+    returnJson['locale'] = localeString;
+    return jsonEncode(returnJson);
   }
 
   var testOptionsJson = <String, dynamic>{};
   if (json['options'] != null) {
     testOptionsJson = json['options'] as Map<String, dynamic>;
+  }
+
+  if (testOptionsJson['dateTimeFormatType'] == 'atTime') {
+    returnJson['error_type'] = 'unsupported';
+    returnJson['unsupported'] = '`at` not supported';
+    return jsonEncode(returnJson);
   }
 
   // Initialize DateTimeFormatOptions
@@ -53,10 +59,21 @@ String testDateTimeFmt(String jsonEncoded) {
   }
 
   // ignore: unused_local_variable - to be used with the timezoneformatter
-  String? timezone;
-  if (testOptionsJson.containsKey('time_zone')) {
-    timezone = testOptionsJson['time_zone'] as String;
+  String? timeZoneName;
+  int? offsetSeconds;
+  if (testOptionsJson.containsKey('timeZone') &&
+      json.containsKey('tz_offset_secs')) {
+    timeZoneName = testOptionsJson['timeZone'] as String;
+    offsetSeconds = (json['tz_offset_secs'] as num).toInt();
   }
+
+  final semanticSkeleton = testOptionsJson['semanticSkeleton'] as String?;
+  final semanticSkeletonLength =
+      testOptionsJson['semanticSkeletonLength'] as String?;
+
+  final dateStyle = testOptionsJson['dateStyle'] as String?;
+  final timeStyle = testOptionsJson['timeStyle'] as String?;
+  final yearStyle = testOptionsJson['yearStyle'] as String?;
 
   DateTime? testDate;
   if (json['input_string'] != null) {
@@ -72,34 +89,133 @@ String testDateTimeFmt(String jsonEncoded) {
     try {
       testDate = DateTime.parse(testDateString);
     } catch (e) {
-      return jsonEncode({
-        'label': label,
-        'error': 'Invalid input_string date format: ${e.toString()}',
-        'input_string': isoDateString,
-      });
+      returnJson['error'] = 'Invalid input_string date format: ${e.toString()}';
+      returnJson['input_string'] = isoDateString;
+      return jsonEncode(returnJson);
     }
   } else {
     testDate = DateTime.now();
   }
 
-  final returnJson = <String, dynamic>{'label': label};
   final dtFormatter = Intl(
     locale: locale,
   ).dateTimeFormat(dateTimeFormatOptions);
 
-  try {} catch (error) {
-    returnJson['error'] = 'DateTimeFormat Constructor: ${error.toString()}';
-    returnJson['options'] = testOptionsJson;
+  try {
+    final formatter = semanticSkeleton != null
+        ? getFormatterForSkeleton(
+            semanticSkeleton,
+            semanticSkeletonLength,
+            dtFormatter,
+          )
+        : getFormatterForStyle(dateStyle, timeStyle, yearStyle, dtFormatter);
+    String formattedDt;
+    if (timeStyle == 'full' && timeZoneName != null) {
+      final offset = Duration(seconds: offsetSeconds!);
+      final timeZone = TimeZone(name: timeZoneName, offset: offset);
+      final timeZoneStyle = 'long';
+      final zonedFormatter = getZonedFormatter(timeZoneStyle, formatter);
+      formattedDt = zonedFormatter.format(testDate.add(offset), timeZone);
+    } else {
+      formattedDt = formatter.format(testDate);
+    }
+    returnJson['result'] = formattedDt;
+  } on Exception catch (e) {
+    returnJson['error_type'] = 'unsupported';
+    returnJson['unsupported'] = ': ${e.toString()}';
     return jsonEncode(returnJson);
   }
-
-  try {
-    final formattedDt = dtFormatter.ymd(testDate);
-    returnJson['result'] = formattedDt;
-    returnJson['actual_options'] = dateTimeFormatOptions.toString();
-  } catch (error) {
-    returnJson['unsupported'] = ': ${error.toString()}';
-  }
+  returnJson['actual_options'] = dateTimeFormatOptions.humanReadable;
+  returnJson['options'] = testOptionsJson;
 
   return jsonEncode(returnJson);
+}
+
+DateTimeFormatter getFormatterForSkeleton(
+  String semanticSkeleton,
+  String? semanticSkeletonLength,
+  DateTimeFormatBuilder dtFormatter,
+) {
+  // The provided Rust code implies a more complex logic, but here we'll map the known skeletons.
+  // The Rust code's `None => None` and `None => Ok(...)` branches aren't directly translatable
+  // to a Dart function that must return a Formatter. We'll handle the valid cases and throw for others.
+
+  final semanticDateStyle = switch (semanticSkeletonLength) {
+    'short' => DateFormatStyle.short,
+    'medium' => DateFormatStyle.medium,
+    'long' => DateFormatStyle.long,
+    _ => throw Exception(),
+  };
+  return switch (semanticSkeleton) {
+    'D' || 'DT' || 'DTZ' => dtFormatter.d(),
+    'MD' => dtFormatter.md(),
+    'MDT' || 'MDTZ' => dtFormatter.mdt(dateStyle: semanticDateStyle),
+    'YMD' || 'YMDT' || 'YMDTZ' => dtFormatter.ymd(dateStyle: semanticDateStyle),
+    'YMDE' => dtFormatter.ymde(dateStyle: semanticDateStyle),
+    'YMDET' || 'YMDETZ' => dtFormatter.ymdet(dateStyle: semanticDateStyle),
+    'M' => dtFormatter.m(),
+    'Y' => dtFormatter.y(),
+    'T' || 'Z' || 'TZ' => dtFormatter.t(),
+    _ => throw Exception('Unknown skeleton: $semanticSkeleton'),
+  };
+}
+
+ZonedDateTimeFormatter getZonedFormatter(
+  String timeZoneStyle,
+  DateTimeFormatter formatter,
+) => switch (timeZoneStyle) {
+  'short' => formatter.withTimeZoneShort(),
+  'long' => formatter.withTimeZoneLong(),
+  'full' => formatter.withTimeZoneLongGeneric(),
+  String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
+};
+
+DateTimeFormatter getFormatterForStyle(
+  String? dateStyle,
+  String? timeStyle,
+  String? yearStyle,
+  DateTimeFormatBuilder dtFormatter,
+) => switch ((dateStyle, timeStyle, yearStyle)) {
+  ('medium', null, _) => dtFormatter.ymd(dateStyle: DateFormatStyle.medium),
+  (null, 'short', _) => dtFormatter.t(style: TimeFormatStyle.short),
+  ('full', 'short', null) => dtFormatter.ymdet(
+    dateStyle: DateFormatStyle.full,
+    timeStyle: TimeFormatStyle.short,
+  ),
+  ('full', 'full', null) => dtFormatter.ymdet(
+    dateStyle: DateFormatStyle.full,
+    timeStyle: TimeFormatStyle.full,
+  ),
+  ('short', 'full', null) => dtFormatter.ymdt(
+    dateStyle: DateFormatStyle.short,
+    timeStyle: TimeFormatStyle.full,
+  ),
+  ('short', 'full', 'with_era') => dtFormatter.ymdet(
+    dateStyle: DateFormatStyle.short,
+    timeStyle: TimeFormatStyle.full,
+  ),
+  (_, _, 'with_era') => dtFormatter.ymde(),
+  (_, _, _) => throw Exception(
+    'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
+  ),
+};
+
+extension on DateTimeFormatOptions {
+  String get humanReadable {
+    final fields = <String, dynamic>{
+      if (calendar != null) 'calendar': calendar,
+      if (dayPeriod != null) 'dayPeriod': dayPeriod,
+      if (numberingSystem != null) 'numberingSystem': numberingSystem,
+      if (clockstyle != null) 'clockstyle': clockstyle,
+      if (era != null) 'era': era,
+      if (timestyle != null) 'timestyle': timestyle,
+      if (fractionalSecondDigits != null)
+        'fractionalSecondDigits': fractionalSecondDigits,
+      'formatMatcher': formatMatcher,
+    };
+    final entries = fields.entries
+        .map((e) => '${e.key}: ${e.value}')
+        .join(', ');
+    return 'DateTimeFormatOptions($entries)';
+  }
 }

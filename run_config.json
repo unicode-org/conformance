@@ -248,10 +248,30 @@
   },
   {
     "run": {
-      "icu_version": "icu74",
+      "icu_version": "icu77",
       "exec": "dart_native",
       "test_type": [
         "collation",
+        "number_fmt",
+        "lang_names",
+        "plural_rules",
+        "list_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 24.0.0, icu77.1",
+      "version": "24.0.0",
+      "command": "nvm install 24.0.0;nvm use 24.0.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu76",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
