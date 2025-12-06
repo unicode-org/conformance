@@ -2,7 +2,7 @@ name: dart_executor
 publish_to: none
 
 environment:
-  sdk: ^3.10.0-37.0.dev
+  sdk: ^3.10.0
 
 dependencies:
   collection: ^1.19.1
