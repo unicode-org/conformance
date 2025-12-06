@@ -1182,6 +1182,12 @@ class SummaryReport:
 
         self.templates = reportTemplate()
 
+        # Default
+        self.platform_order = ['ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
+
+        if self.debug > 1:
+            logging.info('SUMMARY REPORT base = %s', self.file_base)
+
         self.summary_html_path = None
 
         self.header_item_template = Template(
@@ -1304,11 +1310,16 @@ class SummaryReport:
     def create_summary_html(self):
         # Generate HTML page containing this information
         # Create the template
+
+        # Make a string that looks like a JS list.
+        order_of_platforms = json.dumps(self.platform_order)
+
         html_map = {
             'all_platforms': ', '.join(list(self.exec_summary.keys())),
             'all_icu_versions': None,  # TEMP!!!
             'all_tests': ', '.join(list(self.type_summary.keys())),
             'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'platform_order': order_of_platforms,
         }
         # Create header for each executor
         header_line = ''  # TODO
