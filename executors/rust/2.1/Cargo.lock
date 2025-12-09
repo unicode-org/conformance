@@ -235,7 +235,7 @@ dependencies = [
  "icu",
  "icu_provider",
  "icu_provider_source",
- "ixdtf 0.4.0",
+ "ixdtf",
  "json",
  "log",
  "rustc_version_runtime",
@@ -338,7 +338,7 @@ dependencies = [
  "icu_locale",
  "icu_locale_core",
  "icu_provider",
- "ixdtf 0.6.4",
+ "ixdtf",
  "serde",
  "tinystr",
  "zerovec",
@@ -768,7 +768,7 @@ dependencies = [
  "icu_locale_core",
  "icu_provider",
  "icu_time_data",
- "ixdtf 0.6.4",
+ "ixdtf",
  "serde",
  "zerotrie",
  "zerovec",
@@ -804,16 +804,6 @@ name = "itoa"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
-
-[[package]]
-name = "ixdtf"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3be3d801e2817c5311a3be4f1e1b2148dcd2b10baadb3a5eade0544a0521ac9"
-dependencies = [
- "displaydoc",
- "utf8_iter",
-]
 
 [[package]]
 name = "ixdtf"
