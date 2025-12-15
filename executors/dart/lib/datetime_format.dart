@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:intl4x/datetime_format.dart';
-import 'package:intl4x/intl4x.dart';
 
 /// Tests date/time formatting using intl4x.
 ///
@@ -40,10 +39,9 @@ String testDateTimeFmt(String jsonEncoded) {
   }
 
   // Initialize DateTimeFormatOptions
-  var dateTimeFormatOptions = DateTimeFormatOptions();
-
   // Handle calendar and timezone from test_optionsJson
   String? calendarString;
+  Calendar? calendar;
   if (testOptionsJson.containsKey('calendar')) {
     calendarString = testOptionsJson['calendar'] as String;
     // Note: intl4x's DateTimeFormatOptions directly supports calendar as a string.
@@ -51,10 +49,8 @@ String testDateTimeFmt(String jsonEncoded) {
     // is not directly available in `intl4x`'s current Locale API for all calendars.
     // If a calendar is unsupported, the `DateTimeFormat` constructor might throw,
     // or it might fall back. We'll rely on intl4x's internal handling.
-    dateTimeFormatOptions = dateTimeFormatOptions.copyWith(
-      calendar: Calendar.values.firstWhereOrNull(
-        (calendar) => calendar.jsName == calendarString,
-      ),
+    calendar = Calendar.values.firstWhereOrNull(
+      (calendar) => calendar.jsName == calendarString,
     );
   }
 
@@ -97,25 +93,19 @@ String testDateTimeFmt(String jsonEncoded) {
     testDate = DateTime.now();
   }
 
-  final dtFormatter = Intl(
-    locale: locale,
-  ).dateTimeFormat(dateTimeFormatOptions);
-
   try {
     final formatter = semanticSkeleton != null
         ? getFormatterForSkeleton(
             semanticSkeleton,
             semanticSkeletonLength,
-            dtFormatter,
+            locale,
           )
-        : getFormatterForStyle(dateStyle, timeStyle, yearStyle, dtFormatter);
+        : getFormatterForStyle(dateStyle, timeStyle, yearStyle, locale);
     String formattedDt;
     if (timeStyle == 'full' && timeZoneName != null) {
       final offset = Duration(seconds: offsetSeconds!);
-      final timeZone = TimeZone(name: timeZoneName, offset: offset);
-      final timeZoneStyle = 'long';
-      final zonedFormatter = getZonedFormatter(timeZoneStyle, formatter);
-      formattedDt = zonedFormatter.format(testDate.add(offset), timeZone);
+      final zonedFormatter = getZonedFormatter('long', formatter);
+      formattedDt = zonedFormatter.format(testDate.add(offset), timeZoneName);
     } else {
       formattedDt = formatter.format(testDate);
     }
@@ -125,7 +115,7 @@ String testDateTimeFmt(String jsonEncoded) {
     returnJson['unsupported'] = ': ${e.toString()}';
     return jsonEncode(returnJson);
   }
-  returnJson['actual_options'] = dateTimeFormatOptions.humanReadable;
+  returnJson['actual_options'] = {if (calendar != null) 'calendar': calendar};
   returnJson['options'] = testOptionsJson;
 
   return jsonEncode(returnJson);
@@ -134,28 +124,44 @@ String testDateTimeFmt(String jsonEncoded) {
 DateTimeFormatter getFormatterForSkeleton(
   String semanticSkeleton,
   String? semanticSkeletonLength,
-  DateTimeFormatBuilder dtFormatter,
+  Locale locale,
 ) {
   // The provided Rust code implies a more complex logic, but here we'll map the known skeletons.
   // The Rust code's `None => None` and `None => Ok(...)` branches aren't directly translatable
   // to a Dart function that must return a Formatter. We'll handle the valid cases and throw for others.
 
   final semanticDateStyle = switch (semanticSkeletonLength) {
-    'short' => DateFormatStyle.short,
-    'medium' => DateFormatStyle.medium,
-    'long' => DateFormatStyle.long,
+    'short' => DateTimeLength.short,
+    'medium' => DateTimeLength.medium,
+    'long' => DateTimeLength.long,
     _ => throw Exception(),
   };
   return switch (semanticSkeleton) {
-    'D' || 'DT' || 'DTZ' => dtFormatter.d(),
-    'MD' => dtFormatter.md(),
-    'MDT' || 'MDTZ' => dtFormatter.mdt(dateStyle: semanticDateStyle),
-    'YMD' || 'YMDT' || 'YMDTZ' => dtFormatter.ymd(dateStyle: semanticDateStyle),
-    'YMDE' => dtFormatter.ymde(dateStyle: semanticDateStyle),
-    'YMDET' || 'YMDETZ' => dtFormatter.ymdet(dateStyle: semanticDateStyle),
-    'M' => dtFormatter.m(),
-    'Y' => dtFormatter.y(),
-    'T' || 'Z' || 'TZ' => dtFormatter.t(),
+    'D' ||
+    'DT' ||
+    'DTZ' => DateTimeFormat.day(locale: locale, length: semanticDateStyle),
+    'MD' => DateTimeFormat.monthDay(locale: locale, length: semanticDateStyle),
+    'MDT' || 'MDTZ' => DateTimeFormat.monthDayTime(
+      locale: locale,
+      length: semanticDateStyle,
+    ),
+    'YMD' || 'YMDT' || 'YMDTZ' => DateTimeFormat.yearMonthDay(
+      locale: locale,
+      length: semanticDateStyle,
+    ),
+    'YMDE' => DateTimeFormat.yearMonthDayWeekday(
+      locale: locale,
+      length: semanticDateStyle,
+    ),
+    'YMDET' || 'YMDETZ' => DateTimeFormat.yearMonthDayWeekdayTime(
+      locale: locale,
+      length: semanticDateStyle,
+    ),
+    'M' => DateTimeFormat.month(locale: locale, length: semanticDateStyle),
+    'Y' => DateTimeFormat.year(locale: locale, length: semanticDateStyle),
+    'T' ||
+    'Z' ||
+    'TZ' => DateTimeFormat.time(locale: locale, length: semanticDateStyle),
     _ => throw Exception('Unknown skeleton: $semanticSkeleton'),
   };
 }
@@ -174,48 +180,55 @@ DateTimeFormatter getFormatterForStyle(
   String? dateStyle,
   String? timeStyle,
   String? yearStyle,
-  DateTimeFormatBuilder dtFormatter,
+  Locale locale,
 ) => switch ((dateStyle, timeStyle, yearStyle)) {
-  ('medium', null, _) => dtFormatter.ymd(dateStyle: DateFormatStyle.medium),
-  (null, 'short', _) => dtFormatter.t(style: TimeFormatStyle.short),
-  ('full', 'short', null) => dtFormatter.ymdet(
-    dateStyle: DateFormatStyle.full,
-    timeStyle: TimeFormatStyle.short,
+  ('medium', null, _) => DateTimeFormat.yearMonthDay(
+    locale: locale,
+    length: DateTimeLength.medium,
   ),
-  ('full', 'full', null) => dtFormatter.ymdet(
-    dateStyle: DateFormatStyle.full,
-    timeStyle: TimeFormatStyle.full,
+  (null, 'short', _) => DateTimeFormat.time(
+    locale: locale,
+    length: DateTimeLength.short,
   ),
-  ('short', 'full', null) => dtFormatter.ymdt(
-    dateStyle: DateFormatStyle.short,
-    timeStyle: TimeFormatStyle.full,
+  ('full', 'short', null) => DateTimeFormat.yearMonthDayWeekdayTime(
+    locale: locale,
+    length: DateTimeLength.long,
   ),
-  ('short', 'full', 'with_era') => dtFormatter.ymdet(
-    dateStyle: DateFormatStyle.short,
-    timeStyle: TimeFormatStyle.full,
+  ('full', 'full', null) => DateTimeFormat.yearMonthDayWeekdayTime(
+    locale: locale,
+    length: DateTimeLength.long,
   ),
-  (_, _, 'with_era') => dtFormatter.ymde(),
+  ('short', 'full', null) => DateTimeFormat.yearMonthDayTime(
+    locale: locale,
+    length: DateTimeLength.short,
+  ),
+  ('short', 'full', 'with_era') => DateTimeFormat.yearMonthDayWeekdayTime(
+    locale: locale,
+    length: DateTimeLength.short,
+  ),
+  (_, _, 'with_era') => DateTimeFormat.yearMonthDayWeekday(locale: locale),
   (_, _, _) => throw Exception(
     'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
   ),
 };
 
-extension on DateTimeFormatOptions {
-  String get humanReadable {
-    final fields = <String, dynamic>{
-      if (calendar != null) 'calendar': calendar,
-      if (dayPeriod != null) 'dayPeriod': dayPeriod,
-      if (numberingSystem != null) 'numberingSystem': numberingSystem,
-      if (clockstyle != null) 'clockstyle': clockstyle,
-      if (era != null) 'era': era,
-      if (timestyle != null) 'timestyle': timestyle,
-      if (fractionalSecondDigits != null)
-        'fractionalSecondDigits': fractionalSecondDigits,
-      'formatMatcher': formatMatcher,
-    };
-    final entries = fields.entries
-        .map((e) => '${e.key}: ${e.value}')
-        .join(', ');
-    return 'DateTimeFormatOptions($entries)';
-  }
+// Copied from intl4x/lib/src/locale/locale.dart
+extension CalendarJsName on Calendar {
+  /// Returns the JavaScript-compatible name for the calendar.
+  ///
+  /// This implementation uses a switch expression to map specific enum
+  /// values to their corresponding JS names, falling back to the enum's
+  /// `name` for others.
+  String get jsName => switch (this) {
+    Calendar.traditionalChinese => 'chinese',
+    Calendar.traditionalKorean => 'dangi',
+    Calendar.ethiopianAmeteAlem => 'ethioaa',
+    Calendar.ethiopian => 'ethiopic',
+    Calendar.gregorian => 'gregory',
+    Calendar.hijriUmalqura => 'islamic-umalqura',
+    Calendar.hijriTbla => 'islamic-tbla',
+    Calendar.hijriCivil => 'islamic-civil',
+    Calendar.minguo => 'roc',
+    _ => name,
+  };
 }

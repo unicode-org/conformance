@@ -3,7 +3,6 @@
 import 'dart:convert';
 
 import 'package:intl4x/collation.dart';
-import 'package:intl4x/intl4x.dart';
 
 String testCollation(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
@@ -52,16 +51,13 @@ String testCollation(String jsonEncoded) {
     });
   } else {
     try {
-      final coll = Intl(locale: Locale.parse(localeString));
-
-      final collationOptions = CollationOptions(
+      final compared = Collation(
+        locale: Locale.parse(localeString),
         ignorePunctuation: ignorePunctuation,
         sensitivity: sensitivity,
         numeric: numeric,
         caseFirst: caseFirst,
-      );
-
-      final compared = coll.collation(collationOptions).compare(s1, s2);
+      ).compare(s1, s2);
 
       bool result;
       if (compareType == '=') {
@@ -90,4 +86,15 @@ String testCollation(String jsonEncoded) {
     }
   }
   return jsonEncode(outputLine);
+}
+
+// Copied from intl4x/lib/src/collation/collation_ecma.dart
+extension on CaseFirst {
+  /// The JavaScript-compatible string representation of the case first option.
+  String get jsName => switch (this) {
+    // Map the custom name 'localeDependent' to 'false'.
+    CaseFirst.localeDependent => 'false',
+    // All other cases implicitly use the enum's name (e.g., 'upper', 'lower').
+    _ => name,
+  };
 }

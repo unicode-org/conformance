@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:intl4x/display_names.dart';
-import 'package:intl4x/intl4x.dart';
 
 String testLangNames(String jsonEncoded) {
   final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
@@ -33,6 +32,9 @@ String testLangNames(String jsonEncoded) {
     });
     return jsonEncode(outputLine);
   }
+  final languageDisplay = LanguageDisplay.values.firstWhere(
+    (element) => element.name == json['languageDisplay'],
+  );
 
   Locale languageLabelLocale;
   try {
@@ -47,28 +49,23 @@ String testLangNames(String jsonEncoded) {
     return jsonEncode(outputLine);
   }
 
-  final options = DisplayNamesOptions(
-    languageDisplay: LanguageDisplay.standard,
-  );
   try {
-    final displayNames = Intl(locale: locale).displayNames(options);
-    final resultLangName = displayNames.ofLanguage(languageLabelLocale);
+    final displayNames = DisplayNames(
+      locale: locale,
+      languageDisplay: languageDisplay,
+    );
+    final resultLangName = displayNames.ofLocale(languageLabelLocale);
 
     outputLine['result'] = resultLangName;
   } catch (error) {
     outputLine.addAll({
       'error_detail': error.toString(),
-      'actual_options': options.toJson(),
+      'actual_options': {
+        'languageDisplay': LanguageDisplay.standard.toString(),
+        'locale': locale.toString(),
+      },
       'error_retry': false, // Do not repeat
     });
   }
   return jsonEncode(outputLine);
-}
-
-extension on DisplayNamesOptions {
-  Map<String, String> toJson() => {
-    'style': style.name,
-    'languageDisplay': languageDisplay.name,
-    'fallback': fallback.name,
-  };
 }

@@ -1,7 +1,13 @@
 import 'dart:convert';
 
-import 'package:intl4x/intl4x.dart';
 import 'package:intl4x/number_format.dart';
+// ignore: implementation_imports
+import 'package:intl4x/src/ecma/ecma_native.dart'
+    if (dart.js) 'package:intl4x/src/ecma/ecma_web.dart';
+// ignore: implementation_imports
+import 'package:intl4x/src/number_format/number_format_impl.dart';
+// ignore: implementation_imports
+import 'package:intl4x/src/number_format/number_format_options.dart';
 
 String testDecimalFormat(String encoded, bool loggingEnabled, String version) {
   //just some call to not treeshake the function
@@ -163,10 +169,19 @@ String testDecimalFormatWrapped(
       // Some error - to return this message
       return jsonEncode({
         'error': error.toString(),
-        'error_type': '_decimalPatternToOptions',
+        'error_type': 'unsupported',
         'label': label,
       });
     }
+  }
+
+  if (!useBrowser &&
+      (options.style is UnitStyle || options.style is PercentStyle)) {
+    return jsonEncode({
+      'error': 'Unit or percent style are not supported yet',
+      'error_type': 'unsupported',
+      'label': label,
+    });
   }
   // Default maximumFractionDigits and rounding modes are set in test generation
 
@@ -216,21 +231,21 @@ String testDecimalFormatWrapped(
 
   final testLocale = json['locale'] as String?;
 
-  Intl intl;
   Map<String, dynamic> outputLine;
+  Locale locale;
   try {
     if (testLocale != null) {
-      intl = Intl(locale: Locale.parse(testLocale));
+      locale = Locale.parse(testLocale);
     } else {
-      intl = Intl(locale: Locale.parse('und'));
+      locale = Locale.parse('und');
     }
-    final nf = intl.numberFormat(options);
+    final nf = NumberFormatImpl.build(locale, options);
 
     // TODO: Catch unsupported units, e.g., furlongs.
 
     outputLine = {
       'label': json['label'],
-      'result': nf.format(input),
+      'result': nf.formatImpl(input),
       'actual_options': options.toMapString(),
     };
   } catch (error) {
@@ -403,4 +418,17 @@ extension on NumberFormatOptions {
       },
     };
   }
+}
+
+// Copied from intl4x/lib/src/number_format/number_format_ecma.dart
+/// Extension to provide a JavaScript-compatible name for the Unit enum.
+extension on Unit {
+  /// The JavaScript-compatible string representation of the unit.
+  String get jsName => switch (this) {
+    Unit.fluidOunce => 'fluid-ounce',
+    Unit.scandinavianMile => 'mile-scandinavian',
+    // Fallback to the enum's name for all other units (e.g., 'acre', 'bit',
+    // 'byte').
+    _ => name,
+  };
 }

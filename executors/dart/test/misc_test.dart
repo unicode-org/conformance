@@ -6,7 +6,6 @@ import 'package:dart_executor/datetime_format.dart';
 import 'package:dart_executor/lang_names.dart';
 import 'package:dart_executor/numberformat.dart';
 import 'package:intl4x/datetime_format.dart';
-import 'package:intl4x/intl4x.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart';
 
@@ -102,13 +101,9 @@ void main() {
     final outputLine = testDateTimeFmt(jsonEncode(input));
     final output = jsonDecode(outputLine) as Map<String, dynamic>;
     print(
-      Intl(locale: Locale.parse(input['locale'] as String))
-          .dateTimeFormat(DateTimeFormatOptions())
-          .ymdt(
-            dateStyle: DateFormatStyle.short,
-            timeStyle: TimeFormatStyle.short,
-          )
-          .format(DateTime.parse(input['input_string'] as String)),
+      DateTimeFormat.yearMonthDayTime(
+        locale: Locale.parse(input['locale'] as String),
+      ).format(DateTime.parse(input['input_string'] as String)),
     );
     expect(output['result'], '1/1, 12:00:00 AM GMT');
   }, skip: 'Failing for now');

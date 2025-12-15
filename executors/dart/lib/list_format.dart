@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
-import 'package:intl4x/intl4x.dart';
-import 'package:intl4x/list_format.dart'; // Import for ListFormat and ListFormatOptions
+import 'package:intl4x/list_format.dart'
+    show ListStyle, Locale, ListType, ListFormat;
 
 /// Tests Intl Locale for list formatting.
 ///
@@ -29,22 +29,21 @@ String testListFmt(String jsonEncoded) {
 
   final Map<String, dynamic>? optionsJson = json['options'];
 
-  ListFormatOptions? listFormatOptions;
+  ListStyle? style;
+  ListType? type;
   if (optionsJson != null) {
     try {
-      listFormatOptions = ListFormatOptions(
-        style:
-            ListStyle.values.firstWhereOrNull(
-              (style) => style.name == optionsJson['style'] as String?,
-            ) ??
-            ListStyle.long,
-        type: switch (optionsJson['list_type'] as String?) {
-          'conjunction' => Type.and,
-          'disjunction' => Type.or,
-          'unit' => Type.unit,
-          _ => Type.and,
-        },
-      );
+      style =
+          ListStyle.values.firstWhereOrNull(
+            (style) => style.name == optionsJson['style'] as String?,
+          ) ??
+          ListStyle.long;
+      type = switch (optionsJson['list_type'] as String?) {
+        'conjunction' => ListType.and,
+        'disjunction' => ListType.or,
+        'unit' => ListType.unit,
+        _ => ListType.and,
+      };
     } catch (e) {
       returnJson.addAll({
         'error': 'CONSTRUCTOR: Invalid options format',
@@ -62,9 +61,12 @@ String testListFmt(String jsonEncoded) {
   }
   final inputList = inputListDynamic.map((e) => e.toString()).toList();
 
-  final listFormatter = Intl(
-    locale: locale,
-  ).listFormat(listFormatOptions ?? ListFormatOptions());
+  final listFormatter = switch ((style, type)) {
+    (final s?, final t?) => ListFormat(locale: locale, style: s, type: t),
+    (_, final t?) => ListFormat(locale: locale, type: t),
+    (final s?, _) => ListFormat(locale: locale, style: s),
+    (_, _) => ListFormat(locale: locale),
+  };
 
   try {
     final result = listFormatter.format(inputList);
