@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:intl4x/datetime_format.dart';
 import 'package:intl4x/number_format.dart';
 // ignore: implementation_imports
 import 'package:intl4x/src/ecma/ecma_native.dart'
@@ -390,7 +391,9 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
     signDisplay: signDisplay,
     notation: notation,
     useGrouping: useGrouping,
-    numberingSystem: options['numberingSystem'],
+    numberingSystem: NumberingSystem.values.firstWhere(
+      (element) => element.jsName == options['numberingSystem'],
+    ),
     roundingMode: roundingMode,
     trailingZeroDisplay: trailingZeroDisplay,
     minimumIntegerDigits: options['minimumIntegerDigits'],
@@ -430,5 +433,34 @@ extension on Unit {
     // Fallback to the enum's name for all other units (e.g., 'acre', 'bit',
     // 'byte').
     _ => name,
+  };
+}
+
+// Copied from intl4x/lib/src/locale/locale.dart
+extension NumberingSystemJsName on NumberingSystem {
+  /// Returns the BCP 47/CLDR short name for the numbering system.
+  String get jsName => switch (this) {
+    NumberingSystem.arabic => 'arab',
+    NumberingSystem.extendedarabicindic => 'arabext',
+    NumberingSystem.balinese => 'bali',
+    NumberingSystem.bangla => 'beng',
+    NumberingSystem.devanagari => 'deva',
+    NumberingSystem.fullwidth => 'fullwide',
+    NumberingSystem.gujarati => 'gujr',
+    NumberingSystem.gurmukhi => 'guru',
+    NumberingSystem.hanjadecimal => 'hant',
+    NumberingSystem.khmer => 'khmr',
+    NumberingSystem.kannada => 'knda',
+    NumberingSystem.lao => 'laoo',
+    NumberingSystem.malayalam => 'mlym',
+    NumberingSystem.mongolian => 'mong',
+    NumberingSystem.myanmar => 'mymr',
+    NumberingSystem.odia => 'orya',
+    NumberingSystem.tamildecimal => 'taml',
+    NumberingSystem.telugu => 'telu',
+    NumberingSystem.thai => 'thai',
+    NumberingSystem.tibetan => 'tibt',
+    NumberingSystem.latin => 'latn',
+    NumberingSystem.limbu => 'limb',
   };
 }
