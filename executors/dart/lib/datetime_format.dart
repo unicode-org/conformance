@@ -63,13 +63,17 @@ String testDateTimeFmt(String jsonEncoded) {
     offsetSeconds = (json['tz_offset_secs'] as num).toInt();
   }
 
+  final skeleton = testOptionsJson['skeleton'] as String?;
   final semanticSkeleton = testOptionsJson['semanticSkeleton'] as String?;
   final semanticSkeletonLength =
       testOptionsJson['semanticSkeletonLength'] as String?;
 
   final dateStyle = testOptionsJson['dateStyle'] as String?;
   final timeStyle = testOptionsJson['timeStyle'] as String?;
-  final yearStyle = testOptionsJson['yearStyle'] as String?;
+  final yearStyle = switch (testOptionsJson['yearStyle'] as String?) {
+    'with_era' => YearStyle.withEra,
+    _ => null,
+  };
 
   DateTime? testDate;
   if (json['input_string'] != null) {
@@ -89,8 +93,6 @@ String testDateTimeFmt(String jsonEncoded) {
       returnJson['input_string'] = isoDateString;
       return jsonEncode(returnJson);
     }
-  } else {
-    testDate = DateTime.now();
   }
 
   try {
@@ -99,15 +101,18 @@ String testDateTimeFmt(String jsonEncoded) {
             semanticSkeleton,
             semanticSkeletonLength,
             locale,
+            yearStyle,
           )
         : getFormatterForStyle(dateStyle, timeStyle, yearStyle, locale);
     String formattedDt;
-    if (timeStyle == 'full' && timeZoneName != null) {
+    if (formatter is DateTimeFormatterZoneable &&
+        (semanticSkeleton ?? '').contains('Z')) {
       final offset = Duration(seconds: offsetSeconds!);
-      final zonedFormatter = getZonedFormatter('long', formatter);
-      formattedDt = zonedFormatter.format(testDate.add(offset), timeZoneName);
+      final zoneStyle = testOptionsJson['zoneStyle'] as String?;
+      final zonedFormatter = getZonedFormatter(zoneStyle, formatter, skeleton);
+      formattedDt = zonedFormatter.format(testDate!.add(offset), timeZoneName!);
     } else {
-      formattedDt = formatter.format(testDate);
+      formattedDt = formatter.format(testDate!);
     }
     returnJson['result'] = formattedDt;
   } on Exception catch (e) {
@@ -116,6 +121,10 @@ String testDateTimeFmt(String jsonEncoded) {
     return jsonEncode(returnJson);
   }
   returnJson['actual_options'] = {
+    'locale': locale.toString(),
+    if (dateStyle != null) 'dateStyle': dateStyle,
+    if (timeStyle != null) 'timeStyle': timeStyle,
+    if (yearStyle != null) 'yearStyle': yearStyle.name,
     if (calendar != null) 'calendar': calendar.jsName,
   };
   returnJson['options'] = testOptionsJson;
@@ -127,6 +136,7 @@ DateTimeFormatter getFormatterForSkeleton(
   String semanticSkeleton,
   String? semanticSkeletonLength,
   Locale locale,
+  YearStyle? yearStyle,
 ) {
   // The provided Rust code implies a more complex logic, but here we'll map the known skeletons.
   // The Rust code's `None => None` and `None => Ok(...)` branches aren't directly translatable
@@ -154,6 +164,7 @@ DateTimeFormatter getFormatterForSkeleton(
     'YMDE' => DateTimeFormat.yearMonthDayWeekday(
       locale: locale,
       length: semanticDateStyle,
+      yearStyle: yearStyle,
     ),
     'YMDET' || 'YMDETZ' => DateTimeFormat.yearMonthDayWeekdayTime(
       locale: locale,
@@ -162,57 +173,97 @@ DateTimeFormatter getFormatterForSkeleton(
     'M' => DateTimeFormat.month(locale: locale, length: semanticDateStyle),
     'Y' => DateTimeFormat.year(locale: locale, length: semanticDateStyle),
     'T' ||
-    'Z' ||
     'TZ' => DateTimeFormat.time(locale: locale, length: semanticDateStyle),
     _ => throw Exception('Unknown skeleton: $semanticSkeleton'),
   };
 }
 
 ZonedDateTimeFormatter getZonedFormatter(
-  String timeZoneStyle,
-  DateTimeFormatter formatter,
-) => switch (timeZoneStyle) {
-  'short' => formatter.withTimeZoneShort(),
-  'long' => formatter.withTimeZoneLong(),
-  'full' => formatter.withTimeZoneLongGeneric(),
-  String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
-};
+  String? timeZoneStyle,
+  DateTimeFormatterZoneable formatter,
+  String? skeleton,
+) {
+  if (skeleton != null) {
+    // Long Generic
+    if (skeleton.contains('vvvv') || skeleton.contains('VVVV')) {
+      return formatter.withTimeZoneLongGeneric();
+    }
+    // Short Generic
+    else if (skeleton.contains('v') || skeleton.contains('V')) {
+      return formatter.withTimeZoneShortGeneric();
+    }
+    // Long Offset
+    else if (skeleton.contains('OOOO')) {
+      return formatter.withTimeZoneLongOffset();
+    }
+    // Short Offset
+    else if (skeleton.contains('O')) {
+      return formatter.withTimeZoneShortOffset();
+    }
+    // Long Specific (Name)
+    else if (skeleton.contains('zzzz')) {
+      return formatter.withTimeZoneLong();
+    }
+    // Short Specific (Name)
+    else if (skeleton.contains('z')) {
+      return formatter.withTimeZoneShort();
+    }
+  }
+  return switch (timeZoneStyle) {
+    'short' => formatter.withTimeZoneShort(),
+    'specific' => formatter.withTimeZoneShort(),
+    'full' => formatter.withTimeZoneLongGeneric(),
+    'generic' => formatter.withTimeZoneLongGeneric(),
+    'location' => formatter.withTimeZoneShort(),
+    'offset' => formatter.withTimeZoneLongGeneric(),
+    null => formatter.withTimeZoneLongGeneric(),
+    String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
+  };
+}
 
 DateTimeFormatter getFormatterForStyle(
   String? dateStyle,
   String? timeStyle,
-  String? yearStyle,
+  YearStyle? yearStyle,
   Locale locale,
-) => switch ((dateStyle, timeStyle, yearStyle)) {
-  ('medium', null, _) => DateTimeFormat.yearMonthDay(
-    locale: locale,
-    length: DateTimeLength.medium,
-  ),
-  (null, 'short', _) => DateTimeFormat.time(
-    locale: locale,
-    length: DateTimeLength.short,
-  ),
-  ('full', 'short', null) => DateTimeFormat.yearMonthDayWeekdayTime(
-    locale: locale,
-    length: DateTimeLength.long,
-  ),
-  ('full', 'full', null) => DateTimeFormat.yearMonthDayWeekdayTime(
-    locale: locale,
-    length: DateTimeLength.long,
-  ),
-  ('short', 'full', null) => DateTimeFormat.yearMonthDayTime(
-    locale: locale,
-    length: DateTimeLength.short,
-  ),
-  ('short', 'full', 'with_era') => DateTimeFormat.yearMonthDayWeekdayTime(
-    locale: locale,
-    length: DateTimeLength.short,
-  ),
-  (_, _, 'with_era') => DateTimeFormat.yearMonthDayWeekday(locale: locale),
-  (_, _, _) => throw Exception(
-    'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
-  ),
-};
+) {
+  print((dateStyle, timeStyle, yearStyle));
+  return switch ((dateStyle, timeStyle, yearStyle)) {
+    ('medium', null, null) => DateTimeFormat.yearMonthDay(
+      locale: locale,
+      length: DateTimeLength.medium,
+    ),
+    (null, 'short', _) => DateTimeFormat.time(
+      locale: locale,
+      length: DateTimeLength.short,
+    ),
+    ('full', 'short', null) => DateTimeFormat.yearMonthDayWeekdayTime(
+      locale: locale,
+      length: DateTimeLength.long,
+    ),
+    ('full', 'full', null) => DateTimeFormat.yearMonthDayWeekdayTime(
+      locale: locale,
+      length: DateTimeLength.long,
+    ),
+    ('short', 'full', null) => DateTimeFormat.yearMonthDayTime(
+      locale: locale,
+      length: DateTimeLength.short,
+    ),
+    ('short', 'full', YearStyle.withEra) =>
+      DateTimeFormat.yearMonthDayWeekdayTime(
+        locale: locale,
+        length: DateTimeLength.short,
+        yearStyle: yearStyle,
+      ),
+    (_, _, YearStyle.withEra) => DateTimeFormat.yearMonthDayWeekday(
+      locale: locale,
+      yearStyle: yearStyle,
+    ),
+    (_, _, _) => throw Exception(
+      'Unknown combination of date style `$dateStyle`, time style `$timeStyle`, and year style `$yearStyle`',
+    ),
+  };
+}
 
 // Copied from intl4x/lib/src/locale/locale.dart
 extension CalendarJsName on Calendar {
