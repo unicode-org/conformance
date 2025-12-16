@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:intl4x/display_names.dart';
 
 String testLangNames(String jsonEncoded) {
@@ -9,8 +10,7 @@ String testLangNames(String jsonEncoded) {
 
   final Locale locale;
   try {
-    if (json['locale_label'] != null) {
-      final localeJson = json['locale_label'] as String;
+    if (json['locale_label'] case final String localeJson?) {
       locale = Locale.parse(localeJson);
     } else {
       locale = Locale.parse('en');
@@ -32,7 +32,7 @@ String testLangNames(String jsonEncoded) {
     });
     return jsonEncode(outputLine);
   }
-  final languageDisplay = LanguageDisplay.values.firstWhere(
+  final languageDisplay = LanguageDisplay.values.firstWhereOrNull(
     (element) => element.name == json['languageDisplay'],
   );
 
@@ -52,7 +52,7 @@ String testLangNames(String jsonEncoded) {
   try {
     final displayNames = DisplayNames(
       locale: locale,
-      languageDisplay: languageDisplay,
+      languageDisplay: languageDisplay ?? LanguageDisplay.dialect,
     );
     final resultLangName = displayNames.ofLocale(languageLabelLocale);
 
@@ -61,8 +61,9 @@ String testLangNames(String jsonEncoded) {
     outputLine.addAll({
       'error_detail': error.toString(),
       'actual_options': {
-        'languageDisplay': LanguageDisplay.standard.toString(),
-        'locale': locale.toString(),
+        'languageDisplay': languageDisplay?.name,
+        'locale_label': locale.toString(),
+        'language_label': languageLabelLocale.toString(),
       },
       'error_retry': false, // Do not repeat
     });

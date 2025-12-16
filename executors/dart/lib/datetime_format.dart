@@ -115,7 +115,9 @@ String testDateTimeFmt(String jsonEncoded) {
     returnJson['unsupported'] = ': ${e.toString()}';
     return jsonEncode(returnJson);
   }
-  returnJson['actual_options'] = {if (calendar != null) 'calendar': calendar};
+  returnJson['actual_options'] = {
+    if (calendar != null) 'calendar': calendar.jsName,
+  };
   returnJson['options'] = testOptionsJson;
 
   return jsonEncode(returnJson);
