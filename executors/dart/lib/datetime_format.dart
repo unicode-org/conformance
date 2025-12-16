@@ -70,6 +70,14 @@ String testDateTimeFmt(String jsonEncoded) {
 
   final dateStyle = testOptionsJson['dateStyle'] as String?;
   final timeStyle = testOptionsJson['timeStyle'] as String?;
+
+  final timePrecision = switch (timeStyle) {
+    'full' => TimePrecision.second,
+    'long' => TimePrecision.second,
+    'medium' => TimePrecision.second,
+    'short' => TimePrecision.minute,
+    _ => null,
+  };
   final yearStyle = switch (testOptionsJson['yearStyle'] as String?) {
     'with_era' => YearStyle.withEra,
     _ => null,
@@ -102,8 +110,15 @@ String testDateTimeFmt(String jsonEncoded) {
             semanticSkeletonLength,
             locale,
             yearStyle,
+            timePrecision,
           )
-        : getFormatterForStyle(dateStyle, timeStyle, yearStyle, locale);
+        : getFormatterForStyle(
+            dateStyle,
+            timeStyle,
+            yearStyle,
+            locale,
+            timePrecision,
+          );
     String formattedDt;
     if (formatter is DateTimeFormatterZoneable &&
         (semanticSkeleton ?? '').contains('Z')) {
@@ -137,6 +152,7 @@ DateTimeFormatter getFormatterForSkeleton(
   String? semanticSkeletonLength,
   Locale locale,
   YearStyle? yearStyle,
+  TimePrecision? timePrecision,
 ) {
   // The provided Rust code implies a more complex logic, but here we'll map the known skeletons.
   // The Rust code's `None => None` and `None => Ok(...)` branches aren't directly translatable
@@ -148,6 +164,7 @@ DateTimeFormatter getFormatterForSkeleton(
     'long' => DateTimeLength.long,
     _ => throw Exception(),
   };
+
   return switch (semanticSkeleton) {
     'D' ||
     'DT' ||
@@ -156,6 +173,7 @@ DateTimeFormatter getFormatterForSkeleton(
     'MDT' || 'MDTZ' => DateTimeFormat.monthDayTime(
       locale: locale,
       length: semanticDateStyle,
+      timePrecision: timePrecision,
     ),
     'YMD' || 'YMDT' || 'YMDTZ' => DateTimeFormat.yearMonthDay(
       locale: locale,
@@ -169,11 +187,15 @@ DateTimeFormatter getFormatterForSkeleton(
     'YMDET' || 'YMDETZ' => DateTimeFormat.yearMonthDayWeekdayTime(
       locale: locale,
       length: semanticDateStyle,
+      timePrecision: timePrecision,
     ),
     'M' => DateTimeFormat.month(locale: locale, length: semanticDateStyle),
     'Y' => DateTimeFormat.year(locale: locale, length: semanticDateStyle),
-    'T' ||
-    'TZ' => DateTimeFormat.time(locale: locale, length: semanticDateStyle),
+    'T' || 'TZ' => DateTimeFormat.time(
+      locale: locale,
+      length: semanticDateStyle,
+      timePrecision: timePrecision,
+    ),
     _ => throw Exception('Unknown skeleton: $semanticSkeleton'),
   };
 }
@@ -226,6 +248,7 @@ DateTimeFormatter getFormatterForStyle(
   String? timeStyle,
   YearStyle? yearStyle,
   Locale locale,
+  TimePrecision? timePrecision,
 ) {
   print((dateStyle, timeStyle, yearStyle));
   return switch ((dateStyle, timeStyle, yearStyle)) {
@@ -236,14 +259,17 @@ DateTimeFormatter getFormatterForStyle(
     (null, 'short', _) => DateTimeFormat.time(
       locale: locale,
       length: DateTimeLength.short,
+      timePrecision: timePrecision,
     ),
     ('full', 'short', null) => DateTimeFormat.yearMonthDayWeekdayTime(
       locale: locale,
       length: DateTimeLength.long,
+      timePrecision: timePrecision,
     ),
     ('full', 'full', null) => DateTimeFormat.yearMonthDayWeekdayTime(
       locale: locale,
       length: DateTimeLength.long,
+      timePrecision: timePrecision,
     ),
     ('short', 'full', null) => DateTimeFormat.yearMonthDayTime(
       locale: locale,
@@ -254,6 +280,7 @@ DateTimeFormatter getFormatterForStyle(
         locale: locale,
         length: DateTimeLength.short,
         yearStyle: yearStyle,
+        timePrecision: timePrecision,
       ),
     (_, _, YearStyle.withEra) => DateTimeFormat.yearMonthDayWeekday(
       locale: locale,
