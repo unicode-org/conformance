@@ -120,7 +120,7 @@ String testDateTimeFmt(String jsonEncoded) {
             timePrecision,
           );
     String formattedDt;
-    if (formatter is DateTimeFormatterZoneable &&
+    if (formatter is DateTimeFormatter &&
         (semanticSkeleton ?? '').contains('Z')) {
       final offset = Duration(seconds: offsetSeconds!);
       final zoneStyle = testOptionsJson['zoneStyle'] as String?;
@@ -147,7 +147,7 @@ String testDateTimeFmt(String jsonEncoded) {
   return jsonEncode(returnJson);
 }
 
-DateTimeFormatter getFormatterForSkeleton(
+DateTimeFormatterStandalone getFormatterForSkeleton(
   String semanticSkeleton,
   String? semanticSkeletonLength,
   Locale locale,
@@ -202,7 +202,7 @@ DateTimeFormatter getFormatterForSkeleton(
 
 ZonedDateTimeFormatter getZonedFormatter(
   String? timeZoneStyle,
-  DateTimeFormatterZoneable formatter,
+  DateTimeFormatter formatter,
   String? skeleton,
 ) {
   if (skeleton != null) {

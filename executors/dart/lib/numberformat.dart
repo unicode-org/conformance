@@ -324,6 +324,30 @@ extension on NumberFormatOptions {
       },
     };
   }
+
+  NumberFormatOptions copyWith({
+    FormatStyle? style,
+    String? currency,
+    SignDisplay? signDisplay,
+    Notation? notation,
+    Grouping? useGrouping,
+    NumberingSystem? numberingSystem,
+    RoundingMode? roundingMode,
+    TrailingZeroDisplay? trailingZeroDisplay,
+    int? minimumIntegerDigits,
+    Digits? digits,
+  }) => NumberFormatOptions.custom(
+    style: style ?? this.style,
+    currency: currency ?? this.currency,
+    signDisplay: signDisplay ?? this.signDisplay,
+    notation: notation ?? this.notation,
+    useGrouping: useGrouping ?? this.useGrouping,
+    numberingSystem: numberingSystem ?? this.numberingSystem,
+    roundingMode: roundingMode ?? this.roundingMode,
+    trailingZeroDisplay: trailingZeroDisplay ?? this.trailingZeroDisplay,
+    minimumIntegerDigits: minimumIntegerDigits ?? this.minimumIntegerDigits,
+    digits: digits ?? this.digits,
+  );
 }
 
 // Copied from intl4x/lib/src/number_format/number_format_ecma.dart
