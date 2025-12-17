@@ -73,7 +73,9 @@ void main() {
         };
         print(outputLine);
       } catch (e, s) {
-        throw ArgumentError('Error while executing on $line. Error was:\n $e \n $s');
+        throw ArgumentError(
+          'Error while executing on $line. Error was:\n $e \n $s',
+        );
       }
     }
   }
