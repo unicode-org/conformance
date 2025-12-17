@@ -736,5 +736,29 @@
       ],
       "per_execution": 10000
     }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-78-shaded",
+      "version": "78",
+      "command": "mvn -q -P icu78 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu78",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt",
+        "segmenter"
+      ],
+      "per_execution": 10000
+    }
   }
 ]
