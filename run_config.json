@@ -268,7 +268,7 @@
       "command": "nvm install 24.0.0;nvm use 24.0.0 --silent"
     },
     "run": {
-      "icu_version": "icu76",
+      "icu_version": "icu77",
       "exec": "dart_web",
       "test_type": [
         "collation",
@@ -312,6 +312,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -331,6 +332,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -350,6 +352,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
