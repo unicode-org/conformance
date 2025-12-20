@@ -5,6 +5,7 @@ from datetime import datetime
 import glob
 import json
 
+import argparse
 import logging
 import logging.config
 import os.path
@@ -18,12 +19,17 @@ from schema_files import ALL_TEST_TYPES
 def main(args):
     logging.config.fileConfig("../logging.conf")
 
-    if len(args) <= 1:
-        logging.error('Please specify the path to the test output directory')
-        sys.exit(1)
-    else:
-        test_output_path = args[1]
+    arg_parser = argparse.ArgumentParser(description='Schema check arguments')
+    arg_parser.add_argument('schema_base', help='Where to find the files to validate')
+    arg_parser.add_argument(
+        '--run_serial', action='store_true',
+        help='Set to process serially. Parallel is the default.')
 
+    schema_options = arg_parser.parse_args(args[2:])
+
+    # file_base + output_path
+    test_output_path = schema_options.schema_base
+    logging.debug('TEST OUTPUT PATH = %s', test_output_path)
 
     logger = logging.Logger("Checking Test Data vs. Schemas LOGGER")
     logger.setLevel(logging.WARNING)
@@ -45,6 +51,7 @@ def main(args):
                 executor_set.add(os.path.basename(path))
 
         icu_path = os.path.join(test_output_path, '*', 'icu*')
+
         icu_dirs = glob.glob(icu_path)
 
         test_output_json_path = os.path.join(test_output_path, '*', 'icu*', '*.json')
@@ -65,8 +72,11 @@ def main(args):
     logger.debug('ICU directories = %s', icu_versions)
     logger.debug('test types = %s', ALL_TEST_TYPES)
 
+
     validator = schema_validator.ConformanceSchemaValidator()
-    # Todo: use setters to initialize validator
+
+    # TODO: use setters to initialize validator
+    validator.run_serial = schema_options.run_serial
     validator.schema_base = '.'
     validator.test_output_base = test_output_path
     validator.test_data_base = None

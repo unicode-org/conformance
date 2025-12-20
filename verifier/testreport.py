@@ -1417,6 +1417,7 @@ class CompareReport():
     def __init__(self, file_base, test_type):
         self.file_base = file_base
         self.test_type = test_type
+        self.debug = 0
         self.report_dir_name = 'testReports'
         self.output_name = 'compare_%s.html' % test_type
 
@@ -1443,7 +1444,8 @@ class CompareReport():
         self.raw_reports = raw_reports
         self.raw_reports.sort()
 
-        logging.info('SUMMARY JSON RAW FILES = %s', self.raw_reports)
+        if self.debug:
+            logging.debug('SUMMARY JSON RAW FILES = %s', self.raw_reports)
 
         # TODO: Get the values for these to add to template
         try:
