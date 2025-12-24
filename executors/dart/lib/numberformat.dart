@@ -1,107 +1,19 @@
 import 'dart:convert';
 
-import 'package:intl4x/intl4x.dart';
+import 'package:collection/collection.dart';
+import 'package:intl4x/datetime_format.dart';
 import 'package:intl4x/number_format.dart';
+// ignore: implementation_imports
+import 'package:intl4x/src/ecma/ecma_native.dart'
+    if (dart.library.js_interop) 'package:intl4x/src/ecma/ecma_web.dart';
+// ignore: implementation_imports
+import 'package:intl4x/src/number_format/number_format_impl.dart';
+// ignore: implementation_imports
+import 'package:intl4x/src/number_format/number_format_options.dart';
 
 String testDecimalFormat(String encoded, bool loggingEnabled, String version) {
-  //just some call to not treeshake the function
-  final json = jsonDecode(encoded) as Map<String, dynamic>;
-  final jsonOptions = (json['options'] ?? {}) as Map<String, dynamic>;
-  final getUnsupportedOptionsForNode = _getUnsupportedOptionsForNode(
-    jsonOptions,
-    version,
-    loggingEnabled,
-  );
-  return testDecimalFormatWrapped(
-    encoded,
-    loggingEnabled,
-    getUnsupportedOptionsForNode,
-  );
+  return testDecimalFormatWrapped(encoded, loggingEnabled);
 }
-
-List<String> _getUnsupportedOptionsForNode(
-  Map<String, dynamic> jsonOptions,
-  String nodeVersion,
-  bool doLogInput,
-) {
-  List<String> versionSupportedOptions;
-  if (nodeVersion.compareTo(_firstV3Version) >= 0) {
-    if (doLogInput) {
-      print('#V3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.v3]!;
-  } else {
-    if (doLogInput) {
-      print('#pre_v3 !!!! $nodeVersion');
-    }
-    versionSupportedOptions = _supportedOptionsByVersion[NodeVersion.preV3]!;
-  }
-  if (doLogInput) {
-    print('#NNNN $versionSupportedOptions');
-  }
-
-  final unsupportedOptions = <String>[];
-  // Check for option items that are not supported
-  for (var key in jsonOptions.keys) {
-    if (!versionSupportedOptions.contains(key)) {
-      unsupportedOptions.add('$key:${jsonOptions[key]}');
-    }
-  }
-  return unsupportedOptions;
-}
-
-// The nodejs version that first supported advance rounding options
-const _firstV3Version = 'v20.1.0';
-
-enum NodeVersion { v3, preV3 }
-
-// Use this
-const _supportedOptionsByVersion = {
-  NodeVersion.v3: [
-    'compactDisplay',
-    'currency',
-    'currencyDisplay',
-    'currencySign',
-    'localeMatcher',
-    'notation',
-    'numberingSystem',
-    'signDisplay',
-    'style',
-    'unit',
-    'unitDisplay',
-    'useGrouping',
-    'roundingMode',
-    'roundingPriority',
-    'roundingIncrement',
-    'trailingZeroDisplay',
-    'minimumIntegerDigits',
-    'minimumFractionDigits',
-    'maximumFractionDigits',
-    'minimumSignificantDigits',
-    'maximumSignificantDigits',
-  ],
-  NodeVersion.preV3: [
-    'compactDisplay',
-    'currency',
-    'currencyDisplay',
-    'currencySign',
-    'localeMatcher',
-    'notation',
-    'numberingSystem',
-    'signDisplay',
-    'style',
-    'unit',
-    'unitDisplay',
-    'useGrouping',
-    'roundingMode',
-    'minimumIntegerDigits',
-    'minimumFractionDigits',
-    'maximumFractionDigits',
-    'minimumSignificantDigits',
-    'maximumSignificantDigits',
-  ],
-  // TODO: Add older version support.
-};
 
 final _patternsToOptions = <String, NumberFormatOptions>{
   '0.0': NumberFormatOptions.custom(
@@ -127,11 +39,7 @@ const _unsupportedSkeletonTerms = [
   'decimal-always',
 ];
 
-String testDecimalFormatWrapped(
-  String encoded, [
-  bool loggingEnabled = false,
-  List<String> unsupportedOptionsForNode = const [],
-]) {
+String testDecimalFormatWrapped(String encoded, [bool loggingEnabled = false]) {
   final json = jsonDecode(encoded) as Map<String, dynamic>;
   final label = json['label'] as String?;
   final skeleton = json['skeleton'] as String?;
@@ -163,10 +71,22 @@ String testDecimalFormatWrapped(
       // Some error - to return this message
       return jsonEncode({
         'error': error.toString(),
-        'error_type': '_decimalPatternToOptions',
+        'error_type': 'unsupported',
         'label': label,
       });
     }
+  }
+
+  if (!useBrowser &&
+      (options.style is UnitStyle ||
+          options.style is PercentStyle ||
+          options.style is CurrencyStyle)) {
+    return jsonEncode({
+      'error': 'Unit, percent, or currency style are not supported yet',
+      'error_type': 'unsupported',
+      'unsupported': 'unsupported_options',
+      'label': label,
+    });
   }
   // Default maximumFractionDigits and rounding modes are set in test generation
 
@@ -192,18 +112,10 @@ String testDecimalFormatWrapped(
     }
   }
 
-  // Supported options depends on the nodejs version
-  if (loggingEnabled) {
-    print('#NNNN $unsupportedOptionsForNode');
-  }
-  final unsupportedSkeletonTerms = _getUnsupportedSkeletonterms(
+  final unsupportedOptions = _getUnsupportedSkeletonterms(
     skeletonTerms,
     loggingEnabled,
   );
-  final unsupportedOptions = [
-    ...unsupportedOptionsForNode,
-    ...unsupportedSkeletonTerms,
-  ];
 
   if (unsupportedOptions.isNotEmpty) {
     return jsonEncode({
@@ -216,28 +128,29 @@ String testDecimalFormatWrapped(
 
   final testLocale = json['locale'] as String?;
 
-  Intl intl;
   Map<String, dynamic> outputLine;
+  Locale locale;
   try {
     if (testLocale != null) {
-      intl = Intl(locale: Locale.parse(testLocale));
+      locale = Locale.parse(testLocale);
     } else {
-      intl = Intl(locale: Locale.parse('und'));
+      locale = Locale.parse('und');
     }
-    final nf = intl.numberFormat(options);
+    final nf = NumberFormatImpl.build(locale, options);
 
     // TODO: Catch unsupported units, e.g., furlongs.
 
     outputLine = {
       'label': json['label'],
-      'result': nf.format(input),
+      'result': nf.formatImpl(input),
       'actual_options': options.toMapString(),
     };
-  } catch (error) {
+  } catch (error, stacktrace) {
     // Handle type of the error
     outputLine = {
       'label': json['label'],
       'error': 'formatting error: $error',
+      'stacktrace': stacktrace.toString(),
       'actual_options': options.toMapString(),
     };
 
@@ -298,6 +211,7 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
   final unitDisplay = UnitDisplay.values
       .where((element) => element.name == options['unitDisplay'])
       .firstOrNull;
+
   final currency = options['currency'];
   final currencyDisplay = CurrencyDisplay.values
       .where((element) => element.name == options['currencyDisplay'])
@@ -308,6 +222,11 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
       CurrencyStyle(
         currency: currency,
         display: currencyDisplay ?? CurrencyDisplay.symbol,
+        sign:
+            CurrencySign.values.firstWhereOrNull(
+              (element) => element.name == options['currencySign'] as String?,
+            ) ??
+            CurrencySign.standard,
       ),
     if (unit != null)
       UnitStyle(unit: unit, unitDisplay: unitDisplay ?? UnitDisplay.short),
@@ -375,7 +294,9 @@ NumberFormatOptions _fromJson(Map<String, dynamic> options) {
     signDisplay: signDisplay,
     notation: notation,
     useGrouping: useGrouping,
-    numberingSystem: options['numberingSystem'],
+    numberingSystem: NumberingSystem.values.firstWhereOrNull(
+      (element) => element.jsName == options['numberingSystem'],
+    ),
     roundingMode: roundingMode,
     trailingZeroDisplay: trailingZeroDisplay,
     minimumIntegerDigits: options['minimumIntegerDigits'],
@@ -391,7 +312,7 @@ extension on NumberFormatOptions {
       'signDisplay': signDisplay.name,
       'notation': notation.name,
       'useGrouping': useGrouping.jsName,
-      'numberingSystem': numberingSystem,
+      'numberingSystem': numberingSystem?.jsName,
       'roundingMode': roundingMode.name,
       'trailingZeroDisplay': trailingZeroDisplay.name,
       'minimumIntegerDigits': minimumIntegerDigits,
@@ -403,4 +324,70 @@ extension on NumberFormatOptions {
       },
     };
   }
+
+  NumberFormatOptions copyWith({
+    FormatStyle? style,
+    String? currency,
+    SignDisplay? signDisplay,
+    Notation? notation,
+    Grouping? useGrouping,
+    NumberingSystem? numberingSystem,
+    RoundingMode? roundingMode,
+    TrailingZeroDisplay? trailingZeroDisplay,
+    int? minimumIntegerDigits,
+    Digits? digits,
+  }) => NumberFormatOptions.custom(
+    style: style ?? this.style,
+    currency: currency ?? this.currency,
+    signDisplay: signDisplay ?? this.signDisplay,
+    notation: notation ?? this.notation,
+    useGrouping: useGrouping ?? this.useGrouping,
+    numberingSystem: numberingSystem ?? this.numberingSystem,
+    roundingMode: roundingMode ?? this.roundingMode,
+    trailingZeroDisplay: trailingZeroDisplay ?? this.trailingZeroDisplay,
+    minimumIntegerDigits: minimumIntegerDigits ?? this.minimumIntegerDigits,
+    digits: digits ?? this.digits,
+  );
+}
+
+// Copied from intl4x/lib/src/number_format/number_format_ecma.dart
+/// Extension to provide a JavaScript-compatible name for the Unit enum.
+extension on Unit {
+  /// The JavaScript-compatible string representation of the unit.
+  String get jsName => switch (this) {
+    Unit.fluidOunce => 'fluid-ounce',
+    Unit.scandinavianMile => 'mile-scandinavian',
+    // Fallback to the enum's name for all other units (e.g., 'acre', 'bit',
+    // 'byte').
+    _ => name,
+  };
+}
+
+// Copied from intl4x/lib/src/locale/locale.dart
+extension NumberingSystemJsName on NumberingSystem {
+  /// Returns the BCP 47/CLDR short name for the numbering system.
+  String get jsName => switch (this) {
+    NumberingSystem.arabic => 'arab',
+    NumberingSystem.extendedarabicindic => 'arabext',
+    NumberingSystem.balinese => 'bali',
+    NumberingSystem.bangla => 'beng',
+    NumberingSystem.devanagari => 'deva',
+    NumberingSystem.fullwidth => 'fullwide',
+    NumberingSystem.gujarati => 'gujr',
+    NumberingSystem.gurmukhi => 'guru',
+    NumberingSystem.hanjadecimal => 'hant',
+    NumberingSystem.khmer => 'khmr',
+    NumberingSystem.kannada => 'knda',
+    NumberingSystem.lao => 'laoo',
+    NumberingSystem.malayalam => 'mlym',
+    NumberingSystem.mongolian => 'mong',
+    NumberingSystem.myanmar => 'mymr',
+    NumberingSystem.odia => 'orya',
+    NumberingSystem.tamildecimal => 'taml',
+    NumberingSystem.telugu => 'telu',
+    NumberingSystem.thai => 'thai',
+    NumberingSystem.tibetan => 'tibt',
+    NumberingSystem.latin => 'latn',
+    NumberingSystem.limbu => 'limb',
+  };
 }
