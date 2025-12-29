@@ -17,24 +17,13 @@ import sys
 import schema_files
 from schema_files import SCHEMA_FILE_MAP
 
+
 # ?? Move to the initialization
 ch = logging.StreamHandler()
 ch.setLevel(logging.WARNING)
 
 
 # Given a directory, validate JSON files against expected schema
-
-
-def parallel_validate_schema(validator, file_names):
-    num_processors = mp.cpu_count()
-    logging.info('JSON validation: %s processors for %s plans', num_processors, len(file_names))
-
-    # How to get all the results
-    processor_pool = mp.Pool(num_processors)
-    with processor_pool as p:
-        result = p.map(validator.validate_schema_file, file_names)
-    return result
-
 
 class ConformanceSchemaValidator:
     def __init__(self):
@@ -45,8 +34,9 @@ class ConformanceSchemaValidator:
         self.test_types = schema_files.ALL_TEST_TYPES
         self.executors = []
         self.icu_versions = []
-
-        logging.config.fileConfig("../logging.conf")
+        self.debug_leve = 0
+        self.schema_type = None
+        self.run_serial = False
 
     def validate_json_file(self, schema_and_data_paths):
         schema_file_path = schema_and_data_paths['schema_verify_file']
@@ -66,7 +56,8 @@ class ConformanceSchemaValidator:
         try:
             schema_file = open(schema_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
-            logging.fatal('  Cannot open schema file %s.\n   Err = %s', schema_file_path, err)
+            logging.fatal('%s  Cannot open schema file %s.\n   Err = %s',
+                          self.schema_type, schema_file_path, err)
             result_data['result'] = False
             result_data['error'] = err
             exit(1)
@@ -74,7 +65,8 @@ class ConformanceSchemaValidator:
         try:
             data_file = open(data_file_path, encoding='utf-8', mode='r')
         except FileNotFoundError as err:
-            logging.fatal('  Cannot open data file %s.\n   Err = %s', data_file_path, err)
+            logging.fatal('%s  Cannot open data file %s.\n   Err = %s',
+                          self.schema_type, data_file_path, err)
             result_data['result'] = False
             result_data['error'] = err
             exit(1)
@@ -85,7 +77,8 @@ class ConformanceSchemaValidator:
         except json.decoder.JSONDecodeError as err:
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('Bad JSON schema: %s', schema_file_path)
+            logging.error('%s: Bad JSON schema: %s',
+                          self.schema_type, schema_file_path)
             logging.fatal('  Error is %s', err)
             exit(1)
 
@@ -95,7 +88,8 @@ class ConformanceSchemaValidator:
             # Cannot get the file
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('Bad JSON data: %s', data_file_path)
+            logging.error('%s: Bad JSON data: %s',
+                          self.schema_type, data_file_path)
             logging.fatal('  Error is %s', err)
             exit(1)
 
@@ -107,15 +101,17 @@ class ConformanceSchemaValidator:
         except exceptions.ValidationError as err:
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('ValidationError for test output %s and schema %s',
-                          data_file_path, schema_file_path)
+            logging.error('%s: ValidationError for test output %s and schema %s',
+                          self.schema_type, data_file_path, schema_file_path)
             logging.fatal('  Error = %s', err)
             exit(1)
         except exceptions.SchemaError as err:
             result_data['result'] = False
             result_data['error'] = err
-            logging.error('SchemaError: Cannot validate with test output %s and schema %s. ',
-                          data_file_path, schema_file_path)
+            logging.error(
+                '%s SchemaError: Cannot validate with test output %s and schema %s. ',
+                self.schema_type,
+                data_file_path, schema_file_path)
             logging.fatal('Another failure: %s', err)
             exit(1)
 
@@ -128,8 +124,13 @@ class ConformanceSchemaValidator:
 
         # Check for all the possible files
         json_file_pattern = os.path.join(self.test_data_base, '*', '*.json')
+        logging.debug('JSON FILE_PATTERN: %s', json_file_pattern);
+
         verify_pattern = os.path.join(self.test_data_base, '*', '*verify.json')
+        logging.debug('VERIFY_PATTERN: %s', verify_pattern);
+
         json_verify_files_list = glob.glob(verify_pattern)
+
         json_files_list = glob.glob(json_file_pattern)
         json_test_list = []
         for file in json_files_list:
@@ -140,16 +141,20 @@ class ConformanceSchemaValidator:
         for test_type in self.test_types:
             for icu_version in self.icu_versions:
                 file_path_pair = self.get_schema_data_info(icu_version, test_type)
+                logging.debug(' FILE PATH PAIR: %s', file_path_pair);
                 if file_path_pair:
                     schema_test_info.append(file_path_pair)
                 else:
                     test_data_files_not_found.append([icu_version, test_type])
+                    logging.debug('%s: No data test file  %s for %s, %s',
+                                  self.schema_type,
+                                  file_path_pair, test_type, icu_version)
                     pass
 
         if test_data_files_not_found:
-            logging.info('Note: %d potential test data sets were not found.', len(test_data_files_not_found))
+            logging.debug('Note: %d potential test data sets were not found.', len(test_data_files_not_found))
 
-        results = self.parallel_check_test_data_schema(schema_test_info)
+        results = self.check_all_test_data_schema(schema_test_info)
 
         for result_data in results:
             if not result_data['data_file_name']:
@@ -164,17 +169,22 @@ class ConformanceSchemaValidator:
             all_results.append(result_data)
         return all_results
 
-    def parallel_check_test_data_schema(self, schema_test_data):
-        num_processors = mp.cpu_count()
-        logging.info('Schema validation: %s processors for %s schema/test data pairs',
-                     num_processors,
-                     len(schema_test_data))
+    def check_all_test_data_schema(self, schema_test_data):
+        if self.run_serial:
+            logging.info('test data running serially on %s files!', len(schema_test_data))
+            return [self.check_test_data_against_schema(test_data) for test_data in schema_test_data]
+        else:            
+            num_processors = mp.cpu_count()
+            logging.info('test data parallel validation: %s processors for %s schema/test data pairs',
+                         num_processors,
+                         len(schema_test_data))
 
-        # Returns all the results
-        processor_pool = mp.Pool(num_processors)
-        with processor_pool as p:
-            result = p.map(self.check_test_data_against_schema, schema_test_data)
-        return result
+            # Returns all the results
+            processor_pool = mp.Pool(num_processors)
+            with processor_pool as p:
+                result = p.map(self.check_test_data_against_schema, schema_test_data)
+            return result
+
 
     def get_schema_data_info(self, icu_version, test_type):
         # Gets pairs of schema and file names for test_type
@@ -216,7 +226,8 @@ class ConformanceSchemaValidator:
 
     def check_test_data_schema(self, icu_version, test_type):
         # Check the generated test data for structure against the schema
-        logging.info('Validating %s with %s', test_type, icu_version)
+        logging.debug('Validating %s %s with %s',
+                      self.schema_type, test_type, icu_version)
 
         # Check test output vs. the test data schema
         schema_verify_file = os.path.join(self.schema_base, test_type, 'test_schema.json')
@@ -329,7 +340,8 @@ class ConformanceSchemaValidator:
             test_type = test_type_property['const']
         except KeyError as err:
             test_type = None
-            logging.fatal('%s for %s. Cannot get test_type value', err, schema_file_path, test_type)
+            logging.fatal('%s for %s. Cannot get test_type value',
+                          err, schema_file_path, test_type)
             return [False, err, schema_file_path, test_type]
 
         try:
@@ -337,7 +349,8 @@ class ConformanceSchemaValidator:
             # However Validator.check_schema doesn't fail as expected.
             validate(None, schema)
         except jsonschema.exceptions.SchemaError as err:
-            logging.fatal('Cannot validate schema %s', schema_file_path)
+            logging.fatal('%s" Cannot validate schema %s',
+                          self.schema_type, schema_file_path)
             return [False, err, schema_file_path, test_type]
         except jsonschema.exceptions.ValidationError:
             # This is not an error because this is just validating a schema.
@@ -367,18 +380,23 @@ class ConformanceSchemaValidator:
 
         return schema_errors
 
-    def validate_test_output_parallel(self):
+    def validate_all_test_output(self):
         test_validation_plans = self.get_test_validation_plans()
-        num_processors = mp.cpu_count()
-        logging.info('JSON test output validation: %s processors for %s plans', num_processors,
-                     len(test_validation_plans))
+        if self.run_serial:
+            logging.info('JSON test output serially validation on %s files!', len(test_validation_plans))
+            return [self.validate_json_file(test_data) for test_data in test_validation_plans], \
+                test_validation_plans
+        else:
+            num_processors = mp.cpu_count()
+            logging.info('JSON test output parallel validation: %s processors for %s plans', num_processors,
+                         len(test_validation_plans))
 
-        # How to get all the results
-        processor_pool = mp.Pool(num_processors)
-        with processor_pool as p:
-            results = p.map(self.validate_json_file, test_validation_plans)
+            # How to get all the results
+            processor_pool = mp.Pool(num_processors)
+            with processor_pool as p:
+                results = p.map(self.validate_json_file, test_validation_plans)
 
-        return results, test_validation_plans
+            return results, test_validation_plans
 
     def get_test_validation_plans(self):
         test_validation_plans = []
@@ -391,7 +409,7 @@ class ConformanceSchemaValidator:
         return test_validation_plans
 
     def validate_test_output_with_schema(self):
-        return self.validate_test_output_parallel()
+        return self.validate_all_test_output()
 
 
 def process_args(args):

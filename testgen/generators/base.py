@@ -136,7 +136,7 @@ class DataGenerator(ABC):
         try:
             with codecs.open(path, "r", encoding="utf-8") as testdata:
                 return json.load(testdata) if filetype == "json" else testdata.read()
-        except BaseException as err:
+        except Exception as err:
             logging.warning("** readFile: %s", err)
             return None
 

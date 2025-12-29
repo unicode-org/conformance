@@ -35,14 +35,15 @@ class DdtOptions():
 type_options = ['collation', 'datetime_fmt',
                 'decimal_fmt', 'display_names',
                 'number_fmt', 'lang_names', 'likely_subtags', 'list_fmt',
-                'message_fmt2', 'rdt_fmt', 'plural_rules',
-                'segmenter',
+                'message_fmt2', 'rdt_fmt', 'plural_rules', 'segmenter',
                 'ALL']
 
+# Executor ids refering to ordering platforms in the dashboard.
 # Note that spaces in an executor name are replaced by '_' here.
 # component_count is an option to sort by number of test types present in test output, with largest cout at the left
 # TODO: when a new platform is added, put it in this option list.
 platform_order_options = ['alphabetic', 'component_count', 'ICU4C', 'ICU4J', 'ICU4X', 'NodeJS', 'Dart_Web', 'Dart_Native']
+
 
 class DdtArgs():
   def __init__(self, args):
@@ -69,10 +70,6 @@ class DdtArgs():
     self.parser.add_argument('--verifyonly', default=None)
     self.parser.add_argument('--noverify', default=None)  #
     self.parser.add_argument('--custom_verifier', default=None)  #
-
-    self.parser.add_argument(
-        '--run_serial', default=None,
-        help='Set if execution should be done serially. Parallel is the default.')
 
     self.options = self.parser.parse_args(args)
 
@@ -108,19 +105,7 @@ class VerifyArgs():
     self.parser.add_argument('--test_verifier',
                              help='Flag to run in test mode', default=None)
 
-    self.parser.add_argument('--run_serial', default=None,
-                             help='Set if execution should be done serially. Parallel is the default.')
-
-    # Order the output columns
-    self.parser.add_argument(
-        '--platform_order',
-        action='extend', nargs='*',
-        choices=platform_order_options,
-        help='The order of the platforms in the Summary dashboard, e.g., NodeJS ICU4X Dart_Web',
-        default=None)
-
     self.options = self.parser.parse_args(args)
-
     return
 
   def getOptions(self):
@@ -177,6 +162,19 @@ def setCommonArgs(parser):
 
   parser.add_argument('--ignore', default=None)
 
+  parser.add_argument(
+      '--run_serial', action='store_true',
+      help='Set to process serially. Default is parallel.')
+
+  # Order the output columns
+  parser.add_argument(
+      '--platform_order',
+      action='extend', nargs='*',
+      choices=platform_order_options,
+      help='The order of the platforms in the Summary dashboard, e.g., NodeJS ICU4X Dart_Web',
+      default=None)
+
+
 def argsTestData():
   tests = [
       ['--test_type', 'collation'],
@@ -184,8 +182,7 @@ def argsTestData():
       ['--test_type', 'collation', '--test_type', 'decimal_fmt', 'number_fmt', 'display_names',
        'lang_names',
        'likely_subtags',
-       'plural_rules',
-       'segmenter'],
+       'plural_rules'],
       ['--test', 'collation', 'ALL', 'decimal_fmt'],
 
       ['--test_type', 'datetime_fmt'],
@@ -202,6 +199,7 @@ def argsTestData():
        'testData/customtest3.json'],
   ]
   return tests
+
 
 def main(args):
 
