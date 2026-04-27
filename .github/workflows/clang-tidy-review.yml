@@ -23,7 +23,7 @@ jobs:
 
     - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
       run: |
-        bash setup.sh
+        bash setup_linux.sh
         sudo apt-get install libicu-dev
     - name: Run clang-tidy
       run: |
