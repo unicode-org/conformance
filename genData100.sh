@@ -15,14 +15,24 @@ logrotate -s logrotate.state logrotate.conf
 export NVM_DIR=$HOME/.nvm;
 source $NVM_DIR/nvm.sh;
 
+export RUSTUP_TOOLCHAIN=1.83
+
 #
 # Setup
 #
 
+# Depending on the OS
+case "$(uname -s)" in
+    Darwin*)    machine=macos;;
+    Linux*)     machine=linux;;
+    *)          machine="UNKNOWN";;
+esac
+echo "This machine is: ${machine}"
+
 # Ensure that ICU4C binaries have been downloaded locally
 if [[ ! -d gh-cache ]]
 then
-  bash setup.sh
+  bash setup_${machine}.sh
 fi
 
 export TEST_LIMIT=100

@@ -32,6 +32,9 @@ then
     sudo apt-get install python3-enum34
 fi
 
+# Install a Rust version for icu4x
+rustup install 1.83
+
 
 function download_71_1() {
   if [[ ! -f icu4c-71_1-Ubuntu20.04-x64.tgz ]]

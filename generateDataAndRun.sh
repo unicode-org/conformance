@@ -12,10 +12,18 @@ logrotate -s logrotate.state logrotate.conf
 # Setup (generate) test data & expected values
 ##########
 
+# Depending on the OS
+case "$(uname -s)" in
+    Darwin*)    machine=macos;;
+    Linux*)     machine=linux;;
+    *)          machine="UNKNOWN";;
+esac
+echo "This machine is: ${machine}"
+
 # Ensure that ICU4C binaries have been downloaded locally
 if [[ ! -d gh-cache ]]
 then
-  bash setup.sh
+  bash setup_${machine}.sh
 fi
 
 # Enable seting the version of NodeJS
@@ -24,6 +32,8 @@ fi
 export NVM_DIR=$HOME/.nvm
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export RUSTUP_TOOLCHAIN=1.83
 
 if [[ $CI == "true" ]] && ! [ -x "$(command -v nvm)" ]
 then
