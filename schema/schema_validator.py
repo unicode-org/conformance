@@ -26,7 +26,7 @@ ch.setLevel(logging.WARNING)
 
 
 def parallel_validate_schema(validator, file_names):
-    num_processors = mp.cpu_count()
+    num_processors = min(2, mp.cpu_count())
     logging.info('JSON validation: %s processors for %s plans', num_processors, len(file_names))
 
     # How to get all the results
@@ -165,7 +165,7 @@ class ConformanceSchemaValidator:
         return all_results
 
     def parallel_check_test_data_schema(self, schema_test_data):
-        num_processors = mp.cpu_count()
+        num_processors = min(2, mp.cpu_count())
         logging.info('Schema validation: %s processors for %s schema/test data pairs',
                      num_processors,
                      len(schema_test_data))
@@ -369,7 +369,7 @@ class ConformanceSchemaValidator:
 
     def validate_test_output_parallel(self):
         test_validation_plans = self.get_test_validation_plans()
-        num_processors = mp.cpu_count()
+        num_processors = min(2, mp.cpu_count())
         logging.info('JSON test output validation: %s processors for %s plans', num_processors,
                      len(test_validation_plans))
 
