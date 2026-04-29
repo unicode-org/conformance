@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Install prerequisites
         run: |
-          apt-get update && apt-get install -y sudo python3 wget unzip logrotate curl jq python3-requests python3-jsonschema build-essential clang
+          apt-get update && apt-get install -y sudo python3 wget unzip logrotate curl jq python3-requests python3-jsonschema build-essential clang maven
       - name: Free up some disk space
         run: |
           echo "Available storage before:"
