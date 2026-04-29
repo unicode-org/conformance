@@ -119,6 +119,8 @@ jq -c '.[]' ../$source_file | while read i; do
     if jq -e 'has("prereq")' <<< $i > /dev/null
     then
         command=$(jq -r -c '.prereq.command' <<< $i)
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         eval "$command"
     fi
     icu_version=$(jq -r -c '.run.icu_version' <<< $i)
