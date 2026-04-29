@@ -18,6 +18,8 @@ jobs:
   run_all:
     name: End-to-end
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
     steps:
       - name: Free up some disk space
         run: |
