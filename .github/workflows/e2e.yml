@@ -24,6 +24,7 @@ jobs:
       - name: Install prerequisites
         run: |
           apt-get update && apt-get install -y sudo python3 wget unzip logrotate curl jq
+          pip install requests
       - name: Free up some disk space
         run: |
           echo "Available storage before:"
