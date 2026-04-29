@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Install prerequisites
         run: |
-          apt-get update && apt-get install -y sudo python3 wget unzip logrotate curl jq
+          apt-get update && apt-get install -y sudo python3 wget unzip logrotate curl jq python3-pip
           python3 -m pip install requests
       - name: Free up some disk space
         run: |
