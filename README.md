@@ -992,3 +992,4 @@ file (or start a Pull Request) for more information.
 
 The contents of this repository are governed by the Unicode [Terms of
 Use](https://www.unicode.org/copyright.html) and are released under [LICENSE](./LICENSE).
+

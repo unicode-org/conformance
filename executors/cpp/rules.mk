@@ -10,7 +10,7 @@
 all: $(ALL_SUBDIR) $(RESTARGET) $(TARGET)  
 
 $(TARGET): $(OBJECTS)
-	$(LINK.cc) $(LOADLIBES) $(LDLIBS) -o $@ $(XTRALIBS) -licui18n -licuuc
+	$(LINK.cc) $(LOADLIBES) $(LDLIBS) -o $@ $(XTRALIBS) -licui18n -licuuc -ljson-c
 
 $(RESTARGET): $(RESFILES)
 	$(PKGDATA) --name $(RESNAME) --mode $(RESMODE) $(PKGDATAOPTS) $(RESLIST)
