@@ -8,7 +8,7 @@ dpkg --list | grep libjson-c-dev || error_code=$?
 if [[ $error_code -ne 0 ]]
 then
     sudo apt-get update
-    sudo apt-get install libjson-c-dev
+    sudo apt-get install -y libjson-c-dev
 fi
 
 # download ICU4C binaries if they don't exist
