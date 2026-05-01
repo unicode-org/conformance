@@ -19,6 +19,9 @@ echo "This machine is: ${machine}"
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 # Ensure that ICU4C binaries have been downloaded locally
+# This is probably not the correct check.
+# Suggestion from Gemini was "if [[ ! -d "$ICU_DIR" ]]"
+# but that's not correct.
 if [[ ! -d gh-cache ]]
 then
   bash "$SCRIPT_DIR/set_icu4c_binary_${machine}.sh"
