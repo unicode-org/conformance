@@ -27,7 +27,7 @@
     "prereq": {
       "name": "Get ICU4C 78",
       "version": "78.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-78.1-Ubuntu22.04-x64.tgz icu4c-78.1-src.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-78.1-Ubuntu22.04-x64.tgz icu4c-78.1-sources.tgz"
     },
     "run": {
       "icu_version": "icu78",
