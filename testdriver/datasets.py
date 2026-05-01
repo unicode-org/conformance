@@ -7,6 +7,7 @@ from collections import defaultdict
 from enum import Enum
 
 import sys
+import platform
 import logging
 import logging.config
 
@@ -221,7 +222,7 @@ ExecutorCommands = {
     "dart_web" : "node ../executors/dart/out/executor.js",
     "dart_native" : "../executors/dart/build/bundle/bin/executor",
     "rust" : "../executors/rust/target/release/executor",
-    "cpp":   "LD_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
+    "cpp":   f"{'DYLD' if platform.system() == 'Darwin' else 'LD'}_LIBRARY_PATH=/tmp/icu/icu/usr/local/lib ../executors/cpp/executor",
     "icu4j" : "java -jar ../executors/icu4j/74/executor-icu4j/target/executor-icu4j-1.0-SNAPSHOT-shaded.jar"
     }
 

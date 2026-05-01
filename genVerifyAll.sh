@@ -11,10 +11,18 @@ logrotate -s logrotate.state logrotate.conf
 # Setup (generate) test data & expected values
 ##########
 
+# Depending on the OS
+case "$(uname -s)" in
+    Darwin*)    machine=macos;;
+    Linux*)     machine=linux;;
+    *)          machine="UNKNOWN";;
+esac
+echo "This machine is: ${machine}"
+
 # Ensure that ICU4C binaries have been downloaded locally
 if [[ ! -d gh-cache ]]
 then
-  bash setup.sh
+  bash setup_${machine}.sh
 fi
 
 # Generates all new test data
