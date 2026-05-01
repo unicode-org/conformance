@@ -444,38 +444,6 @@
   },
   {
     "prereq": {
-      "name": "nvm",
-      "version": "14.21.3",
-      "command": "nvm install 14.21.3;nvm use 14.21.3 --silent"
-    },
-    "run": {
-      "icu_version": "icu70",
-      "exec": "node",
-      "test_type": [
-        "collation",
-        "number_fmt"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
-      "name": "nvm",
-      "version": "14.18.3",
-      "command": "nvm install 14.18.3;nvm use 14.18.3 --silent"
-    },
-    "run": {
-      "icu_version": "icu69",
-      "exec": "node",
-      "test_type": [
-        "collation",
-        "number_fmt"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
       "name": "rust1.3",
       "version": "1.3",
       "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/1.3/Cargo.toml"
