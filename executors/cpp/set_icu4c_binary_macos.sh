@@ -33,11 +33,13 @@ mkdir -p "${ICU_BASENAME}"
 tar xfz "${ICU_MACOS_TGZ}" -C "${ICU_BASENAME}"
 rm "${ICU_MACOS_TGZ}"
 
-# We need to build ICU4C!
-cd "${ICU_BASENAME}/icu/source"
-./runConfigureICU MacOSX --prefix="$TMP/$ICU_BASENAME/usr"
-make -j8
-make install
+# Build ICU4C if not already present
+if [[ ! -d "${ICU_USR}/lib" ]]; then
+  cd "${ICU_BASENAME}/icu/source"
+  ./runConfigureICU MacOSX --prefix="${ICU_USR}"
+  make -j8
+  make install
+fi
 
 ls -l "${ICU_USR}/lib"
 
@@ -47,7 +49,7 @@ popd
 pushd ../executors/cpp
 make clean
 
-export DYLD_LIBRARY_PATH="${ICU_USR}/lib:$LD_LIBRARY_PATH"
+export DYLD_LIBRARY_PATH="${ICU_USR}/lib:$DYLD_LIBRARY_PATH"
 export PATH="${ICU_USR}/bin:$PATH"
 
 make

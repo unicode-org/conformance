@@ -16,7 +16,7 @@ logrotate -s logrotate.state logrotate.conf
 case "$(uname -s)" in
     Darwin*)    machine=macos;;
     Linux*)     machine=linux;;
-    *)          machine="UNKNOWN";;
+    *)          echo "Unsupported platform: $(uname -s)"; exit 1;;
 esac
 echo "This machine is: ${machine}"
 

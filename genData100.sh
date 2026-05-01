@@ -25,7 +25,7 @@ export RUSTUP_TOOLCHAIN=1.83
 case "$(uname -s)" in
     Darwin*)    machine=macos;;
     Linux*)     machine=linux;;
-    *)          machine="UNKNOWN";;
+    *)          echo "Unsupported platform: $(uname -s)"; exit 1;;
 esac
 echo "This machine is: ${machine}"
 

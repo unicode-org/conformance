@@ -16,7 +16,7 @@ esac
 echo "This machine is: ${machine}"
 
 # Get the directory where THIS script is stored
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 # Ensure that ICU4C binaries have been downloaded locally
 if [[ ! -d gh-cache ]]
