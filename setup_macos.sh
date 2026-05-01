@@ -10,12 +10,12 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 # Check if json-c is already installed via Homebrew
-if ! brew list json-c >/dev/null 2>&1; then
+if ! command -v json-c >/dev/null 2>&1; then
     brew install json-c
 fi
 
 # Check if Maven is already installed via Homebrew
-if ! brew list maven >/dev/null 2>&1; then
+if ! command -v mvn >/dev/null 2>&1; then
     brew install maven
 fi
 
@@ -39,7 +39,7 @@ if [[ ${error_code:-0} -ne 0 ]]
 then
     # On Mac, `enum` is a standard built-in library for Python 3.4+.
     # If this fails, the system Python is likely broken or too old, so we install a fresh python3.
-    if ! brew list python3 >/dev/null 2>&1; then
+    if ! command -v python3 >/dev/null 2>&1; then
         brew install python3
     fi
 fi
