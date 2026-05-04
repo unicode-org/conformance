@@ -12,9 +12,9 @@ logrotate -s logrotate.state logrotate.conf
 (while true; do 
   echo "[$(date +%T)] --- VITALS ---"
   # RAM usage
-  echo "Memory: $(free -h | awk 'NR==2{print $3 " / " $2}')"
+  echo "Memory: $(free -h | awk 'NR==2{print $3 \" / \" $2}')"
   # Disk usage for the current workspace
-  echo "Disk: $(df -h . | awk 'NR==2{print $3 " used / " $4 " avail (" $5 ")"}')"
+  echo "Disk: $(df -h . | awk 'NR==2{print $3 \" used / \" $4 \" avail (\" $5 \")\"}')"
   # CPU Load
   echo "CPU Load: $(cut -d' ' -f1-3 /proc/loadavg)"
   echo "------------------------"
