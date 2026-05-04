@@ -21,6 +21,7 @@ logrotate -s logrotate.state logrotate.conf
   sleep 30
 done) &
 MONITOR_PID=$!
+trap 'kill $MONITOR_PID 2>/dev/null' EXIT
 
 ##########
 # Setup (generate) test data & expected values
