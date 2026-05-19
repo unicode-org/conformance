@@ -38,8 +38,7 @@ versions are updated periodically. For each ICU version, there is a specific
 CLDR version, e.g., ICU73 uses data from CLDR 43, although multiple ICU releases
 may depend on the same CLDR data.
 
-For this reason, specifying a particular ICU version for test data or test
-executor or both
+For this reason, you can specify a particular ICU version for the test data, the test executor, or both.
 
 Each part of Data Driven Testing is designed to handle a specific ICU version.
 
@@ -47,30 +46,30 @@ Each part of Data Driven Testing is designed to handle a specific ICU version.
   etc. For each ICU release, these data should be updated.
 
 * Test execution allows setting the data version explicitly with a command line
-  argument --icuversion that points to the indicated test data. The ICU version
+  argument `--icuversion` that points to the indicated test data. The ICU version
   of the test executor platform is requested from each platform at the start of
   the test driver. Output directories are created under the platform for the
-  test results running a particular ICU version, e.g., testOutput/node/icu73.
+  test results running a particular ICU version, e.g., `testOutput/node/icu73`.
 
 * Test verification uses ICU version information in the test output files for
   matching with the corresponding expected results. Verification output appears
-  in the testResults subdirectory for each node, e.g. testOutput/rust/icu71.
+  in the `testReports` subdirectory for each node, e.g., `testReports/rust/icu71`.
   
-* Schema checking uses explict descriptions of the data to be generated and used
-in Conformance Testing. These include formats for test data, verification data,
-and test output files.
+* Schema checking uses explicit descriptions of the data to be generated and used
+  in Conformance Testing. These include formats for test data, verification data,
+  and test output files.
 
 ### Terminology for Conformance Testing
 
-* **Platform: a library or software that is executed to produce expected output
+* **Platform**: a library or software that is executed to produce expected output
   such as formatted text. Examples include ICU4C, ICU4X, and NodeJS.
 
 * **Component**: a type of test such as collation, list format, or plural
   rules. Each platform may implement tests for one or more components.
 
 * **Version**: ICU and CLDR are released periodically with updated data and new
-  capabilities. ICU versions are two digit numbers with optional minor revision number per semantic versioning,
-  e.g., ICU76 or CLDR76. A platform usually is implemented in multiple ICU
+  capabilities. ICU versions are two-digit numbers with an optional minor revision number per semantic versioning,
+  e.g., ICU76 or CLDR76. A platform is usually implemented in multiple ICU
   versions. Platforms should be updated to include each new ICU release.
 
 
@@ -84,24 +83,24 @@ Conceptually, there are four main functional units of the DDT implementation:
 
 ## Installing Comformance Testing
 
-The Conformance projectis publicly available. It can be installed and executed
+The Conformance project is publicly available. It can be installed and executed
 on most computer systems. Using GitHub, developers can investigate how the
-executors run each of the components. And developers can make changes and create
-pull requests to suggest updates to the projectd.
+executors run each of the components. Additionally, developers can make changes and create
+pull requests to suggest updates to the project.
 
 ### Get the source from GitHub
 
 1. Create a directory on the computer for installing and running
-   Conformance. Note that this may require more that 4 Gbytes when all the tests
+   Conformance. Note that this may require more than 4 Gbytes when all the tests
    are executed.
 
 1. Next, get the code and data from the [Unicode Conformance GitHub
    site](https://github.com/unicode-org/conformance).
 
-1. From the green Code button on Git button, select one of the options for cloning the
+1. From the green "Code" button on GitHub, select one of the options for cloning the
 project, or download the project as a ZIP file.
 
-1. Unzip if needed. Then make sure that the directory contains directories for testdriver, testgen, schema, executors, verifier.
+1. Unzip if needed. Then make sure that the directory contains directories for `testdriver`, `testgen`, `schema`, `executors`, `verifier`.
 
 
 ### Set up tools and execution environments
@@ -121,8 +120,8 @@ Some setup is required to run Data Driven Testing code locally:
 Note: Setting up Python modules or other software may be better done using a
 virtual environment such as using `pip env` for installation.
 
-- Install the minimum version supported by ICU4X
-    * The latest minimum supported supported Rust version ("MSRV") can be found in the
+- Install the minimum Rust version supported by ICU4X
+    * The latest minimum supported Rust version ("MSRV") can be found in the
     [`rust-toolchain.toml` file](https://github.com/unicode-org/icu4x/blob/main/rust-toolchain.toml)
     * To view your current default Rust version (and other locally installed Rust versions):
         ```
@@ -144,51 +143,51 @@ data, runs executors, checks data against schema, and then runs the verifier,
 creating the dashboard.
 
 The standard script runs all components on all platforms with all ICU
-version. Note that this takes a few minutes.
+versions. Note that this takes a few minutes.
 
 ```bash
 bash generateDataAndRun.sh
 ```
 
-Output will be created in the directory TEMP_DATA.
+Output will be created in the directory `TEMP_DATA`.
 
 To run a quicker version that uses only 100 test cases for each instance, run this:
 
 ```bash
 bash genData100.sh
 ```
-which does the same thing much faster, resulting in the directory TEMP_DATA_100.
+which does the same thing much faster, resulting in the directory `TEMP_DATA_100`.
 
 ### Viewing conformance results in a browser
-HTML output is found in the subdirectory testReports. To visualize this on your
+HTML output is found in the subdirectory `testReports`. To visualize this on your
 computer, start a webserver. For example:
 
 ```bash
 python3 -m http.server 9000 &
 ```
 
-Then open the file testResults/index.html under the testReports folder in either
-TEMP_DATA or TEMP_DATA_100 or in a custom folder.
+Then open the file `index.html` under the `testReports` folder in either
+`TEMP_DATA` or `TEMP_DATA_100` or in a custom folder.
 
 
 ### How this works
 
 Two main pieces are used to create conformance output:
-* run_config.json which describes the platforms and components to be executed
+* `run_config.json` which describes the platforms and components to be executed
 
 * execution scripts that run all the steps of conformance testing. This file
-  extracts configurations from run_config
+  extracts configurations from `run_config.json`
   
-    *generateDataAndRun.sh* runs tests across all platforms, components, and ICU
+    `generateDataAndRun.sh` runs tests across all platforms, components, and ICU
     versions.
 
-    *run_config.json* file is read by the execution scripts such as *generateDataAndRun.sh*
+    `run_config.json` file is read by the execution scripts such as `generateDataAndRun.sh`
 
 #### Execution script functions
 
 The execution scripts perform several steps in sequence:
 
-1. Special configuration to set up test environments for
+1. Special configuration to set up test environments for:
 
     1. ICU4C versions
 
@@ -200,7 +199,7 @@ The execution scripts perform several steps in sequence:
 
 1. Set the output directory as TEMP_DIR. Remove old data and create new output areas.
 
-1. Generate all test data based on run_config's requirements
+1. Generate all test data based on `run_config.json`'s requirements
     1. This includes checking each generated test set and expected results against schema.
 
 1. Check all the schema files for correct structure
@@ -214,11 +213,11 @@ The execution scripts perform several steps in sequence:
 
 ### Running individual executors and debugging
 
-Running  all  of  the  steps  above  may  not  be  needed  for  development  and
-debugging. To facilitate quicker coding and testing, it may be useful to run using the 100 test case sample set.
+Running all of the steps above may not be needed for development and
+debugging. To facilitate quicker coding and testing, it may be useful to run tests using the 100 test case sample set.
 
 
-The file run_config.json is simply a list of configuration information for
+The file `run_config.json` is simply a list of configuration information for
 running selected versions of a platform with selected test types
 (components). Here's an entry for ICU4C in version 76 that runs 7 components:
 
@@ -249,17 +248,17 @@ running selected versions of a platform with selected test types
 ]
 ```
 
-The section *prereq* is run before this particular executor `cpp` is run under
-`testdriver`. The value of `per_execution` deteremines how many tests are passed
+The section `prereq` is run before this particular executor `cpp` is run under
+`testdriver`. The value of `per_execution` determines how many tests are passed
 to a single instantiation of a test executor.
 
 To use quicker development mode, do the following:
 
-1. Clone run_config.json. Include only the executors and/or components that are
+1. Clone `run_config.json`. Include only the executors and/or components that are
    being developed. Also consider selecting only the ICU version or versions
    needed.
 
-1. Close one of the executions scripts to create a custom version. Change the
+1. Clone one of the execution scripts to create a custom version. Change the
    reference from `run_config.json` to the modified version. Note
    that `export TEST_LIMIT=` may be changed to test a smaller set of cases. Note
    that this may also point to a custom directory for the output under the
@@ -280,10 +279,10 @@ generateDataAndRun.sh` scripts to check if the full testing environment succeeds
 
 ### Notes on finding errors
 
-As each part of Conformance Test is executed, log files are created with the
-output of each phase. Thes include output from python programs, executores, and scripts.
+As each part of Conformance Testing is executed, log files are created with the
+output of each phase. These include output from Python programs, executors, and scripts.
 
-The files containing this logging infromation are called `debug.log, debug.log.1`,
+The files containing this logging information are called `debug.log`, `debug.log.1`,
 etc.  These debug files are updated on each execution of the scripts in each of
 these subdirectories:
 * testgen
@@ -341,23 +340,23 @@ parameters to be set for computing a result.
 ## Checking data using schemas
 
 Several types of JSON formatted data are created and used by Conformance
-processing, and the integity of this information must be maintained.
+processing, and the integrity of this information must be maintained.
 
 Data Driven Testing uses [JSON Schema
 Validation](https://python-jsonschema.readthedocs.io/en/latest/validate/) to
-insure the structure of data files. JSON schema make sure that needed parameters
-and other information are present as required and that the type of each data
+ensure the structure of data files. JSON schemas make sure that needed parameters
+and other information is present as required and that the type of each data
 item is as specified.
 
-In addition, schema specification can restrict the range of data fields to those
-expected, allowing only those data that are expected in JSON output files. This
+In addition, schema specifications can restrict the range of data fields to those
+expected, allowing only the expected data in JSON output files. This
 gives a measure of confidence in the data exchanged between the phases of
 Conformance Testing.
 
 The types of data include:
 
 * **Generated test data** including all parameters and settings as well as
-  ancilliary descriptive information for each test. This data depends only on
+  ancillary descriptive information for each test. This data depends only on
   the type of test (component) and the ICU version. It does not depend on the
   particular execution platform, i.e., programming languages.
 
@@ -447,7 +446,7 @@ Note also that schema validation creates a file
 **schema/schema_validation_summary.json**
 which is used in the summary presentation of Conformance results.
 
-## Text Execution
+## Test Execution
 
 Test execution consists of a Test Driver script and implementation-specific
 executables.  The test driver executes each of the configured test
@@ -460,7 +459,7 @@ Each test executor platform contains a main routine that accepts a test request
 from the test driver, calling the tests based on the request data.
 
 Each executor parses the data line sent by the test driver, extracting elements
-to set up the function call the the particular test.
+to set up the function call for the particular test.
 
 For each test, the needed functions and other objects are created and the test
 is executed. Results are saved to a JSON output file.
@@ -504,7 +503,7 @@ crash.
 
 Data Driven Testing is expected to remain current with ICU programs and data
 updates. It is also designed to support new testing platforms in addition to the
-current set of Dart, ICU4C, ICU4J, ICU4X, and NodeJS. And new types of tests,
+current set of Dart, ICU4C, ICU4J, ICU4X, and NodeJS. Additionally, new types of tests,
 i.e., "components", may be added to Conformance testing.
 
 This section describes the process for keeping DDT up to date with needed test
@@ -516,7 +515,7 @@ ICU releases are usually made twice each calendar year, incorporating new data,
 fixes, and new test files. ICU versions may also add new types of data
 processing. A recent example is Message Format 2.
 
-Because Data Driven Testing operations with multiple ICU and CLDR versions, this
+Because Data Driven Testing operates with multiple ICU and CLDR versions, this
 system should be updated with each new ICU release. Here are several pull
 requests for recent ICU updates:
 
@@ -555,9 +554,9 @@ files include collation tests, number format data, and others.
         * Copy the Readme file from `icu76/README.md` (or modify)
         * Copy the test files from the MessageFormat 2 repo as described by the Readme into a subdirectory within `message_fmt2` called `message-format-wg-tests`
 1. schema: Add any new parameters in test data sources to test schema files.
-1. Add a function in setup.sh to download the new ICU4C release.
-1. Update run_config.json to reference new versions of executors and tests to run
-1. NodeJS and some data updates
+1. Add a function in `setup.sh` to download the new ICU4C release.
+1. Update `run_config.json` to reference new versions of executors and tests to run.
+1. Update NodeJS and perform some data updates:
     * Ex: edit in `relativedatetime_fmt.py` the variable (potentially local to some function) called `icu_nvm_versions` that defines the version of NodeJS being used for the ICU version (version of data).
     The exact version of NodeJS that has been released with the version of ICU can be found on the [NodeJS version pages](https://nodejs.org/en/about/previous-releases). \
     \
@@ -567,16 +566,16 @@ files include collation tests, number format data, and others.
     any updates to icu, e.g., [Version 23.3.0 on 2024-11-20]
     (https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V23.md#23.3.0) which includes ICU76.1.
 
-#### Add references in testdriver/datasets.py
+#### Add references in `testdriver/datasets.py`
 
 In this file, add new Enum values to variables:
-* NodeVersion
+* `NodeVersion`
 
-* IcuVersionToExecutorMap
+* `IcuVersionToExecutorMap`
 
-* NodeICUVersionMap
+* `NodeICUVersionMap`
 
-#### Update run_config.json
+#### Update `run_config.json`
 Add the new NodeJS version to the run configurations. This includes the command
 to install and use the latest NodeJS versions. Here's the new entry for ICU76.1
 in NodeJS 23.3.0.
@@ -640,7 +639,7 @@ Updates to this file are straightforward.
 #### Test generator updates
 Expected values for tests are obtained from several places:
 
-* the preferred sources are generated directly from CLDR data, not mediated by
+* The preferred sources are generated directly from CLDR data, rather than being mediated by
   ICU libraries. These test files are generated by programs run within the CLDR
   directories and are updated with each CLDR release.
 
@@ -657,8 +656,8 @@ run before adding a version of NodeJS that includes the new ICU version.
 When the new NodeJS is incorporated into DDT, add the new NodeJS reference to
 the list `icu_nvm_versions` in these files:
 
-* testgen/generators/list_fmt.py
-* testgen/generators/relativedatetime_fmt.py
+* `testgen/generators/list_fmt.py`
+* `testgen/generators/relativedatetime_fmt.py`
 
 
 ## Adding New Test Types / Components
@@ -825,14 +824,14 @@ toplevel/testData/
 
 ### Directory `testOutput`
 
-This contains a subdirectory for each executor. The output file from each test
+This contains a subdirectory for each executor. The output file from each test run
 is stored in the appropriate subdirectory. Each test result contains the label
 of the test and the result of the test. This may be a boolean or a formatted
 string.
 
-The results file contains information identifying the test environment as well
-as the result from each test. As an example, collation test results from the
-`testOutput/node` file are shown here:
+The test results file contains information identifying the test environment as well
+as the result from each test. As an example, a collation test results file under the
+`testOutput/node` directory is shown here:
 
 ```json
 {"platform": {
@@ -930,9 +929,9 @@ executor. Included in the `testReports` directory are:
 Under each executor, one or more ICU version directories are created, such as
 `icu76`. Each ICU version contains data for the detailed report:
 
-* `verfier_test_report.html` - for showing results to a user via a web server
+* `verifier_test_report.html` - for showing results to a user via a web server
 
-* `verfier_test_report.json` - containing verifier output for programmatic use
+* `verifier_test_report.json` - containing verifier output for programmatic use
 
 * `failing_tests.json` - a list of all failing tests with input values
 * `pass.json` - list of test cases that match their expected results
@@ -945,7 +944,7 @@ comparison with the expected results. At a minimum, each report contains:
 
 * The executor and test type
 * Date and time of the test
-* Execution information, from the testResults directory
+* Execution information, from the `testOutput` directory
 * Total number of tests executed
 * Total number of tests failing
 * Total number of tests succeeding
