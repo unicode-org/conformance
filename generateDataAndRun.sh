@@ -8,6 +8,21 @@ set -e
 # Rotate log files
 logrotate -s logrotate.state logrotate.conf
 
+# Start background monitor
+(while true; do 
+  echo "[$(date +%T)] --- VITALS ---"
+  # RAM usage
+  echo "Memory: $(free -h | awk 'NR==2{print $3 \" / \" $2}')"
+  # Disk usage for the current workspace
+  echo "Disk: $(df -h . | awk 'NR==2{print $3 \" used / \" $4 \" avail (\" $5 \")\"}')"
+  # CPU Load
+  echo "CPU Load: $(cut -d' ' -f1-3 /proc/loadavg)"
+  echo "------------------------"
+  sleep 30
+done) &
+MONITOR_PID=$!
+trap 'kill $MONITOR_PID 2>/dev/null' EXIT
+
 ##########
 # Setup (generate) test data & expected values
 ##########
@@ -174,6 +189,7 @@ popd
 # Push testresults and test reports to Cloud Storge
 # TODO
 echo "End-to-end script finished successfully"
+kill $MONITOR_PID
 
 # Clean up directory
 # ... after results are reported
