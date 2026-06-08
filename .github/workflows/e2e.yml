@@ -18,28 +18,57 @@ jobs:
   run_all:
     name: End-to-end
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
     steps:
+      - name: Install prerequisites
+        run: |
+          apt-get update && apt-get install -y sudo python3 wget unzip logrotate curl jq python3-requests python3-jsonschema build-essential clang maven
+      - name: Free up some disk space
+        run: |
+          echo "Available storage before:"
+          sudo df -h
+          echo
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          echo "Available storage after:"
+          sudo df -h
+          echo
       - name: Checkout repo
         uses: actions/checkout@v2
+      - name: Print available disk space
+        run: |
+          echo "Available disk space:"
+          sudo df -h
       - name: Cache ICU4C binary versions
         id: icu4c-binaries
         uses: actions/cache@v3
         with:
           path: gh-cache
           key: ${{ runner.os }}-icu4c-binaries
-      - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
-        run: bash setup.sh
-
       - name: Setup version of Dart
-        uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
+        uses: dart-lang/setup-dart@v1
         with:
-          sdk: 3.10.0-37.0.dev
+          sdk: 3.10.0
       - name: Set version of Rust
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: 1.82
+            toolchain: 1.83
+      - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
+        run: bash setup_linux.sh
+
+      - name: Print available disk space
+        run: |
+          echo "Available disk space:"
+          sudo df -h
       - name: Run End-to-end script
         run: bash generateDataAndRun.sh
+      - name: Print available disk space
+        run: |
+          echo "Available disk space:"
+          sudo df -h
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4

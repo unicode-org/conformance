@@ -12,8 +12,9 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
     json_verify = {"test_type": "rdt_fmt"}
 
     def process_test_data(self):
-        # Use NOde JS to create the .json files
+        # Use Node JS to create the .json files
         icu_nvm_versions = {
+            'icu78': '25.2.1',
             'icu77': '24.0.0',
             'icu76': '23.3.0',
             'icu75': '22.9.0',
@@ -49,7 +50,6 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
         generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; %s' %\
                            (nvm_version, nvm_version, ' '.join(exec_list))
 
-        logging.debug('Running this command: %s', generate_command)
         result = subprocess.run(generate_command, shell=True)
 
         # Move results to the right directory

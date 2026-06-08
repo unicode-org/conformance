@@ -8,7 +8,7 @@ dpkg --list | grep libjson-c-dev || error_code=$?
 if [[ $error_code -ne 0 ]]
 then
     sudo apt-get update
-    sudo apt-get install libjson-c-dev
+    sudo apt-get install -y libjson-c-dev
 fi
 
 # download ICU4C binaries if they don't exist
@@ -32,6 +32,19 @@ then
     sudo apt-get install python3-enum34
 fi
 
+# Install a Rust version for icu4x
+# Get the current version string (e.g., "rustc 1.83.0")
+if [[ "$(rustc --version 2>/dev/null)" != *"1.83"* ]]; then
+    if command -v rustup &> /dev/null; then
+        echo "Updating Rust to 1.83..."
+        rustup install 1.83
+    else
+        echo "Error: rustc is not 1.83 and rustup was not found to perform the update."
+        exit 1
+    fi
+else
+    echo "rustc 1.83 is already installed."
+fi
 
 function download_71_1() {
   if [[ ! -f icu4c-71_1-Ubuntu20.04-x64.tgz ]]
@@ -94,6 +107,13 @@ function download_77_1() {
   fi
 }
 
+function download_78_1() {
+  if [[ ! -f icu4c-78.1-Ubuntu22.04-x64.tgz ]]
+  then
+    wget https://github.com/unicode-org/icu/releases/download/release-78.1/icu4c-78.1-Ubuntu22.04-x64.tgz
+  fi
+}
+
  pushd gh-cache
 
  download_71_1
@@ -104,5 +124,6 @@ function download_77_1() {
  download_75_1
  download_76_1
  download_77_1
+ download_78_1
 
  popd

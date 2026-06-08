@@ -47,32 +47,36 @@ void main() {
       } catch (e) {
         throw 'ERRORSTART $line ERROREND';
       }
-
-      final testType = TestTypes.values.firstWhereOrNull(
-        (type) => type.name == decoded['test_type'],
-      );
-      final outputLine = switch (testType) {
-        TestTypes.collation => testCollation(line),
-        TestTypes.decimal_fmt => testDecimalFormatWrapped(line),
-        TestTypes.number_fmt => testDecimalFormatWrapped(line),
-        TestTypes.datetime_fmt => testDateTimeFmt(line),
-        TestTypes.display_names => throw UnimplementedError(
-          'display_names is not supported yet',
-        ),
-        TestTypes.lang_names => testLangNames(line),
-        // TestTypes.likely_subtags => testLikelySubtags(line),
-        TestTypes.likely_subtags => throw UnimplementedError(
-          'likely_subtags is not supported yet, as the Locale object is not yet migrated to ICU4X',
-        ),
-        TestTypes.list_fmt => testListFmt(line),
-        TestTypes.plural_rules => testPluralRules(line),
-        null => throw ArgumentError.value(
-          decoded['test_type'],
-          'Unknown test type',
-        ),
-      };
-
-      print(outputLine);
+      try {
+        final testType = TestTypes.values.firstWhereOrNull(
+          (type) => type.name == decoded['test_type'],
+        );
+        final outputLine = switch (testType) {
+          TestTypes.collation => testCollation(line),
+          TestTypes.decimal_fmt => testDecimalFormatWrapped(line),
+          TestTypes.number_fmt => testDecimalFormatWrapped(line),
+          TestTypes.datetime_fmt => testDateTimeFmt(line),
+          TestTypes.display_names => throw UnimplementedError(
+            'display_names is not supported yet',
+          ),
+          TestTypes.lang_names => testLangNames(line),
+          // TestTypes.likely_subtags => testLikelySubtags(line),
+          TestTypes.likely_subtags => throw UnimplementedError(
+            'likely_subtags is not supported yet, as the Locale object is not yet migrated to ICU4X',
+          ),
+          TestTypes.list_fmt => testListFmt(line),
+          TestTypes.plural_rules => testPluralRules(line),
+          null => throw ArgumentError.value(
+            decoded['test_type'],
+            'Unknown test type',
+          ),
+        };
+        print(outputLine);
+      } catch (e, s) {
+        throw ArgumentError(
+          'Error while executing on $line. Error was:\n $e \n $s',
+        );
+      }
     }
   }
 }
@@ -82,7 +86,7 @@ void printVersion() {
   final dartVersion = version.substring(0, version.indexOf(' '));
   final versionInfo = {
     'platform': 'Dart Native',
-    'icuVersion': '73', //TODO: get from ICU4X somehow
+    'icuVersion': '77', //TODO: get from ICU4X somehow
     'platformVersion': dartVersion,
     'intlVersion': intl4xVersion,
   };

@@ -48,16 +48,15 @@ fn parse_iso_zdt(
             .infer_variant(VariantOffsetsCalculator::new()),
     })
 }
-// Note: this code will start working in 2.1
-// #[cfg(not(ver = "2.0-beta2", ver = "2.0"))]
-// fn parse_iso_zdt(
-//     rfc_9557_str: &str,
-// ) -> Result<
-//     icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::AtTime>>,
-//     icu::time::ParseError,
-// > {
-//     ZonedDateTime::try_lenient_from_str(rfc_9557_str, Iso, Default::default())
-// }
+#[cfg(not(any(ver = "2.0-beta2", ver = "2.0")))]
+fn parse_iso_zdt(
+    rfc_9557_str: &str,
+) -> Result<
+    icu::time::ZonedDateTime<Iso, icu::time::zone::TimeZoneInfo<icu::time::zone::models::AtTime>>,
+    icu::time::ParseError,
+> {
+    ZonedDateTime::try_lenient_from_str(rfc_9557_str, Iso, Default::default())
+}
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};

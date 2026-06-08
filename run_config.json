@@ -3,7 +3,7 @@
     "prereq": {
       "name": "Get ICU4C 77",
       "version": "77.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-77_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-77_1-Ubuntu22.04-x64.tgz icu4c-77_1-src.tgz"
     },
     "run": {
       "icu_version": "icu77",
@@ -25,9 +25,33 @@
   },
   {
     "prereq": {
+      "name": "Get ICU4C 78",
+      "version": "78.1",
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-78.1-Ubuntu22.04-x64.tgz icu4c-78.1-sources.tgz"
+    },
+    "run": {
+      "icu_version": "icu78",
+      "exec": "cpp",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt",
+        "segmenter"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "Get ICU4C 76",
       "version": "76.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-76_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-76_1-Ubuntu22.04-x64.tgz icu4c-76_1-src.tgz"
     },
     "run": {
       "icu_version": "icu76",
@@ -51,7 +75,7 @@
     "prereq": {
       "name": "Get ICU4C 71",
       "version": "71.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-71_1-Ubuntu20.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-71_1-Ubuntu20.04-x64.tgz icu4c-71_1-src.tgz"
     },
     "run": {
       "icu_version": "icu71",
@@ -72,7 +96,7 @@
     "prereq": {
       "name": "Get ICU4C 72",
       "version": "72.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-72_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-72_1-Ubuntu22.04-x64.tgz icu4c-72_1-src.tgz"
     },
     "run": {
       "icu_version": "icu72",
@@ -93,7 +117,7 @@
     "prereq": {
       "name": "Get ICU4C 73",
       "version": "73.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-73_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-73_1-Ubuntu22.04-x64.tgz icu4c-73_1-src.tgz"
     },
     "run": {
       "icu_version": "icu73",
@@ -114,7 +138,7 @@
     "prereq": {
       "name": "Get ICU4C 74.2",
       "version": "74.2",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-74_2-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-74_2-Ubuntu22.04-x64.tgz icu4c-74_2-src.tgz"
     },
     "run": {
       "icu_version": "icu74",
@@ -135,7 +159,7 @@
     "prereq": {
       "name": "Get ICU4C 75.1",
       "version": "75.1",
-      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache/icu4c-75_1-Ubuntu22.04-x64.tgz"
+      "command": "bash ../executors/cpp/set_icu4c_binary.sh ../gh-cache icu4c-75_1-Ubuntu22.04-x64.tgz icu4c-75_1-src.tgz"
     },
     "run": {
       "icu_version": "icu75",
@@ -224,10 +248,31 @@
   },
   {
     "run": {
-      "icu_version": "icu74",
+      "icu_version": "icu77",
       "exec": "dart_native",
       "test_type": [
         "collation",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "plural_rules",
+        "list_fmt"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 24.0.0, icu77.1",
+      "version": "24.0.0",
+      "command": "nvm install 24.0.0;nvm use 24.0.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu77",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -267,6 +312,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -286,6 +332,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -305,6 +352,7 @@
       "exec": "dart_web",
       "test_type": [
         "collation",
+        "datetime_fmt",
         "number_fmt",
         "lang_names",
         "plural_rules",
@@ -390,38 +438,6 @@
         "number_fmt",
         "rdt_fmt",
         "plural_rules"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
-      "name": "nvm",
-      "version": "14.21.3",
-      "command": "nvm install 14.21.3;nvm use 14.21.3 --silent"
-    },
-    "run": {
-      "icu_version": "icu70",
-      "exec": "node",
-      "test_type": [
-        "collation",
-        "number_fmt"
-      ],
-      "per_execution": 10000
-    }
-  },
-  {
-    "prereq": {
-      "name": "nvm",
-      "version": "14.18.3",
-      "command": "nvm install 14.18.3;nvm use 14.18.3 --silent"
-    },
-    "run": {
-      "icu_version": "icu69",
-      "exec": "node",
-      "test_type": [
-        "collation",
-        "number_fmt"
       ],
       "per_execution": 10000
     }
@@ -559,6 +575,29 @@
   },
   {
     "prereq": {
+      "name": "rust2.1",
+      "version": "2.1",
+      "command": "CARGO_TARGET_DIR=../executors/rust/target cargo build --release --manifest-path ../executors/rust/2.1/Cargo.toml"
+    },
+    "run": {
+      "icu_version": "icu78",
+      "exec": "rust",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "plural_rules",
+        "rdt_fmt",
+        "segmenter"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
       "name": "mvn-icu4j-73-shaded",
       "version": "73",
       "command": "mvn -q -P icu73 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
@@ -654,6 +693,30 @@
     },
     "run": {
       "icu_version": "icu77",
+      "exec": "icu4j",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "lang_names",
+        "likely_subtags",
+        "list_fmt",
+        "message_fmt2",
+        "number_fmt",
+        "plural_rules",
+        "rdt_fmt",
+        "segmenter"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "mvn-icu4j-78-shaded",
+      "version": "78",
+      "command": "mvn -q -P icu78 -f ../executors/icu4j/74/executor-icu4j/pom.xml package"
+    },
+    "run": {
+      "icu_version": "icu78",
       "exec": "icu4j",
       "test_type": [
         "collation",

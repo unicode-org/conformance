@@ -8,14 +8,37 @@ set -e
 # Rotate log files
 logrotate -s logrotate.state logrotate.conf
 
+# Start background monitor
+(while true; do 
+  echo "[$(date +%T)] --- VITALS ---"
+  # RAM usage
+  echo "Memory: $(free -h | awk 'NR==2{print $3 \" / \" $2}')"
+  # Disk usage for the current workspace
+  echo "Disk: $(df -h . | awk 'NR==2{print $3 \" used / \" $4 \" avail (\" $5 \")\"}')"
+  # CPU Load
+  echo "CPU Load: $(cut -d' ' -f1-3 /proc/loadavg)"
+  echo "------------------------"
+  sleep 30
+done) &
+MONITOR_PID=$!
+trap 'kill $MONITOR_PID 2>/dev/null' EXIT
+
 ##########
 # Setup (generate) test data & expected values
 ##########
 
+# Depending on the OS
+case "$(uname -s)" in
+    Darwin*)    machine=macos;;
+    Linux*)     machine=linux;;
+    *)          echo "Unsupported platform: $(uname -s)"; exit 1;;
+esac
+echo "This machine is: ${machine}"
+
 # Ensure that ICU4C binaries have been downloaded locally
 if [[ ! -d gh-cache ]]
 then
-  bash setup.sh
+  bash setup_${machine}.sh
 fi
 
 # Enable seting the version of NodeJS
@@ -24,6 +47,8 @@ fi
 export NVM_DIR=$HOME/.nvm
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export RUSTUP_TOOLCHAIN=1.83
 
 if [[ $CI == "true" ]] && ! [ -x "$(command -v nvm)" ]
 then
@@ -48,8 +73,9 @@ mkdir -p $TEMP_DIR/testData
 # Generates all new test data
 source_file=${1:-'run_config.json'}
 pushd testgen
+all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
-python3 testdata_gen.py  --icu_versions $all_icu_versions
+python3 testdata_gen.py  --icu_versions $all_icu_versions --test_types $all_test_types
 # And copy results to subdirectories.
 cp -r icu* ../$TEMP_DIR/testData
 popd
@@ -118,6 +144,8 @@ jq -c '.[]' ../$source_file | while read i; do
     if jq -e 'has("prereq")' <<< $i > /dev/null
     then
         command=$(jq -r -c '.prereq.command' <<< $i)
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         eval "$command"
     fi
     icu_version=$(jq -r -c '.run.icu_version' <<< $i)
@@ -145,7 +173,6 @@ popd
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
 
-all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
 all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
 
 # Specifies the arrangement of the columns in the summary dashboard
@@ -162,6 +189,7 @@ popd
 # Push testresults and test reports to Cloud Storge
 # TODO
 echo "End-to-end script finished successfully"
+kill $MONITOR_PID
 
 # Clean up directory
 # ... after results are reported

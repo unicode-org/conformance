@@ -25,6 +25,7 @@ PKGDATAOPTS=-r $(shell icu-config --detect-prefix --version --detect_version) -w
 RESMODE=$(shell icu-config --detect-prefix --icudata-mode)
 
 CFLAGS += $(shell pkg-config --cflags json-c)
+CXXFLAGS += $(shell pkg-config --cflags json-c)
 LDFLAGS += $(shell pkg-config --libs json-c)
 
 ####################################################################

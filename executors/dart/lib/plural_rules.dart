@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:intl4x/intl4x.dart';
 import 'package:intl4x/plural_rules.dart';
 
 /// Tests Intl Locale for plural rules.
@@ -60,15 +59,13 @@ String testPluralRules(String jsonEncoded) {
   }
 
   // PluralRulesOptions setup
-  var testOptions = PluralRulesOptions();
   final typeString = json['type'] as String?;
+  PluralType? pluralType;
   if (typeString != null) {
-    final pluralType = Type.values.firstWhereOrNull(
+    pluralType = PluralType.values.firstWhereOrNull(
       (type) => typeString == type.name,
     );
-    if (pluralType != null) {
-      testOptions = testOptions.copyWith(type: pluralType);
-    } else {
+    if (pluralType == null) {
       returnJson.addAll({
         'error': 'unsupported',
         'unsupported': 'unsupported_plural_type',
@@ -78,8 +75,9 @@ String testPluralRules(String jsonEncoded) {
     }
   }
 
-  final intl = Intl(locale: locale);
-  final pluralRules = intl.plural(testOptions);
+  final pluralRules = pluralType != null
+      ? PluralRules(locale: locale, type: pluralType)
+      : PluralRules(locale: locale);
 
   try {
     final result = pluralRules.select(sample);

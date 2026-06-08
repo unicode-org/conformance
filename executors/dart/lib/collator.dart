@@ -3,19 +3,24 @@
 import 'dart:convert';
 
 import 'package:intl4x/collation.dart';
-import 'package:intl4x/intl4x.dart';
 
 String testCollation(String jsonEncoded) {
-  final json =
-      jsonDecode(jsonEncoded)
-          as Map<
-            String,
-            dynamic
-          >; // For the moment, use strings for easier interop
+  final json = jsonDecode(jsonEncoded) as Map<String, dynamic>;
   // Global default locale
-  final testLocale = json['locale'] as String? ?? 'en';
   final outputLine = <String, dynamic>{'label': json['label']};
-
+  if (json.containsKey('rules')) {
+    outputLine['error_type'] = 'unsupported';
+    outputLine['unsupported'] = 'unsupported_options';
+    outputLine['error_message'] = 'Rules are not supported';
+    return jsonEncode(outputLine);
+  }
+  final localeString = json['locale'] as String? ?? 'en';
+  if (localeString == 'root') {
+    outputLine['error_type'] = 'unsupported';
+    outputLine['unsupported'] = 'unsupported_options';
+    outputLine['error_message'] = 'Locale `root` is unsupported';
+    return jsonEncode(outputLine);
+  }
   // Set up collator object with optional locale and testOptions.
   final s1 = json['s1'];
   final s2 = json['s2'];
@@ -36,6 +41,7 @@ String testCollation(String jsonEncoded) {
           .where((value) => value.jsName == json['case_first'])
           .firstOrNull ??
       CaseFirst.localeDependent;
+  final compareType = json['compare_type'] as String?;
 
   if (s1 == null || s2 == null) {
     outputLine.addAll({
@@ -45,17 +51,24 @@ String testCollation(String jsonEncoded) {
     });
   } else {
     try {
-      final coll = Intl(locale: Locale.parse(testLocale));
-
-      final collationOptions = CollationOptions(
+      final compared = Collation(
+        locale: Locale.parse(localeString),
         ignorePunctuation: ignorePunctuation,
         sensitivity: sensitivity,
         numeric: numeric,
         caseFirst: caseFirst,
-      );
+      ).compare(s1, s2);
 
-      final compared = coll.collation(collationOptions).compare(s1, s2);
-      final result = compared <= 0;
+      bool result;
+      if (compareType == '=') {
+        // Check for strict equality comparison
+        result = compared == 0;
+      } else if (compareType != null && compareType.startsWith('<')) {
+        // Check results with different compare types
+        result = compared < 0;
+      } else {
+        result = compared <= 0;
+      }
       outputLine['result'] = result;
 
       if (result != true) {
@@ -73,4 +86,15 @@ String testCollation(String jsonEncoded) {
     }
   }
   return jsonEncode(outputLine);
+}
+
+// Copied from intl4x/lib/src/collation/collation_ecma.dart
+extension on CaseFirst {
+  /// The JavaScript-compatible string representation of the case first option.
+  String get jsName => switch (this) {
+    // Map the custom name 'localeDependent' to 'false'.
+    CaseFirst.localeDependent => 'false',
+    // All other cases implicitly use the enum's name (e.g., 'upper', 'lower').
+    _ => name,
+  };
 }
