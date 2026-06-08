@@ -308,7 +308,6 @@ class Verifier:
 
         summary_report.setup_all_test_results()
 
-
         if self.options.platform_order:
             # Set the order of the platforms in the summary dashboard
             summary_report.platform_order = self.options.platform_order
