@@ -28,6 +28,7 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
     let alternate_option: Option<&str> = json_obj["alternate"].as_str();
     let case_first_option: Option<&str> = json_obj["caseFirst"].as_str();
     let case_level_option: Option<&str> = json_obj["caseLevel"].as_str();
+    #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
     let numeric_option: Option<&str> = json_obj["numeric"].as_str();
     let reorder_option: Option<&str> = json_obj["reorder"].as_str();
     let backwards_option: Option<&str> = json_obj["backwards"].as_str();
@@ -199,23 +200,21 @@ pub fn run_collation_test(json_obj: &Value) -> Result<Value, String> {
 
     // Numeric sort order.
     // CollatorPreferences in beta2 vs. Enum Numeric
+    // !!! TODO: handle before 2.0beta2
+    #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
     if let Some(numeric) = numeric_option {
-        #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
-        {
-            preferences.numeric_ordering = match numeric {
-                "off" => Some(CollationNumericOrdering::False),
-                "on" => Some(CollationNumericOrdering::True),
-                _ => {
-                    return Ok(json!({
-                        "label": label,
-                        "error_detail": {"numeric": numeric},
-                        "unsupported": "numeric",
-                        "error_type": "unsupported",
-                    }));
-                }
+        preferences.numeric_ordering = match numeric {
+            "off" => Some(CollationNumericOrdering::False),
+            "on" => Some(CollationNumericOrdering::True),
+            _ => {
+                return Ok(json!({
+                    "label": label,
+                    "error_detail": {"numeric": numeric},
+                    "unsupported": "numeric",
+                    "error_type": "unsupported",
+                }));
             }
         };
-        // !!! TODO: handle before 2.0beta2
     };
 
     if let Some(alternate) = alternate_option {

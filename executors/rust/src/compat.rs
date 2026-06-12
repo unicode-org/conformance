@@ -71,6 +71,7 @@ macro_rules! as_borrowed_2_0 {
     ver = "2.0-beta1",
     ver = "2.0-beta2"
 ))]
+#[allow(unused_macros)]
 macro_rules! as_borrowed_2_0 {
     ($expr:expr) => {
         $expr
