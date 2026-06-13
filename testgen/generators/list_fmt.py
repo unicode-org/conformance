@@ -13,6 +13,7 @@ class ListFmtGenerator(DataGenerator):
     def process_test_data(self):
         # Use Node JS to create the .json files
         icu_nvm_versions = {
+            'icu78': '26.3.0',
             'icu77': '24.0.0',
             'icu76': '23.11.0',
             'icu75': '22.9.0',
