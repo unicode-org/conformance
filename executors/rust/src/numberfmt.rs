@@ -28,6 +28,16 @@ use writeable::Writeable;
 
 #[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::compactdecimal::CompactDecimalFormatter;
+
+#[cfg(any(
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2",
+    ver = "2.0",
+    ver = "2.1"
+))]
+use icu::experimental::compactdecimal::CompactDecimalFormatter;
+
 #[cfg(not(any(
     ver = "1.3",
     ver = "1.4",
@@ -38,14 +48,6 @@ use icu::compactdecimal::CompactDecimalFormatter;
     ver = "2.1"
 )))]
 use icu::decimal::CompactDecimalFormatter;
-#[cfg(any(
-    ver = "1.5",
-    ver = "2.0-beta1",
-    ver = "2.0-beta2",
-    ver = "2.0",
-    ver = "2.1"
-))]
-use icu::experimental::compactdecimal::CompactDecimalFormatter;
 
 // Support options - update when ICU4X adds support
 static _SUPPORTED_OPTIONS: [&str; 6] = [
