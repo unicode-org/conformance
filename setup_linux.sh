@@ -33,7 +33,7 @@ then
 fi
 
 # Install a Rust version for icu4x
-# Get the current version string (e.g., "rustc 1.83.0")
+# Get the current version string (e.g., "rustc 1.87.0")
 if [[ "$(rustc --version 2>/dev/null)" != *"1.87"* ]]; then
     if command -v rustup &> /dev/null; then
         echo "Updating Rust to 1.87..."
