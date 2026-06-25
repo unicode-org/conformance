@@ -46,16 +46,16 @@ fi
 
 # Install a Rust version for icu4x
 # Get the current version string (e.g., "rustc 1.83.0")
-if [[ "$(rustc --version 2>/dev/null)" != *"1.83"* ]]; then
+if [[ "$(rustc --version 2>/dev/null)" != *"1.87"* ]]; then
     if command -v rustup &> /dev/null; then
-        echo "Updating Rust to 1.83..."
-        rustup install 1.83
+        echo "Updating Rust to 1.87..."
+        rustup install 1.87
     else
-        echo "Error: rustc is not 1.83 and rustup was not found to perform the update."
+        echo "Error: rustc is not 1.87 and rustup was not found to perform the update."
         exit 1
     fi
 else
-    echo "rustc 1.83 is already installed."
+    echo "rustc 1.87 is already installed."
 fi
 
 # Note: The official ICU GitHub releases do NOT contain pre-compiled macOS binaries.
