@@ -35,10 +35,6 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
             exec_list.append(str(self.run_limit))
         exec_command = ' '.join(exec_list)
 
-        nodejs_version = icu_nvm_versions[self.icu_version]
-        source_command = 'source ~/.nvm/nvm.sh; nvm run %s; %s' % (
-            nodejs_version, exec_command)
-
         if self.icu_version not in icu_nvm_versions:
             logging.warning('Generating relative date/time data not configured for icu version %s', self.icu_version)
             return False
@@ -47,7 +43,7 @@ class RelativeDateTimeFmtGenerator(DataGenerator):
 
         # Set up Node version and call the generator
         nvm_version = icu_nvm_versions[self.icu_version]
-        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; %s' %\
+        generate_command = '. ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; %s' %\
                            (nvm_version, nvm_version, ' '.join(exec_list))
 
         result = subprocess.run(generate_command, shell=True)

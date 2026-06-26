@@ -35,7 +35,7 @@ class SegmenterGenerator(DataGenerator):
 
         # Set up Node version and call the generator
         nvm_version = icu_nvm_versions[self.icu_version]
-        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; %s' %\
+        generate_command = '. ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; %s' %\
                            (nvm_version, nvm_version, ' '.join(exec_list))
 
         logging.debug('Running this command: %s', generate_command)
