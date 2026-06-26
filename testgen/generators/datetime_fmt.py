@@ -135,7 +135,7 @@ class DateTimeFmtGenerator(DataGenerator):
                 self.saveJsonFile(dt_test_path, test_obj, indent=2)
                 self.saveJsonFile(dt_verify_path, verify_obj, indent=2)
             except BaseException as err:
-                logging.error('!!! %s: Failure to save file %s', err, )
+                logging.error('!!! %s: Failure to save files: %s and %s', err, dt_test_path, dt_verify_path)
                 return None
 
     def process_test_data(self):
@@ -164,7 +164,7 @@ class DateTimeFmtGenerator(DataGenerator):
         # Set up Node version and call the generator
         # Add temporal to the package.
         nvm_version = icu_nvm_versions[self.icu_version]
-        generate_command = 'source ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; npm ci; node generators/datetime_gen.js %s %s' % (
+        generate_command = '. ~/.nvm/nvm.sh; nvm install %s; nvm use %s --silent; npm ci; node generators/datetime_gen.js %s %s' % (
             nvm_version, nvm_version, '-run_limit', self.run_limit)
 
         result = subprocess.run(generate_command, shell=True)
