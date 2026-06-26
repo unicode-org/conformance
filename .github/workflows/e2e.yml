@@ -55,7 +55,7 @@ jobs:
       - name: Set version of Rust
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: 1.83
+            toolchain: 1.87
       - name: Setup deps, etc. # install JSON-C, download ICU4C binaries if not present
         run: bash setup_linux.sh
 

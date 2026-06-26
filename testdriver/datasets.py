@@ -253,6 +253,8 @@ class RustVersion(Enum):
   Rust1 = "1.0"
   Rust1_61_0 = "1.61.0"
   Rust1_2_0 = "1.2.0"
+  Rust2_1 = "2.1"
+  Rust2_2 = "2.2"
 
 class CppVersion(Enum):
   Cpp = "1.0"
@@ -279,6 +281,7 @@ IcuVersionToExecutorMap = {
     },
     'icu4x': {
         '71': ['1.61.0'],
+        '78': ['2.1', '2.2'],
     },
     'dart': {},
     'icu4c': {},
@@ -309,7 +312,9 @@ NodeICUVersionMap = {
 ICU4XVersionMap = {
     # TODO: fill this in
     '1.0': '71.1',
-    '1.61.0': '71.1'
+    '1.61.0': '71.1',
+    '2.1': '78.1',
+    '2.2': '78.1'
 }
 
 ICUVersionMap = {
@@ -415,6 +420,13 @@ allExecutors.addSystem(system, RustVersion.Rust1_2_0,
 allExecutors.addSystem(system, RustVersion.Rust1_61_0,
                        '../executors/rust/target/release/executor',
                        CLDRVersion.CLDR41, versionICU=ICUVersion.ICU71)
+
+allExecutors.addSystem(system, RustVersion.Rust2_1,
+                       '../executors/rust/target/release/executor',
+                       CLDRVersion.CLDR48, versionICU=ICUVersion.ICU78)
+allExecutors.addSystem(system, RustVersion.Rust2_2,
+                       '../executors/rust/target/release/executor',
+                       CLDRVersion.CLDR48, versionICU=ICUVersion.ICU78)
 
 system = ExecutorLang.CPP.value
 allExecutors.addSystem(
