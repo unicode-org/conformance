@@ -49,9 +49,9 @@ jobs:
           path: gh-cache
           key: ${{ runner.os }}-icu4c-binaries
       - name: Setup version of Dart
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@a73965b3c99b30eb092908ce56c429eff91f9634
         with:
-          sdk: 3.10.0
+          sdk: 3.12.0
       - name: Set version of Rust
         uses: actions-rs/toolchain@v1
         with:
