@@ -5,8 +5,25 @@ use serde_json::{json, Value};
 #[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::displaynames::*;
 
-#[cfg(not(any(ver = "1.3", ver = "1.4")))]
+#[cfg(any(
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2",
+    ver = "2.0",
+    ver = "2.1"
+))]
 use icu::experimental::displaynames::*;
+
+#[cfg(not(any(
+    ver = "1.3",
+    ver = "1.4",
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2",
+    ver = "2.0",
+    ver = "2.1"
+)))]
+use icu::experimental::displaynames::multi::*;
 
 use super::compat::{langid_und, pref, Locale};
 
