@@ -28,6 +28,12 @@ class PluralGenerator(DataGenerator):
             cldr_git_version = 'maint/maint-44'
         elif self.icu_version == "icu75":
             cldr_git_version = 'maint/maint-45'
+        elif self.icu_version == "icu76":
+            cldr_git_version = 'maint/maint-46'
+        elif self.icu_version == "icu77":
+            cldr_git_version = 'maint/maint-47'
+        elif self.icu_version == "icu78":
+            cldr_git_version = 'maint/maint-48'
 
         cardinal_source = 'https://github.com/unicode-org/cldr/blob/%s/common/supplemental/plurals.xml' % cldr_git_version
         ordinal_source = 'https://github.com/unicode-org/cldr/blob/%s/common/supplemental/ordinals.xml' % cldr_git_version

@@ -117,10 +117,10 @@ function download_77_1() {
   fi
 }
 
-function download_78_1() {
-  if [[ ! -f icu4c-78.1-sources.tgz ]]
+function download_78_3() {
+  if [[ ! -f icu4c-78.3-sources.tgz ]]
   then
-    curl -L -O https://github.com/unicode-org/icu/releases/download/release-78.1/icu4c-78.1-sources.tgz
+    curl -L -O https://github.com/unicode-org/icu/releases/download/release-78.3/icu4c-78.3-sources.tgz
   fi
 }
 
@@ -134,6 +134,6 @@ download_74_2
 download_75_1
 download_76_1
 download_77_1
-download_78_1
+download_78_3
 
 popd
