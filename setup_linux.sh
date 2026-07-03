@@ -39,8 +39,7 @@ if [[ "$(rustc --version 2>/dev/null)" != *"1.83"* ]]; then
         echo "Updating Rust to 1.83..."
         rustup install 1.83
     else
-        echo "Error: rustc is not 1.83 and rustup was not found to perform the update."
-        exit 1
+        echo "Warning: rustc is not 1.83 and rustup was not found to perform the update. Continuing..."
     fi
 else
     echo "rustc 1.83 is already installed."

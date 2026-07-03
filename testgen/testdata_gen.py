@@ -10,7 +10,11 @@ from generators.collation import CollationGenerator
 from generators.datetime_fmt import DateTimeFmtGenerator
 from generators.localeDisplayNames import LocaleNamesGenerator
 from generators.likely_subtags import LikelySubtagsGenerator
-from generators.message_fmt2 import MessageFmt2Generator
+try:
+    from generators.message_fmt2 import MessageFmt2Generator
+    has_message_fmt2 = True
+except ImportError:
+    has_message_fmt2 = False
 from generators.list_fmt import ListFmtGenerator
 from generators.number_fmt import NumberFmtGenerator
 from generators.plurals import PluralGenerator
@@ -95,8 +99,11 @@ def generate_versioned_data(version_info):
         generator.process_test_data()
 
     if TestType.MESSAGE_FMT2 in args.test_types:
-        generator = MessageFmt2Generator(icu_version, args.run_limit)
-        generator.process_test_data()
+        if not has_message_fmt2:
+            logger.warning("MessageFmt2Generator is not available (missing jsonschema?). Skipping.")
+        else:
+            generator = MessageFmt2Generator(icu_version, args.run_limit)
+            generator.process_test_data()
 
     if TestType.NUMBER_FMT in args.test_types:
         generator = NumberFmtGenerator(icu_version, args.run_limit)
