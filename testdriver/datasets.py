@@ -293,8 +293,10 @@ IcuVersionToExecutorMap = {
 # What versions of NodeJS use specific ICU versions
 # https://nodejs.org/en/download/releases/
 NodeICUVersionMap = {
+    '26.3.0': '78.3',
     '24.0.0': '77.1',
     '23.11.0': '76.1',
+    '23.3.0': '76.1',
     '22.9.0': '75.1',
     '21.6.0': '74.1',
     '20.1.0': '73.1',
@@ -313,8 +315,8 @@ ICU4XVersionMap = {
     # TODO: fill this in
     '1.0': '71.1',
     '1.61.0': '71.1',
-    '2.1': '78.1',
-    '2.2': '78.1'
+    '2.1': '78.3',
+    '2.2': '78.3'
 }
 
 ICUVersionMap = {
