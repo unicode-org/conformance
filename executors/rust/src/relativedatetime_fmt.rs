@@ -193,16 +193,13 @@ pub fn run_relativedatetimeformat_test(json_obj: &Value) -> Result<Value, String
     }
 
     // Get numeric option
-    let options = if option_struct.numeric == Some(String::from("auto")) {
-        RelativeTimeFormatterOptions {
-            numeric: Numeric::Auto,
-        }
+    let mut options = RelativeTimeFormatterOptions::default();
+    if option_struct.numeric.as_deref() == Some("auto") {
+        options.numeric = Numeric::Auto;
     } else {
         // The default
-        RelativeTimeFormatterOptions {
-            numeric: Numeric::Always,
-        }
-    };
+        options.numeric = Numeric::Always;
+    }
 
     // Use unit & style to select the correct constructor.
     let relative_time_formatter =

@@ -15,7 +15,7 @@ logrotate -s logrotate.state logrotate.conf
 export NVM_DIR=$HOME/.nvm;
 . $NVM_DIR/nvm.sh;
 
-export RUSTUP_TOOLCHAIN=1.83
+export RUSTUP_TOOLCHAIN=1.87
 
 #
 # Setup

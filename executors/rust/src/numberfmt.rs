@@ -28,8 +28,26 @@ use writeable::Writeable;
 
 #[cfg(any(ver = "1.3", ver = "1.4"))]
 use icu::compactdecimal::CompactDecimalFormatter;
-#[cfg(not(any(ver = "1.3", ver = "1.4")))]
+
+#[cfg(any(
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2",
+    ver = "2.0",
+    ver = "2.1"
+))]
 use icu::experimental::compactdecimal::CompactDecimalFormatter;
+
+#[cfg(not(any(
+    ver = "1.3",
+    ver = "1.4",
+    ver = "1.5",
+    ver = "2.0-beta1",
+    ver = "2.0-beta2",
+    ver = "2.0",
+    ver = "2.1"
+)))]
+use icu::decimal::CompactDecimalFormatter;
 
 // Support options - update when ICU4X adds support
 static _SUPPORTED_OPTIONS: [&str; 6] = [
@@ -178,8 +196,18 @@ pub fn run_numberformat_test(json_obj: &Value) -> Result<Value, String> {
         let input_num = input.parse::<Decimal>().map_err(|e| e.to_string())?;
         #[cfg(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1"))]
         let formatted_cdf = cdf.format_fixed_decimal(input_num);
-        #[cfg(not(any(ver = "1.3", ver = "1.4", ver = "1.5", ver = "2.0-beta1")))]
+        #[cfg(any(ver = "2.0-beta2", ver = "2.0", ver = "2.1"))]
         let formatted_cdf = cdf.format_fixed_decimal(&input_num);
+        #[cfg(not(any(
+            ver = "1.3",
+            ver = "1.4",
+            ver = "1.5",
+            ver = "2.0-beta1",
+            ver = "2.0-beta2",
+            ver = "2.0",
+            ver = "2.1"
+        )))]
+        let formatted_cdf = cdf.format(&input_num);
         formatted_cdf.write_to_string().into_owned()
     // }
     // else if is_scientific {

@@ -33,16 +33,17 @@ then
 fi
 
 # Install a Rust version for icu4x
-# Get the current version string (e.g., "rustc 1.83.0")
-if [[ "$(rustc --version 2>/dev/null)" != *"1.83"* ]]; then
+# Get the current version string (e.g., "rustc 1.87.0")
+if [[ "$(rustc --version 2>/dev/null)" != *"1.87"* ]]; then
     if command -v rustup &> /dev/null; then
-        echo "Updating Rust to 1.83..."
-        rustup install 1.83
+        echo "Updating Rust to 1.87..."
+        rustup install 1.87
     else
-        echo "Warning: rustc is not 1.83 and rustup was not found to perform the update. Continuing..."
+        echo "Error: rustc is not 1.87 and rustup was not found to perform the update."
+        exit 1
     fi
 else
-    echo "rustc 1.83 is already installed."
+    echo "rustc 1.87 is already installed."
 fi
 
 function download_71_1() {
@@ -106,10 +107,10 @@ function download_77_1() {
   fi
 }
 
-function download_78_1() {
-  if [[ ! -f icu4c-78.1-Ubuntu22.04-x64.tgz ]]
+function download_78_3() {
+  if [[ ! -f icu4c-78.3-Ubuntu22.04-x64.tgz ]]
   then
-    wget https://github.com/unicode-org/icu/releases/download/release-78.1/icu4c-78.1-Ubuntu22.04-x64.tgz
+    wget https://github.com/unicode-org/icu/releases/download/release-78.3/icu4c-78.3-Ubuntu22.04-x64.tgz
   fi
 }
 
@@ -123,6 +124,6 @@ function download_78_1() {
  download_75_1
  download_76_1
  download_77_1
- download_78_1
+ download_78_3
 
  popd
