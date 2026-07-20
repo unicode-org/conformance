@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_executor/collator.dart';
 import 'package:dart_executor/datetime_format.dart';
 import 'package:dart_executor/lang_names.dart';
+import 'package:dart_executor/likely_subtags.dart';
 import 'package:dart_executor/list_format.dart';
 import 'package:dart_executor/numberformat.dart';
 import 'package:dart_executor/plural_rules.dart';
@@ -60,10 +61,7 @@ void main() {
             'display_names is not supported yet',
           ),
           TestTypes.lang_names => testLangNames(line),
-          // TestTypes.likely_subtags => testLikelySubtags(line),
-          TestTypes.likely_subtags => throw UnimplementedError(
-            'likely_subtags is not supported yet, as the Locale object is not yet migrated to ICU4X',
-          ),
+          TestTypes.likely_subtags => testLikelySubtags(line),
           TestTypes.list_fmt => testListFmt(line),
           TestTypes.plural_rules => testPluralRules(line),
           null => throw ArgumentError.value(

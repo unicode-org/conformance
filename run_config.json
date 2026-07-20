@@ -279,7 +279,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -299,7 +300,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -319,7 +321,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -339,7 +342,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -359,7 +363,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -379,7 +384,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }

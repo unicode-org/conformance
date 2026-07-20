@@ -137,8 +137,8 @@ String testDateTimeFmt(String jsonEncoded) {
   }
   returnJson['actual_options'] = {
     'locale': locale.toString(),
-    if (dateStyle != null) 'dateStyle': dateStyle,
-    if (timeStyle != null) 'timeStyle': timeStyle,
+    'dateStyle': ?dateStyle,
+    'timeStyle': ?timeStyle,
     if (yearStyle != null) 'yearStyle': yearStyle.name,
     if (calendar != null) 'calendar': calendar.jsName,
   };
