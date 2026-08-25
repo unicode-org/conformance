@@ -152,8 +152,9 @@ jq -c '.[]' ../$source_file | while read i; do
     exec_command=$(jq -r -c '.run.exec' <<< $i)
     test_type=$(jq -r -c '.run.test_type | join(" ")'  <<< $i)
     per_execution=$(jq -r -c '.run.per_execution' <<< $i)
+    output_name=$(jq -r -c '.run.output_name' <<< $i)
     ignore=$(jq -r -c '.run.ignore' <<< $i)
-    python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution --ignore $ignore
+    python3 testdriver.py --icu_version $icu_version --output_name $output_name --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution --ignore $ignore
     echo $?
 done
 
