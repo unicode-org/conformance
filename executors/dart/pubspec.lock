@@ -162,21 +162,21 @@ packages:
     source: hosted
     version: "4.1.2"
   icu4x:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: icu4x
-      sha256: "5a1709cbca00ded6304082292995c503d33f20544867f7226f8ee646128c4494"
+      sha256: "5cdaabc21a842fd9369b94e900d62b91b7c2d9f24ed1d56bb6d93a05306c4823"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0-dev.2"
+    version: "2.2.0-dev.3"
   intl4x:
     dependency: "direct main"
     description:
       name: intl4x
-      sha256: "9bde13391a36b16ad25ac0c8ac3f777c47d74216973f21b59c682b9222871cd6"
+      sha256: d216bdeb84fd3f54af0afc26ac1367f707e605f1bcdd97473d0886ae3f11aa7f
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-alpha.1"
+    version: "1.0.0-alpha.2"
   io:
     dependency: transitive
     description:

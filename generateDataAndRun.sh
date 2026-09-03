@@ -117,8 +117,7 @@ then
     pushd executors/dart/
     dart pub get
     dart bin/set_version.dart
-    mkdir -p build/bundle/bin
-    dart compile exe bin/executor.dart -o build/bundle/bin/executor || echo "WARNING: Failed to compile dart_native"
+    dart build cli --target bin/executor.dart -o build/
     popd
 fi
 
