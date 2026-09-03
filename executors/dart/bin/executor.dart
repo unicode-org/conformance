@@ -57,9 +57,7 @@ void main() {
           TestTypes.decimal_fmt => testDecimalFormatWrapped(line),
           TestTypes.number_fmt => testDecimalFormatWrapped(line),
           TestTypes.datetime_fmt => testDateTimeFmt(line),
-          TestTypes.display_names => throw UnimplementedError(
-            'display_names is not supported yet',
-          ),
+          TestTypes.display_names => testLangNames(line),
           TestTypes.lang_names => testLangNames(line),
           TestTypes.likely_subtags => testLikelySubtags(line),
           TestTypes.list_fmt => testListFmt(line),

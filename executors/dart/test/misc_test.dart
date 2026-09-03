@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dart_executor/collator.dart';
 import 'package:dart_executor/datetime_format.dart';
 import 'package:dart_executor/lang_names.dart';
+import 'package:dart_executor/likely_subtags.dart';
 import 'package:dart_executor/numberformat.dart';
 import 'package:intl4x/datetime_format.dart';
 import 'package:meta/meta.dart';
@@ -58,6 +59,49 @@ void main() {
     final outputLine = testLangNames(jsonEncode(inputLine));
     final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
     expect(decoded['result'], 'Spanish');
+  });
+
+  testWithFormatting('Check likely subtags maximize', () {
+    final inputLine = {
+      'label': 'subtags_max',
+      'locale': 'en',
+      'option': 'maximize',
+    };
+    final outputLine = testLikelySubtags(jsonEncode(inputLine));
+    final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
+    expect(decoded['result'], 'en-Latn-US');
+  });
+
+  testWithFormatting('Check likely subtags minimize', () {
+    final inputLine = {
+      'label': 'subtags_min',
+      'locale': 'en-Latn-US',
+      'option': 'minimize',
+    };
+    final outputLine = testLikelySubtags(jsonEncode(inputLine));
+    final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
+    expect(decoded['result'], 'en');
+  });
+
+  testWithFormatting('Check datetime format with timezone', () {
+    final inputLine = {
+      'label': '00588',
+      'locale': 'en-US',
+      'input_string': '2024-03-17T00:00:00Z',
+      'options': {
+        'timeZone': 'America/Los_Angeles',
+        'dateStyle': 'full',
+        'timeStyle': 'full',
+        'dateTimeFormatType': 'standard',
+        'calendar': 'gregory',
+      },
+      'tz_offset_secs': -25200.0,
+      'original_input': '2024-03-16T17:00-07:00[America/Los_Angeles]',
+    };
+    final outputLine = testDateTimeFmt(jsonEncode(inputLine));
+    final decoded = jsonDecode(outputLine) as Map<String, dynamic>;
+    expect(decoded['result'], contains('Saturday, March 16, 2024'));
+    expect(decoded['result'], contains('Pacific Daylight Time'));
   });
 
   testWithFormatting('decimal format compact', () {
