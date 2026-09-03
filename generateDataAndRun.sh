@@ -73,8 +73,8 @@ mkdir -p $TEMP_DIR/testData
 # Generates all new test data
 source_file=${1:-'run_config.json'}
 pushd testgen
-all_test_types=$(python3 -c "import json; d=json.load(open('../$source_file')); print(' '.join(sorted(list(set(t for e in d for t in e.get('run', {}).get('test_type', []))))))")
-all_icu_versions=$(python3 -c "import json; d=json.load(open('../$source_file')); print(' '.join(sorted(list(set(e.get('run', {}).get('icu_version') for e in d if e.get('run', {}).get('icu_version'))))))")
+all_test_types=$(jq '.[].run.test_type' ../$source_file | jq -s '.' | jq 'add' | jq 'unique' | jq -r 'join(" ")')
+all_icu_versions=$(jq '.[].run.icu_version' ../$source_file | jq -s '.' | jq 'unique' | jq -r 'join(" ")')
 python3 testdata_gen.py  --icu_versions $all_icu_versions --test_types $all_test_types
 # And copy results to subdirectories.
 cp -r icu* ../$TEMP_DIR/testData
@@ -110,9 +110,9 @@ popd
 # TODO(?): Figure out why datasets.py can't support running multiple CLI commands,
 # if that is the reason why Dart needs custom handling in this end-to-end script
 
-all_execs_json=$(python3 -c "import json; d=json.load(open('$source_file')); print(json.dumps(sorted(list(set(e.get('run', {}).get('exec') for e in d if e.get('run', {}).get('exec'))))))")
+all_execs_json=$(jq '.[].run.exec' $source_file | jq -s '.' | jq 'unique')
 
-if python3 -c "import json, sys; sys.exit(0 if 'dart_native' in json.loads(sys.stdin.read()) else 1)" <<< "$all_execs_json" > /dev/null
+if jq -e 'index("dart_native")' <<< $all_execs_json > /dev/null
 then
     pushd executors/dart/
     dart pub get
@@ -121,7 +121,7 @@ then
     popd
 fi
 
-if python3 -c "import json, sys; sys.exit(0 if 'dart_web' in json.loads(sys.stdin.read()) else 1)" <<< "$all_execs_json" > /dev/null
+if jq -e 'index("dart_web")' <<< $all_execs_json > /dev/null
 then
     pushd executors/dart/
     dart pub get
@@ -140,19 +140,19 @@ mkdir -p $TEMP_DIR/testOutput
 pushd testdriver
 
 # Invoke all tests
-python3 -c "import json; [print(json.dumps(x)) for x in json.load(open('../$source_file'))]" | while read i; do
-    if python3 -c "import json, sys; sys.exit(0 if 'prereq' in json.loads(sys.stdin.read()) else 1)" <<< "$i" > /dev/null
+jq -c '.[]' ../$source_file | while read i; do
+    if jq -e 'has("prereq")' <<< $i > /dev/null
     then
-        command=$(python3 -c "import json, sys; val = json.loads(sys.stdin.read()).get('prereq', {}).get('command'); print('null' if val is None else val)" <<< "$i")
+        command=$(jq -r -c '.prereq.command' <<< $i)
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         eval "$command"
     fi
-    icu_version=$(python3 -c "import json, sys; val = json.loads(sys.stdin.read()).get('run', {}).get('icu_version'); print('null' if val is None else val)" <<< "$i")
-    exec_command=$(python3 -c "import json, sys; val = json.loads(sys.stdin.read()).get('run', {}).get('exec'); print('null' if val is None else val)" <<< "$i")
-    test_type=$(python3 -c "import json, sys; val = json.loads(sys.stdin.read()).get('run', {}).get('test_type'); print('null' if val is None else ' '.join(val))" <<< "$i")
-    per_execution=$(python3 -c "import json, sys; val = json.loads(sys.stdin.read()).get('run', {}).get('per_execution'); print('null' if val is None else val)" <<< "$i")
-    ignore=$(python3 -c "import json, sys; val = json.loads(sys.stdin.read()).get('run', {}).get('ignore'); print('null' if val is None else val)" <<< "$i")
+    icu_version=$(jq -r -c '.run.icu_version' <<< $i)
+    exec_command=$(jq -r -c '.run.exec' <<< $i)
+    test_type=$(jq -r -c '.run.test_type | join(" ")'  <<< $i)
+    per_execution=$(jq -r -c '.run.per_execution' <<< $i)
+    ignore=$(jq -r -c '.run.ignore' <<< $i)
     python3 testdriver.py --icu_version $icu_version --exec $exec_command --test_type $test_type --file_base ../$TEMP_DIR --per_execution $per_execution --ignore $ignore
     echo $?
 done
@@ -173,7 +173,7 @@ popd
 mkdir -p $TEMP_DIR/testReports
 pushd verifier
 
-all_execs=$(python3 -c "import json, sys; print(' '.join(json.loads(sys.stdin.read())))" <<< "$all_execs_json")
+all_execs=$(jq -r 'join(" ")' <<< $all_execs_json)
 
 # Specifies the arrangement of the columns in the summary dashboard
 platform_order='ICU4C ICU4J ICU4X NodeJS Dart_Web Dart_Native'
