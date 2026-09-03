@@ -6,12 +6,12 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/dart.yaml"
-      - "executors/dart**"
+      - "executors/dart/**"
   push:
     branches: [main]
     paths:
       - ".github/workflows/dart.yaml"
-      - "executors/dart**"
+      - "executors/dart/**"
   schedule:
     - cron: "0 0 * * 0" # weekly
 
