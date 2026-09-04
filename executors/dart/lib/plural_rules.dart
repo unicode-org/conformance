@@ -80,8 +80,16 @@ String testPluralRules(String jsonEncoded) {
       : PluralRules(locale: locale);
 
   try {
-    final result = pluralRules.select(sample);
-    returnJson['result'] = result.name;
+    final result = pluralRules.select(
+      sample,
+      zero: 'zero',
+      one: 'one',
+      two: 'two',
+      few: 'few',
+      many: 'many',
+      other: 'other',
+    );
+    returnJson['result'] = result;
   } catch (error) {
     returnJson['error'] = 'PLURAL RULES UNKNOWN ERROR: ${error.toString()}';
   }

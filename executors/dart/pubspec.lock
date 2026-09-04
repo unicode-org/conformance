@@ -61,10 +61,10 @@ packages:
     dependency: transitive
     description:
       name: code_assets
-      sha256: bf394f466ba9205f1812a0433b392d6af280f155f56651eda7c18cc32ed493b8
+      sha256: cfd4f5f575a49c5f10ca856e9846073f1e6c3ee94912377eea5f6cefc5272941
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "2.0.0"
   collection:
     dependency: "direct main"
     description:
@@ -133,10 +133,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
-      sha256: "9a62a50b50b769a737bc0a8ff381f333529df3ab746b2f6b02e83760231455ba"
+      sha256: eaac480a35ec0814146c2c48d96aaa829e0e44a7662c88ae84c9edf4bc35651f
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.2.0"
   http:
     dependency: transitive
     description:
@@ -165,18 +165,19 @@ packages:
     dependency: "direct main"
     description:
       name: icu4x
-      sha256: "5cdaabc21a842fd9369b94e900d62b91b7c2d9f24ed1d56bb6d93a05306c4823"
+      sha256: "6890e55223422b5bbde95060202d7438dba88d3347ec3598f91d73ff45e64c15"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0-dev.3"
+    version: "2.3.1"
   intl4x:
     dependency: "direct main"
     description:
-      name: intl4x
-      sha256: d216bdeb84fd3f54af0afc26ac1367f707e605f1bcdd97473d0886ae3f11aa7f
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0-alpha.2"
+      path: "pkgs/intl4x"
+      ref: a3c72590b83f60c3631ece8064d7990840eed187
+      resolved-ref: a3c72590b83f60c3631ece8064d7990840eed187
+      url: "https://github.com/dart-lang/i18n.git"
+    source: git
+    version: "1.0.0-alpha.3-wip"
   io:
     dependency: transitive
     description:
@@ -221,10 +222,10 @@ packages:
     dependency: "direct dev"
     description:
       name: meta
-      sha256: c82594181e3312f3d0695fc95aaaf7758d75b8d4ae2bbecf223b9fd5109a059d
+      sha256: "307249ce4ff29d58a18e97f6345f539382eb9c9c29ecda628900f31de0443dd9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.18.3"
+    version: "1.19.0"
   mime:
     dependency: transitive
     description:
@@ -237,10 +238,10 @@ packages:
     dependency: transitive
     description:
       name: native_toolchain_c
-      sha256: f9c168717100ae6d9fee9ffb0be379bf1f8b26b0f6bcbd4fdddcd931993a6a72
+      sha256: "9d233b6f2d9c52e1a2b5fbe70451d2c10ac674d3bb419d0ec8de14989d437c26"
       url: "https://pub.dev"
     source: hosted
-    version: "0.19.2"
+    version: "0.19.4"
   node_preamble:
     dependency: "direct main"
     description:
@@ -265,6 +266,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  platform:
+    dependency: transitive
+    description:
+      name: platform
+      sha256: "5d6b1b0036a5f331ebc77c850ebc8506cbc1e9416c27e59b439f917a902a4984"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.6"
   pool:
     dependency: transitive
     description:
@@ -273,6 +282,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.2"
+  process:
+    dependency: transitive
+    description:
+      name: process
+      sha256: "4242ba3508d37e01808bdf71ad1d5bb93a8d671bf2e7450e6b1b353fb0808891"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.6"
   pub_semver:
     dependency: transitive
     description:
@@ -293,10 +310,10 @@ packages:
     dependency: transitive
     description:
       name: record_use
-      sha256: "2551bd8eecfe95d14ae75f6021ad0248be5c27f138c2ec12fcb52b500b3ba1ed"
+      sha256: "1cb8564af8d43b464294411db9217f5ec04891c6f22ee2c32d73ae05e88a6bd2"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0"
+    version: "1.1.1"
   shelf:
     dependency: transitive
     description:

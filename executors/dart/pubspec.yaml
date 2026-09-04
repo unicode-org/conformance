@@ -6,8 +6,12 @@ environment:
 
 dependencies:
   collection: ^1.19.1
-  icu4x: ^2.2.0-dev.3
-  intl4x: 1.0.0-alpha.2
+  icu4x: ^2.3.1
+  intl4x:
+    git:
+      url: https://github.com/dart-lang/i18n.git
+      path: pkgs/intl4x
+      ref: a3c72590b83f60c3631ece8064d7990840eed187
   node_preamble: ^2.0.2
   pubspec_lock_parse: ^2.2.0
 
