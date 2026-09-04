@@ -3,6 +3,13 @@
 # If there's a problem, exit with error status
 set -e
 
+# install git if not already installed
+if ! command -v git &> /dev/null
+then
+    sudo apt-get update
+    sudo apt-get install -y git
+fi
+
 # install libjson-c-dev if not already installed
 dpkg --list | grep libjson-c-dev || error_code=$?
 if [[ $error_code -ne 0 ]]
