@@ -170,6 +170,9 @@ class Verifier:
                     # Set the name of the verification file. These files are
                     # usually in the same directory as the test data files.
                     test_version = os.path.basename(result_version)
+                    if "@" in test_version:
+                        # Directories like "icu78@icu4x_2_1"
+                        test_version = test_version.split("@")[0]
                     verify_file_path = os.path.join(self.file_base,
                                                     self.options.input_path,
                                                     test_version,

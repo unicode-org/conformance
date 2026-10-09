@@ -150,6 +150,7 @@ def setCommonArgs(parser):
       help='Base directory for input, output, and report paths')
   parser.add_argument('--input_path', default='testData')
   parser.add_argument('--output_path', default='testOutput')
+  parser.add_argument('--output_name', default=None, nargs='?', const=None)
   parser.add_argument('--report_path', default='testReports')
 
   parser.add_argument('--exec_mode', default='one_test')

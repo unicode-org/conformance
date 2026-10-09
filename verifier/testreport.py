@@ -124,6 +124,7 @@ class TestReport:
         # Same component in other platforms, same ICU version
         # Same component, same platform, other versions
         # Get top level with testOutput, platforms, and test type
+        # TODO(#553): this doesn't capture test results with a custom `output_name`.
         dir_name = os.path.dirname(report_path)
         icu_version = os.path.basename(os.path.dirname(dir_name))
         platform_path = os.path.dirname(os.path.dirname(dir_name))

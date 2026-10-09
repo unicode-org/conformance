@@ -118,7 +118,7 @@ class TestPlan:
         output_dir = self.test_lang
         self.outputFilePath = os.path.join(self.options.file_base,
                                            self.options.output_path,
-                                           self.options.icu_version,
+                                           self.options.output_name or self.options.icu_version,
                                            # self.platformVersion,
                                            output_dir,
                                            self.testData.testDataFilename)
@@ -182,7 +182,7 @@ class TestPlan:
                 self.outputFilePath = os.path.join(self.options.file_base,
                                                    self.options.output_path,
                                                    self.test_lang,
-                                                   self.options.icu_version,
+                                                   self.options.output_name or self.options.icu_version,
                                                    # self.platformVersion,
                                                    self.testData.testDataFilename)
             except (KeyError, IndexError) as error:
