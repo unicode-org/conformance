@@ -49,7 +49,7 @@ class DateTimeFmtGenerator(DataGenerator):
             input_index = -1
             input_increment = 1
             if self.run_limit > 0:
-                input_increment = math.floor(len(json_data) / self.run_limit)
+                input_increment = max(1, math.floor(len(json_data) / self.run_limit))
 
             for test_item in json_data:
                 input_index += 1
