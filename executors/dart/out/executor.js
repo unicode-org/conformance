@@ -28,6 +28,8 @@ let datetime_fmt = require('./datetimeformat.js');
 
 let list_fmt = require('./list_format.js');
 
+let likely_subtags = require('./likely_subtags.js');
+
 const { dartVersion } = require('./version.js')
 
 /**
@@ -136,7 +138,7 @@ rl.on('line', function (line) {
           outputLine = collator.testCollation(parsedJson);
         } else if (test_type == "decimal_fmt" || test_type == "number_fmt") {
           outputLine = numberformatter.testDecimalFormat(parsedJson, doLogInput > 0, process.version);
-        } else if (test_type == "language_display_name" || test_type == "lang_names") {
+        } else if (test_type == "language_display_name" || test_type == "lang_names" || test_type == "display_names") {
           outputLine = lang_names.testLangNames(parsedJson);
         } else if (test_type == "plural_rules") {
           outputLine = plural_rules.testPluralRules(parsedJson);
@@ -144,6 +146,8 @@ rl.on('line', function (line) {
           outputLine = datetime_fmt.testDateTimeFmt(parsedJson, doLogInput > 0, process.version);
         } else if (test_type == "list_fmt") {
           outputLine = list_fmt.testListFmt(parsedJson);
+        } else if (test_type == "likely_subtags") {
+          outputLine = likely_subtags.testLikelySubtags(parsedJson);
         }  else {
           outputLine = {
             'error': 'unknown test type', 'testId': testId,

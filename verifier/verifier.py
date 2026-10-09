@@ -230,7 +230,7 @@ class Verifier:
     # Verify plans in parallel
     def parallel_verify_data_results(self):
         if not self.options.run_serial:
-            num_processors = mp.cpu_count()
+            num_processors = min(2, mp.cpu_count())
             verify_plans = self.verify_plans
             logger.info('JSON validation: %s processors for %s plans',
                              num_processors, len(verify_plans))

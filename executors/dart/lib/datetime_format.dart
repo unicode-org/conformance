@@ -119,15 +119,26 @@ String testDateTimeFmt(String jsonEncoded) {
             locale,
             timePrecision,
           );
+    final offset = offsetSeconds != null
+        ? Duration(seconds: offsetSeconds)
+        : Duration.zero;
+    final dateToFormat = testDate!.add(offset);
+
+    final isZoned =
+        formatter is DateTimeFormatter &&
+        timeZoneName != null &&
+        ((semanticSkeleton ?? '').contains('Z') ||
+            timeStyle == 'full' ||
+            testOptionsJson.containsKey('zoneStyle') ||
+            (skeleton != null && RegExp(r'[zvOV]').hasMatch(skeleton)));
+
     String formattedDt;
-    if (formatter is DateTimeFormatter &&
-        (semanticSkeleton ?? '').contains('Z')) {
-      final offset = Duration(seconds: offsetSeconds!);
+    if (isZoned) {
       final zoneStyle = testOptionsJson['zoneStyle'] as String?;
       final zonedFormatter = getZonedFormatter(zoneStyle, formatter, skeleton);
-      formattedDt = zonedFormatter.format(testDate!.add(offset), timeZoneName!);
+      formattedDt = zonedFormatter.format(dateToFormat, timeZoneName);
     } else {
-      formattedDt = formatter.format(testDate!);
+      formattedDt = formatter.format(dateToFormat);
     }
     returnJson['result'] = formattedDt;
   } on Exception catch (e) {
@@ -137,8 +148,8 @@ String testDateTimeFmt(String jsonEncoded) {
   }
   returnJson['actual_options'] = {
     'locale': locale.toString(),
-    if (dateStyle != null) 'dateStyle': dateStyle,
-    if (timeStyle != null) 'timeStyle': timeStyle,
+    'dateStyle': ?dateStyle,
+    'timeStyle': ?timeStyle,
     if (yearStyle != null) 'yearStyle': yearStyle.name,
     if (calendar != null) 'calendar': calendar.jsName,
   };
@@ -234,11 +245,11 @@ ZonedDateTimeFormatter getZonedFormatter(
   return switch (timeZoneStyle) {
     'short' => formatter.withTimeZoneShort(),
     'specific' => formatter.withTimeZoneShort(),
-    'full' => formatter.withTimeZoneLongGeneric(),
+    'full' => formatter.withTimeZoneLong(),
     'generic' => formatter.withTimeZoneLongGeneric(),
     'location' => formatter.withTimeZoneShort(),
-    'offset' => formatter.withTimeZoneLongGeneric(),
-    null => formatter.withTimeZoneLongGeneric(),
+    'offset' => formatter.withTimeZoneLongOffset(),
+    null => formatter.withTimeZoneLong(),
     String() => throw Exception('Unknown time zone style `$timeZoneStyle`'),
   };
 }
@@ -250,7 +261,6 @@ DateTimeFormatter getFormatterForStyle(
   Locale locale,
   TimePrecision? timePrecision,
 ) {
-  print((dateStyle, timeStyle, yearStyle));
   return switch ((dateStyle, timeStyle, yearStyle)) {
     ('medium', null, null) => DateTimeFormat.yearMonthDay(
       locale: locale,

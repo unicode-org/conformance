@@ -279,7 +279,29 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
+      ],
+      "per_execution": 10000
+    }
+  },
+  {
+    "prereq": {
+      "name": "nvm 26.3.0, icu78.3",
+      "version": "26.3.0",
+      "command": "nvm install 26.3.0;nvm use 26.3.0 --silent"
+    },
+    "run": {
+      "icu_version": "icu78",
+      "exec": "dart_web",
+      "test_type": [
+        "collation",
+        "datetime_fmt",
+        "number_fmt",
+        "lang_names",
+        "plural_rules",
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -299,7 +321,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -319,7 +342,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -339,7 +363,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -359,7 +384,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }
@@ -379,7 +405,8 @@
         "number_fmt",
         "lang_names",
         "plural_rules",
-        "list_fmt"
+        "list_fmt",
+        "likely_subtags"
       ],
       "per_execution": 10000
     }

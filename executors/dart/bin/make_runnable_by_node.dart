@@ -22,6 +22,10 @@ Future<void> main(List<String> args) async {
       name: 'testPluralRules',
       argNames: ['encoded'],
     ),
+    'likely_subtags': ExportFunction(
+      name: 'testLikelySubtags',
+      argNames: ['encoded'],
+    ),
     'list_format': ExportFunction(name: 'testListFmt', argNames: ['encoded']),
     'datetimeformat': ExportFunction(
       name: 'testDateTimeFmt',
